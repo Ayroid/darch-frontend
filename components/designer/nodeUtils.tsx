@@ -61,40 +61,60 @@ export function AWSServiceNode({ id, data }: AWSServiceNodeProps) {
   const isBottomConnected = isHandleConnected(id, "bottom", edges);
   const isLeftConnected = isHandleConnected(id, "left", edges);
 
+  // Fixed dimensions for service nodes
+  const nodeWidth = 80;
+  const nodeHeight = 60;
+
+  // Calculate handle positions for service nodes
+  const handleStyle = {
+    top: { top: -3, left: nodeWidth / 2 - 3 },
+    right: { top: nodeHeight / 2 - 3, right: -3 },
+    bottom: { bottom: -3, left: nodeWidth / 2 - 3 },
+    left: { top: nodeHeight / 2 - 3, left: -3 }
+  };
+
   return (
-    <div className="relative flex flex-col items-center gap-2 p-2  min-w-[80px]">
-      {/* Handles for connections */}
+    <div
+      className="relative flex flex-col items-center gap-2 p-2"
+      style={{
+        minWidth: nodeWidth,
+        minHeight: nodeHeight,
+        width: nodeWidth,
+        height: nodeHeight
+      }}
+    >
+      {/* Handles for connections with explicit positioning */}
       <Handle
         type="target"
         position={Position.Top}
         id="top"
-        style={{ top: -8 }}
         className={`handle-top ${isTopConnected ? "connected" : ""}`}
+        style={handleStyle.top}
       />
       <Handle
         type="source"
         position={Position.Right}
         id="right"
-        style={{ right: -8 }}
         className={`handle-right ${isRightConnected ? "connected" : ""}`}
+        style={handleStyle.right}
       />
       <Handle
         type="source"
         position={Position.Bottom}
         id="bottom"
-        style={{ bottom: -8 }}
         className={`handle-bottom ${isBottomConnected ? "connected" : ""}`}
+        style={handleStyle.bottom}
       />
       <Handle
         type="target"
         position={Position.Left}
         id="left"
-        style={{ left: -8 }}
         className={`handle-left ${isLeftConnected ? "connected" : ""}`}
+        style={handleStyle.left}
       />
 
       {/* Node content */}
-      <div className="flex flex-col items-center gap-1">
+      <div className="flex flex-col items-center gap-1" style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
         <Image
           src={icon}
           alt={name}
@@ -118,12 +138,27 @@ export function AWSContainerNode({
 }: AWSContainerNodeProps) {
   const { icon, name } = data;
   const edges = useStore((state) => state.edges);
-  const [nodeSize, setNodeSize] = React.useState({ width: 250, height: 200 });
+  const nodes = useStore((state) => state.nodes);
+
+  // Get current node to access its style
+  const currentNode = nodes.find(node => node.id === id);
+  const nodeSize = {
+    width: currentNode?.style?.width as number || 250,
+    height: currentNode?.style?.height as number || 200
+  };
 
   const isTopConnected = isHandleConnected(id, "top", edges);
   const isRightConnected = isHandleConnected(id, "right", edges);
   const isBottomConnected = isHandleConnected(id, "bottom", edges);
   const isLeftConnected = isHandleConnected(id, "left", edges);
+
+  // Calculate handle positions based on current node size
+  const handleStyle = {
+    top: { top: -3, left: nodeSize.width / 2 - 3 },
+    right: { top: nodeSize.height / 2 - 3, right: -3 },
+    bottom: { bottom: -3, left: nodeSize.width / 2 - 3 },
+    left: { top: nodeSize.height / 2 - 3, left: -1 }
+  };
 
   // Helper function to handle resize mouse down for corner handles
   function handleResizeMouseDown(
@@ -164,7 +199,6 @@ export function AWSContainerNode({
           break;
       }
 
-      setNodeSize({ width: newWidth, height: newHeight });
       onNodeSizeChange?.(id, newWidth, newHeight);
     };
 
@@ -184,44 +218,44 @@ export function AWSContainerNode({
     <div
       className="relative"
       style={{
-        width: `${nodeSize.width}px`,
-        height: `${nodeSize.height}px`,
-        minWidth: "250px",
-        minHeight: "200px",
+        width: nodeSize.width,
+        height: nodeSize.height,
+        minWidth: 250,
+        minHeight: 200
       }}
     >
-      {/* Handles for connections */}
+      {/* Handles for connections with dynamic positioning */}
       <Handle
         type="target"
         position={Position.Top}
         id="top"
-        style={{ top: -13 }}
         className={`handle-top ${isTopConnected ? "connected" : ""}`}
+        style={handleStyle.top}
       />
       <Handle
         type="source"
         position={Position.Right}
         id="right"
-        style={{ right: 14 }}
         className={`handle-right ${isRightConnected ? "connected" : ""}`}
+        style={handleStyle.right}
       />
       <Handle
         type="source"
         position={Position.Bottom}
         id="bottom"
-        style={{ bottom: 14 }}
         className={`handle-bottom ${isBottomConnected ? "connected" : ""}`}
+        style={handleStyle.bottom}
       />
       <Handle
         type="target"
         position={Position.Left}
         id="left"
-        style={{ left: -13 }}
         className={`handle-left ${isLeftConnected ? "connected" : ""}`}
+        style={handleStyle.left}
       />
 
       {/* Container header - icon and name */}
-      <div className="container-header">
+      <div className="container-header" style={{ position: 'absolute', top: 8, left: 8 }}>
         <Image
           src={icon}
           alt={name}
@@ -235,9 +269,23 @@ export function AWSContainerNode({
       {/* Corner resize handles */}
       <div
         className="resize-handle bottom-right nodrag"
+        style={{
+          position: 'absolute',
+          bottom: -8,
+          right: -8,
+          width: 16,
+          height: 16,
+          cursor: 'se-resize',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          opacity: 0,
+          transition: 'opacity 0.2s ease',
+          zIndex: 10
+        }}
         onMouseDown={(e) => handleResizeMouseDown(e, "bottom-right")}
       >
-        <ChevronDownIcon className="w-4 h-4 text-gray-800" />
+        <ChevronDownIcon className="w-4 h-4 text-gray-800" style={{ transform: 'rotate(315deg)' }} />
       </div>
     </div>
   );
@@ -266,6 +314,11 @@ export const createNodeHandlers = (
                 ...node.style,
                 width,
                 height,
+              },
+              // Force re-render by updating a timestamp
+              data: {
+                ...node.data,
+                lastResized: Date.now(),
               },
             }
           : node

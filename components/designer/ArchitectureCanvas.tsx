@@ -31,30 +31,28 @@ const nodeStyles = `
 		background: transparent !important;
 		border: none !important;
 		box-shadow: none !important;
-		padding: 8px !important;
 	}
 	.react-flow__node-awsService:hover {
 		box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.3) !important;
-		border-radius: 8px !important;
-	cursor: pointer !important;
+		border-radius: 4px !important;
+	  cursor: pointer !important;
 	}
 	.react-flow__node-awsService.selected {
 		box-shadow: 0 0 0 1px #000000 !important;
-		border-radius: 8px !important;
+		border-radius:  4px !important;
 	}
 	.react-flow__node-awsContainer {
 		background: transparent !important;
 		border: 2px solid #8b5cf6 !important;
 		border-radius: 8px !important;
 		box-shadow: none !important;
-		padding: 12px !important;
 		min-width: 250px !important;
 		min-height: 200px !important;
 	}
 	.react-flow__node-awsContainer:hover {
 		border-color: #7c3aed !important;
 		box-shadow: 0 0 0 1px rgba(124, 58, 237, 0.3) !important;
-	cursor: move !important;
+	  cursor: move !important;
 	}
 	.react-flow__node-awsContainer.selected {
 		border-color: #6d28d9 !important;
@@ -64,7 +62,6 @@ const nodeStyles = `
 		display: flex !important;
 		align-items: center !important;
 		gap: 8px !important;
-		padding: 0 !important;
 		margin-bottom: 12px !important;
 		background: transparent !important;
 		color: #374151 !important;
@@ -84,29 +81,22 @@ const nodeStyles = `
 	.react-flow__node-awsContainer:hover .resize-handle {
 		opacity: 1 !important;
 	}
-	/* Corner handles */
-	.react-flow__node-awsContainer .resize-handle.bottom-right {
-		bottom: -8px !important;
-		right: -8px !important;
-		cursor: se-resize !important;
-	}
-	.react-flow__node-awsContainer .resize-handle.bottom-right svg {
-		transform: rotate(315deg) !important;
-	}
 	.react-flow__handle {
 		width: 6px !important;
 		height: 6px !important;
 		background: #ffffff !important;
 		border: 1px solid #000000 !important;
 		opacity: 0 !important;
+		position: absolute !important;
 		transition: opacity 0.2s ease, transform 0.2s ease !important;
+		transform: translate(-50%, -50%) !important;
 	}
 	.react-flow__node-awsService:hover .react-flow__handle,
 	.react-flow__node-awsService.selected .react-flow__handle,
 	.react-flow__node-awsContainer:hover .react-flow__handle,
 	.react-flow__node-awsContainer.selected .react-flow__handle {
 		opacity: 1 !important;
-	cursor: pointer !important;
+	  cursor: pointer !important;
 	}
 	.react-flow__handle:hover {
 		width: 8px !important;
