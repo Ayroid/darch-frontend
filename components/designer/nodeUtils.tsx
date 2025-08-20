@@ -383,7 +383,7 @@ export const createNodeHandlers = (
 
   // Handle moving selected nodes
   const handleMoveSelectedNodes = (
-    direction: "up" | "down" | "left" | "right", 
+    direction: "up" | "down" | "left" | "right",
     distance: number
   ) => {
     const selectedNodes = nodes.filter((node) => node.selected);
@@ -434,11 +434,11 @@ export const createNodeTypes = (handleNodeSizeChange: (nodeId: string, width: nu
   return {
     awsService: AWSServiceNode,
     awsContainer: (props: NodeProps) => (
-      <AWSContainerNode 
+      <AWSContainerNode
         id={props.id}
         data={props.data as unknown as AWSContainerNodeData}
         selected={props.selected}
-        onNodeSizeChange={handleNodeSizeChange} 
+        onNodeSizeChange={handleNodeSizeChange}
       />
     ),
   };

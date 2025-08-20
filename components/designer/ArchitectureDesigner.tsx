@@ -4,6 +4,7 @@ import React, { useState, useCallback } from "react";
 import { ReactFlowProvider, Node } from "@xyflow/react";
 import ArchitectureCanvas from "./ArchitectureCanvas";
 import ServicesSidebar from "./ServicesSidebar";
+import ConfigurationSidebar from "./ConfigurationSidebar";
 import TopBar from "./TopBar";
 import KeyboardShortcutsHelp from "./KeyboardShortcutsHelp";
 import { useApplicationShortcuts } from "@/lib/keyboard-shortcuts";
@@ -29,6 +30,7 @@ export default function ArchitectureDesigner() {
 	const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 	const [activeTab, setActiveTab] = useState<TabType>("design");
 	const [isHelpOpen, setIsHelpOpen] = useState(false);
+	const [selectedNode, setSelectedNode] = useState<Node | null>(null);
 	const [currentProject] = useState<Project>({
 		id: "1",
 		name: "Project 1",
@@ -116,6 +118,25 @@ export default function ArchitectureDesigner() {
 		setIsHelpOpen(false);
 	}, []);
 
+	const handleNodeSelect = useCallback((node: Node | null) => {
+		setSelectedNode(node);
+		console.log("Node selected:", node?.id);
+	}, []);
+
+	const handleConfigurationClose = useCallback(() => {
+		setSelectedNode(null);
+	}, []);
+
+	const handleNodeUpdate = useCallback((nodeId: string, data: Record<string, unknown>) => {
+		setCurrentArchitecture((prev) => ({
+			...prev,
+			nodes: prev.nodes.map((node) =>
+				node.id === nodeId ? { ...node, data } : node
+			),
+		}));
+		console.log("Node updated:", nodeId, data);
+	}, []);
+
 	// Use application shortcuts
 	useApplicationShortcuts({
 		onNewArchitecture: handleNewArchitecture,
@@ -148,17 +169,25 @@ export default function ArchitectureDesigner() {
 					/>
 
 					<div className="flex-1 relative">
-						<ArchitectureCanvas 
-							onNodeAdd={handleNodeAdd} 
+						<ArchitectureCanvas
+							onNodeAdd={handleNodeAdd}
 							onShowHelp={handleShowHelp}
+							onNodeSelect={handleNodeSelect}
 						/>
 					</div>
+
+					{/* Configuration Sidebar */}
+					<ConfigurationSidebar
+						selectedNode={selectedNode}
+						onClose={handleConfigurationClose}
+						onNodeUpdate={handleNodeUpdate}
+					/>
 				</div>
 
 				{/* Keyboard Shortcuts Help Modal */}
-				<KeyboardShortcutsHelp 
-					isOpen={isHelpOpen} 
-					onClose={handleCloseHelp} 
+				<KeyboardShortcutsHelp
+					isOpen={isHelpOpen}
+					onClose={handleCloseHelp}
 				/>
 			</ReactFlowProvider>
 		</div>

@@ -122,6 +122,7 @@ const nodeStyles = `
 interface ArchitectureCanvasProps {
   onNodeAdd?: (node: Node) => void;
   onShowHelp?: () => void;
+  onNodeSelect?: (node: Node | null) => void;
 }
 
 const initialNodes: Node[] = [];
@@ -138,6 +139,7 @@ const defaultEdgeOptions = {
 export default function ArchitectureCanvas({
   onNodeAdd,
   onShowHelp,
+  onNodeSelect,
 }: ArchitectureCanvasProps) {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
@@ -263,6 +265,15 @@ export default function ArchitectureCanvas({
 
   const proOptions = { hideAttribution: true };
 
+  // Handle selection changes
+  const onSelectionChange = useCallback(
+    ({ nodes: selectedNodes }: { nodes: Node[] }) => {
+      const selectedNode = selectedNodes.length > 0 ? selectedNodes[0] : null;
+      onNodeSelect?.(selectedNode);
+    },
+    [onNodeSelect]
+  );
+
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: nodeStyles }} />
@@ -284,6 +295,7 @@ export default function ArchitectureCanvas({
           onInit={setReactFlowInstance}
           onDrop={onDrop}
           onDragOver={onDragOver}
+          onSelectionChange={onSelectionChange}
           nodeTypes={nodeTypes}
           defaultEdgeOptions={defaultEdgeOptions}
           deleteKeyCode={["Delete", "Backspace"]}
