@@ -256,7 +256,7 @@ export function AWSContainerNode({
 			{/* Container header - icon and name */}
 			<div
 				className="container-header"
-				style={{ position: "absolute", top: 8, left: 8 }}
+				style={{ position: "absolute", top: 4, left: 4 }}
 			>
 				<Image
 					src={icon}
