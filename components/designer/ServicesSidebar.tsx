@@ -11,7 +11,8 @@ import {
 	ShieldCheckIcon,
 	CubeIcon,
 	CogIcon,
-	ChartBarIcon
+	ChartBarIcon,
+	BuildingOffice2Icon,
 } from "@heroicons/react/24/outline";
 
 interface AWSService {
@@ -24,6 +25,22 @@ interface AWSService {
 
 // Define AWS services with their icons
 const awsServices: AWSService[] = [
+	// Infrastructure Components
+	{
+		id: "aws-region",
+		name: "AWS Region",
+		icon: "/aws_icons/Architecture-Group-Icons_07312025/Region_32.svg",
+		category: "Infrastructure",
+		isContainer: true,
+	},
+	{
+		id: "availability-zone",
+		name: "Availability Zone",
+		icon: "/aws_icons/Architecture-Group-Icons_07312025/AWS-Cloud_32.svg",
+		category: "Infrastructure",
+		isContainer: true,
+	},
+
 	// Compute Services
 	{
 		id: "ec2",
@@ -396,10 +413,11 @@ export default function ServicesSidebar({
 	onToggle,
 }: ServicesSidebarProps) {
 	const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
-		new Set(["Compute", "Network", "Storage", "Database"])
+		new Set(["Infrastructure", "Compute", "Network", "Storage", "Database"])
 	);
 
 	const categories = [
+		"Infrastructure",
 		"Compute",
 		"Network",
 		"Storage",
@@ -418,6 +436,8 @@ export default function ServicesSidebar({
 		const iconProps = { className: "w-6 h-6 text-gray-600" };
 
 		switch (category) {
+			case "Infrastructure":
+				return <BuildingOffice2Icon {...iconProps} />;
 			case "Compute":
 				return <CpuChipIcon {...iconProps} />;
 			case "Network":
@@ -458,9 +478,13 @@ export default function ServicesSidebar({
 		event.dataTransfer.setData("application/reactflow", service.id);
 		event.dataTransfer.setData("application/name", service.name);
 		event.dataTransfer.setData("application/icon", service.icon);
-		event.dataTransfer.setData("application/isContainer", service.isContainer ? "true" : "false");
+		event.dataTransfer.setData(
+			"application/isContainer",
+			service.isContainer ? "true" : "false"
+		);
 		event.dataTransfer.effectAllowed = "move";
-	};	return (
+	};
+	return (
 		<div className="relative">
 			{/* Sidebar */}
 			<div
@@ -499,7 +523,9 @@ export default function ServicesSidebar({
 											<div className="w-8 h-6 rounded flex items-center justify-center">
 												{getCategoryIcon(category)}
 											</div>
-											<span className="font-medium text-gray-900">{category}</span>
+											<span className="font-medium text-gray-900">
+												{category}
+											</span>
 										</div>
 										<ChevronDownIcon
 											className={`h-4 w-4 text-gray-500 transition-transform ${
@@ -511,33 +537,65 @@ export default function ServicesSidebar({
 									{/* Category Services */}
 									{isExpanded && (
 										<div className="px-4 pb-4">
-											<div className="grid grid-cols-3 gap-2">
-												{services.map((service) => (
-													<div
-														key={service.id}
-														draggable
-														onDragStart={(event) => onDragStart(event, service)}
-														className={`flex flex-col items-center p-2 border rounded-lg cursor-move transition-colors group bg-white border-gray-200 ${
-															service.isContainer
-																? "hover:border-blue-500 hover:bg-blue-50"
-																: "hover:border-blue-400 hover:bg-blue-50"
-														}`}
-													>
-														<div className="relative w-8 h-8 mb-1">
-															<Image
-																src={service.icon}
-																alt={service.name}
-																fill
-																className="object-contain"
-																sizes="32px"
-															/>
+											{category === "Infrastructure" ? (
+												// Full-width layout for Infrastructure components
+												<div className="space-y-2">
+													{services.map((service) => (
+														<div
+															key={service.id}
+															draggable
+															onDragStart={(event) => onDragStart(event, service)}
+															className={`flex items-center p-3 border rounded-lg cursor-move transition-colors group bg-white border-gray-200 ${
+																service.isContainer
+																	? "hover:border-purple-500 hover:bg-purple-50"
+																	: "hover:border-blue-400 hover:bg-blue-50"
+															}`}
+														>
+															<div className="relative w-8 h-8 mr-3 flex-shrink-0">
+																<Image
+																	src={service.icon}
+																	alt={service.name}
+																	fill
+																	className="object-contain"
+																	sizes="32px"
+																/>
+															</div>
+															<span className="text-sm text-gray-700 group-hover:text-purple-700 font-medium">
+																{service.name}
+															</span>
 														</div>
-														<span className="text-xs text-center text-gray-700 group-hover:text-blue-700 font-medium leading-tight">
-															{service.name}
-														</span>
-													</div>
-												))}
-											</div>
+													))}
+												</div>
+											) : (
+												// Grid layout for other categories
+												<div className="grid grid-cols-3 gap-2">
+													{services.map((service) => (
+														<div
+															key={service.id}
+															draggable
+															onDragStart={(event) => onDragStart(event, service)}
+															className={`flex flex-col items-center p-2 border rounded-lg cursor-move transition-colors group bg-white border-gray-200 ${
+																service.isContainer
+																	? "hover:border-blue-500 hover:bg-blue-50"
+																	: "hover:border-blue-400 hover:bg-blue-50"
+															}`}
+														>
+															<div className="relative w-8 h-8 mb-1">
+																<Image
+																	src={service.icon}
+																	alt={service.name}
+																	fill
+																	className="object-contain"
+																	sizes="32px"
+																/>
+															</div>
+															<span className="text-xs text-center text-gray-700 group-hover:text-blue-700 font-medium leading-tight">
+																{service.name}
+															</span>
+														</div>
+													))}
+												</div>
+											)}
 										</div>
 									)}
 								</div>
