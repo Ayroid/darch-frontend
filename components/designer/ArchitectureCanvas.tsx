@@ -27,6 +27,9 @@ import {
 
 // Custom styles for transparent nodes
 const nodeStyles = `
+	.react-flow__pane {
+		cursor: default !important;
+	}
 	.react-flow__node-awsService {
 		background: transparent !important;
 		border: none !important;
@@ -196,6 +199,22 @@ export default function ArchitectureCanvas({
     reactFlowInstance,
   });
 
+  // Handle custom wheel behavior
+  const onWheel = useCallback(
+    (event: React.WheelEvent) => {
+      if (!reactFlowInstance) return;
+
+      // If Ctrl key is pressed, handle zoom
+      if (event.ctrlKey || event.metaKey) {
+        event.preventDefault();
+        const zoomFactor = event.deltaY > 0 ? 0.9 : 1.1;
+        reactFlowInstance.zoomTo(reactFlowInstance.getZoom() * zoomFactor);
+      }
+      // Otherwise, let default pan behavior handle it (since panOnScroll=true)
+    },
+    [reactFlowInstance]
+  );
+
   const onConnect: OnConnect = useCallback(
     (params: Connection) =>
       setEdges((eds) =>
@@ -286,12 +305,15 @@ export default function ArchitectureCanvas({
           onDrop={onDrop}
           onDragOver={onDragOver}
           onSelectionChange={onSelectionChange}
+          onWheel={onWheel}
           nodeTypes={nodeTypes}
           defaultEdgeOptions={defaultEdgeOptions}
           deleteKeyCode={["Delete", "Backspace"]}
           fitView
           className="bg-gray-50"
           proOptions={proOptions}
+          panOnScroll={true}
+          zoomOnScroll={false}
         >
           <Controls />
           <Background gap={12} size={1} />

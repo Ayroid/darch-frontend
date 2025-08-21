@@ -273,8 +273,8 @@ export function AWSContainerNode({
 				className="resize-handle bottom-right nodrag"
 				style={{
 					position: "absolute",
-					bottom: -8,
-					right: -8,
+					bottom: -16,
+					right: -16,
 					width: 16,
 					height: 16,
 					cursor: "se-resize",
