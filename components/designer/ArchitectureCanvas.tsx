@@ -36,30 +36,21 @@ const nodeStyles = `
 		box-shadow: none !important;
 	}
 	.react-flow__node-awsService:hover {
-		box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.3) !important;
-		border-radius: 4px !important;
+  	box-shadow: 0 0 0 1px #302f2fff !important;
 	  cursor: pointer !important;
 	}
 	.react-flow__node-awsService.selected {
-		box-shadow: 0 0 0 1px #000000 !important;
-		border-radius:  4px !important;
+		box-shadow: 0 0 0 1px #302f2fff !important;
 	}
 	.react-flow__node-awsContainer {
 		background: transparent !important;
-		border: 2px solid #8b5cf6 !important;
-		border-radius: 8px !important;
+		border-radius: 0px !important;
 		box-shadow: none !important;
 		min-width: 250px !important;
 		min-height: 200px !important;
 	}
 	.react-flow__node-awsContainer:hover {
-		border-color: #7c3aed !important;
-		box-shadow: 0 0 0 1px rgba(124, 58, 237, 0.3) !important;
 	  cursor: move !important;
-	}
-	.react-flow__node-awsContainer.selected {
-		border-color: #6d28d9 !important;
-		box-shadow: 0 0 0 1px rgba(109, 40, 217, 0.5) !important;
 	}
 	.react-flow__node-awsContainer .container-header {
 		display: flex !important;
@@ -255,6 +246,7 @@ export default function ArchitectureCanvas({
           data: {
             icon,
             name,
+            serviceId: type, // Add service ID for styling
             ...(isContainer && { isContainer: true }),
           },
           ...(isContainer && {

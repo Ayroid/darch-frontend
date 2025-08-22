@@ -11,7 +11,8 @@ import {
 	ShieldCheckIcon,
 	CubeIcon,
 	CogIcon,
-	ChartBarIcon
+	ChartBarIcon,
+	BuildingOfficeIcon
 } from "@heroicons/react/24/outline";
 
 interface AWSService {
@@ -120,6 +121,20 @@ const awsServices: AWSService[] = [
 		name: "Transit Gateway",
 		icon: "/aws_icons/Architecture-Service-Icons_07312025/Arch_Networking-Content-Delivery/32/Arch_AWS-Transit-Gateway_32.svg",
 		category: "Network",
+	},
+	{
+		id: "private-subnet",
+		name: "Private Subnet",
+		icon: "/aws_icons/Architecture-Group-Icons_07312025/Private-subnet_32.svg",
+		category: "Network",
+		isContainer: true,
+	},
+	{
+		id: "public-subnet",
+		name: "Public Subnet",
+		icon: "/aws_icons/Architecture-Group-Icons_07312025/Public-subnet_32.svg",
+		category: "Network",
+		isContainer: true,
 	},
 
 	// Database Services
@@ -384,6 +399,49 @@ const awsServices: AWSService[] = [
 		icon: "/aws_icons/Architecture-Service-Icons_07312025/Arch_Analytics/32/Arch_Amazon-OpenSearch-Service_32.svg",
 		category: "Analytics",
 	},
+
+	// Infrastructure Services
+	{
+		id: "availability-zone",
+		name: "Availability Zone",
+		icon: "/aws_icons/Architecture-Group-Icons_07312025/Region_32.svg",
+		category: "Infrastructure",
+		isContainer: true,
+	},
+	{
+		id: "region",
+		name: "Region",
+		icon: "/aws_icons/Architecture-Group-Icons_07312025/AWS-Cloud_32.svg",
+		category: "Infrastructure",
+		isContainer: true,
+	},
+	{
+		id: "aws-account",
+		name: "AWS Account",
+		icon: "/aws_icons/Architecture-Group-Icons_07312025/AWS-Account_32.svg",
+		category: "Infrastructure",
+		isContainer: true,
+	},
+	{
+		id: "corporate-datacenter",
+		name: "Corporate Data Center",
+		icon: "/aws_icons/Architecture-Group-Icons_07312025/Corporate-data-center_32.svg",
+		category: "Infrastructure",
+		isContainer: true,
+	},
+	{
+		id: "edge-location",
+		name: "Edge Location",
+		icon: "/aws_icons/Architecture-Service-Icons_07312025/Arch_Networking-Content-Delivery/32/Arch_Amazon-CloudFront_32.svg",
+		category: "Infrastructure",
+	},
+	{
+		id: "local-zone",
+		name: "Local Zone",
+		icon: "/aws_icons/Architecture-Group-Icons_07312025/Region_32.svg",
+		category: "Infrastructure",
+		isContainer: true,
+	},
 ];
 
 interface ServicesSidebarProps {
@@ -396,10 +454,11 @@ export default function ServicesSidebar({
 	onToggle,
 }: ServicesSidebarProps) {
 	const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
-		new Set(["Compute", "Network", "Storage", "Database"])
+		new Set(["Infrastructure", "Compute", "Network", "Storage", "Database"])
 	);
 
 	const categories = [
+		"Infrastructure",
 		"Compute",
 		"Network",
 		"Storage",
@@ -418,6 +477,8 @@ export default function ServicesSidebar({
 		const iconProps = { className: "w-6 h-6 text-gray-600" };
 
 		switch (category) {
+			case "Infrastructure":
+				return <BuildingOfficeIcon {...iconProps} />;
 			case "Compute":
 				return <CpuChipIcon {...iconProps} />;
 			case "Network":

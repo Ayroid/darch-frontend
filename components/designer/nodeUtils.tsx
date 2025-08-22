@@ -17,12 +17,14 @@ import {
 export interface AWSServiceNodeData {
 	icon: string;
 	name: string;
+	serviceId?: string; // Add serviceId for consistency
 }
 
 export interface AWSContainerNodeData {
 	icon: string;
 	name: string;
 	isContainer: boolean;
+	serviceId?: string; // Add serviceId for styling
 }
 
 export interface AWSServiceNodeProps {
@@ -135,7 +137,7 @@ export function AWSContainerNode({
 	data,
 	onNodeSizeChange,
 }: AWSContainerNodeProps) {
-	const { icon, name } = data;
+	const { icon, name, serviceId } = data;
 	const edges = useStore((state) => state.edges);
 	const nodes = useStore((state) => state.nodes);
 
@@ -153,10 +155,10 @@ export function AWSContainerNode({
 
 	// Calculate handle positions based on current node size
 	const handleStyle = {
-		top: { top: -1, left: nodeSize.width / 2},
-		right: { top: nodeSize.height / 2, right: -3 },
-		bottom: { bottom: -3, left: nodeSize.width / 2 },
-		left: { top: nodeSize.height / 2, left: -1 },
+		top: { top: 0, left: nodeSize.width / 2},
+		right: { top: nodeSize.height / 2, right: -7 },
+		bottom: { bottom: -7, left: nodeSize.width / 2 },
+		left: { top: nodeSize.height / 2, left: 0 },
 	};
 
 	// Helper function to handle resize mouse down for corner handles
@@ -213,14 +215,48 @@ export function AWSContainerNode({
 		document.addEventListener("mouseup", handleMouseUp);
 	}
 
+	// Get service-specific border color
+	const getBorderColor = (serviceId?: string) => {
+		switch (serviceId) {
+			case 'vpc':
+				return '#8C4FFF'; // Purple (from VPC icon)
+			case 'private-subnet':
+				return '#00A4A6'; // Teal/Cyan (from Private subnet icon)
+			case 'public-subnet':
+				return '#7AA116'; // Green (from Public subnet icon)
+			case 'auto-scaling':
+				return '#ED7100'; // Orange (from Auto Scaling icon)
+			case 'region':
+				return '#000000'; // Teal (from Region icon)
+			case 'availability-zone':
+				return '#00A4A6'; // Teal (same as region for consistency)
+			case 'aws-account':
+				return '#E7157B'; // Magenta/Pink (from AWS Account icon)
+			case 'corporate-datacenter':
+				return '#666666'; // Gray for data center
+			case 'local-zone':
+				return '#4A90E2'; // Blue for local zones
+			case 'edge-location':
+				return '#FF9500'; // Orange for edge locations
+			default:
+				return '#8C4FFF'; // Default purple (VPC color)
+		}
+	};
+
+	const borderColor = getBorderColor(serviceId);
+
 	return (
 		<div
 			className="relative"
+			data-service-id={serviceId}
 			style={{
 				width: nodeSize.width,
 				height: nodeSize.height,
 				minWidth: 250,
 				minHeight: 200,
+				border: `1px solid ${borderColor}`,
+				borderRadius: '0px',
+				background: 'transparent',
 			}}
 		>
 			{/* Handles for connections with dynamic positioning */}
@@ -256,7 +292,7 @@ export function AWSContainerNode({
 			{/* Container header - icon and name */}
 			<div
 				className="container-header"
-				style={{ position: "absolute", top: 4, left: 4 }}
+				style={{ position: "absolute", top: 0, left: 0 }}
 			>
 				<Image
 					src={icon}
