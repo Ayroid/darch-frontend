@@ -218,25 +218,25 @@ export function AWSContainerNode({
 	// Get service-specific border color
 	const getBorderColor = (serviceId?: string) => {
 		switch (serviceId) {
-			case 'vpc':
+			case 'aws-vpc':
 				return '#8C4FFF'; // Purple (from VPC icon)
-			case 'private-subnet':
+			case 'aws-private-subnet':
 				return '#00A4A6'; // Teal/Cyan (from Private subnet icon)
-			case 'public-subnet':
+			case 'aws-public-subnet':
 				return '#7AA116'; // Green (from Public subnet icon)
-			case 'auto-scaling':
+			case 'aws-auto-scaling':
 				return '#ED7100'; // Orange (from Auto Scaling icon)
-			case 'region':
+			case 'aws-region':
 				return '#000000'; // Teal (from Region icon)
-			case 'availability-zone':
+			case 'aws-availability-zone':
 				return '#00A4A6'; // Teal (same as region for consistency)
 			case 'aws-account':
 				return '#E7157B'; // Magenta/Pink (from AWS Account icon)
-			case 'corporate-datacenter':
+			case 'aws-corporate-datacenter':
 				return '#666666'; // Gray for data center
-			case 'local-zone':
+			case 'aws-local-zone':
 				return '#4A90E2'; // Blue for local zones
-			case 'edge-location':
+			case 'aws-edge-location':
 				return '#FF9500'; // Orange for edge locations
 			default:
 				return '#8C4FFF'; // Default purple (VPC color)
