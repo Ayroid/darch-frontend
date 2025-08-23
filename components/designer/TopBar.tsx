@@ -10,6 +10,8 @@ import {
 	ShareIcon,
 	CogIcon,
 } from "@heroicons/react/24/outline";
+import ArchitectureImportExport from "./ArchitectureImportExport";
+import { Node, Edge } from "@xyflow/react";
 
 // Types
 interface Project {
@@ -29,6 +31,7 @@ interface TopBarProps {
 	onSettings: () => void;
 	onHelp: () => void;
 	onProfile: () => void;
+	onDataLoaded?: (nodes: Node[], edges: Edge[]) => void;
 }
 
 export default function TopBar({
@@ -40,6 +43,7 @@ export default function TopBar({
 	onSettings,
 	onHelp,
 	onProfile,
+	onDataLoaded,
 }: TopBarProps) {
 	const dropdownRef = useRef<HTMLDivElement>(null);
 	const [showProjectDropdown, setShowProjectDropdown] = useState(false);
@@ -153,6 +157,12 @@ export default function TopBar({
 
 			{/* Right Section */}
 			<div className="flex items-center space-x-3">
+				{/* Import/Export Controls */}
+				<ArchitectureImportExport
+					onDataLoaded={onDataLoaded}
+					className="border-r border-gray-200 pr-3"
+				/>
+
 				<button
 					onClick={onHelp}
 					className="flex items-center space-x-2 px-3 py-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"

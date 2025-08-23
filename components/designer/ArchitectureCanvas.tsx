@@ -1,29 +1,26 @@
 "use client";
 
-import React, { useCallback, useRef } from "react";
+import React, { useCallback, useRef, useEffect } from "react";
 import {
-  ReactFlow,
-  Node,
-  Edge,
-  addEdge,
-  Background,
-  Controls,
-  useNodesState,
-  useEdgesState,
-  OnConnect,
-  Connection,
-  ReactFlowInstance,
-  MarkerType,
+	ReactFlow,
+	Node,
+	Edge,
+	addEdge,
+	Background,
+	Controls,
+	useNodesState,
+	useEdgesState,
+	OnConnect,
+	Connection,
+	ReactFlowInstance,
+	MarkerType,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { useCanvasShortcuts, useUndoRedo } from "@/lib/keyboard-shortcuts";
+import { useArchitectureData } from "@/hooks/use-architecture-data";
 import UndoRedoControls from "./UndoRedoControls";
 import ShortcutsButton from "./ShortcutsButton";
-import {
-  createNodeHandlers,
-  createNodeTypes,
-  getId,
-} from "./nodeUtils";
+import { createNodeHandlers, createNodeTypes, getId } from "./nodeUtils";
 
 // Custom styles for transparent nodes
 const nodeStyles = `
@@ -104,9 +101,9 @@ const nodeStyles = `
 `;
 
 interface ArchitectureCanvasProps {
-  onNodeAdd?: (node: Node) => void;
-  onShowHelp?: () => void;
-  onNodeSelect?: (node: Node | null) => void;
+	onNodeAdd?: (node: Node) => void;
+	onShowHelp?: () => void;
+	onNodeSelect?: (node: Node | null) => void;
 }
 
 const initialNodes: Node[] = [];
@@ -114,206 +111,241 @@ const initialEdges: Edge[] = [];
 
 // Use ReactFlow's prebuilt step edge type
 const defaultEdgeOptions = {
-  type: "smoothstep",
-  markerStart: {
-    type: MarkerType.Arrow,
-  },
+	type: "smoothstep",
+	markerStart: {
+		type: MarkerType.Arrow,
+	},
 };
 
 export default function ArchitectureCanvas({
-  onNodeAdd,
-  onShowHelp,
-  onNodeSelect,
+	onNodeAdd,
+	onShowHelp,
+	onNodeSelect,
 }: ArchitectureCanvasProps) {
-  const reactFlowWrapper = useRef<HTMLDivElement>(null);
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-  const [reactFlowInstance, setReactFlowInstance] =
-    React.useState<ReactFlowInstance | null>(null);
-  const [copiedNodes, setCopiedNodes] = React.useState<Node[]>([]);
+	const reactFlowWrapper = useRef<HTMLDivElement>(null);
+	const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+	const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+	const [reactFlowInstance, setReactFlowInstance] =
+		React.useState<ReactFlowInstance | null>(null);
+	const [copiedNodes, setCopiedNodes] = React.useState<Node[]>([]);
 
-  // Undo/Redo functionality
-  const { saveState, undo, redo, canUndo, canRedo } = useUndoRedo();
+	// Architecture data management
+	const {
+		currentData,
+		updateFromReactFlow,
+		addNode: addArchNode,
+		removeNode: removeArchNode,
+		addConnection: addArchConnection,
+		removeConnection: removeArchConnection,
+		convertToReactFlow,
+	} = useArchitectureData();
 
-  // Create node handlers
-  const nodeHandlers = createNodeHandlers(
-    nodes,
-    setNodes,
-    setEdges,
-    onNodesChange,
-    onNodeAdd
-  );
+	// Load initial data from architecture manager (only on first load)
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	useEffect(() => {
+		if (currentData && nodes.length === 0 && edges.length === 0) {
+			const { nodes: archNodes, edges: archEdges } = convertToReactFlow();
+			if (archNodes.length > 0 || archEdges.length > 0) {
+				setNodes(archNodes);
+				setEdges(archEdges);
+			}
+		}
+	}, [currentData, convertToReactFlow, setNodes, setEdges]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Create node types
-  const nodeTypes = createNodeTypes(nodeHandlers.handleNodeSizeChange);
+	// Undo/Redo functionality
+	const { saveState, undo, redo, canUndo, canRedo } = useUndoRedo();
 
-  // Save state whenever nodes or edges change
-  React.useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      saveState(nodes, edges);
-    }, 500); // Debounce state saving
+	// Create node handlers
+	const nodeHandlers = createNodeHandlers(
+		nodes,
+		setNodes,
+		setEdges,
+		onNodesChange,
+		onNodeAdd
+	);
 
-    return () => clearTimeout(timeoutId);
-  }, [nodes, edges, saveState]);
+	// Create node types
+	const nodeTypes = createNodeTypes(nodeHandlers.handleNodeSizeChange);
 
-  // Handle undo
-  const handleUndo = useCallback(() => {
-    const previousState = undo();
-    if (previousState) {
-      setNodes(previousState.nodes);
-      setEdges(previousState.edges);
-      console.log("Undid last action");
-    }
-  }, [undo, setNodes, setEdges]);
+	// Save state whenever nodes or edges change
+	React.useEffect(() => {
+		const timeoutId = setTimeout(() => {
+			saveState(nodes, edges);
+			// Update architecture data manager
+			updateFromReactFlow(nodes, edges);
+		}, 500); // Debounce state saving
 
-  // Handle redo
-  const handleRedo = useCallback(() => {
-    const nextState = redo();
-    if (nextState) {
-      setNodes(nextState.nodes);
-      setEdges(nextState.edges);
-      console.log("Redid last action");
-    }
-  }, [redo, setNodes, setEdges]);
+		return () => clearTimeout(timeoutId);
+	}, [nodes, edges, saveState, updateFromReactFlow]);
 
-  // Use the canvas shortcuts hook
-  useCanvasShortcuts({
-    onCopyNodes: () => setCopiedNodes(nodeHandlers.handleCopyNodes()),
-    onPasteNodes: () => nodeHandlers.handlePasteNodes(copiedNodes),
-    onDuplicateNodes: nodeHandlers.handleDuplicateNodes,
-    onSelectAllNodes: nodeHandlers.handleSelectAllNodes,
-    onDeselectAllNodes: nodeHandlers.handleDeselectAllNodes,
-    onDeleteNodes: nodeHandlers.handleDeleteNodes,
-    onMoveSelectedNodes: nodeHandlers.handleMoveSelectedNodes,
-    onUndo: handleUndo,
-    onRedo: handleRedo,
-    reactFlowInstance,
-  });
+	// Handle undo
+	const handleUndo = useCallback(() => {
+		const previousState = undo();
+		if (previousState) {
+			setNodes(previousState.nodes);
+			setEdges(previousState.edges);
+			console.log("Undid last action");
+		}
+	}, [undo, setNodes, setEdges]);
 
-  // Handle custom wheel behavior
-  const onWheel = useCallback(
-    (event: React.WheelEvent) => {
-      if (!reactFlowInstance) return;
+	// Handle redo
+	const handleRedo = useCallback(() => {
+		const nextState = redo();
+		if (nextState) {
+			setNodes(nextState.nodes);
+			setEdges(nextState.edges);
+			console.log("Redid last action");
+		}
+	}, [redo, setNodes, setEdges]);
 
-      // If Ctrl key is pressed, handle zoom
-      if (event.ctrlKey || event.metaKey) {
-        event.preventDefault();
-        const zoomFactor = event.deltaY > 0 ? 0.9 : 1.1;
-        reactFlowInstance.zoomTo(reactFlowInstance.getZoom() * zoomFactor);
-      }
-      // Otherwise, let default pan behavior handle it (since panOnScroll=true)
-    },
-    [reactFlowInstance]
-  );
+	// Use the canvas shortcuts hook
+	useCanvasShortcuts({
+		onCopyNodes: () => setCopiedNodes(nodeHandlers.handleCopyNodes()),
+		onPasteNodes: () => nodeHandlers.handlePasteNodes(copiedNodes),
+		onDuplicateNodes: nodeHandlers.handleDuplicateNodes,
+		onSelectAllNodes: nodeHandlers.handleSelectAllNodes,
+		onDeselectAllNodes: nodeHandlers.handleDeselectAllNodes,
+		onDeleteNodes: nodeHandlers.handleDeleteNodes,
+		onMoveSelectedNodes: nodeHandlers.handleMoveSelectedNodes,
+		onUndo: handleUndo,
+		onRedo: handleRedo,
+		reactFlowInstance,
+	});
 
-  const onConnect: OnConnect = useCallback(
-    (params: Connection) =>
-      setEdges((eds) =>
-        addEdge({ ...params, type: defaultEdgeOptions.type }, eds)
-      ),
-    [setEdges]
-  );
+	// Handle custom wheel behavior
+	const onWheel = useCallback(
+		(event: React.WheelEvent) => {
+			if (!reactFlowInstance) return;
 
-  const onDragOver = useCallback((event: React.DragEvent) => {
-    event.preventDefault();
-    event.dataTransfer.dropEffect = "move";
-  }, []);
+			// If Ctrl key is pressed, handle zoom
+			if (event.ctrlKey || event.metaKey) {
+				event.preventDefault();
+				const zoomFactor = event.deltaY > 0 ? 0.9 : 1.1;
+				reactFlowInstance.zoomTo(reactFlowInstance.getZoom() * zoomFactor);
+			}
+			// Otherwise, let default pan behavior handle it (since panOnScroll=true)
+		},
+		[reactFlowInstance]
+	);
 
-  const onDrop = useCallback(
-    (event: React.DragEvent) => {
-      event.preventDefault();
+	const onConnect: OnConnect = useCallback(
+		(params: Connection) => {
+			const newEdge: Edge = {
+				...params,
+				type: defaultEdgeOptions.type,
+				id: getId(),
+				source: params.source!,
+				target: params.target!,
+			};
+			setEdges((eds) => addEdge(newEdge, eds));
+			// Add to architecture data
+			addArchConnection(newEdge);
+		},
+		[setEdges, addArchConnection]
+	);
 
-      const type = event.dataTransfer.getData("application/reactflow");
-      const name = event.dataTransfer.getData("application/name");
-      const icon = event.dataTransfer.getData("application/icon");
-      const isContainer =
-        event.dataTransfer.getData("application/isContainer") === "true";
+	const onDragOver = useCallback((event: React.DragEvent) => {
+		event.preventDefault();
+		event.dataTransfer.dropEffect = "move";
+	}, []);
 
-      if (typeof type === "undefined" || !type) {
-        return;
-      }
+	const onDrop = useCallback(
+		(event: React.DragEvent) => {
+			event.preventDefault();
 
-      if (reactFlowInstance) {
-        const position = reactFlowInstance.screenToFlowPosition({
-          x: event.clientX,
-          y: event.clientY,
-        });
+			const type = event.dataTransfer.getData("application/reactflow");
+			const name = event.dataTransfer.getData("application/name");
+			const icon = event.dataTransfer.getData("application/icon");
+			const isContainer =
+				event.dataTransfer.getData("application/isContainer") === "true";
 
-        const newNode: Node = {
-          id: getId(),
-          type: isContainer ? "awsContainer" : "awsService",
-          position,
-          data: {
-            icon,
-            name,
-            serviceId: type, // Add service ID for styling
-            ...(isContainer && { isContainer: true }),
-          },
-          ...(isContainer && {
-            style: {
-              width: 250,
-              height: 200,
-            },
-          }),
-        };
+			if (typeof type === "undefined" || !type) {
+				return;
+			}
 
-        setNodes((nds) => nds.concat(newNode));
-        onNodeAdd?.(newNode);
-      }
-    },
-    [reactFlowInstance, setNodes, onNodeAdd]
-  );
+			if (reactFlowInstance) {
+				const position = reactFlowInstance.screenToFlowPosition({
+					x: event.clientX,
+					y: event.clientY,
+				});
 
-  const proOptions = { hideAttribution: true };
+				const newNode: Node = {
+					id: getId(),
+					type: isContainer ? "awsContainer" : "awsService",
+					position,
+					data: {
+						icon,
+						name,
+						serviceId: type, // Add service ID for styling
+						...(isContainer && { isContainer: true }),
+					},
+					...(isContainer && {
+						style: {
+							width: 250,
+							height: 200,
+						},
+					}),
+				};
 
-  // Handle selection changes
-  const onSelectionChange = useCallback(
-    ({ nodes: selectedNodes }: { nodes: Node[] }) => {
-      const selectedNode = selectedNodes.length > 0 ? selectedNodes[0] : null;
-      onNodeSelect?.(selectedNode);
-    },
-    [onNodeSelect]
-  );
+				setNodes((nds) => nds.concat(newNode));
+				// Add to architecture data
+				addArchNode(newNode);
+				onNodeAdd?.(newNode);
+			}
+		},
+		[reactFlowInstance, setNodes, addArchNode, onNodeAdd]
+	);
 
-  return (
-    <>
-      <style dangerouslySetInnerHTML={{ __html: nodeStyles }} />
-      <div className="w-full h-full relative z-10" ref={reactFlowWrapper}>
-        {/* Undo/Redo Controls */}
-        <UndoRedoControls
-          canUndo={canUndo}
-          canRedo={canRedo}
-          onUndo={handleUndo}
-          onRedo={handleRedo}
-        />
+	const proOptions = { hideAttribution: true };
 
-        <ReactFlow
-          nodes={nodes}
-          edges={edges}
-          onNodesChange={nodeHandlers.handleNodesChange}
-          onEdgesChange={onEdgesChange}
-          onConnect={onConnect}
-          onInit={setReactFlowInstance}
-          onDrop={onDrop}
-          onDragOver={onDragOver}
-          onSelectionChange={onSelectionChange}
-          onWheel={onWheel}
-          nodeTypes={nodeTypes}
-          defaultEdgeOptions={defaultEdgeOptions}
-          deleteKeyCode={["Delete", "Backspace"]}
-          fitView
-          className="bg-gray-50"
-          proOptions={proOptions}
-          panOnScroll={true}
-          zoomOnScroll={false}
-        >
-          <Controls />
-          <Background gap={12} size={1} />
-        </ReactFlow>
+	// Handle selection changes
+	const onSelectionChange = useCallback(
+		({ nodes: selectedNodes }: { nodes: Node[] }) => {
+			const selectedNode = selectedNodes.length > 0 ? selectedNodes[0] : null;
+			onNodeSelect?.(selectedNode);
+		},
+		[onNodeSelect]
+	);
 
-        {/* Shortcuts Button */}
-        {onShowHelp && <ShortcutsButton onClick={onShowHelp} />}
-      </div>
-    </>
-  );
+	return (
+		<>
+			<style dangerouslySetInnerHTML={{ __html: nodeStyles }} />
+			<div className="w-full h-full relative z-10" ref={reactFlowWrapper}>
+				{/* Undo/Redo Controls */}
+				<UndoRedoControls
+					canUndo={canUndo}
+					canRedo={canRedo}
+					onUndo={handleUndo}
+					onRedo={handleRedo}
+				/>
+
+				<ReactFlow
+					nodes={nodes}
+					edges={edges}
+					onNodesChange={nodeHandlers.handleNodesChange}
+					onEdgesChange={onEdgesChange}
+					onConnect={onConnect}
+					onInit={setReactFlowInstance}
+					onDrop={onDrop}
+					onDragOver={onDragOver}
+					onSelectionChange={onSelectionChange}
+					onWheel={onWheel}
+					nodeTypes={nodeTypes}
+					defaultEdgeOptions={defaultEdgeOptions}
+					deleteKeyCode={["Delete", "Backspace"]}
+					fitView
+					className="bg-gray-50"
+					proOptions={proOptions}
+					panOnScroll={true}
+					zoomOnScroll={false}
+				>
+					<Controls />
+					<Background gap={12} size={1} />
+				</ReactFlow>
+
+				{/* Shortcuts Button */}
+				{onShowHelp && <ShortcutsButton onClick={onShowHelp} />}
+			</div>
+		</>
+	);
 }

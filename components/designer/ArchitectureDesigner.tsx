@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useCallback } from "react";
-import { ReactFlowProvider, Node } from "@xyflow/react";
+import { ReactFlowProvider, Node, Edge } from "@xyflow/react";
 import ArchitectureCanvas from "./ArchitectureCanvas";
 import ServicesSidebar from "./ServicesSidebar";
 import ConfigurationSidebar from "./ConfigurationSidebar";
@@ -137,6 +137,12 @@ export default function ArchitectureDesigner() {
 		console.log("Node updated:", nodeId, data);
 	}, []);
 
+	const handleDataLoaded = useCallback((nodes: Node[], edges: Edge[]) => {
+		console.log("Loading architecture data:", { nodes, edges });
+		// The ArchitectureCanvas will automatically load the data through the architecture data manager
+		// We don't need to do anything here as the data is managed by the hook
+	}, []);
+
 	// Use application shortcuts
 	useApplicationShortcuts({
 		onNewArchitecture: handleNewArchitecture,
@@ -159,6 +165,7 @@ export default function ArchitectureDesigner() {
 					onSettings={handleSettings}
 					onHelp={handleHelp}
 					onProfile={handleProfile}
+					onDataLoaded={handleDataLoaded}
 				/>
 
 				{/* Main Content Area */}
