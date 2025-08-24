@@ -28,6 +28,7 @@ type TabType = "design" | "share" | "settings";
 export default function ArchitectureDesigner() {
 	// State management
 	const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+	const [isConfigurationSidebarOpen, setIsConfigurationSidebarOpen] = useState(false);
 	const [activeTab, setActiveTab] = useState<TabType>("design");
 	const [isHelpOpen, setIsHelpOpen] = useState(false);
 	const [selectedNode, setSelectedNode] = useState<Node | null>(null);
@@ -52,6 +53,11 @@ export default function ArchitectureDesigner() {
 	const handleToggleSidebar = useCallback(() => {
 		setIsSidebarOpen(!isSidebarOpen);
 	}, [isSidebarOpen]);
+
+	const handleToggleConfigurationSidebar = useCallback(() => {
+		// Always allow toggling the configuration sidebar
+		setIsConfigurationSidebarOpen(!isConfigurationSidebarOpen);
+	}, [isConfigurationSidebarOpen]);
 
 	const handleNodeAdd = useCallback((node: Node) => {
 		console.log("Node added:", node);
@@ -123,10 +129,6 @@ export default function ArchitectureDesigner() {
 		console.log("Node selected:", node?.id);
 	}, []);
 
-	const handleConfigurationClose = useCallback(() => {
-		setSelectedNode(null);
-	}, []);
-
 	const handleNodeUpdate = useCallback((nodeId: string, data: Record<string, unknown>) => {
 		setCurrentArchitecture((prev) => ({
 			...prev,
@@ -148,6 +150,7 @@ export default function ArchitectureDesigner() {
 		onNewArchitecture: handleNewArchitecture,
 		onSave: () => console.log("Save shortcut pressed"),
 		onToggleSidebar: handleToggleSidebar,
+		onToggleConfigurationSidebar: handleToggleConfigurationSidebar,
 		onToggleFullscreen: handleToggleFullscreen,
 		onShowHelp: handleShowHelp,
 	});
@@ -186,7 +189,8 @@ export default function ArchitectureDesigner() {
 					{/* Configuration Sidebar */}
 					<ConfigurationSidebar
 						selectedNode={selectedNode}
-						onClose={handleConfigurationClose}
+						isOpen={isConfigurationSidebarOpen}
+						onToggle={handleToggleConfigurationSidebar}
 						onNodeUpdate={handleNodeUpdate}
 					/>
 				</div>

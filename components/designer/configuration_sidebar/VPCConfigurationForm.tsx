@@ -38,23 +38,23 @@ interface VPCConfigurationFormProps {
 // Validation functions
 const validateCIDRBlock = (cidr: string): string | null => {
 	if (!cidr) return "CIDR block is required";
-	
+
 	const cidrRegex = /^(\d{1,3}\.){3}\d{1,3}\/\d{1,2}$/;
 	if (!cidrRegex.test(cidr)) return "Invalid CIDR format (e.g., 10.0.0.0/16)";
-	
+
 	const [ip, mask] = cidr.split('/');
 	const maskNum = parseInt(mask, 10);
-	
+
 	if (maskNum < 16 || maskNum > 28) {
 		return "VPC CIDR mask must be between /16 and /28";
 	}
-	
+
 	// Validate IP octets
 	const octets = ip.split('.').map(num => parseInt(num, 10));
 	if (octets.some(octet => octet < 0 || octet > 255)) {
 		return "Invalid IP address in CIDR block";
 	}
-	
+
 	return null;
 };
 
@@ -66,7 +66,7 @@ const validateVPCName = (name: string): string | null => {
 
 const validateTags = (tags: string): string | null => {
 	if (!tags.trim()) return null; // Tags are optional
-	
+
 	const tagPairs = tags.split(',').map(tag => tag.trim());
 	for (const pair of tagPairs) {
 		if (!pair.includes('=')) {
@@ -87,18 +87,18 @@ const VPCConfigurationForm: React.FC<VPCConfigurationFormProps> = ({
 	// Validation state
 	const validationErrors = useMemo(() => {
 		const errors: Record<string, string> = {};
-		
+
 		const nameError = validateVPCName((config.name as string) || "");
 		if (nameError) errors.name = nameError;
-		
+
 		const cidrError = validateCIDRBlock((config.cidrBlock as string) || "");
 		if (cidrError) errors.cidrBlock = cidrError;
-		
+
 		const tagsError = validateTags((config.tags as string) || "");
 		if (tagsError) errors.tags = tagsError;
-		
+
 		if (!config.region) errors.region = "Region is required";
-		
+
 		return errors;
 	}, [config]);
 
@@ -191,7 +191,7 @@ const VPCConfigurationForm: React.FC<VPCConfigurationFormProps> = ({
 
 			<div className="space-y-3">
 				<h4 className="text-sm font-medium text-gray-900">DNS Settings</h4>
-				
+
 				<div className="flex items-center space-x-2">
 					<Checkbox
 						id="dns-support"

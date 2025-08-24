@@ -1,17 +1,16 @@
 "use client";
 
 import React from "react";
-import { X } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Node } from "@xyflow/react";
 
 import { ConfigurationSidebarMap } from "./configuration_sidebar";
-import { 
-  useConfigurationStore, 
-  getDefaultConfiguration,
-  validateConfiguration 
+import {
+	useConfigurationStore,
+	getDefaultConfiguration,
+	validateConfiguration,
 } from "@/lib/stores/configuration-store";
 import { ConfigurationProvider } from "@/lib/stores/configuration-context";
+import { CubeTransparentIcon } from "@heroicons/react/24/outline";
 
 type ConfigurationFormComponent = React.ComponentType<{
 	config: Record<string, unknown>;
@@ -35,13 +34,15 @@ const awsServiceConfigurationMap: Record<string, ConfigurationFormComponent> = {
 
 interface ConfigurationSidebarProps {
 	selectedNode: Node | null;
-	onClose: () => void;
+	isOpen: boolean;
+	onToggle: () => void;
 	onNodeUpdate: (nodeId: string, data: Record<string, unknown>) => void;
 }
 
 export default function ConfigurationSidebar({
 	selectedNode,
-	onClose,
+	isOpen,
+	onToggle,
 	onNodeUpdate,
 }: ConfigurationSidebarProps) {
 	// Zustand store hooks
@@ -62,47 +63,55 @@ export default function ConfigurationSidebar({
 		if (selectedNode) {
 			const nodeId = selectedNode.id;
 			let existingConfig = getNodeConfiguration(nodeId);
-			
+
 			if (!existingConfig) {
 				// Create default configuration based on service type
 				const data = selectedNode.data as Record<string, unknown>;
 				const serviceId = (data?.serviceId as string) || "";
 				existingConfig = {
 					...getDefaultConfiguration(serviceId),
-					...(((selectedNode.data as Record<string, unknown>).config as Record<string, unknown>) || {})
+					...(((selectedNode.data as Record<string, unknown>).config as Record<
+						string,
+						unknown
+					>) || {}),
 				};
 				setNodeConfiguration(nodeId, existingConfig);
 			}
-			
+
 			setConfig(existingConfig as Record<string, unknown>);
+		} else {
+			// Clear config when no node is selected
+			setConfig({});
 		}
 	}, [selectedNode, getNodeConfiguration, setNodeConfiguration]);
 
-	if (!selectedNode) return null;
-
 	const handleConfigChange = (newConfig: Record<string, unknown>) => {
+		if (!selectedNode) return; // Guard clause for when no node is selected
+
 		setConfig(newConfig);
 		const nodeId = selectedNode.id;
-		
+
 		// Update the store
 		updateNodeConfiguration(nodeId, newConfig);
-		
+
 		// Validate the configuration
 		const data = selectedNode.data as Record<string, unknown>;
 		const serviceId = (data?.serviceId as string) || "";
 		const errors = validateConfiguration(serviceId, newConfig);
-		
+
 		if (errors.length > 0) {
 			setValidationErrors(nodeId, errors);
 		} else {
 			clearValidationErrors(nodeId);
 		}
-		
+
 		// Update the node data
 		onNodeUpdate(selectedNode.id, { ...selectedNode.data, config: newConfig });
 	};
 
 	const getServiceName = (): string => {
+		if (!selectedNode) return "Configuration";
+
 		if (selectedNode.type === "awsService") {
 			const data = selectedNode.data as Record<string, unknown>;
 			return (data?.name as string) || "AWS Service";
@@ -115,6 +124,42 @@ export default function ConfigurationSidebar({
 	};
 
 	const renderConfigurationForm = () => {
+		if (!selectedNode) {
+			return (
+				<div className="flex flex-col items-center justify-center h-full text-center px-6 gap-16">
+					<div className="w-24 h-24 rounded-full bg-gray-100 flex items-center justify-center mb-4">
+						<CubeTransparentIcon className="w-16 h-16 text-gray-800" />
+					</div>
+					<div className="space-y-3 text-left">
+						<div className="flex items-start space-x-3">
+							<div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+							<div className="text-sm text-gray-600">
+								<span className="font-medium">Click</span> any node on the
+								canvas to configure it
+							</div>
+						</div>
+						<div className="flex items-start space-x-3">
+							<div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+							<div className="text-sm text-gray-600">
+								<span className="font-medium">Drag</span> services from the left
+								sidebar to add them
+							</div>
+						</div>
+						<div className="flex items-start space-x-3">
+							<div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+							<div className="text-sm text-gray-600">
+								Press{" "}
+								<kbd className="px-2 py-1 bg-gray-100 border rounded text-xs font-mono">
+									Y
+								</kbd>{" "}
+								to toggle this panel
+							</div>
+						</div>
+					</div>
+				</div>
+			);
+		}
+
 		const data = selectedNode.data as Record<string, unknown>;
 		const serviceId = (data?.serviceId as string) || "";
 
@@ -136,41 +181,86 @@ export default function ConfigurationSidebar({
 	};
 
 	// Get validation errors for current node
-	const currentErrors = selectedNode ? validationErrors[selectedNode.id] || [] : [];
+	const currentErrors = selectedNode
+		? validationErrors[selectedNode.id] || []
+		: [];
 
 	return (
-		<div className="fixed right-0 top-16 h-[calc(100vh-4rem)] w-96 bg-white border-l border-gray-200 shadow-lg z-40 overflow-hidden flex flex-col">
-			{/* Header */}
-			<div className="flex items-center justify-between p-4 border-b border-gray-200">
-				<h2 className="text-lg font-semibold text-gray-900">
-					{getServiceName()} Configuration
-				</h2>
-				<Button variant="ghost" size="sm" onClick={onClose}>
-					<X className="h-4 w-4" />
-				</Button>
-			</div>
-
-			{/* Validation Errors */}
-			{currentErrors.length > 0 && (
-				<div className="p-4 bg-red-50 border-b border-red-200">
-					<h3 className="text-sm font-medium text-red-800 mb-2">
-						Configuration Errors:
-					</h3>
-					<ul className="text-sm text-red-700 space-y-1">
-						{currentErrors.map((error, index) => (
-							<li key={index} className="flex items-start">
-								<span className="text-red-500 mr-1">•</span>
-								{error}
-							</li>
-						))}
-					</ul>
+		<div className="relative">
+			{/* Sidebar */}
+			<div
+				className={`fixed top-16 right-0 bg-white border-l border-gray-200 shadow-lg transform transition-transform duration-300 ease-in-out z-40 overflow-hidden flex flex-col ${
+					isOpen ? "translate-x-0" : "translate-x-full"
+				}`}
+				style={{ width: "384px", height: "calc(100vh - 4rem)" }}
+			>
+				{/* Header */}
+				<div className="flex items-center justify-between p-4 border-b border-gray-200">
+					<div className="flex items-center gap-2">
+						<h2 className="text-lg font-semibold text-gray-900">
+							{selectedNode
+								? getServiceName() + " Configuration"
+								: "Configuration Sidebar"}
+						</h2>
+					</div>
 				</div>
-			)}
 
-			{/* Content */}
-			<div className="flex-1 overflow-y-auto p-4">
-				{renderConfigurationForm()}
+				{/* Validation Errors */}
+				{selectedNode && currentErrors.length > 0 && (
+					<div className="p-4 bg-red-50 border-b border-red-200">
+						<h3 className="text-sm font-medium text-red-800 mb-2">
+							Configuration Errors:
+						</h3>
+						<ul className="text-sm text-red-700 space-y-1">
+							{currentErrors.map((error, index) => (
+								<li key={index} className="flex items-start">
+									<span className="text-red-500 mr-1">•</span>
+									{error}
+								</li>
+							))}
+						</ul>
+					</div>
+				)}
+
+				{/* Content */}
+				<div className="flex-1 overflow-y-auto p-4">
+					{renderConfigurationForm()}
+				</div>
 			</div>
+
+			{/* Toggle Button - Attached to sidebar edge */}
+			<button
+				onClick={onToggle}
+				className={`fixed z-50 bg-white border border-gray-200 shadow-lg hover:bg-gray-50 transition-all duration-300 ease-in-out ${
+					isOpen
+						? "right-[384px] rounded-l-lg border-r-0"
+						: "right-0 rounded-l-lg"
+				}`}
+				style={{
+					top: "calc(50vh + 2rem)",
+					transform: "translateY(-50%)",
+					padding: "12px 4px",
+					borderTopRightRadius: isOpen ? "0" : "0.5rem",
+					borderBottomRightRadius: isOpen ? "0" : "0.5rem",
+				}}
+				aria-label="Toggle Configuration Sidebar"
+			>
+				<svg
+					className={`w-5 h-5 transition-transform duration-300 ${
+						isOpen ? "rotate-180" : ""
+					}`}
+					fill="none"
+					stroke="gray"
+					viewBox="0 0 24 24"
+				>
+					<path
+						strokeLinecap="round"
+						strokeLinejoin="round"
+						strokeWidth={2}
+						d="M15 19l-7-7 7-7"
+					/>
+				</svg>
+			</button>
 		</div>
 	);
 }

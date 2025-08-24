@@ -28,16 +28,17 @@ export type ServiceConfiguration =
 interface ConfigurationState {
   // Current node being configured
   selectedNodeId: string | null;
-  
+
   // Configuration data for each node (nodeId -> config)
   nodeConfigurations: Record<string, ServiceConfiguration>;
-  
+
   // UI state
   isSidebarOpen: boolean;
-  
+  isConfigurationSidebarVisible: boolean;
+
   // Form validation state
   validationErrors: Record<string, string[]>;
-  
+
   // Temporary/draft state for forms
   draftConfiguration: ServiceConfiguration | null;
 }
@@ -46,26 +47,28 @@ interface ConfigurationState {
 interface ConfigurationActions {
   // Node selection
   setSelectedNode: (nodeId: string | null) => void;
-  
+
   // Configuration management
   setNodeConfiguration: (nodeId: string, config: ServiceConfiguration) => void;
   getNodeConfiguration: (nodeId: string) => ServiceConfiguration | undefined;
   updateNodeConfiguration: (nodeId: string, updates: Partial<ServiceConfiguration>) => void;
   deleteNodeConfiguration: (nodeId: string) => void;
-  
+
   // Sidebar state
   openSidebar: () => void;
   closeSidebar: () => void;
-  
+  toggleConfigurationSidebar: () => void;
+  setConfigurationSidebarVisible: (visible: boolean) => void;
+
   // Draft state for form editing
   setDraftConfiguration: (config: ServiceConfiguration) => void;
   clearDraftConfiguration: () => void;
   commitDraftConfiguration: (nodeId: string) => void;
-  
+
   // Validation
   setValidationErrors: (nodeId: string, errors: string[]) => void;
   clearValidationErrors: (nodeId: string) => void;
-  
+
   // Bulk operations
   clearAllConfigurations: () => void;
   importConfigurations: (configurations: Record<string, ServiceConfiguration>) => void;
@@ -82,7 +85,7 @@ export const defaultConfigurations: Record<string, Partial<ServiceConfiguration>
     enableDnsHostnames: true,
     tags: '',
   } as Partial<VPCConfiguration>,
-  
+
   'aws-ec2': {
     name: 'ec2-instance',
     instanceType: 't3.micro',
@@ -102,19 +105,19 @@ export const defaultConfigurations: Record<string, Partial<ServiceConfiguration>
     tenancy: 'default',
     tags: {},
   } as Partial<EC2Configuration>,
-  
+
   'aws-region': {
     name: 'us-east-1',
     displayName: 'US East (N. Virginia)',
     description: '',
   } as Partial<AWSRegionConfiguration>,
-  
+
   'aws-availability-zone': {
     name: 'us-east-1a',
     region: 'us-east-1',
     state: 'available',
   } as Partial<AvailabilityZoneConfiguration>,
-  
+
   'aws-private-subnet': {
     name: 'private-subnet',
     cidrBlock: '10.0.1.0/24',
@@ -123,7 +126,7 @@ export const defaultConfigurations: Record<string, Partial<ServiceConfiguration>
     routeTableId: '',
     tags: '',
   } as Partial<PrivateSubnetConfiguration>,
-  
+
   'aws-public-subnet': {
     name: 'public-subnet',
     cidrBlock: '10.0.0.0/24',
@@ -143,6 +146,7 @@ export const useConfigurationStore = create<ConfigurationState & ConfigurationAc
       selectedNodeId: null,
       nodeConfigurations: {},
       isSidebarOpen: false,
+      isConfigurationSidebarVisible: false,
       validationErrors: {},
       draftConfiguration: null,
 
@@ -199,6 +203,16 @@ export const useConfigurationStore = create<ConfigurationState & ConfigurationAc
           state.isSidebarOpen = false;
           state.selectedNodeId = null;
           state.draftConfiguration = null;
+        }),
+
+      toggleConfigurationSidebar: () =>
+        set((state) => {
+          state.isConfigurationSidebarVisible = !state.isConfigurationSidebarVisible;
+        }),
+
+      setConfigurationSidebarVisible: (visible) =>
+        set((state) => {
+          state.isConfigurationSidebarVisible = visible;
         }),
 
       setDraftConfiguration: (config) =>

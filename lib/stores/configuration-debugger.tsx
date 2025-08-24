@@ -20,7 +20,7 @@ export const ConfigurationStoreDebugger: React.FC = () => {
   return (
     <div className="fixed bottom-4 left-4 p-4 bg-black bg-opacity-80 text-white text-xs rounded-lg max-w-sm max-h-60 overflow-auto z-50">
       <div className="font-bold mb-2">Configuration Store Debug</div>
-      
+
       <div className="space-y-1">
         <div>Selected Node: {selectedNodeId || 'None'}</div>
         <div>Sidebar Open: {isSidebarOpen ? 'Yes' : 'No'}</div>

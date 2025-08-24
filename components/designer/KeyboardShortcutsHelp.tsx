@@ -48,6 +48,7 @@ const shortcutSections: ShortcutSection[] = [
       { key: "Ctrl/Cmd + N", description: "Create new architecture" },
       { key: "Ctrl/Cmd + S", description: "Save architecture" },
       { key: "T", description: "Toggle sidebar" },
+      { key: "Y", description: "Toggle configuration sidebar (for selected node)" },
       { key: "F", description: "Toggle fullscreen mode" },
       { key: "?", description: "Show/hide this help" },
     ],
@@ -82,11 +83,11 @@ const KeyboardShortcutsHelp: React.FC<KeyboardShortcutsHelpProps> = ({ isOpen, o
   };
 
   return (
-    <div 
+    <div
       className="fixed inset-0 bg-transparent flex items-center justify-center z-50 transition-opacity duration-200"
       onClick={handleBackdropClick}
     >
-      <div 
+      <div
         className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto transform transition-all duration-200 scale-100"
         onClick={(e) => e.stopPropagation()}
       >
@@ -141,7 +142,7 @@ const KeyboardShortcutsHelp: React.FC<KeyboardShortcutsHelpProps> = ({ isOpen, o
         {/* Footer */}
         <div className="px-6 py-4 bg-gray-50 border-t rounded-b-lg">
           <p className="text-sm text-gray-600">
-            <strong>Tip:</strong> Most shortcuts work when the canvas is focused. 
+            <strong>Tip:</strong> Most shortcuts work when the canvas is focused.
             Some shortcuts are disabled when typing in input fields.
           </p>
           <p className="text-xs text-gray-500 mt-1">

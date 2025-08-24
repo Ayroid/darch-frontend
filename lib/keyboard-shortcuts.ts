@@ -1,11 +1,11 @@
 /**
  * Keyboard Shortcuts for Darch Architecture Designer
- * 
+ *
  * This file contains all keyboard shortcuts used throughout the application.
  * Import the relevant hook in components where shortcuts are needed.
- * 
+ *
  * AVAILABLE SHORTCUTS:
- * 
+ *
  * === CANVAS OPERATIONS ===
  * Ctrl/Cmd + C         Copy selected nodes
  * Ctrl/Cmd + V         Paste copied nodes
@@ -16,32 +16,33 @@
  * Ctrl/Cmd + Shift + Z Redo last action (alternative)
  * Delete / Backspace   Delete selected nodes
  * Escape               Deselect all nodes
- * 
+ *
  * === VIEW CONTROLS ===
  * Ctrl/Cmd + 0         Fit view to show all nodes
  * Ctrl/Cmd + =         Zoom in
  * Ctrl/Cmd + -         Zoom out
  * Ctrl/Cmd + 1         Reset zoom to 100%
  * Space + Drag         Pan the canvas
- * 
+ *
  * === NODE MANIPULATION ===
  * Arrow Keys           Move selected nodes (5px steps)
  * Shift + Arrow Keys   Move selected nodes (20px steps)
  * Ctrl/Cmd + G         Group selected nodes
  * Ctrl/Cmd + U         Ungroup selected nodes
- * 
+ *
  * === APPLICATION SHORTCUTS ===
  * Ctrl/Cmd + N         Create new architecture
  * Ctrl/Cmd + S         Save architecture
  * Ctrl/Cmd + O         Open architecture
  * T                    Toggle sidebar
+ * Y                    Toggle configuration sidebar (for selected node)
  * F                    Toggle fullscreen mode
  * ?                    Show/hide keyboard shortcuts help
- * 
+ *
  * === EDGE OPERATIONS ===
  * E                    Toggle edge creation mode
  * R                    Toggle edge removal mode
- * 
+ *
  */
 
 import { useCallback, useEffect, useState } from 'react';
@@ -74,6 +75,7 @@ export interface ShortcutActions {
   onSave?: () => void;
   onOpen?: () => void;
   onToggleSidebar?: () => void;
+  onToggleConfigurationSidebar?: () => void;
   onToggleFullscreen?: () => void;
   onShowHelp?: () => void;
 
@@ -114,7 +116,7 @@ export const useCanvasShortcuts = (actions: CanvasShortcutActions) => {
 
   const handleKeyDown = useCallback((event: KeyboardEvent) => {
     const target = event.target as HTMLElement;
-    
+
     // Don't trigger shortcuts when typing in inputs
     if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
       return;
@@ -211,13 +213,14 @@ export const useApplicationShortcuts = (actions: ShortcutActions) => {
     onNewArchitecture,
     onSave,
     onToggleSidebar,
+    onToggleConfigurationSidebar,
     onToggleFullscreen,
     onShowHelp,
   } = actions;
 
   const handleKeyDown = useCallback((event: KeyboardEvent) => {
     const target = event.target as HTMLElement;
-    
+
     // Don't trigger shortcuts when typing in inputs
     if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
       return;
@@ -235,6 +238,9 @@ export const useApplicationShortcuts = (actions: ShortcutActions) => {
     } else if (event.key === 't' && !isCtrlOrCmd) {
       event.preventDefault();
       onToggleSidebar?.();
+    } else if (event.key === 'y' && !isCtrlOrCmd) {
+      event.preventDefault();
+      onToggleConfigurationSidebar?.();
     } else if (event.key === 'f' && !isCtrlOrCmd) {
       event.preventDefault();
       onToggleFullscreen?.();
@@ -242,7 +248,7 @@ export const useApplicationShortcuts = (actions: ShortcutActions) => {
       event.preventDefault();
       onShowHelp?.();
     }
-  }, [onNewArchitecture, onSave, onToggleSidebar, onToggleFullscreen, onShowHelp]);
+  }, [onNewArchitecture, onSave, onToggleSidebar, onToggleConfigurationSidebar, onToggleFullscreen, onShowHelp]);
 
   useEffect(() => {
     document.addEventListener('keydown', handleKeyDown);

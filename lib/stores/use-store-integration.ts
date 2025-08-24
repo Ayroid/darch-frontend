@@ -24,7 +24,7 @@ export const useStoreIntegration = (
 
     // Update the store
     updateNodeConfiguration(nodeId, newConfig);
-    
+
     // Validate and set errors
     const errors = validateConfiguration(serviceId, newConfig);
     if (errors.length > 0) {
@@ -32,7 +32,7 @@ export const useStoreIntegration = (
     } else {
       clearValidationErrors(nodeId);
     }
-    
+
     // Call the original onChange
     onChange(newConfig);
   }, [nodeId, serviceId, updateNodeConfiguration, setValidationErrors, clearValidationErrors, onChange]);
