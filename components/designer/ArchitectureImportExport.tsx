@@ -8,9 +8,7 @@ import { useArchitectureData } from "@/hooks/use-architecture-data";
 import { Node, Edge } from "@xyflow/react";
 import {
 	ArrowDownTrayIcon,
-	ArrowUpTrayIcon,
 	DocumentIcon,
-	DocumentArrowDownIcon,
 	ClipboardDocumentIcon,
 	XMarkIcon,
 } from "@heroicons/react/24/outline";
@@ -65,14 +63,6 @@ export default function ArchitectureImportExport({
 		}
 	};
 
-	const handleExportFile = () => {
-		saveToFile();
-	};
-
-	const handleImportFile = () => {
-		fileInputRef.current?.click();
-	};
-
 	const handleFileChange = async (
 		event: React.ChangeEvent<HTMLInputElement>
 	) => {
@@ -106,16 +96,6 @@ export default function ArchitectureImportExport({
 				/>
 
 				<Button
-					variant="outline"
-					size="sm"
-					onClick={handleImportFile}
-					className="flex items-center gap-2"
-				>
-					<ArrowUpTrayIcon className="w-4 h-4" />
-					Import
-				</Button>
-
-				<Button
 					ref={jsonButtonRef}
 					variant="outline"
 					size="sm"
@@ -131,17 +111,6 @@ export default function ArchitectureImportExport({
 					variant="outline"
 					size="sm"
 					onClick={() => saveToFile()}
-					className="flex items-center gap-2"
-					disabled={!currentData}
-				>
-					<DocumentArrowDownIcon className="w-4 h-4" />
-					Save
-				</Button>
-
-				<Button
-					variant="outline"
-					size="sm"
-					onClick={handleExportFile}
 					className="flex items-center gap-2"
 					disabled={!currentData}
 				>
