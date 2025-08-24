@@ -43,14 +43,6 @@ const awsServices: AWSService[] = [
 		isContainer: true,
 		status: "ready",
 	},
-	{
-		id: "aws-account",
-		name: "AWS Account",
-		icon: "/aws_icons/Architecture-Group-Icons_07312025/AWS-Account_32.svg",
-		category: "Infrastructure",
-		isContainer: true,
-		status: "ready",
-	},
 
 	// Compute Services
 	{

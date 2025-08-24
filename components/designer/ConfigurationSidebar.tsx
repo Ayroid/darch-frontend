@@ -21,8 +21,6 @@ const awsServiceConfigurationMap: Record<string, ConfigurationFormComponent> = {
 		ConfigurationSidebarMap.AWSRegionConfigurationForm as ConfigurationFormComponent,
 	"aws-availability-zone":
 		ConfigurationSidebarMap.AvailabilityZoneConfigurationForm as ConfigurationFormComponent,
-	"aws-account":
-		ConfigurationSidebarMap.AWSAccountConfigurationForm as ConfigurationFormComponent,
 	"aws-private-subnet":
 		ConfigurationSidebarMap.PrivateSubnetConfigurationForm as ConfigurationFormComponent,
 	"aws-public-subnet":

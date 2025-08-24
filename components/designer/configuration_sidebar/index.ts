@@ -13,9 +13,6 @@ import type { AWSRegionConfiguration } from "./AWSRegionConfigurationForm";
 import AvailabilityZoneConfigurationForm from "./AvailabilityZoneConfigurationForm";
 import type { AvailabilityZoneConfiguration } from "./AvailabilityZoneConfigurationForm";
 
-import AWSAccountConfigurationForm from "./AWSAccountConfigurationForm";
-import type { AWSAccountConfiguration } from "./AWSAccountConfigurationForm";
-
 import PrivateSubnetConfigurationForm from "./PrivateSubnetConfigurationForm";
 import type { PrivateSubnetConfiguration } from "./PrivateSubnetConfigurationForm";
 
@@ -28,7 +25,6 @@ const ConfigurationSidebarMap = {
 	DefaultConfigurationForm,
 	AWSRegionConfigurationForm,
 	AvailabilityZoneConfigurationForm,
-	AWSAccountConfigurationForm,
 	PrivateSubnetConfigurationForm,
 	PublicSubnetConfigurationForm,
 };
@@ -40,7 +36,6 @@ type ConfigurationTypes =
 	| DefaultConfiguration
 	| AWSRegionConfiguration
 	| AvailabilityZoneConfiguration
-	| AWSAccountConfiguration
 	| PrivateSubnetConfiguration
 	| PublicSubnetConfiguration;
 
@@ -51,7 +46,6 @@ export type {
 	DefaultConfiguration,
 	AWSRegionConfiguration,
 	AvailabilityZoneConfiguration,
-	AWSAccountConfiguration,
 	PrivateSubnetConfiguration,
 	PublicSubnetConfiguration,
 	ConfigurationTypes
