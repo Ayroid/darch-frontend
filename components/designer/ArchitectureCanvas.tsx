@@ -134,14 +134,11 @@ export default function ArchitectureCanvas({
 		currentData,
 		updateFromReactFlow,
 		addNode: addArchNode,
-		removeNode: removeArchNode,
 		addConnection: addArchConnection,
-		removeConnection: removeArchConnection,
 		convertToReactFlow,
 	} = useArchitectureData();
 
 	// Load initial data from architecture manager (only on first load)
-	// eslint-disable-next-line react-hooks/exhaustive-deps
 	useEffect(() => {
 		if (currentData && nodes.length === 0 && edges.length === 0) {
 			const { nodes: archNodes, edges: archEdges } = convertToReactFlow();
