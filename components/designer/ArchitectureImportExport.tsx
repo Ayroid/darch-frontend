@@ -2,7 +2,7 @@
  * Architecture Import/Export Controls
  */
 
-import React, { useRef } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useArchitectureData } from "@/hooks/use-architecture-data";
 import { Node, Edge } from "@xyflow/react";
@@ -11,6 +11,8 @@ import {
 	ArrowUpTrayIcon,
 	DocumentIcon,
 	DocumentArrowDownIcon,
+	ClipboardDocumentIcon,
+	XMarkIcon,
 } from "@heroicons/react/24/outline";
 
 interface ArchitectureImportExportProps {
@@ -23,45 +25,43 @@ export default function ArchitectureImportExport({
 	className = "",
 }: ArchitectureImportExportProps) {
 	const fileInputRef = useRef<HTMLInputElement>(null);
-	const terraformInputRef = useRef<HTMLInputElement>(null);
-	const { exportToJSON, saveToFile, loadFromFile, loadFromJSON, currentData } =
+	const jsonButtonRef = useRef<HTMLButtonElement>(null);
+	const [isJsonDialogOpen, setIsJsonDialogOpen] = useState(false);
+	const [jsonData, setJsonData] = useState<string>("");
+	const { exportToJSON, saveToFile, loadFromFile, currentData } =
 		useArchitectureData();
 
-	const handleExportJSON = () => {
-		const data = exportToJSON();
-		if (data) {
-			// Pretty print JSON and show in a new window for copying
-			const jsonString = JSON.stringify(data, null, 2);
-			const newWindow = window.open();
-			if (newWindow) {
-				newWindow.document.write(`
-          <html>
-            <head>
-              <title>Architecture JSON</title>
-              <style>
-                body { font-family: monospace; padding: 20px; background: #f5f5f5; }
-                pre { background: white; padding: 20px; border-radius: 8px; overflow: auto; }
-                button {
-                  margin-bottom: 20px;
-                  padding: 10px 20px;
-                  background: #007bff;
-                  color: white;
-                  border: none;
-                  border-radius: 4px;
-                  cursor: pointer;
-                }
-                button:hover { background: #0056b3; }
-              </style>
-            </head>
-            <body>
-              <button onclick="navigator.clipboard.writeText(document.querySelector('pre').textContent); alert('Copied to clipboard!')">
-                Copy to Clipboard
-              </button>
-              <pre>${jsonString}</pre>
-            </body>
-          </html>
-        `);
+	const handleToggleJsonDialog = () => {
+		if (!isJsonDialogOpen) {
+			const data = exportToJSON();
+			if (data) {
+				// Pretty print JSON and show in dialog
+				const jsonString = JSON.stringify(data, null, 2);
+				setJsonData(jsonString);
 			}
+		}
+		setIsJsonDialogOpen(!isJsonDialogOpen);
+	};
+
+	// Update JSON data in real time when dialog is open
+	useEffect(() => {
+		if (isJsonDialogOpen && currentData) {
+			const data = exportToJSON();
+			if (data) {
+				const jsonString = JSON.stringify(data, null, 2);
+				setJsonData(jsonString);
+			}
+		}
+	}, [currentData, isJsonDialogOpen, exportToJSON]);
+
+	const handleCopyToClipboard = async () => {
+		try {
+			await navigator.clipboard.writeText(jsonData);
+			// You could add a toast notification here if you have one
+			alert('JSON copied to clipboard!');
+		} catch (error) {
+			console.error('Failed to copy to clipboard:', error);
+			alert('Failed to copy to clipboard');
 		}
 	};
 
@@ -95,57 +95,104 @@ export default function ArchitectureImportExport({
 	};
 
 	return (
-		<div className={`flex gap-2 ${className}`}>
-			<input
-				ref={fileInputRef}
-				type="file"
-				accept=".json"
-				onChange={handleFileChange}
-				className="hidden"
-			/>
+		<>
+			<div className={`flex gap-2 ${className}`}>
+				<input
+					ref={fileInputRef}
+					type="file"
+					accept=".json"
+					onChange={handleFileChange}
+					className="hidden"
+				/>
 
-			<Button
-				variant="outline"
-				size="sm"
-				onClick={handleImportFile}
-				className="flex items-center gap-2"
-			>
-				<ArrowUpTrayIcon className="w-4 h-4" />
-				Import
-			</Button>
+				<Button
+					variant="outline"
+					size="sm"
+					onClick={handleImportFile}
+					className="flex items-center gap-2"
+				>
+					<ArrowUpTrayIcon className="w-4 h-4" />
+					Import
+				</Button>
 
-			<Button
-				variant="outline"
-				size="sm"
-				onClick={handleExportJSON}
-				className="flex items-center gap-2"
-				disabled={!currentData}
-			>
-				<DocumentIcon className="w-4 h-4" />
-				View JSON
-			</Button>
+				<Button
+					ref={jsonButtonRef}
+					variant="outline"
+					size="sm"
+					onClick={handleToggleJsonDialog}
+					className="flex items-center gap-2"
+					disabled={!currentData}
+				>
+					<DocumentIcon className="w-4 h-4" />
+					View JSON
+				</Button>
 
-			<Button
-				variant="outline"
-				size="sm"
-				onClick={() => saveToFile()}
-				className="flex items-center gap-2"
-				disabled={!currentData}
-			>
-				<DocumentArrowDownIcon className="w-4 h-4" />
-				Save
-			</Button>
+				<Button
+					variant="outline"
+					size="sm"
+					onClick={() => saveToFile()}
+					className="flex items-center gap-2"
+					disabled={!currentData}
+				>
+					<DocumentArrowDownIcon className="w-4 h-4" />
+					Save
+				</Button>
 
-			<Button
-				variant="outline"
-				size="sm"
-				onClick={handleExportFile}
-				className="flex items-center gap-2"
-				disabled={!currentData}
-			>
-				<ArrowDownTrayIcon className="w-4 h-4" />
-				Export
-			</Button>
-		</div>
+				<Button
+					variant="outline"
+					size="sm"
+					onClick={handleExportFile}
+					className="flex items-center gap-2"
+					disabled={!currentData}
+				>
+					<ArrowDownTrayIcon className="w-4 h-4" />
+					Export
+				</Button>
+			</div>
+
+			{/* Floating JSON Dialog */}
+			{isJsonDialogOpen && (
+				<div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+					{/* Dialog */}
+					<div className="bg-white dark:bg-gray-900 rounded-lg shadow-xl border max-w-2xl w-full max-h-[80vh] flex flex-col pointer-events-auto">
+						{/* Header */}
+						<div className="flex items-center justify-between p-4 border-b">
+							<div>
+								<h2 className="text-lg font-semibold">Architecture JSON</h2>
+								<p className="text-sm text-gray-600 dark:text-gray-400">
+									Copy the JSON data below to use it elsewhere.
+								</p>
+							</div>
+							<Button
+								variant="outline"
+								size="sm"
+								onClick={handleToggleJsonDialog}
+								className="p-2"
+							>
+								<XMarkIcon className="w-4 h-4" />
+							</Button>
+						</div>
+
+						{/* Content */}
+						<div className="flex-1 flex flex-col gap-4 p-4">
+							<Button
+								onClick={handleCopyToClipboard}
+								className="flex items-center gap-2 self-start"
+								variant="default"
+							>
+								<ClipboardDocumentIcon className="w-4 h-4" />
+								Copy to Clipboard
+							</Button>
+
+							<div className="flex-1 overflow-hidden">
+								<pre className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg overflow-auto h-full max-h-[50vh] text-sm font-mono whitespace-pre-wrap border">
+									{jsonData}
+								</pre>
+							</div>
+						</div>
+					</div>
+				</div>
+			)}
+		</>
 	);
 }
