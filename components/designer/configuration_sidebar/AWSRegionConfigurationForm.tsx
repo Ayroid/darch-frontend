@@ -12,6 +12,8 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useConfigurationContext } from "@/lib/stores/configuration-context";
+import { useStoreAwareConfig } from "@/lib/stores/use-store-integration";
 
 export interface AWSRegionConfiguration {
 	name: string;
@@ -67,9 +69,8 @@ const AWSRegionConfigurationForm: React.FC<AWSRegionConfigurationFormProps> = ({
 	config,
 	onChange,
 }) => {
-	const updateConfig = (key: string, value: unknown) => {
-		onChange({ ...config, [key]: value });
-	};
+	const { nodeId, serviceId } = useConfigurationContext();
+	const updateConfig = useStoreAwareConfig(nodeId, serviceId || 'aws-region', config, onChange);
 
 	return (
 		<div className="space-y-4">
@@ -82,6 +83,10 @@ const AWSRegionConfigurationForm: React.FC<AWSRegionConfigurationFormProps> = ({
 						updateConfig("regionCode", value);
 						if (selectedRegion) {
 							updateConfig("displayName", selectedRegion.name);
+							// Auto-generate a name if not set
+							if (!config.name) {
+								updateConfig("name", selectedRegion.code);
+							}
 						}
 					}}
 				>
