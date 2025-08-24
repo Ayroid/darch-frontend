@@ -17,6 +17,16 @@ const awsServiceConfigurationMap: Record<string, ConfigurationFormComponent> = {
 		ConfigurationSidebarMap.VPCConfigurationForm as ConfigurationFormComponent,
 	"aws-ec2":
 		ConfigurationSidebarMap.EC2ConfigurationForm as ConfigurationFormComponent,
+	"aws-region":
+		ConfigurationSidebarMap.AWSRegionConfigurationForm as ConfigurationFormComponent,
+	"aws-availability-zone":
+		ConfigurationSidebarMap.AvailabilityZoneConfigurationForm as ConfigurationFormComponent,
+	"aws-account":
+		ConfigurationSidebarMap.AWSAccountConfigurationForm as ConfigurationFormComponent,
+	"aws-private-subnet":
+		ConfigurationSidebarMap.PrivateSubnetConfigurationForm as ConfigurationFormComponent,
+	"aws-public-subnet":
+		ConfigurationSidebarMap.PublicSubnetConfigurationForm as ConfigurationFormComponent,
 };
 
 interface ConfigurationSidebarProps {

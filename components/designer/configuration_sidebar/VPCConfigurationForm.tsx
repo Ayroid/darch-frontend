@@ -78,12 +78,12 @@ interface VPCConfiguration {
 }
 
 const VPCConfigurationForm: React.FC<{
-	config: Partial<VPCConfiguration>;
-	onChange: (config: Partial<VPCConfiguration>) => void;
+	config: Record<string, unknown>;
+	onChange: (config: Record<string, unknown>) => void;
 }> = ({ config, onChange }) => {
 	const updateConfig = (
 		key: keyof VPCConfiguration,
-		value: string | boolean | string[] | Record<string, string>
+		value: VPCConfiguration[keyof VPCConfiguration]
 	) => {
 		onChange({ ...config, [key]: value });
 	};
@@ -103,7 +103,7 @@ const VPCConfigurationForm: React.FC<{
 					<Input
 						id="vpc-name"
 						placeholder="e.g., my-vpc"
-						value={config.name || ""}
+						value={(config.name as string) || ""}
 						onChange={(e) => updateConfig("name", e.target.value)}
 					/>
 				</div>
@@ -115,7 +115,7 @@ const VPCConfigurationForm: React.FC<{
 					<Input
 						id="cidr-block"
 						placeholder="e.g., 10.0.0.0/16"
-						value={config.cidrBlock || ""}
+						value={(config.cidrBlock as string) || ""}
 						onChange={(e) => updateConfig("cidrBlock", e.target.value)}
 					/>
 				</div>
@@ -123,11 +123,10 @@ const VPCConfigurationForm: React.FC<{
 				<div className="space-y-2">
 					<Label htmlFor="region">
 						Region <span className="text-red-500">*</span>
-					</Label>
-					<Select
-						value={config.region || ""}
-						onValueChange={(value) => updateConfig("region", value)}
-					>
+					</Label>				<Select
+					value={(config.region as string) || ""}
+					onValueChange={(value) => updateConfig("region", value)}
+				>
 						<SelectTrigger>
 							<SelectValue placeholder="Select AWS region" />
 						</SelectTrigger>
@@ -153,7 +152,7 @@ const VPCConfigurationForm: React.FC<{
 					<Textarea
 						id="availability-zones"
 						placeholder="Enter availability zones, comma-separated (e.g., us-east-1a, us-east-1b)"
-						value={config.availabilityZones?.join(", ") || ""}
+						value={(config.availabilityZones as string[])?.join(", ") || ""}
 						onChange={(e) =>
 							updateConfig(
 								"availabilityZones",
@@ -174,7 +173,7 @@ const VPCConfigurationForm: React.FC<{
 					<div className="flex items-center space-x-2">
 						<Checkbox
 							id="enable-dns-support"
-							checked={config.enableDnsSupport || false}
+							checked={(config.enableDnsSupport as boolean) || false}
 							onCheckedChange={(checked) =>
 								updateConfig("enableDnsSupport", checked)
 							}
@@ -185,7 +184,7 @@ const VPCConfigurationForm: React.FC<{
 					<div className="flex items-center space-x-2">
 						<Checkbox
 							id="enable-dns-hostnames"
-							checked={config.enableDnsHostnames || false}
+							checked={(config.enableDnsHostnames as boolean) || false}
 							onCheckedChange={(checked) =>
 								updateConfig("enableDnsHostnames", checked)
 							}
@@ -196,7 +195,7 @@ const VPCConfigurationForm: React.FC<{
 					<div className="flex items-center space-x-2">
 						<Checkbox
 							id="assign-ipv6-cidr"
-							checked={config.assignGeneratedIpv6CidrBlock || false}
+							checked={(config.assignGeneratedIpv6CidrBlock as boolean) || false}
 							onCheckedChange={(checked) =>
 								updateConfig("assignGeneratedIpv6CidrBlock", checked)
 							}
@@ -215,7 +214,7 @@ const VPCConfigurationForm: React.FC<{
 				<div className="flex items-center space-x-2">
 					<Checkbox
 						id="create-public-subnets"
-						checked={config.createPublicSubnets || false}
+						checked={(config.createPublicSubnets as boolean) || false}
 						onCheckedChange={(checked) =>
 							updateConfig("createPublicSubnets", checked)
 						}
@@ -223,13 +222,13 @@ const VPCConfigurationForm: React.FC<{
 					<Label htmlFor="create-public-subnets">Create public subnets</Label>
 				</div>
 
-				{config.createPublicSubnets && (
+				{(config.createPublicSubnets as boolean) && (
 					<div className="space-y-2">
 						<Label htmlFor="public-subnet-cidrs">Public Subnet CIDRs</Label>
 						<Textarea
 							id="public-subnet-cidrs"
 							placeholder="Enter public subnet CIDRs, comma-separated (e.g., 10.0.1.0/24, 10.0.2.0/24)"
-							value={config.publicSubnetCidrs?.join(", ") || ""}
+							value={(config.publicSubnetCidrs as string[])?.join(", ") || ""}
 							onChange={(e) =>
 								updateConfig(
 									"publicSubnetCidrs",
@@ -243,7 +242,7 @@ const VPCConfigurationForm: React.FC<{
 				<div className="flex items-center space-x-2">
 					<Checkbox
 						id="create-private-subnets"
-						checked={config.createPrivateSubnets || false}
+						checked={(config.createPrivateSubnets as boolean) || false}
 						onCheckedChange={(checked) =>
 							updateConfig("createPrivateSubnets", checked)
 						}
@@ -251,13 +250,13 @@ const VPCConfigurationForm: React.FC<{
 					<Label htmlFor="create-private-subnets">Create private subnets</Label>
 				</div>
 
-				{config.createPrivateSubnets && (
+				{(config.createPrivateSubnets as boolean) && (
 					<div className="space-y-2">
 						<Label htmlFor="private-subnet-cidrs">Private Subnet CIDRs</Label>
 						<Textarea
 							id="private-subnet-cidrs"
 							placeholder="Enter private subnet CIDRs, comma-separated (e.g., 10.0.10.0/24, 10.0.20.0/24)"
-							value={config.privateSubnetCidrs?.join(", ") || ""}
+							value={(config.privateSubnetCidrs as string[])?.join(", ") || ""}
 							onChange={(e) =>
 								updateConfig(
 									"privateSubnetCidrs",
@@ -271,7 +270,7 @@ const VPCConfigurationForm: React.FC<{
 				<div className="flex items-center space-x-2">
 					<Checkbox
 						id="create-intra-subnets"
-						checked={config.createIntraSubnets || false}
+						checked={(config.createIntraSubnets as boolean) || false}
 						onCheckedChange={(checked) =>
 							updateConfig("createIntraSubnets", checked)
 						}
@@ -281,13 +280,13 @@ const VPCConfigurationForm: React.FC<{
 					</Label>
 				</div>
 
-				{config.createIntraSubnets && (
+				{(config.createIntraSubnets as boolean) && (
 					<div className="space-y-2">
 						<Label htmlFor="intra-subnet-cidrs">Intra Subnet CIDRs</Label>
 						<Textarea
 							id="intra-subnet-cidrs"
 							placeholder="Enter intra subnet CIDRs, comma-separated (e.g., 10.0.30.0/24, 10.0.40.0/24)"
-							value={config.intraSubnetCidrs?.join(", ") || ""}
+							value={(config.intraSubnetCidrs as string[])?.join(", ") || ""}
 							onChange={(e) =>
 								updateConfig(
 									"intraSubnetCidrs",
@@ -308,7 +307,7 @@ const VPCConfigurationForm: React.FC<{
 				<div className="flex items-center space-x-2">
 					<Checkbox
 						id="create-internet-gateway"
-						checked={config.createInternetGateway || false}
+						checked={(config.createInternetGateway as boolean) || false}
 						onCheckedChange={(checked) =>
 							updateConfig("createInternetGateway", checked)
 						}
@@ -321,7 +320,7 @@ const VPCConfigurationForm: React.FC<{
 				<div className="flex items-center space-x-2">
 					<Checkbox
 						id="create-nat-gateway"
-						checked={config.createNatGateway || false}
+						checked={(config.createNatGateway as boolean) || false}
 						onCheckedChange={(checked) =>
 							updateConfig("createNatGateway", checked)
 						}
@@ -329,12 +328,12 @@ const VPCConfigurationForm: React.FC<{
 					<Label htmlFor="create-nat-gateway">Create NAT gateway</Label>
 				</div>
 
-				{config.createNatGateway && (
+				{(config.createNatGateway as boolean) && (
 					<>
 						<div className="flex items-center space-x-2">
 							<Checkbox
 								id="single-nat-gateway"
-								checked={config.singleNatGateway || false}
+								checked={(config.singleNatGateway as boolean) || false}
 								onCheckedChange={(checked) =>
 									updateConfig("singleNatGateway", checked)
 								}
@@ -347,7 +346,7 @@ const VPCConfigurationForm: React.FC<{
 						<div className="flex items-center space-x-2">
 							<Checkbox
 								id="one-nat-per-az"
-								checked={config.oneNatGatewayPerAz || false}
+								checked={(config.oneNatGatewayPerAz as boolean) || false}
 								onCheckedChange={(checked) =>
 									updateConfig("oneNatGatewayPerAz", checked)
 								}
@@ -369,7 +368,7 @@ const VPCConfigurationForm: React.FC<{
 				<div className="flex items-center space-x-2">
 					<Checkbox
 						id="enable-vpc-flow-logs"
-						checked={config.enableVpcFlowLogs || false}
+						checked={(config.enableVpcFlowLogs as boolean) || false}
 						onCheckedChange={(checked) =>
 							updateConfig("enableVpcFlowLogs", checked)
 						}
@@ -377,12 +376,12 @@ const VPCConfigurationForm: React.FC<{
 					<Label htmlFor="enable-vpc-flow-logs">Enable VPC flow logs</Label>
 				</div>
 
-				{config.enableVpcFlowLogs && (
+				{(config.enableVpcFlowLogs as boolean) && (
 					<>
 						<div className="space-y-2">
 							<Label htmlFor="flow-logs-destination">Destination Type</Label>
 							<Select
-								value={config.flowLogsDestinationType || ""}
+								value={(config.flowLogsDestinationType as string) || ""}
 								onValueChange={(value) =>
 									updateConfig("flowLogsDestinationType", value)
 								}
@@ -402,7 +401,7 @@ const VPCConfigurationForm: React.FC<{
 						<div className="space-y-2">
 							<Label htmlFor="flow-logs-traffic-type">Traffic Type</Label>
 							<Select
-								value={config.flowLogsTrafficType || ""}
+								value={(config.flowLogsTrafficType as string) || ""}
 								onValueChange={(value) =>
 									updateConfig("flowLogsTrafficType", value)
 								}
