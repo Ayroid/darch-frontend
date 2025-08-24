@@ -20,7 +20,12 @@ import { useCanvasShortcuts, useUndoRedo } from "@/lib/keyboard-shortcuts";
 import { useArchitectureData } from "@/hooks/use-architecture-data";
 import UndoRedoControls from "./UndoRedoControls";
 import ShortcutsButton from "./ShortcutsButton";
-import { createNodeHandlers, createNodeTypes, getId } from "./nodeUtils";
+import {
+	createNodeHandlers,
+	createNodeTypes,
+	getNodeId,
+	getEdgeId,
+} from "./nodeUtils";
 
 // Custom styles for transparent nodes
 const nodeStyles = `
@@ -230,7 +235,7 @@ export default function ArchitectureCanvas({
 			const newEdge: Edge = {
 				...params,
 				type: defaultEdgeOptions.type,
-				id: getId(),
+				id: getEdgeId(),
 				source: params.source!,
 				target: params.target!,
 			};
@@ -250,13 +255,13 @@ export default function ArchitectureCanvas({
 		(event: React.DragEvent) => {
 			event.preventDefault();
 
-			const type = event.dataTransfer.getData("application/reactflow");
+			const serviceId = event.dataTransfer.getData("application/reactflow");
 			const name = event.dataTransfer.getData("application/name");
 			const icon = event.dataTransfer.getData("application/icon");
 			const isContainer =
 				event.dataTransfer.getData("application/isContainer") === "true";
 
-			if (typeof type === "undefined" || !type) {
+			if (typeof serviceId === "undefined" || !serviceId) {
 				return;
 			}
 
@@ -267,13 +272,13 @@ export default function ArchitectureCanvas({
 				});
 
 				const newNode: Node = {
-					id: getId(),
+					id: getNodeId(serviceId),
 					type: isContainer ? "awsContainer" : "awsService",
 					position,
 					data: {
 						icon,
 						name,
-						serviceId: type, // Add service ID for styling
+						serviceId, // Add service ID for styling
 						...(isContainer && { isContainer: true }),
 					},
 					...(isContainer && {

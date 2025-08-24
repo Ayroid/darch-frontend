@@ -155,7 +155,7 @@ export function AWSContainerNode({
 
 	// Calculate handle positions based on current node size
 	const handleStyle = {
-		top: { top: 0, left: nodeSize.width / 2},
+		top: { top: 0, left: nodeSize.width / 2 },
 		right: { top: nodeSize.height / 2, right: -7 },
 		bottom: { bottom: -7, left: nodeSize.width / 2 },
 		left: { top: nodeSize.height / 2, left: 0 },
@@ -218,28 +218,28 @@ export function AWSContainerNode({
 	// Get service-specific border color
 	const getBorderColor = (serviceId?: string) => {
 		switch (serviceId) {
-			case 'aws-vpc':
-				return '#8C4FFF'; // Purple (from VPC icon)
-			case 'aws-private-subnet':
-				return '#00A4A6'; // Teal/Cyan (from Private subnet icon)
-			case 'aws-public-subnet':
-				return '#7AA116'; // Green (from Public subnet icon)
-			case 'aws-auto-scaling':
-				return '#ED7100'; // Orange (from Auto Scaling icon)
-			case 'aws-region':
-				return '#000000'; // Teal (from Region icon)
-			case 'aws-availability-zone':
-				return '#00A4A6'; // Teal (same as region for consistency)
-			case 'aws-account':
-				return '#E7157B'; // Magenta/Pink (from AWS Account icon)
-			case 'aws-corporate-datacenter':
-				return '#666666'; // Gray for data center
-			case 'aws-local-zone':
-				return '#4A90E2'; // Blue for local zones
-			case 'aws-edge-location':
-				return '#FF9500'; // Orange for edge locations
+			case "aws-vpc":
+				return "#8C4FFF"; // Purple (from VPC icon)
+			case "aws-private-subnet":
+				return "#00A4A6"; // Teal/Cyan (from Private subnet icon)
+			case "aws-public-subnet":
+				return "#7AA116"; // Green (from Public subnet icon)
+			case "aws-auto-scaling":
+				return "#ED7100"; // Orange (from Auto Scaling icon)
+			case "aws-region":
+				return "#000000"; // Teal (from Region icon)
+			case "aws-availability-zone":
+				return "#00A4A6"; // Teal (same as region for consistency)
+			case "aws-account":
+				return "#E7157B"; // Magenta/Pink (from AWS Account icon)
+			case "aws-corporate-datacenter":
+				return "#666666"; // Gray for data center
+			case "aws-local-zone":
+				return "#4A90E2"; // Blue for local zones
+			case "aws-edge-location":
+				return "#FF9500"; // Orange for edge locations
 			default:
-				return '#8C4FFF'; // Default purple (VPC color)
+				return "#8C4FFF"; // Default purple (VPC color)
 		}
 	};
 
@@ -255,8 +255,8 @@ export function AWSContainerNode({
 				minWidth: 250,
 				minHeight: 200,
 				border: `1px solid ${borderColor}`,
-				borderRadius: '0px',
-				background: 'transparent',
+				borderRadius: "0px",
+				background: "transparent",
 			}}
 		>
 			{/* Handles for connections with dynamic positioning */}
@@ -332,9 +332,19 @@ export function AWSContainerNode({
 	);
 }
 
-// Node ID generator
-let nodeId = 0;
-export const getId = () => `dndnode_${nodeId++}`;
+export const getNodeId = (serviceId: string) => {
+	const now = new Date();
+	const timestamp = now.getTime();
+	const ms = now.getMilliseconds();
+	return `${serviceId || "dndnode"}-${timestamp}${ms}`;
+};
+
+export const getEdgeId = () => {
+	const now = new Date();
+	const timestamp = now.getTime();
+	const ms = now.getMilliseconds();
+	return `edge-${timestamp}${ms}`;
+};
 
 // Node operation handlers factory
 export const createNodeHandlers = (
@@ -405,7 +415,11 @@ export const createNodeHandlers = (
 
 		const newNodes = copiedNodes.map((node) => ({
 			...node,
-			id: getId(),
+			id: getNodeId(
+				typeof node.data?.serviceId === "string"
+					? node.data.serviceId
+					: "dndnode"
+			),
 			position: {
 				x: node.position.x + 50, // Offset by 50px
 				y: node.position.y + 50,
@@ -431,7 +445,11 @@ export const createNodeHandlers = (
 
 		const newNodes = selectedNodes.map((node) => ({
 			...node,
-			id: getId(),
+			id: getNodeId(
+				typeof node.data?.serviceId === "string"
+					? node.data.serviceId
+					: "dndnode"
+			),
 			position: {
 				x: node.position.x + 50, // Offset by 50px
 				y: node.position.y + 50,
