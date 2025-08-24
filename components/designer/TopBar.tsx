@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import {
-	PlusIcon,
 	QuestionMarkCircleIcon,
 	UserCircleIcon,
 	ChevronDownIcon,
@@ -38,7 +37,6 @@ export default function TopBar({
 	currentProject,
 	activeTab,
 	onTabChange,
-	onNewArchitecture,
 	onShare,
 	onSettings,
 	onHelp,
