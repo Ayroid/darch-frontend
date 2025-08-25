@@ -40,16 +40,21 @@ export interface AWSContainerNodeProps {
 	onNodeSizeChange?: (id: string, width: number, height: number) => void;
 }
 
-// Helper function to check if a handle is connected
+// Helper function to check if a handle is connected (checking both source and target versions)
 export const isHandleConnected = (
 	nodeId: string,
-	handleId: string,
+	handlePosition: string,
 	edges: Edge[]
 ): boolean => {
 	return edges.some(
 		(edge) =>
-			(edge.source === nodeId && edge.sourceHandle === handleId) ||
-			(edge.target === nodeId && edge.targetHandle === handleId)
+			// Check for source connections from this position
+			(edge.source === nodeId && edge.sourceHandle === `${handlePosition}-source`) ||
+			// Check for target connections to this position  
+			(edge.target === nodeId && edge.targetHandle === `${handlePosition}-target`) ||
+			// Legacy support for old handle IDs
+			(edge.source === nodeId && edge.sourceHandle === handlePosition) ||
+			(edge.target === nodeId && edge.targetHandle === handlePosition)
 	);
 };
 
@@ -84,34 +89,116 @@ export function AWSServiceNode({ id, data }: AWSServiceNodeProps) {
 				height: nodeSize,
 			}}
 		>
-			{/* Handles for connections with explicit positioning */}
+			{/* Top Handles - Bidirectional */}
 			<Handle
 				type="target"
 				position={Position.Top}
-				id="top"
+				id="top-target"
 				className={`handle-top ${isTopConnected ? "connected" : ""}`}
-				style={handleStyle.top}
+				style={{ 
+					...handleStyle.top, 
+					background: '#555',
+					width: '12px',
+					height: '12px',
+					border: 'none'
+				}}
+			/>
+			<Handle
+				type="source"
+				position={Position.Top}
+				id="top-source"
+				className={`handle-top ${isTopConnected ? "connected" : ""}`}
+				style={{ 
+					...handleStyle.top, 
+					background: 'transparent', 
+					border: '2px solid #555',
+					width: '12px',
+					height: '12px'
+				}}
+			/>
+
+			{/* Right Handles - Bidirectional */}
+			<Handle
+				type="target"
+				position={Position.Right}
+				id="right-target"
+				className={`handle-right ${isRightConnected ? "connected" : ""}`}
+				style={{ 
+					...handleStyle.right, 
+					background: '#555',
+					width: '12px',
+					height: '12px',
+					border: 'none'
+				}}
 			/>
 			<Handle
 				type="source"
 				position={Position.Right}
-				id="right"
+				id="right-source"
 				className={`handle-right ${isRightConnected ? "connected" : ""}`}
-				style={handleStyle.right}
+				style={{ 
+					...handleStyle.right, 
+					background: 'transparent', 
+					border: '2px solid #555',
+					width: '12px',
+					height: '12px'
+				}}
+			/>
+
+			{/* Bottom Handles - Bidirectional */}
+			<Handle
+				type="target"
+				position={Position.Bottom}
+				id="bottom-target"
+				className={`handle-bottom ${isBottomConnected ? "connected" : ""}`}
+				style={{ 
+					...handleStyle.bottom, 
+					background: '#555',
+					width: '12px',
+					height: '12px',
+					border: 'none'
+				}}
 			/>
 			<Handle
 				type="source"
 				position={Position.Bottom}
-				id="bottom"
+				id="bottom-source"
 				className={`handle-bottom ${isBottomConnected ? "connected" : ""}`}
-				style={handleStyle.bottom}
+				style={{ 
+					...handleStyle.bottom, 
+					background: 'transparent', 
+					border: '2px solid #555',
+					width: '12px',
+					height: '12px'
+				}}
 			/>
+
+			{/* Left Handles - Bidirectional */}
 			<Handle
 				type="target"
 				position={Position.Left}
-				id="left"
+				id="left-target"
 				className={`handle-left ${isLeftConnected ? "connected" : ""}`}
-				style={handleStyle.left}
+				style={{ 
+					...handleStyle.left, 
+					background: '#555',
+					width: '12px',
+					height: '12px',
+					border: 'none'
+				}}
+			/>
+			<Handle
+				type="source"
+				position={Position.Left}
+				id="left-source"
+				className={`handle-left ${isLeftConnected ? "connected" : ""}`}
+				style={{ 
+					...handleStyle.left, 
+					background: 'transparent', 
+					border: '2px solid #555',
+					width: '12px',
+					height: '12px'
+				}}
 			/>
 
 			{/* Node content */}
@@ -259,34 +346,116 @@ export function AWSContainerNode({
 				background: "transparent",
 			}}
 		>
-			{/* Handles for connections with dynamic positioning */}
+			{/* Top Handles - Bidirectional */}
 			<Handle
 				type="target"
 				position={Position.Top}
-				id="top"
+				id="top-target"
 				className={`handle-top ${isTopConnected ? "connected" : ""}`}
-				style={handleStyle.top}
+				style={{ 
+					...handleStyle.top, 
+					background: '#555',
+					width: '12px',
+					height: '12px',
+					border: 'none'
+				}}
+			/>
+			<Handle
+				type="source"
+				position={Position.Top}
+				id="top-source"
+				className={`handle-top ${isTopConnected ? "connected" : ""}`}
+				style={{ 
+					...handleStyle.top, 
+					background: 'transparent', 
+					border: '2px solid #555',
+					width: '12px',
+					height: '12px'
+				}}
+			/>
+
+			{/* Right Handles - Bidirectional */}
+			<Handle
+				type="target"
+				position={Position.Right}
+				id="right-target"
+				className={`handle-right ${isRightConnected ? "connected" : ""}`}
+				style={{ 
+					...handleStyle.right, 
+					background: '#555',
+					width: '12px',
+					height: '12px',
+					border: 'none'
+				}}
 			/>
 			<Handle
 				type="source"
 				position={Position.Right}
-				id="right"
+				id="right-source"
 				className={`handle-right ${isRightConnected ? "connected" : ""}`}
-				style={handleStyle.right}
+				style={{ 
+					...handleStyle.right, 
+					background: 'transparent', 
+					border: '2px solid #555',
+					width: '12px',
+					height: '12px'
+				}}
+			/>
+
+			{/* Bottom Handles - Bidirectional */}
+			<Handle
+				type="target"
+				position={Position.Bottom}
+				id="bottom-target"
+				className={`handle-bottom ${isBottomConnected ? "connected" : ""}`}
+				style={{ 
+					...handleStyle.bottom, 
+					background: '#555',
+					width: '12px',
+					height: '12px',
+					border: 'none'
+				}}
 			/>
 			<Handle
 				type="source"
 				position={Position.Bottom}
-				id="bottom"
+				id="bottom-source"
 				className={`handle-bottom ${isBottomConnected ? "connected" : ""}`}
-				style={handleStyle.bottom}
+				style={{ 
+					...handleStyle.bottom, 
+					background: 'transparent', 
+					border: '2px solid #555',
+					width: '12px',
+					height: '12px'
+				}}
 			/>
+
+			{/* Left Handles - Bidirectional */}
 			<Handle
 				type="target"
 				position={Position.Left}
-				id="left"
+				id="left-target"
 				className={`handle-left ${isLeftConnected ? "connected" : ""}`}
-				style={handleStyle.left}
+				style={{ 
+					...handleStyle.left, 
+					background: '#555',
+					width: '12px',
+					height: '12px',
+					border: 'none'
+				}}
+			/>
+			<Handle
+				type="source"
+				position={Position.Left}
+				id="left-source"
+				className={`handle-left ${isLeftConnected ? "connected" : ""}`}
+				style={{ 
+					...handleStyle.left, 
+					background: 'transparent', 
+					border: '2px solid #555',
+					width: '12px',
+					height: '12px'
+				}}
 			/>
 
 			{/* Container header - icon and name */}

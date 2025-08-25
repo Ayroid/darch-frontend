@@ -95,8 +95,8 @@ const nodeStyles = `
 	  cursor: pointer !important;
 	}
 	.react-flow__handle:hover {
-		width: 8px !important;
-		height: 8px !important;
+		width: 6px !important;
+		height: 6px !important;
 		transition: all 0.2s ease !important;
 	}
 	.react-flow__handle.connected {
