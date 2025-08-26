@@ -117,6 +117,16 @@ export default function ArchitectureImportExport({
 					<ArrowDownTrayIcon className="w-4 h-4" />
 					Export
 				</Button>
+
+				<Button
+					variant="outline"
+					size="sm"
+					onClick={() => fileInputRef.current?.click()}
+					className="flex items-center gap-2"
+				>
+					<ArrowDownTrayIcon className="w-4 h-4" />
+					Load JSON
+				</Button>
 			</div>
 
 			{/* Floating JSON Dialog */}
