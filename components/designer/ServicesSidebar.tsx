@@ -3,17 +3,17 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import {
-	ChevronDownIcon,
-	CpuChipIcon,
-	GlobeAltIcon,
-	CircleStackIcon,
-	ServerStackIcon,
-	ShieldCheckIcon,
-	CubeIcon,
-	CogIcon,
-	ChartBarIcon,
-	BuildingOfficeIcon
-} from "@heroicons/react/24/outline";
+	FiChevronDown,
+	FiCpu,
+	FiGlobe,
+	FiDatabase,
+	FiServer,
+	FiShield,
+	FiBox,
+	FiSettings,
+	FiBarChart,
+} from "react-icons/fi";
+import { BsBuilding } from "react-icons/bs";
 
 interface AWSService {
 	id: string;
@@ -512,25 +512,25 @@ export default function ServicesSidebar({
 
 		switch (category) {
 			case "Infrastructure":
-				return <BuildingOfficeIcon {...iconProps} />;
+				return <BsBuilding {...iconProps} />;
 			case "Compute":
-				return <CpuChipIcon {...iconProps} />;
+				return <FiCpu {...iconProps} />;
 			case "Network":
-				return <GlobeAltIcon {...iconProps} />;
+				return <FiGlobe {...iconProps} />;
 			case "Storage":
-				return <CircleStackIcon {...iconProps} />;
+				return <FiDatabase {...iconProps} />;
 			case "Database":
-				return <ServerStackIcon {...iconProps} />;
+				return <FiServer {...iconProps} />;
 			case "Security & Identity":
-				return <ShieldCheckIcon {...iconProps} />;
+				return <FiShield {...iconProps} />;
 			case "Containers":
-				return <CubeIcon {...iconProps} />;
+				return <FiBox {...iconProps} />;
 			case "Management":
-				return <CogIcon {...iconProps} />;
+				return <FiSettings {...iconProps} />;
 			case "Analytics":
-				return <ChartBarIcon {...iconProps} />;
+				return <FiBarChart {...iconProps} />;
 			default:
-				return <CpuChipIcon {...iconProps} />;
+				return <FiCpu {...iconProps} />;
 		}
 	};
 
@@ -602,7 +602,7 @@ export default function ServicesSidebar({
 												{category}
 											</span>
 										</div>
-										<ChevronDownIcon
+										<FiChevronDown
 											className={`h-4 w-4 text-gray-500 transition-transform ${
 												isExpanded ? "transform rotate-180" : ""
 											}`}

@@ -9,46 +9,11 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { EC2Configuration } from "@/lib/types/aws-resources";
 
-export interface EC2Configuration {
-	// Basic EC2 Configuration
-	name: string;
-	instanceType: string;
-	amiId: string;
-	keyPairName: string;
-
-	// Instance Details
-	availabilityZone: string;
-	subnetId: string;
-	securityGroups: string[];
-	iamInstanceProfile: string;
-
-	// Storage
-	rootVolumeSize: number;
-	rootVolumeType: string;
-	deleteOnTermination: boolean;
-	encrypted: boolean;
-
-	// Monitoring & Management
-	detailedMonitoring: boolean;
-	terminationProtection: boolean;
-	autoRecovery: boolean;
-
-	// User Data
-	userData: string;
-
-	// Network Settings
-	associatePublicIpAddress: boolean;
-	enhancedNetworking: boolean;
-	sriovNetSupport: boolean;
-
-	// Placement
-	tenancy: string; // 'default' | 'dedicated' | 'host'
-	hostId?: string;
-	affinity?: string;
-
-	// Tags
-	tags: Record<string, string>;
+interface EC2ConfigurationFormProps {
+	config: Record<string, unknown>;
+	onChange: (config: Record<string, unknown>) => void;
 }
 
 const instanceTypes = [
@@ -76,10 +41,10 @@ const instanceTypes = [
 const volumeTypes = ["gp2", "gp3", "io1", "io2", "st1", "sc1", "standard"];
 const tenancyOptions = ["default", "dedicated", "host"];
 
-const EC2ConfigurationForm: React.FC<{
-	config: Record<string, unknown>;
-	onChange: (config: Record<string, unknown>) => void;
-}> = ({ config, onChange }) => {
+const EC2ConfigurationForm: React.FC<EC2ConfigurationFormProps> = ({ config, onChange }) => {
+	// Type-safe access to config properties
+	const ec2Config = config as unknown as EC2Configuration;
+
 	const updateConfig = (
 		key: keyof EC2Configuration,
 		value: EC2Configuration[keyof EC2Configuration]
@@ -88,7 +53,7 @@ const EC2ConfigurationForm: React.FC<{
 	};
 
 	const handleTagChange = (key: string, value: string) => {
-		const currentTags = (config.tags as Record<string, string>) || {};
+		const currentTags = (ec2Config.tags as Record<string, string>) || {};
 		if (value === "") {
 			const newTags = { ...currentTags };
 			delete newTags[key];
@@ -102,7 +67,7 @@ const EC2ConfigurationForm: React.FC<{
 	};
 
 	const addTag = () => {
-		const currentTags = (config.tags as Record<string, string>) || {};
+		const currentTags = (ec2Config.tags as Record<string, string>) || {};
 		const key = `Tag${Object.keys(currentTags).length + 1}`;
 		onChange({
 			...config,
@@ -443,3 +408,6 @@ const EC2ConfigurationForm: React.FC<{
 };
 
 export default EC2ConfigurationForm;
+
+// Re-export the type for backward compatibility
+export type { EC2Configuration } from "@/lib/types/aws-resources";

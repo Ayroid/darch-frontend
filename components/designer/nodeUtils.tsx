@@ -2,7 +2,7 @@
 
 import React from "react";
 import Image from "next/image";
-import { ChevronDownIcon } from "@heroicons/react/24/outline";
+import { FiChevronDown } from "react-icons/fi";
 import {
 	Node,
 	Edge,
@@ -50,7 +50,7 @@ export const isHandleConnected = (
 		(edge) =>
 			// Check for source connections from this position
 			(edge.source === nodeId && edge.sourceHandle === `${handlePosition}-source`) ||
-			// Check for target connections to this position  
+			// Check for target connections to this position
 			(edge.target === nodeId && edge.targetHandle === `${handlePosition}-target`) ||
 			// Legacy support for old handle IDs
 			(edge.source === nodeId && edge.sourceHandle === handlePosition) ||
@@ -95,8 +95,8 @@ export function AWSServiceNode({ id, data }: AWSServiceNodeProps) {
 				position={Position.Top}
 				id="top-target"
 				className={`handle-top ${isTopConnected ? "connected" : ""}`}
-				style={{ 
-					...handleStyle.top, 
+				style={{
+					...handleStyle.top,
 					background: '#555',
 					width: '12px',
 					height: '12px',
@@ -108,9 +108,9 @@ export function AWSServiceNode({ id, data }: AWSServiceNodeProps) {
 				position={Position.Top}
 				id="top-source"
 				className={`handle-top ${isTopConnected ? "connected" : ""}`}
-				style={{ 
-					...handleStyle.top, 
-					background: 'transparent', 
+				style={{
+					...handleStyle.top,
+					background: 'transparent',
 					border: '2px solid #555',
 					width: '12px',
 					height: '12px'
@@ -123,8 +123,8 @@ export function AWSServiceNode({ id, data }: AWSServiceNodeProps) {
 				position={Position.Right}
 				id="right-target"
 				className={`handle-right ${isRightConnected ? "connected" : ""}`}
-				style={{ 
-					...handleStyle.right, 
+				style={{
+					...handleStyle.right,
 					background: '#555',
 					width: '12px',
 					height: '12px',
@@ -136,9 +136,9 @@ export function AWSServiceNode({ id, data }: AWSServiceNodeProps) {
 				position={Position.Right}
 				id="right-source"
 				className={`handle-right ${isRightConnected ? "connected" : ""}`}
-				style={{ 
-					...handleStyle.right, 
-					background: 'transparent', 
+				style={{
+					...handleStyle.right,
+					background: 'transparent',
 					border: '2px solid #555',
 					width: '12px',
 					height: '12px'
@@ -151,8 +151,8 @@ export function AWSServiceNode({ id, data }: AWSServiceNodeProps) {
 				position={Position.Bottom}
 				id="bottom-target"
 				className={`handle-bottom ${isBottomConnected ? "connected" : ""}`}
-				style={{ 
-					...handleStyle.bottom, 
+				style={{
+					...handleStyle.bottom,
 					background: '#555',
 					width: '12px',
 					height: '12px',
@@ -164,9 +164,9 @@ export function AWSServiceNode({ id, data }: AWSServiceNodeProps) {
 				position={Position.Bottom}
 				id="bottom-source"
 				className={`handle-bottom ${isBottomConnected ? "connected" : ""}`}
-				style={{ 
-					...handleStyle.bottom, 
-					background: 'transparent', 
+				style={{
+					...handleStyle.bottom,
+					background: 'transparent',
 					border: '2px solid #555',
 					width: '12px',
 					height: '12px'
@@ -179,8 +179,8 @@ export function AWSServiceNode({ id, data }: AWSServiceNodeProps) {
 				position={Position.Left}
 				id="left-target"
 				className={`handle-left ${isLeftConnected ? "connected" : ""}`}
-				style={{ 
-					...handleStyle.left, 
+				style={{
+					...handleStyle.left,
 					background: '#555',
 					width: '12px',
 					height: '12px',
@@ -192,9 +192,9 @@ export function AWSServiceNode({ id, data }: AWSServiceNodeProps) {
 				position={Position.Left}
 				id="left-source"
 				className={`handle-left ${isLeftConnected ? "connected" : ""}`}
-				style={{ 
-					...handleStyle.left, 
-					background: 'transparent', 
+				style={{
+					...handleStyle.left,
+					background: 'transparent',
 					border: '2px solid #555',
 					width: '12px',
 					height: '12px'
@@ -352,8 +352,8 @@ export function AWSContainerNode({
 				position={Position.Top}
 				id="top-target"
 				className={`handle-top ${isTopConnected ? "connected" : ""}`}
-				style={{ 
-					...handleStyle.top, 
+				style={{
+					...handleStyle.top,
 					background: '#555',
 					width: '12px',
 					height: '12px',
@@ -365,9 +365,9 @@ export function AWSContainerNode({
 				position={Position.Top}
 				id="top-source"
 				className={`handle-top ${isTopConnected ? "connected" : ""}`}
-				style={{ 
-					...handleStyle.top, 
-					background: 'transparent', 
+				style={{
+					...handleStyle.top,
+					background: 'transparent',
 					border: '2px solid #555',
 					width: '12px',
 					height: '12px'
@@ -380,8 +380,8 @@ export function AWSContainerNode({
 				position={Position.Right}
 				id="right-target"
 				className={`handle-right ${isRightConnected ? "connected" : ""}`}
-				style={{ 
-					...handleStyle.right, 
+				style={{
+					...handleStyle.right,
 					background: '#555',
 					width: '12px',
 					height: '12px',
@@ -393,9 +393,9 @@ export function AWSContainerNode({
 				position={Position.Right}
 				id="right-source"
 				className={`handle-right ${isRightConnected ? "connected" : ""}`}
-				style={{ 
-					...handleStyle.right, 
-					background: 'transparent', 
+				style={{
+					...handleStyle.right,
+					background: 'transparent',
 					border: '2px solid #555',
 					width: '12px',
 					height: '12px'
@@ -408,8 +408,8 @@ export function AWSContainerNode({
 				position={Position.Bottom}
 				id="bottom-target"
 				className={`handle-bottom ${isBottomConnected ? "connected" : ""}`}
-				style={{ 
-					...handleStyle.bottom, 
+				style={{
+					...handleStyle.bottom,
 					background: '#555',
 					width: '12px',
 					height: '12px',
@@ -421,9 +421,9 @@ export function AWSContainerNode({
 				position={Position.Bottom}
 				id="bottom-source"
 				className={`handle-bottom ${isBottomConnected ? "connected" : ""}`}
-				style={{ 
-					...handleStyle.bottom, 
-					background: 'transparent', 
+				style={{
+					...handleStyle.bottom,
+					background: 'transparent',
 					border: '2px solid #555',
 					width: '12px',
 					height: '12px'
@@ -436,8 +436,8 @@ export function AWSContainerNode({
 				position={Position.Left}
 				id="left-target"
 				className={`handle-left ${isLeftConnected ? "connected" : ""}`}
-				style={{ 
-					...handleStyle.left, 
+				style={{
+					...handleStyle.left,
 					background: '#555',
 					width: '12px',
 					height: '12px',
@@ -449,9 +449,9 @@ export function AWSContainerNode({
 				position={Position.Left}
 				id="left-source"
 				className={`handle-left ${isLeftConnected ? "connected" : ""}`}
-				style={{ 
-					...handleStyle.left, 
-					background: 'transparent', 
+				style={{
+					...handleStyle.left,
+					background: 'transparent',
 					border: '2px solid #555',
 					width: '12px',
 					height: '12px'
@@ -492,7 +492,7 @@ export function AWSContainerNode({
 				}}
 				onMouseDown={(e) => handleResizeMouseDown(e, "bottom-right")}
 			>
-				<ChevronDownIcon
+				<FiChevronDown
 					className="w-4 h-4 text-gray-800"
 					style={{ transform: "rotate(315deg)" }}
 				/>

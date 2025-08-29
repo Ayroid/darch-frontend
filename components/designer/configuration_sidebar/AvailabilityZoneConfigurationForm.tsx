@@ -13,16 +13,6 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 
-export interface AvailabilityZoneConfiguration {
-	name: string;
-	region: string;
-	availabilityZone: string;
-	description?: string;
-	isEnabled: boolean;
-	isPreferred: boolean;
-	tags: string; // comma-separated key=value pairs
-}
-
 const AWS_REGIONS_WITH_AZS = {
 	"us-east-1": ["us-east-1a", "us-east-1b", "us-east-1c", "us-east-1d", "us-east-1e", "us-east-1f"],
 	"us-east-2": ["us-east-2a", "us-east-2b", "us-east-2c"],
@@ -170,3 +160,6 @@ const AvailabilityZoneConfigurationForm: React.FC<AvailabilityZoneConfigurationF
 };
 
 export default AvailabilityZoneConfigurationForm;
+
+// Re-export the type for backward compatibility
+export type { AvailabilityZoneConfiguration } from "@/lib/types/aws-resources";

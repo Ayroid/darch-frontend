@@ -15,16 +15,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useConfigurationContext } from "@/lib/stores/configuration-context";
 import { useStoreAwareConfig } from "@/lib/stores/use-store-integration";
 
-export interface AWSRegionConfiguration {
-	name: string;
-	regionCode: string;
-	displayName: string;
-	description?: string;
-	isEnabled: boolean;
-	isDefault: boolean;
-	tags: string; // comma-separated key=value pairs
-}
-
 const awsRegions = [
 	{ code: "us-east-1", name: "US East (N. Virginia)" },
 	{ code: "us-east-2", name: "US East (Ohio)" },
@@ -165,3 +155,6 @@ const AWSRegionConfigurationForm: React.FC<AWSRegionConfigurationFormProps> = ({
 };
 
 export default AWSRegionConfigurationForm;
+
+// Re-export the type for backward compatibility
+export type { AWSRegionConfiguration } from "@/lib/types/aws-resources";

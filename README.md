@@ -94,7 +94,7 @@ Comprehensive keyboard shortcuts for productivity:
 - **Styling**: Tailwind CSS 4.0 with custom theme
 - **UI Components**: Custom component library built on Radix UI primitives
 - **Diagram Engine**: @xyflow/react 12.8.2 for flow diagrams
-- **Icons**: @heroicons/react for UI icons, AWS official icons for services
+- **Icons**: react-icons for UI icons, AWS official icons for services
 - **State Management**: React hooks with local state management
 - **Forms**: React Hook Form with Zod validation
 

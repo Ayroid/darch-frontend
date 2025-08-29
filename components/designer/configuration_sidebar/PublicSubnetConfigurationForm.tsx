@@ -13,16 +13,6 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 
-export interface PublicSubnetConfiguration {
-	name: string;
-	cidrBlock: string;
-	vpcId: string;
-	availabilityZone: string;
-	description?: string;
-	mapPublicIpOnLaunch: boolean;
-	tags: string; // comma-separated key=value pairs
-}
-
 const availabilityZones = [
 	"us-east-1a", "us-east-1b", "us-east-1c", "us-east-1d", "us-east-1e", "us-east-1f",
 	"us-west-1a", "us-west-1b", "us-west-1c",
@@ -126,3 +116,6 @@ export default function PublicSubnetConfigurationForm({
 		</div>
 	);
 }
+
+// Re-export the type for backward compatibility
+export type { PublicSubnetConfiguration } from "@/lib/types/aws-resources";

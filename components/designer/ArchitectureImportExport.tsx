@@ -15,10 +15,10 @@ import {
 import { useArchitectureData } from "@/hooks/use-architecture-data";
 import { Node, Edge } from "@xyflow/react";
 import {
-	ArrowDownTrayIcon,
-	DocumentIcon,
-	ClipboardDocumentIcon,
-} from "@heroicons/react/24/outline";
+	FiDownload,
+	FiFileText,
+	FiClipboard,
+} from "react-icons/fi";
 
 interface ArchitectureImportExportProps {
 	onDataLoaded?: (nodes: Node[], edges: Edge[]) => void;
@@ -110,7 +110,7 @@ export default function ArchitectureImportExport({
 							className="flex items-center gap-2"
 							disabled={!currentData}
 						>
-							<DocumentIcon className="w-4 h-4" />
+							<FiFileText className="w-4 h-4" />
 							View JSON
 						</Button> */}
 						<button
@@ -118,7 +118,7 @@ export default function ArchitectureImportExport({
 							className="p-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"
 							disabled={!currentData}
 						>
-							<DocumentIcon className="w-5 h-5" />
+							<FiFileText className="w-5 h-5" />
 						</button>
 					</DialogTrigger>
 					<DialogContent className="max-w-4xl max-h-[90vh] flex flex-col">
@@ -137,7 +137,7 @@ export default function ArchitectureImportExport({
 									className="flex items-center gap-2"
 									variant="outline"
 								>
-									<ClipboardDocumentIcon className="w-4 h-4" />
+									<FiClipboard className="w-4 h-4" />
 									Copy to Clipboard
 								</Button>
 
@@ -147,7 +147,7 @@ export default function ArchitectureImportExport({
 									className="flex items-center gap-2"
 									disabled={!currentData}
 								>
-									<ArrowDownTrayIcon className="w-4 h-4" />
+									<FiDownload className="w-4 h-4" />
 									Export JSON
 								</Button>
 
@@ -156,7 +156,7 @@ export default function ArchitectureImportExport({
 									onClick={() => fileInputRef.current?.click()}
 									className="flex items-center gap-2"
 								>
-									<ArrowDownTrayIcon className="w-4 h-4" />
+									<FiDownload className="w-4 h-4" />
 									Load JSON
 								</Button>
 							</div>

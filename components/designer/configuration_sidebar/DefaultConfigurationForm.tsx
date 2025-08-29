@@ -5,11 +5,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
-export interface DefaultConfiguration {
-	name?: string;
-	description?: string;
-}
-
 interface DefaultConfigurationFormProps {
 	config: Record<string, unknown>;
 	onChange: (config: Record<string, unknown>) => void;
@@ -46,3 +41,6 @@ export default function DefaultConfigurationForm({
 		</div>
 	);
 }
+
+// Re-export the type for backward compatibility
+export type { DefaultConfiguration } from "@/lib/types/aws-resources";

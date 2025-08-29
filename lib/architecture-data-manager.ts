@@ -51,6 +51,70 @@ export class ArchitectureDataManager {
 	}
 
 	/**
+	 * Get default configuration for a service type
+	 */
+	private getDefaultConfigurationForService(serviceType: string): Record<string, string | number | boolean | string[] | number[] | boolean[] | Record<string, unknown>> {
+		const defaultConfigurations: Record<string, Record<string, string | number | boolean | string[] | number[] | boolean[] | Record<string, unknown>>> = {
+			'aws-vpc': {
+				name: 'vpc-main',
+				cidrBlock: '10.0.0.0/16',
+				region: 'us-east-1',
+				enableDnsSupport: true,
+				enableDnsHostnames: true,
+				tags: {},
+			},
+			'aws-ec2': {
+				name: 'ec2-instance',
+				instanceType: 't3.micro',
+				amiId: 'ami-0c55b159cbfafe1d0',
+				keyPairName: '',
+				availabilityZone: 'us-east-1a',
+				subnetId: '',
+				securityGroups: [],
+				rootVolumeSize: 8,
+				rootVolumeType: 'gp3',
+				deleteOnTermination: true,
+				encrypted: false,
+				detailedMonitoring: false,
+				terminationProtection: false,
+				autoRecovery: true,
+				associatePublicIpAddress: false,
+				tenancy: 'default',
+				tags: {},
+			},
+			'aws-region': {
+				name: 'us-east-1',
+				displayName: 'US East (N. Virginia)',
+				description: '',
+			},
+			'aws-availability-zone': {
+				name: 'us-east-1a',
+				region: 'us-east-1',
+				state: 'available',
+			},
+			'aws-private-subnet': {
+				name: 'private-subnet',
+				cidrBlock: '10.0.1.0/24',
+				availabilityZone: 'us-east-1a',
+				vpcId: '',
+				routeTableId: '',
+				tags: {},
+			},
+			'aws-public-subnet': {
+				name: 'public-subnet',
+				cidrBlock: '10.0.0.0/24',
+				availabilityZone: 'us-east-1a',
+				vpcId: '',
+				routeTableId: '',
+				internetGatewayId: '',
+				tags: {},
+			},
+		};
+
+		return defaultConfigurations[serviceType] || {};
+	}
+
+	/**
 	 * Initialize data - create new architecture if none exists
 	 */
 	private initializeData() {
@@ -275,6 +339,19 @@ export class ArchitectureDataManager {
 			node.id = this.generateUniqueId();
 		}
 
+		// Get service type for default configuration
+		const data = node.data as Record<string, unknown>;
+		const serviceType = (data?.serviceId as string) || "unknown";
+
+		// Set default configuration if none exists
+		if (!data?.configuration) {
+			const defaultConfig = this.getDefaultConfigurationForService(serviceType);
+			node.data = {
+				...node.data,
+				configuration: defaultConfig
+			};
+		}
+
 		const archNode = this.convertReactFlowNodeToArchNode(node);
 		this.currentData!.nodes.push(archNode);
 		this.currentData!.metadata.lastModified = new Date().toISOString();
@@ -320,6 +397,28 @@ export class ArchitectureDataManager {
 				this.notifyListeners();
 			}
 		}
+	}
+
+	/**
+	 * Get node configuration by node ID
+	 */
+	getNodeConfiguration(nodeId: string): Record<string, string | number | boolean | string[] | number[] | boolean[] | Record<string, unknown>> | null {
+		if (this.currentData) {
+			const node = this.currentData.nodes.find((n) => n.id === nodeId);
+			return node ? node.configuration : null;
+		}
+		return null;
+	}
+
+	/**
+	 * Force save current data (for manual save button)
+	 */
+	forceSave() {
+		if (this.autoSaveTimeout) {
+			clearTimeout(this.autoSaveTimeout);
+		}
+		this.autoSave();
+		this.notifyListeners();
 	}
 
 	/**

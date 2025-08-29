@@ -1,11 +1,8 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import {
-	UserCircleIcon,
-	ChevronDownIcon,
-	Cog8ToothIcon,
-} from "@heroicons/react/24/outline";
+import { FiUser, FiSettings } from "react-icons/fi";
+import { LuFileText } from "react-icons/lu";
 import ArchitectureImportExport from "./ArchitectureImportExport";
 import { Node, Edge } from "@xyflow/react";
 
@@ -79,7 +76,7 @@ export default function TopBar({
 								<span className="text-sm text-gray-700 font-medium">
 									{currentProject.name} • {currentProject.environment}
 								</span>
-								<ChevronDownIcon className="w-4 h-4 text-gray-400" />
+								<LuFileText className="w-4 h-4 text-gray-400" />
 							</button>
 							{showProjectDropdown && (
 								<div className="absolute top-full mt-1 left-0 bg-white border border-gray-200 rounded-lg shadow-lg z-10 min-w-[180px]">
@@ -112,14 +109,14 @@ export default function TopBar({
 						onClick={onSettings}
 						className="p-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"
 					>
-						<Cog8ToothIcon className="w-6 h-6" />
+						<FiSettings className="w-5 h-5" />
 					</button>
 
 					<button
 						onClick={onProfile}
 						className="p-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"
 					>
-						<UserCircleIcon className="w-6 h-6" />
+						<FiUser className="w-5 h-5" />
 					</button>
 				</div>
 			</div>

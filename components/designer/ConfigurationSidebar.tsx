@@ -10,7 +10,14 @@ import {
 	validateConfiguration,
 } from "@/lib/stores/configuration-store";
 import { ConfigurationProvider } from "@/lib/stores/configuration-context";
-import { CubeTransparentIcon } from "@heroicons/react/24/outline";
+import { architectureDataManager } from "@/lib/architecture-data-manager";
+import { TbCube } from "react-icons/tb";
+import {
+	FiCheck,
+	FiAlertTriangle,
+} from "react-icons/fi";
+import { Tooltip, TooltipTrigger } from "@radix-ui/react-tooltip";
+import { TooltipContent } from "../ui/tooltip";
 
 type ConfigurationFormComponent = React.ComponentType<{
 	config: Record<string, unknown>;
@@ -57,31 +64,70 @@ export default function ConfigurationSidebar({
 
 	// Local state for the current form
 	const [config, setConfig] = React.useState<Record<string, unknown>>({});
+	const [hasUnsavedChanges, setHasUnsavedChanges] = React.useState(false);
+	const [isSaving, setIsSaving] = React.useState(false);
 
 	// Load configuration when node changes
 	React.useEffect(() => {
 		if (selectedNode) {
 			const nodeId = selectedNode.id;
-			let existingConfig = getNodeConfiguration(nodeId);
+
+			// First try to get configuration from the architecture data manager
+			let existingConfig = architectureDataManager.getNodeConfiguration(nodeId);
 
 			if (!existingConfig) {
-				// Create default configuration based on service type
-				const data = selectedNode.data as Record<string, unknown>;
-				const serviceId = (data?.serviceId as string) || "";
-				existingConfig = {
-					...getDefaultConfiguration(serviceId),
-					...(((selectedNode.data as Record<string, unknown>).config as Record<
+				// If not found, try from the store (for backward compatibility)
+				const storeConfig = getNodeConfiguration(nodeId);
+
+				if (!storeConfig) {
+					// Create default configuration based on service type
+					const data = selectedNode.data as Record<string, unknown>;
+					const serviceId = (data?.serviceId as string) || "";
+					const defaultConfig = getDefaultConfiguration(serviceId);
+					const nodeConfig = (selectedNode.data as Record<string, unknown>)
+						.configuration as Record<string, unknown>;
+
+					existingConfig = {
+						...defaultConfig,
+						...(nodeConfig || {}),
+					} as Record<
 						string,
-						unknown
-					>) || {}),
-				};
-				setNodeConfiguration(nodeId, existingConfig);
+						| string
+						| number
+						| boolean
+						| string[]
+						| number[]
+						| boolean[]
+						| Record<string, unknown>
+					>;
+				} else {
+					existingConfig = storeConfig as Record<
+						string,
+						| string
+						| number
+						| boolean
+						| string[]
+						| number[]
+						| boolean[]
+						| Record<string, unknown>
+					>;
+				}
+
+				// Store in architecture data manager
+				architectureDataManager.updateNodeConfiguration(nodeId, existingConfig);
+				// Also update the store for consistency
+				setNodeConfiguration(nodeId, existingConfig as Record<string, unknown>);
+			} else {
+				// Sync with the configuration store
+				setNodeConfiguration(nodeId, existingConfig as Record<string, unknown>);
 			}
 
 			setConfig(existingConfig as Record<string, unknown>);
+			setHasUnsavedChanges(false);
 		} else {
 			// Clear config when no node is selected
 			setConfig({});
+			setHasUnsavedChanges(false);
 		}
 	}, [selectedNode, getNodeConfiguration, setNodeConfiguration]);
 
@@ -89,9 +135,10 @@ export default function ConfigurationSidebar({
 		if (!selectedNode) return; // Guard clause for when no node is selected
 
 		setConfig(newConfig);
+		setHasUnsavedChanges(true);
 		const nodeId = selectedNode.id;
 
-		// Update the store
+		// Update the store for immediate UI feedback
 		updateNodeConfiguration(nodeId, newConfig);
 
 		// Validate the configuration
@@ -105,8 +152,45 @@ export default function ConfigurationSidebar({
 			clearValidationErrors(nodeId);
 		}
 
-		// Update the node data
-		onNodeUpdate(selectedNode.id, { ...selectedNode.data, config: newConfig });
+		// Update the node data for the canvas
+		onNodeUpdate(selectedNode.id, {
+			...selectedNode.data,
+			configuration: newConfig,
+		});
+	};
+
+	const handleSave = async () => {
+		if (!selectedNode || !hasUnsavedChanges) return;
+
+		setIsSaving(true);
+		const nodeId = selectedNode.id;
+
+		try {
+			// Update the architecture data manager with the current config
+			const configToSave = config as Record<
+				string,
+				| string
+				| number
+				| boolean
+				| string[]
+				| number[]
+				| boolean[]
+				| Record<string, unknown>
+			>;
+			architectureDataManager.updateNodeConfiguration(nodeId, configToSave);
+
+			// Force save to ensure persistence
+			architectureDataManager.forceSave();
+
+			setHasUnsavedChanges(false);
+
+			// Show success feedback (optional - you can add a toast notification here)
+			console.log("Configuration saved successfully for node:", nodeId);
+		} catch (error) {
+			console.error("Failed to save configuration:", error);
+		} finally {
+			setIsSaving(false);
+		}
 	};
 
 	const getServiceName = (): string => {
@@ -128,7 +212,7 @@ export default function ConfigurationSidebar({
 			return (
 				<div className="flex flex-col items-center justify-center h-full text-center px-6 gap-16">
 					<div className="w-24 h-24 rounded-full bg-gray-100 flex items-center justify-center mb-4">
-						<CubeTransparentIcon className="w-16 h-16 text-gray-800" />
+						<TbCube className="w-16 h-16 text-gray-800" />
 					</div>
 					<div className="space-y-3 text-left">
 						<div className="flex items-start space-x-3">
@@ -198,11 +282,43 @@ export default function ConfigurationSidebar({
 				<div className="flex items-center justify-between p-4 border-b border-gray-200">
 					<div className="flex items-center gap-2">
 						<h2 className="text-lg font-semibold text-gray-900">
-							{selectedNode
-								? getServiceName() + " Configuration"
-								: "Configuration Sidebar"}
+							{selectedNode ? getServiceName() : "Configuration Sidebar"}
 						</h2>
 					</div>
+					{selectedNode && (
+						<div className="flex items-center gap-2">
+							{hasUnsavedChanges && (
+								<Tooltip>
+									<TooltipTrigger asChild>
+										<FiAlertTriangle className="w-6 h-6 cursor-pointer text-amber-600" />
+									</TooltipTrigger>
+									<TooltipContent side="bottom" align="center">
+										Unsaved changes
+									</TooltipContent>
+								</Tooltip>
+							)}
+							<Tooltip>
+								<TooltipTrigger asChild>
+									<button
+										onClick={handleSave}
+										disabled={!hasUnsavedChanges || isSaving}
+										className="p-1 rounded hover:bg-gray-100 transition-colors disabled:opacity-50"
+										aria-label="Save"
+										type="button"
+									>
+										{isSaving ? (
+											<div className="w-5 h-5 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin" />
+										) : (
+											<FiCheck className="w-5 h-5 text-green-600" />
+										)}
+									</button>
+								</TooltipTrigger>
+								<TooltipContent side="bottom" align="center">
+									Save
+								</TooltipContent>
+							</Tooltip>
+						</div>
+					)}
 				</div>
 
 				{/* Validation Errors */}
