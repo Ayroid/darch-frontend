@@ -305,7 +305,7 @@ export default function ArchitectureCanvas({
 					const nodesWithNew = nds.concat(newNode);
 					// Clear caches when adding new nodes
 					clearContainerCaches();
-					return updateNodeParentRelationships(nodesWithNew, true, false);
+					return updateNodeParentRelationships(nodesWithNew);
 				});
 
 				// Add to architecture data

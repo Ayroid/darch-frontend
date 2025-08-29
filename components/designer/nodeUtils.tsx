@@ -12,7 +12,7 @@ import {
 	NodeChange,
 	NodeProps,
 } from "@xyflow/react";
-import { updateNodeParentRelationships, clearContainerCaches, batchUpdateNodeRelationships, invalidateNodeCache } from "@/lib/container-logic";
+import { updateNodeParentRelationships, clearContainerCaches, batchUpdateNodeRelationships } from "@/lib/container-logic";
 
 // Interfaces
 export interface AWSServiceNodeData {
@@ -602,13 +602,13 @@ export const createNodeHandlers = (
 			// Invalidate cache for moved nodes to ensure fresh calculations on drag end
 			dragMoveChanges.forEach(change => {
 				if (change.type === 'position') {
-					invalidateNodeCache((change as { id: string }).id);
+					// invalidateNodeCache((change as { id: string }).id); // COMMENTED OUT: Parent-child logic disabled
 				}
 			});
 
 			// Light update - only z-index for dragging nodes
 			setNodes((currentNodes) => {
-				return updateNodeParentRelationships(currentNodes, false, false);
+				return updateNodeParentRelationships(currentNodes);
 			});
 			return; // Exit early to avoid heavy calculations during drag
 		}
@@ -632,10 +632,10 @@ export const createNodeHandlers = (
 				setNodes((currentNodes) => {
 					// Use batch update for better performance with multiple containers
 					if (changedNodeIds.size > 1) {
-						return batchUpdateNodeRelationships(currentNodes, changedNodeIds, true);
+						return batchUpdateNodeRelationships(currentNodes);
 					} else {
 						// Single node update with drag end flag
-						return updateNodeParentRelationships(currentNodes, false, true);
+						return updateNodeParentRelationships(currentNodes);
 					}
 				});
 			}, 1000); // Reduced from 150ms to 100ms for better responsiveness
