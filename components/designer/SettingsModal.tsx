@@ -386,7 +386,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="w-full h-[90vh] p-0 overflow-hidden">
+      <DialogContent className="md:w-6xl h-[90vh] p-0 overflow-hidden">
         <DialogTitle className="sr-only">Settings</DialogTitle>
 
         <div className="flex h-full">

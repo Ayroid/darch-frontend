@@ -2,12 +2,9 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import {
-	QuestionMarkCircleIcon,
 	UserCircleIcon,
 	ChevronDownIcon,
-	PaintBrushIcon,
-	ShareIcon,
-	CogIcon,
+	Cog8ToothIcon,
 } from "@heroicons/react/24/outline";
 import ArchitectureImportExport from "./ArchitectureImportExport";
 import { Node, Edge } from "@xyflow/react";
@@ -35,11 +32,7 @@ interface TopBarProps {
 
 export default function TopBar({
 	currentProject,
-	activeTab,
-	onTabChange,
-	onShare,
 	onSettings,
-	onHelp,
 	onProfile,
 	onDataLoaded,
 }: TopBarProps) {
@@ -109,61 +102,19 @@ export default function TopBar({
 				</div>
 			</div>
 
-			<div className="flex flex-1 items-center justify-center">
-				{/* Center Section */}
-				<div className="flex items-center space-x-1">
-					<button
-						onClick={() => onTabChange("design")}
-						className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors text-sm font-medium ${
-							activeTab === "design"
-								? "text-blue-600 bg-blue-50"
-								: "text-gray-600 hover:bg-gray-50"
-						}`}
-					>
-						<PaintBrushIcon className="w-4 h-4" />
-						<span>Design</span>
-					</button>
-					<button
-						onClick={onShare}
-						className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors text-sm font-medium ${
-							activeTab === "share"
-								? "text-blue-600 bg-blue-50"
-								: "text-gray-600 hover:bg-gray-50"
-						}`}
-					>
-						<ShareIcon className="w-4 h-4" />
-						<span>Share</span>
-					</button>
-					<button
-						onClick={onSettings}
-						className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors text-sm font-medium ${
-							activeTab === "settings"
-								? "text-blue-600 bg-blue-50"
-								: "text-gray-600 hover:bg-gray-50"
-						}`}
-					>
-						<CogIcon className="w-4 h-4" />
-						<span>Settings</span>
-					</button>
-				</div>
-			</div>
-
 			<div className="flex flex-1 items-center justify-end">
 				{/* Right Section */}
 				<div className="flex items-center space-x-3 w-full justify-end">
 					{/* Import/Export Controls */}
-					<ArchitectureImportExport
-						onDataLoaded={onDataLoaded}
-						className="border-r border-gray-200 pr-3"
-					/>
+					<ArchitectureImportExport onDataLoaded={onDataLoaded} />
 
 					<button
-						onClick={onHelp}
-						className="flex items-center space-x-2 px-3 py-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"
+						onClick={onSettings}
+						className="p-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"
 					>
-						<QuestionMarkCircleIcon className="w-5 h-5" />
-						<span className="text-sm font-medium">Help</span>
+						<Cog8ToothIcon className="w-6 h-6" />
 					</button>
+
 					<button
 						onClick={onProfile}
 						className="p-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"

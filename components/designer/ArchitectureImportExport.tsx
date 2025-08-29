@@ -4,13 +4,20 @@
 
 import React, { useRef, useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from "@/components/ui/dialog";
 import { useArchitectureData } from "@/hooks/use-architecture-data";
 import { Node, Edge } from "@xyflow/react";
 import {
 	ArrowDownTrayIcon,
 	DocumentIcon,
 	ClipboardDocumentIcon,
-	XMarkIcon,
 } from "@heroicons/react/24/outline";
 
 interface ArchitectureImportExportProps {
@@ -23,7 +30,6 @@ export default function ArchitectureImportExport({
 	className = "",
 }: ArchitectureImportExportProps) {
 	const fileInputRef = useRef<HTMLInputElement>(null);
-	const jsonButtonRef = useRef<HTMLButtonElement>(null);
 	const [isJsonDialogOpen, setIsJsonDialogOpen] = useState(false);
 	const [jsonData, setJsonData] = useState<string>("");
 	const { exportToJSON, saveToFile, loadFromFile, currentData } =
@@ -56,10 +62,10 @@ export default function ArchitectureImportExport({
 		try {
 			await navigator.clipboard.writeText(jsonData);
 			// You could add a toast notification here if you have one
-			alert('JSON copied to clipboard!');
+			alert("JSON copied to clipboard!");
 		} catch (error) {
-			console.error('Failed to copy to clipboard:', error);
-			alert('Failed to copy to clipboard');
+			console.error("Failed to copy to clipboard:", error);
+			alert("Failed to copy to clipboard");
 		}
 	};
 
@@ -95,83 +101,75 @@ export default function ArchitectureImportExport({
 					className="hidden"
 				/>
 
-				<Button
-					ref={jsonButtonRef}
-					variant="outline"
-					size="sm"
-					onClick={handleToggleJsonDialog}
-					className="flex items-center gap-2"
-					disabled={!currentData}
-				>
-					<DocumentIcon className="w-4 h-4" />
-					View JSON
-				</Button>
-
-				<Button
-					variant="outline"
-					size="sm"
-					onClick={() => saveToFile()}
-					className="flex items-center gap-2"
-					disabled={!currentData}
-				>
-					<ArrowDownTrayIcon className="w-4 h-4" />
-					Export
-				</Button>
-
-				<Button
-					variant="outline"
-					size="sm"
-					onClick={() => fileInputRef.current?.click()}
-					className="flex items-center gap-2"
-				>
-					<ArrowDownTrayIcon className="w-4 h-4" />
-					Load JSON
-				</Button>
-			</div>
-
-			{/* Floating JSON Dialog */}
-			{isJsonDialogOpen && (
-				<div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
-					{/* Dialog */}
-					<div className="bg-white dark:bg-gray-900 rounded-lg shadow-xl border max-w-2xl w-full max-h-[80vh] flex flex-col pointer-events-auto">
-						{/* Header */}
-						<div className="flex items-center justify-between p-4 border-b">
-							<div>
-								<h2 className="text-lg font-semibold">Architecture JSON</h2>
-								<p className="text-sm text-gray-600 dark:text-gray-400">
-									Copy the JSON data below to use it elsewhere.
-								</p>
-							</div>
-							<Button
-								variant="outline"
-								size="sm"
-								onClick={handleToggleJsonDialog}
-								className="p-2"
-							>
-								<XMarkIcon className="w-4 h-4" />
-							</Button>
-						</div>
+				<Dialog open={isJsonDialogOpen} onOpenChange={setIsJsonDialogOpen}>
+					<DialogTrigger asChild>
+						{/* <Button
+							variant="outline"
+							size="sm"
+							onClick={handleToggleJsonDialog}
+							className="flex items-center gap-2"
+							disabled={!currentData}
+						>
+							<DocumentIcon className="w-4 h-4" />
+							View JSON
+						</Button> */}
+						<button
+							onClick={handleToggleJsonDialog}
+							className="p-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"
+							disabled={!currentData}
+						>
+							<DocumentIcon className="w-5 h-5" />
+						</button>
+					</DialogTrigger>
+					<DialogContent className="max-w-4xl max-h-[90vh] flex flex-col">
+						<DialogHeader>
+							<DialogTitle>Architecture JSON</DialogTitle>
+							<DialogDescription>
+								Copy the JSON data below to use it elsewhere.
+							</DialogDescription>
+						</DialogHeader>
 
 						{/* Content */}
-						<div className="flex-1 flex flex-col gap-4 p-4">
-							<Button
-								onClick={handleCopyToClipboard}
-								className="flex items-center gap-2 self-start"
-								variant="default"
-							>
-								<ClipboardDocumentIcon className="w-4 h-4" />
-								Copy to Clipboard
-							</Button>
+						<div className="flex-1 flex flex-col gap-4">
+							<div className="flex gap-4">
+								<Button
+									onClick={handleCopyToClipboard}
+									className="flex items-center gap-2"
+									variant="outline"
+								>
+									<ClipboardDocumentIcon className="w-4 h-4" />
+									Copy to Clipboard
+								</Button>
+
+								<Button
+									variant="outline"
+									onClick={() => saveToFile()}
+									className="flex items-center gap-2"
+									disabled={!currentData}
+								>
+									<ArrowDownTrayIcon className="w-4 h-4" />
+									Export JSON
+								</Button>
+
+								<Button
+									variant="outline"
+									onClick={() => fileInputRef.current?.click()}
+									className="flex items-center gap-2"
+								>
+									<ArrowDownTrayIcon className="w-4 h-4" />
+									Load JSON
+								</Button>
+							</div>
 
 							<div className="flex-1 overflow-hidden">
-								<pre className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg overflow-auto h-full max-h-[50vh] text-sm font-mono whitespace-pre-wrap border">
+								<pre className="bg-muted p-4 rounded-lg overflow-auto h-full max-h-[50vh] text-sm font-mono whitespace-pre-wrap border">
 									{jsonData}
 								</pre>
 							</div>
 						</div>
-					</div>
-				</div>
-			)}
+					</DialogContent>
+				</Dialog>
+			</div>
 		</>
 	);
 }
