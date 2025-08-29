@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import {
-  X,
   Eye,
   EyeOff,
   Settings,
@@ -17,15 +16,8 @@ import {
 import {
   Dialog,
   DialogContent,
-  DialogTitle, // ✅ added
+  DialogTitle,
 } from '@/components/ui/dialog';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -159,228 +151,228 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
     switch (activeTab) {
       case 'aws':
         return (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+          <div className="p-6 space-y-6">
+            {/* Header */}
+            <div className="space-y-1 border-b pb-4">
+              <h3 className="text-lg font-semibold flex items-center gap-2">
                 <Database className="w-5 h-5" />
                 AWS Configuration
-              </CardTitle>
-              <CardDescription>
+              </h3>
+              <p className="text-sm text-muted-foreground">
                 Configure your AWS credentials for cloud integration
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {/* Access Key ID */}
-              <div className="space-y-2">
-                <Label htmlFor="accessKeyId" className="flex items-center gap-1">
-                  Access Key ID
-                  <Badge variant="destructive" className="text-xs">Required</Badge>
-                </Label>
+              </p>
+            </div>
+
+            {/* Access Key ID */}
+            <div className="space-y-2">
+              <Label htmlFor="accessKeyId" className="flex items-center gap-1">
+                Access Key ID
+                <Badge variant="destructive" className="text-xs">Required</Badge>
+              </Label>
+              <Input
+                id="accessKeyId"
+                type="text"
+                value={credentials.accessKeyId}
+                onChange={(e) => handleInputChange('accessKeyId', e.target.value)}
+                placeholder="AKIAIOSFODNN7EXAMPLE"
+              />
+            </div>
+
+            {/* Secret Access Key */}
+            <div className="space-y-2">
+              <Label htmlFor="secretAccessKey" className="flex items-center gap-1">
+                Secret Access Key
+                <Badge variant="destructive" className="text-xs">Required</Badge>
+              </Label>
+              <div className="relative">
                 <Input
-                  id="accessKeyId"
-                  type="text"
-                  value={credentials.accessKeyId}
-                  onChange={(e) => handleInputChange('accessKeyId', e.target.value)}
-                  placeholder="AKIAIOSFODNN7EXAMPLE"
+                  id="secretAccessKey"
+                  type={showSecretKey ? "text" : "password"}
+                  value={credentials.secretAccessKey}
+                  onChange={(e) => handleInputChange('secretAccessKey', e.target.value)}
+                  placeholder="wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+                  className="pr-10"
                 />
-              </div>
-
-              {/* Secret Access Key */}
-              <div className="space-y-2">
-                <Label htmlFor="secretAccessKey" className="flex items-center gap-1">
-                  Secret Access Key
-                  <Badge variant="destructive" className="text-xs">Required</Badge>
-                </Label>
-                <div className="relative">
-                  <Input
-                    id="secretAccessKey"
-                    type={showSecretKey ? "text" : "password"}
-                    value={credentials.secretAccessKey}
-                    onChange={(e) => handleInputChange('secretAccessKey', e.target.value)}
-                    placeholder="wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
-                    className="pr-10"
-                  />
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                    onClick={() => setShowSecretKey(!showSecretKey)}
-                  >
-                    {showSecretKey ? (
-                      <EyeOff className="w-4 h-4 text-gray-400" />
-                    ) : (
-                      <Eye className="w-4 h-4 text-gray-400" />
-                    )}
-                  </Button>
-                </div>
-              </div>
-
-              {/* Session Token */}
-              <div className="space-y-2">
-                <Label htmlFor="sessionToken" className="flex items-center gap-1">
-                  Session Token
-                  <Badge variant="secondary" className="text-xs">Optional</Badge>
-                </Label>
-                <Input
-                  id="sessionToken"
-                  type="text"
-                  value={credentials.sessionToken}
-                  onChange={(e) => handleInputChange('sessionToken', e.target.value)}
-                  placeholder="For temporary credentials only"
-                />
-              </div>
-
-              {/* Region */}
-              <div className="space-y-2">
-                <Label htmlFor="region">Default Region</Label>
-                <Select
-                  value={credentials.region}
-                  onValueChange={(value) => handleInputChange('region', value)}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                  onClick={() => setShowSecretKey(!showSecretKey)}
                 >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a region" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {regions.map((region) => (
-                      <SelectItem key={region.value} value={region.value}>
-                        {region.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <Separator />
-
-              {/* Action Buttons */}
-              <div className="flex gap-3">
-                <Button onClick={handleSubmit} disabled={loading} className="flex-1">
-                  {loading ? 'Saving...' : 'Save Credentials'}
-                </Button>
-                <Button onClick={handleClearCredentials} variant="outline">
-                  Clear
+                  {showSecretKey ? (
+                    <EyeOff className="w-4 h-4 text-gray-400" />
+                  ) : (
+                    <Eye className="w-4 h-4 text-gray-400" />
+                  )}
                 </Button>
               </div>
+            </div>
 
-              {/* Status Messages */}
-              {saved && (
-                <Alert className="border-green-200 bg-green-50">
-                  <AlertDescription className="text-green-800">
-                    ✓ Credentials saved successfully and downloaded as backup
-                  </AlertDescription>
-                </Alert>
-              )}
-              {error && (
-                <Alert variant="destructive">
-                  <AlertDescription>✗ {error}</AlertDescription>
-                </Alert>
-              )}
-              <Alert>
-                <AlertDescription className="text-sm">
-                  <strong>Security Note:</strong> Credentials are stored locally in your
-                  browser and saved as a backup file. In production, use more secure credential
-                  management.
+            {/* Session Token */}
+            <div className="space-y-2">
+              <Label htmlFor="sessionToken" className="flex items-center gap-1">
+                Session Token
+                <Badge variant="secondary" className="text-xs">Optional</Badge>
+              </Label>
+              <Input
+                id="sessionToken"
+                type="text"
+                value={credentials.sessionToken}
+                onChange={(e) => handleInputChange('sessionToken', e.target.value)}
+                placeholder="For temporary credentials only"
+              />
+            </div>
+
+            {/* Region */}
+            <div className="space-y-2">
+              <Label htmlFor="region">Default Region</Label>
+              <Select
+                value={credentials.region}
+                onValueChange={(value) => handleInputChange('region', value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a region" />
+                </SelectTrigger>
+                <SelectContent>
+                  {regions.map((region) => (
+                    <SelectItem key={region.value} value={region.value}>
+                      {region.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <Separator />
+
+            {/* Action Buttons */}
+            <div className="flex gap-3">
+              <Button onClick={handleSubmit} disabled={loading} className="flex-1">
+                {loading ? 'Saving...' : 'Save Credentials'}
+              </Button>
+              <Button onClick={handleClearCredentials} variant="outline">
+                Clear
+              </Button>
+            </div>
+
+            {/* Status Messages */}
+            {saved && (
+              <Alert className="border-green-200 bg-green-50">
+                <AlertDescription className="text-green-800">
+                  ✓ Credentials saved successfully and downloaded as backup
                 </AlertDescription>
               </Alert>
-            </CardContent>
-          </Card>
+            )}
+            {error && (
+              <Alert variant="destructive">
+                <AlertDescription>✗ {error}</AlertDescription>
+              </Alert>
+            )}
+            <Alert>
+              <AlertDescription className="text-sm">
+                <strong>Security Note:</strong> Credentials are stored locally in your
+                browser and saved as a backup file. In production, use more secure credential
+                management.
+              </AlertDescription>
+            </Alert>
+          </div>
         );
 
       case 'general':
         return (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+          <div className="p-6 space-y-6">
+            {/* Header */}
+            <div className="space-y-1 border-b pb-4">
+              <h3 className="text-lg font-semibold flex items-center gap-2">
                 <Settings className="w-5 h-5" />
                 General Settings
-              </CardTitle>
-              <CardDescription>
+              </h3>
+              <p className="text-sm text-muted-foreground">
                 Configure general application preferences
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label>Auto-save</Label>
-                  <p className="text-sm text-muted-foreground">
-                    Automatically save changes as you work
-                  </p>
-                </div>
-                <Switch defaultChecked />
+              </p>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label>Auto-save</Label>
+                <p className="text-sm text-muted-foreground">
+                  Automatically save changes as you work
+                </p>
               </div>
-              <Separator />
-              <div className="space-y-2">
-                <Label>Default file format</Label>
-                <Select defaultValue="json">
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="json">JSON</SelectItem>
-                    <SelectItem value="yaml">YAML</SelectItem>
-                    <SelectItem value="xml">XML</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </CardContent>
-          </Card>
+              <Switch defaultChecked />
+            </div>
+            <Separator />
+            <div className="space-y-2">
+              <Label>Default file format</Label>
+              <Select defaultValue="json">
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="json">JSON</SelectItem>
+                  <SelectItem value="yaml">YAML</SelectItem>
+                  <SelectItem value="xml">XML</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
         );
 
       case 'appearance':
         return (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+          <div className="p-6 space-y-6">
+            {/* Header */}
+            <div className="space-y-1 border-b pb-4">
+              <h3 className="text-lg font-semibold flex items-center gap-2">
                 <Palette className="w-5 h-5" />
                 Appearance
-              </CardTitle>
-              <CardDescription>
+              </h3>
+              <p className="text-sm text-muted-foreground">
                 Customize the look and feel of your application
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="space-y-2">
-                <Label>Theme</Label>
-                <Select defaultValue="dark">
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="light">Light</SelectItem>
-                    <SelectItem value="dark">Dark</SelectItem>
-                    <SelectItem value="system">System</SelectItem>
-                  </SelectContent>
-                </Select>
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Theme</Label>
+              <Select defaultValue="dark">
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="light">Light</SelectItem>
+                  <SelectItem value="dark">Dark</SelectItem>
+                  <SelectItem value="system">System</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <Separator />
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label>Compact mode</Label>
+                <p className="text-sm text-muted-foreground">
+                  Reduce spacing for a more compact interface
+                </p>
               </div>
-              <Separator />
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label>Compact mode</Label>
-                  <p className="text-sm text-muted-foreground">
-                    Reduce spacing for a more compact interface
-                  </p>
-                </div>
-                <Switch />
-              </div>
-            </CardContent>
-          </Card>
+              <Switch />
+            </div>
+          </div>
         );
 
       default:
         return (
-          <Card>
-            <CardHeader>
-              <CardTitle>Coming Soon</CardTitle>
-              <CardDescription>
-                This settings panel is under development
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
+          <div className="p-6">
+            {/* Header */}
+            <div className="space-y-1 mb-4 border-b pb-4">
+              <h3 className="text-lg font-semibold">Coming Soon</h3>
               <p className="text-sm text-muted-foreground">
-                More configuration options will be available in future updates.
+                This settings panel is under development
               </p>
-            </CardContent>
-          </Card>
+            </div>
+
+            <p className="text-sm text-muted-foreground">
+              More configuration options will be available in future updates.
+            </p>
+          </div>
         );
     }
   };
@@ -395,7 +387,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="w-full h-[90vh] p-0 overflow-hidden">
-        {/* ✅ Accessibility fix */}
         <DialogTitle className="sr-only">Settings</DialogTitle>
 
         <div className="flex h-full">
@@ -440,7 +431,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
 
           {/* Main Content */}
           <div className="flex-1 flex flex-col">
-            <div className="flex-1 overflow-y-auto p-6 mt-10">{renderTabContent()}</div>
+            <div className="flex-1 overflow-y-auto px-6 py-2">{renderTabContent()}</div>
           </div>
         </div>
       </DialogContent>
