@@ -7,6 +7,7 @@ import ServicesSidebar from "./ServicesSidebar";
 import ConfigurationSidebar from "./ConfigurationSidebar";
 import TopBar from "./TopBar";
 import KeyboardShortcutsHelp from "./KeyboardShortcutsHelp";
+import SettingsModal from "./SettingsModal";
 import { useApplicationShortcuts } from "@/lib/keyboard-shortcuts";
 
 // Types
@@ -31,6 +32,7 @@ export default function ArchitectureDesigner() {
 	const [isConfigurationSidebarOpen, setIsConfigurationSidebarOpen] = useState(false);
 	const [activeTab, setActiveTab] = useState<TabType>("design");
 	const [isHelpOpen, setIsHelpOpen] = useState(false);
+	const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 	const [selectedNode, setSelectedNode] = useState<Node | null>(null);
 	const [currentProject] = useState<Project>({
 		id: "1",
@@ -92,8 +94,8 @@ export default function ArchitectureDesigner() {
 
 	const handleSettings = useCallback(() => {
 		setActiveTab("settings");
+		setIsSettingsOpen(true);
 		console.log("Opening settings");
-		// TODO: Implement actual settings functionality
 	}, []);
 
 	const handleHelp = useCallback(() => {
@@ -122,6 +124,10 @@ export default function ArchitectureDesigner() {
 
 	const handleCloseHelp = useCallback(() => {
 		setIsHelpOpen(false);
+	}, []);
+
+	const handleCloseSettings = useCallback(() => {
+		setIsSettingsOpen(false);
 	}, []);
 
 	const handleNodeSelect = useCallback((node: Node | null) => {
@@ -199,6 +205,12 @@ export default function ArchitectureDesigner() {
 				<KeyboardShortcutsHelp
 					isOpen={isHelpOpen}
 					onClose={handleCloseHelp}
+				/>
+
+				{/* Settings Modal */}
+				<SettingsModal
+					isOpen={isSettingsOpen}
+					onClose={handleCloseSettings}
 				/>
 			</ReactFlowProvider>
 		</div>
