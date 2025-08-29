@@ -335,16 +335,15 @@ export function AWSContainerNode({
 
 	return (
 		<div
-			className="relative"
+			className="relative rounded-sm"
 			data-service-id={serviceId}
 			style={{
 				width: nodeSize.width,
 				height: nodeSize.height,
 				minWidth: 250,
 				minHeight: 200,
-				border: `1px solid ${borderColor}`,
-				borderRadius: "0px",
-				background: "transparent",
+				border: `1px ${serviceId === "aws-region" ? "dashed" : "solid"} ${borderColor}`,
+				background: serviceId === "aws-region" ? "transparent" : `${borderColor}0D`, // 1A = 10% alpha in hex
 			}}
 		>
 			{/* Top Handles - Bidirectional */}
@@ -462,14 +461,14 @@ export function AWSContainerNode({
 			{/* Container header - icon and name */}
 			<div
 				className="container-header"
-				style={{ position: "absolute", top: 0, left: 0 }}
+				style={{ position: "absolute", top: -1, left: -1 }}
 			>
 				<Image
 					src={icon}
 					alt={name}
 					width={20}
 					height={20}
-					className="w-5 h-5"
+					className="w-7 h-7 rounded-tl-sm"
 				/>
 				<span className="text-sm font-semibold">{name}</span>
 			</div>
