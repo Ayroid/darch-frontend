@@ -43,11 +43,11 @@ const nodeStyles = `
 		pointer-events: all !important;
 	}
 	.react-flow__node-awsService:hover {
-	  	box-shadow: 0 0 0 1px #302f2fff !important;
+	  box-shadow: 0 0 0 1px #000000 !important;
 	  cursor: pointer !important;
 	}
 	.react-flow__node-awsService.selected {
-		box-shadow: 0 0 0 1px #302f2fff !important;
+		box-shadow: 0 0 0 1px #000000 !important;
 	}
 	.react-flow__node-awsContainer {
 		background: transparent !important;
@@ -60,7 +60,6 @@ const nodeStyles = `
 	}
 	.react-flow__node-awsContainer:hover {
 	  cursor: move !important;
-		box-shadow: 0 0 0 1px #6E6E6E !important;
 	}
 	.react-flow__node-awsContainer .container-header {
 		display: flex !important;

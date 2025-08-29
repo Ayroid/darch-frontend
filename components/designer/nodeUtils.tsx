@@ -207,9 +207,9 @@ export function AWSServiceNode({ id, data }: AWSServiceNodeProps) {
 				<Image
 					src={icon}
 					alt={name}
-					width={24}
-					height={24}
-					className="w-6 h-6"
+					width={32}
+					height={32}
+					className="w-8 h-8"
 				/>
 				<span className="text-xs text-center font-medium text-gray-700 max-w-[60px] leading-tight">
 					{name}
