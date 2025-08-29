@@ -12,6 +12,7 @@ import {
 	NodeChange,
 	NodeProps,
 } from "@xyflow/react";
+import { updateNodeParentRelationships, clearContainerCaches, batchUpdateNodeRelationships, invalidateNodeCache } from "@/lib/container-logic";
 
 // Interfaces
 export interface AWSServiceNodeData {
@@ -523,6 +524,9 @@ export const createNodeHandlers = (
 	onNodesChange: (changes: NodeChange[]) => void,
 	onNodeAdd?: (node: Node) => void
 ) => {
+	// Debounce timer for parent relationship updates
+	let parentUpdateTimeout: NodeJS.Timeout | null = null;
+
 	// Handle node size changes
 	const handleNodeSizeChange = (
 		nodeId: string,
@@ -550,10 +554,22 @@ export const createNodeHandlers = (
 		);
 	};
 
-	// Enhanced nodes change handler to clean up edges when nodes are deleted
+	// Enhanced nodes change handler with container logic and edge cleanup
 	const handleNodesChange = (changes: NodeChange[]) => {
 		// First apply the node changes
 		onNodesChange(changes);
+
+		// Check for position changes that indicate a drag end (not during drag)
+		const dragEndChanges = changes.filter(change =>
+			change.type === 'position' &&
+			change.dragging === false
+		);
+
+		// Check for nodes being moved (position changes during dragging)
+		const dragMoveChanges = changes.filter(change =>
+			change.type === 'position' &&
+			change.dragging === true
+		);
 
 		// Check if any nodes were removed
 		const removedNodeIds = changes
@@ -561,6 +577,9 @@ export const createNodeHandlers = (
 			.map((change) => change.id);
 
 		if (removedNodeIds.length > 0) {
+			// Clear caches when nodes are removed
+			clearContainerCaches();
+
 			// Remove edges connected to deleted nodes
 			setEdges((eds) =>
 				eds.filter(
@@ -569,6 +588,57 @@ export const createNodeHandlers = (
 						!removedNodeIds.includes(edge.target)
 				)
 			);
+		}
+
+		// PERFORMANCE: During active dragging, only update z-index for proper layering
+		// Skip expensive parent relationship calculations
+		if (dragMoveChanges.length > 0) {
+			// Clear any pending timeout to avoid conflicts
+			if (parentUpdateTimeout) {
+				clearTimeout(parentUpdateTimeout);
+				parentUpdateTimeout = null;
+			}
+
+			// Invalidate cache for moved nodes to ensure fresh calculations on drag end
+			dragMoveChanges.forEach(change => {
+				if (change.type === 'position') {
+					invalidateNodeCache((change as { id: string }).id);
+				}
+			});
+
+			// Light update - only z-index for dragging nodes
+			setNodes((currentNodes) => {
+				return updateNodeParentRelationships(currentNodes, false, false);
+			});
+			return; // Exit early to avoid heavy calculations during drag
+		}
+
+		// Only do expensive parent relationship updates when drag ends
+		if (dragEndChanges.length > 0) {
+			// Clear any existing timeout
+			if (parentUpdateTimeout) {
+				clearTimeout(parentUpdateTimeout);
+			}
+
+			// Get IDs of nodes that changed position
+			const changedNodeIds = new Set(
+				dragEndChanges
+					.filter(change => change.type === 'position')
+					.map(change => (change as { id: string }).id)
+			);
+
+			// Reduced debounce for more responsive feel, but still stable
+			parentUpdateTimeout = setTimeout(() => {
+				setNodes((currentNodes) => {
+					// Use batch update for better performance with multiple containers
+					if (changedNodeIds.size > 1) {
+						return batchUpdateNodeRelationships(currentNodes, changedNodeIds, true);
+					} else {
+						// Single node update with drag end flag
+						return updateNodeParentRelationships(currentNodes, false, true);
+					}
+				});
+			}, 1000); // Reduced from 150ms to 100ms for better responsiveness
 		}
 	};
 

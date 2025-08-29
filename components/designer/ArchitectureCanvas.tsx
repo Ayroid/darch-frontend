@@ -18,6 +18,7 @@ import {
 import "@xyflow/react/dist/style.css";
 import { useCanvasShortcuts, useUndoRedo } from "@/lib/keyboard-shortcuts";
 import { useArchitectureData } from "@/hooks/use-architecture-data";
+import { updateNodeParentRelationships, clearContainerCaches } from "@/lib/container-logic";
 import UndoRedoControls from "./UndoRedoControls";
 import ShortcutsButton from "./ShortcutsButton";
 import {
@@ -29,16 +30,20 @@ import {
 
 // Custom styles for transparent nodes
 const nodeStyles = `
-	.react-flow__pane {
-		cursor: default !important;
+	.react-flow__node {
+		cursor: pointer !important;
 	}
 	.react-flow__node-awsService {
 		background: transparent !important;
 		border: none !important;
 		box-shadow: none !important;
+		min-width: 60px !important;
+		min-height: 60px !important;
+		z-index: 1000 !important;
+		pointer-events: all !important;
 	}
 	.react-flow__node-awsService:hover {
-  	box-shadow: 0 0 0 1px #302f2fff !important;
+	  	box-shadow: 0 0 0 1px #302f2fff !important;
 	  cursor: pointer !important;
 	}
 	.react-flow__node-awsService.selected {
@@ -50,9 +55,12 @@ const nodeStyles = `
 		box-shadow: none !important;
 		min-width: 250px !important;
 		min-height: 200px !important;
+		z-index: 1 !important;
+		pointer-events: all !important;
 	}
 	.react-flow__node-awsContainer:hover {
 	  cursor: move !important;
+		box-shadow: 0 0 0 1px #6E6E6E !important;
 	}
 	.react-flow__node-awsContainer .container-header {
 		display: flex !important;
@@ -62,19 +70,19 @@ const nodeStyles = `
 		background: transparent !important;
 		color: #374151 !important;
 		font-weight: 600 !important;
+		z-index: 50 !important;
+		pointer-events: all !important;
 	}
 	.react-flow__node-awsContainer .resize-handle {
 		position: absolute !important;
-		width: 16px !important;
-		height: 16px !important;
 		opacity: 0 !important;
-		z-index: 10 !important;
 		transition: opacity 0.2s ease !important;
-		display: flex !important;
-		align-items: center !important;
-		justify-content: center !important;
+		z-index: 51 !important;
+		pointer-events: all !important;
+		cursor: resize !important;
 	}
-	.react-flow__node-awsContainer:hover .resize-handle {
+	.react-flow__node-awsContainer:hover .resize-handle,
+	.react-flow__node-awsContainer.selected .resize-handle {
 		opacity: 1 !important;
 	}
 	.react-flow__handle {
@@ -86,9 +94,13 @@ const nodeStyles = `
 		position: absolute !important;
 		transition: opacity 0.2s ease, transform 0.2s ease !important;
 		transform: translate(-50%, -50%) !important;
+		z-index: 200 !important;
 	}
-	.react-flow__node-awsService:hover .react-flow__handle,
-	.react-flow__node-awsService.selected .react-flow__handle,
+	.react-flow__node:hover .react-flow__handle,
+	.react-flow__node.selected .react-flow__handle {
+		opacity: 1 !important;
+	  cursor: pointer !important;
+	}
 	.react-flow__node-awsContainer:hover .react-flow__handle,
 	.react-flow__node-awsContainer.selected .react-flow__handle {
 		opacity: 1 !important;
@@ -104,7 +116,6 @@ const nodeStyles = `
 		background: #000000 !important;
 	}
 `;
-
 interface ArchitectureCanvasProps {
 	onNodeAdd?: (node: Node) => void;
 	onShowHelp?: () => void;
@@ -289,7 +300,14 @@ export default function ArchitectureCanvas({
 					}),
 				};
 
-				setNodes((nds) => nds.concat(newNode));
+				// Add the new node and then update all parent relationships
+				setNodes((nds) => {
+					const nodesWithNew = nds.concat(newNode);
+					// Clear caches when adding new nodes
+					clearContainerCaches();
+					return updateNodeParentRelationships(nodesWithNew, true, false);
+				});
+
 				// Add to architecture data
 				addArchNode(newNode);
 				onNodeAdd?.(newNode);
