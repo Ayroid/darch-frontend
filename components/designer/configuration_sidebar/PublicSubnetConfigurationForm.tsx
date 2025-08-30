@@ -12,6 +12,7 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { PublicSubnetConfiguration } from "@/lib/types/aws-resources";
 
 const availabilityZones = [
 	"us-east-1a", "us-east-1b", "us-east-1c", "us-east-1d", "us-east-1e", "us-east-1f",
@@ -22,8 +23,8 @@ const availabilityZones = [
 ];
 
 interface PublicSubnetConfigurationFormProps {
-	config: Record<string, unknown>;
-	onChange: (config: Record<string, unknown>) => void;
+	config: PublicSubnetConfiguration;
+	onChange: (config: PublicSubnetConfiguration) => void;
 }
 
 export default function PublicSubnetConfigurationForm({

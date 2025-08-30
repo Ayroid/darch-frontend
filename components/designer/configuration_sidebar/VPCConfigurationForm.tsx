@@ -15,15 +15,29 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { VPCConfiguration } from "@/lib/types/aws-resources";
 
 const awsRegions = [
-	"us-east-1", "us-east-2", "us-west-1", "us-west-2",
-	"eu-west-1", "eu-west-2", "eu-west-3", "eu-central-1", "eu-north-1",
-	"ap-southeast-1", "ap-southeast-2", "ap-northeast-1", "ap-northeast-2", "ap-south-1",
-	"ca-central-1", "sa-east-1", "af-south-1", "me-south-1",
-];
+	"us-east-1",
+	"us-east-2",
+	"us-west-1",
+	"us-west-2",
+	"eu-west-1",
+	"eu-west-2",
+	"eu-west-3",
+	"eu-central-1",
+	"eu-north-1",
+	"ap-southeast-1",
+	"ap-southeast-2",
+	"ap-northeast-1",
+	"ap-northeast-2",
+	"ap-south-1",
+	"ca-central-1",
+	"sa-east-1",
+	"af-south-1",
+	"me-south-1",
+] as const;
 
 interface VPCConfigurationFormProps {
-	config: Record<string, unknown>;
-	onChange: (config: Record<string, unknown>) => void;
+	config: VPCConfiguration;
+	onChange: (config: VPCConfiguration) => void;
 }
 
 // Validation functions
@@ -33,7 +47,7 @@ const validateCIDRBlock = (cidr: string): string | null => {
 	const cidrRegex = /^(\d{1,3}\.){3}\d{1,3}\/\d{1,2}$/;
 	if (!cidrRegex.test(cidr)) return "Invalid CIDR format (e.g., 10.0.0.0/16)";
 
-	const [ip, mask] = cidr.split('/');
+	const [ip, mask] = cidr.split("/");
 	const maskNum = parseInt(mask, 10);
 
 	if (maskNum < 16 || maskNum > 28) {
@@ -41,8 +55,8 @@ const validateCIDRBlock = (cidr: string): string | null => {
 	}
 
 	// Validate IP octets
-	const octets = ip.split('.').map(num => parseInt(num, 10));
-	if (octets.some(octet => octet < 0 || octet > 255)) {
+	const octets = ip.split(".").map((num) => parseInt(num, 10));
+	if (octets.some((octet) => octet < 0 || octet > 255)) {
 		return "Invalid IP address in CIDR block";
 	}
 
@@ -57,14 +71,14 @@ const validateVPCName = (name: string): string | null => {
 
 const validateTags = (tags: string): string | null => {
 	// Ensure tags is a string and handle empty/undefined cases
-	if (!tags || typeof tags !== 'string' || !tags.trim()) return null;
+	if (!tags || typeof tags !== "string" || !tags.trim()) return null;
 
-	const tagPairs = tags.split(',').map(tag => tag.trim());
+	const tagPairs = tags.split(",").map((tag) => tag.trim());
 	for (const pair of tagPairs) {
-		if (!pair.includes('=')) {
+		if (!pair.includes("=")) {
 			return "Tags must be in format: key=value, separated by commas";
 		}
-		const [key, value] = pair.split('=');
+		const [key, value] = pair.split("=");
 		if (!key.trim() || !value.trim()) {
 			return "Tag keys and values cannot be empty";
 		}
@@ -76,28 +90,28 @@ const VPCConfigurationForm: React.FC<VPCConfigurationFormProps> = ({
 	config,
 	onChange,
 }) => {
-	// Type-safe access to config properties with defaults
-	const vpcConfig = config as unknown as VPCConfiguration;
-
 	// Validation state
 	const validationErrors = useMemo(() => {
 		const errors: Record<string, string> = {};
 
-		const nameError = validateVPCName(String(vpcConfig.name || ""));
+		const nameError = validateVPCName(config.name || "");
 		if (nameError) errors.name = nameError;
 
-		const cidrError = validateCIDRBlock(String(vpcConfig.cidrBlock || ""));
+		const cidrError = validateCIDRBlock(config.cidrBlock || "");
 		if (cidrError) errors.cidrBlock = cidrError;
 
-		const tagsError = validateTags(String(vpcConfig.tags || ""));
+		const tagsError = validateTags(config.tags || "");
 		if (tagsError) errors.tags = tagsError;
 
-		if (!vpcConfig.region) errors.region = "Region is required";
+		if (!config.region) errors.region = "Region is required";
 
 		return errors;
-	}, [vpcConfig]);
+	}, [config]);
 
-	const updateConfig = (key: keyof VPCConfiguration, value: VPCConfiguration[keyof VPCConfiguration]) => {
+	const updateConfig = (
+		key: keyof VPCConfiguration,
+		value: VPCConfiguration[keyof VPCConfiguration]
+	) => {
 		onChange({ ...config, [key]: value });
 	};
 
@@ -115,15 +129,20 @@ const VPCConfigurationForm: React.FC<VPCConfigurationFormProps> = ({
 			)}
 
 			<div className="space-y-2">
-				<Label htmlFor="vpc-name" className={validationErrors.name ? "text-red-600" : ""}>
+				<Label
+					htmlFor="vpc-name"
+					className={validationErrors.name ? "text-red-600" : ""}
+				>
 					VPC Name *
 				</Label>
 				<Input
 					id="vpc-name"
 					placeholder="Enter VPC name"
-					value={String(vpcConfig.name || "")}
+					value={config.name || ""}
 					onChange={(e) => updateConfig("name", e.target.value)}
-					className={validationErrors.name ? "border-red-300 focus:border-red-500" : ""}
+					className={
+						validationErrors.name ? "border-red-300 focus:border-red-500" : ""
+					}
 				/>
 				{validationErrors.name && (
 					<p className="text-sm text-red-600">{validationErrors.name}</p>
@@ -131,15 +150,22 @@ const VPCConfigurationForm: React.FC<VPCConfigurationFormProps> = ({
 			</div>
 
 			<div className="space-y-2">
-				<Label htmlFor="cidr-block" className={validationErrors.cidrBlock ? "text-red-600" : ""}>
+				<Label
+					htmlFor="cidr-block"
+					className={validationErrors.cidrBlock ? "text-red-600" : ""}
+				>
 					CIDR Block *
 				</Label>
 				<Input
 					id="cidr-block"
 					placeholder="10.0.0.0/16"
-					value={String(vpcConfig.cidrBlock || "")}
+					value={config.cidrBlock || ""}
 					onChange={(e) => updateConfig("cidrBlock", e.target.value)}
-					className={validationErrors.cidrBlock ? "border-red-300 focus:border-red-500" : ""}
+					className={
+						validationErrors.cidrBlock
+							? "border-red-300 focus:border-red-500"
+							: ""
+					}
 				/>
 				{validationErrors.cidrBlock && (
 					<p className="text-sm text-red-600">{validationErrors.cidrBlock}</p>
@@ -150,14 +176,23 @@ const VPCConfigurationForm: React.FC<VPCConfigurationFormProps> = ({
 			</div>
 
 			<div className="space-y-2">
-				<Label htmlFor="region" className={validationErrors.region ? "text-red-600" : ""}>
+				<Label
+					htmlFor="region"
+					className={validationErrors.region ? "text-red-600" : ""}
+				>
 					Region *
 				</Label>
 				<Select
-					value={String(vpcConfig.region || "")}
+					value={config.region || ""}
 					onValueChange={(value) => updateConfig("region", value)}
 				>
-					<SelectTrigger className={validationErrors.region ? "border-red-300 focus:border-red-500" : ""}>
+					<SelectTrigger
+						className={
+							validationErrors.region
+								? "border-red-300 focus:border-red-500"
+								: ""
+						}
+					>
 						<SelectValue placeholder="Select region" />
 					</SelectTrigger>
 					<SelectContent>
@@ -178,7 +213,7 @@ const VPCConfigurationForm: React.FC<VPCConfigurationFormProps> = ({
 				<Textarea
 					id="description"
 					placeholder="VPC description (optional)"
-					value={String(vpcConfig.description || "")}
+					value={config.description || ""}
 					onChange={(e) => updateConfig("description", e.target.value)}
 					rows={3}
 				/>
@@ -190,8 +225,10 @@ const VPCConfigurationForm: React.FC<VPCConfigurationFormProps> = ({
 				<div className="flex items-center space-x-2">
 					<Checkbox
 						id="dns-support"
-						checked={(vpcConfig.enableDnsSupport as boolean) ?? true}
-						onCheckedChange={(checked) => updateConfig("enableDnsSupport", checked)}
+						checked={config.enableDnsSupport ?? true}
+						onCheckedChange={(checked) =>
+							updateConfig("enableDnsSupport", !!checked)
+						}
 					/>
 					<Label htmlFor="dns-support" className="text-sm">
 						Enable DNS Support
@@ -204,8 +241,10 @@ const VPCConfigurationForm: React.FC<VPCConfigurationFormProps> = ({
 				<div className="flex items-center space-x-2">
 					<Checkbox
 						id="dns-hostnames"
-						checked={(vpcConfig.enableDnsHostnames as boolean) ?? true}
-						onCheckedChange={(checked) => updateConfig("enableDnsHostnames", checked)}
+						checked={config.enableDnsHostnames ?? true}
+						onCheckedChange={(checked) =>
+							updateConfig("enableDnsHostnames", !!checked)
+						}
 					/>
 					<Label htmlFor="dns-hostnames" className="text-sm">
 						Enable DNS Hostnames
@@ -217,15 +256,20 @@ const VPCConfigurationForm: React.FC<VPCConfigurationFormProps> = ({
 			</div>
 
 			<div className="space-y-2">
-				<Label htmlFor="tags" className={validationErrors.tags ? "text-red-600" : ""}>
+				<Label
+					htmlFor="tags"
+					className={validationErrors.tags ? "text-red-600" : ""}
+				>
 					Tags
 				</Label>
 				<Textarea
 					id="tags"
 					placeholder="Environment=Production, Owner=TeamA, Project=WebApp"
-					value={String(vpcConfig.tags || "")}
+					value={config.tags || ""}
 					onChange={(e) => updateConfig("tags", e.target.value)}
-					className={validationErrors.tags ? "border-red-300 focus:border-red-500" : ""}
+					className={
+						validationErrors.tags ? "border-red-300 focus:border-red-500" : ""
+					}
 					rows={2}
 				/>
 				{validationErrors.tags && (
@@ -237,9 +281,9 @@ const VPCConfigurationForm: React.FC<VPCConfigurationFormProps> = ({
 			</div>
 		</div>
 	);
-}
+};
 
 export default VPCConfigurationForm;
 
-// Re-export the type for backward compatibility
-export type { VPCConfiguration } from "@/lib/types/aws-resources";
+// Export the configuration type
+export type { VPCConfiguration };

@@ -1,3 +1,6 @@
+"use client";
+
+import React from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -9,42 +12,123 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+
 import { EC2Configuration } from "@/lib/types/aws-resources";
 
 interface EC2ConfigurationFormProps {
-	config: Record<string, unknown>;
-	onChange: (config: Record<string, unknown>) => void;
+	config: EC2Configuration;
+	onChange: (config: EC2Configuration) => void;
 }
 
 const instanceTypes = [
 	// General Purpose
-	"t2.nano", "t2.micro", "t2.small", "t2.medium", "t2.large", "t2.xlarge", "t2.2xlarge",
-	"t3.nano", "t3.micro", "t3.small", "t3.medium", "t3.large", "t3.xlarge", "t3.2xlarge",
-	"t3a.nano", "t3a.micro", "t3a.small", "t3a.medium", "t3a.large", "t3a.xlarge", "t3a.2xlarge",
-	"t4g.nano", "t4g.micro", "t4g.small", "t4g.medium", "t4g.large", "t4g.xlarge", "t4g.2xlarge",
-	"m5.large", "m5.xlarge", "m5.2xlarge", "m5.4xlarge", "m5.8xlarge", "m5.12xlarge", "m5.16xlarge", "m5.24xlarge",
-	"m5a.large", "m5a.xlarge", "m5a.2xlarge", "m5a.4xlarge", "m5a.8xlarge", "m5a.12xlarge", "m5a.16xlarge", "m5a.24xlarge",
+	"t2.nano",
+	"t2.micro",
+	"t2.small",
+	"t2.medium",
+	"t2.large",
+	"t2.xlarge",
+	"t2.2xlarge",
+	"t3.nano",
+	"t3.micro",
+	"t3.small",
+	"t3.medium",
+	"t3.large",
+	"t3.xlarge",
+	"t3.2xlarge",
+	"t3a.nano",
+	"t3a.micro",
+	"t3a.small",
+	"t3a.medium",
+	"t3a.large",
+	"t3a.xlarge",
+	"t3a.2xlarge",
+	"t4g.nano",
+	"t4g.micro",
+	"t4g.small",
+	"t4g.medium",
+	"t4g.large",
+	"t4g.xlarge",
+	"t4g.2xlarge",
+	"m5.large",
+	"m5.xlarge",
+	"m5.2xlarge",
+	"m5.4xlarge",
+	"m5.8xlarge",
+	"m5.12xlarge",
+	"m5.16xlarge",
+	"m5.24xlarge",
+	"m5a.large",
+	"m5a.xlarge",
+	"m5a.2xlarge",
+	"m5a.4xlarge",
+	"m5a.8xlarge",
+	"m5a.12xlarge",
+	"m5a.16xlarge",
+	"m5a.24xlarge",
 
 	// Compute Optimized
-	"c5.large", "c5.xlarge", "c5.2xlarge", "c5.4xlarge", "c5.9xlarge", "c5.12xlarge", "c5.18xlarge", "c5.24xlarge",
-	"c5n.large", "c5n.xlarge", "c5n.2xlarge", "c5n.4xlarge", "c5n.9xlarge", "c5n.18xlarge",
+	"c5.large",
+	"c5.xlarge",
+	"c5.2xlarge",
+	"c5.4xlarge",
+	"c5.9xlarge",
+	"c5.12xlarge",
+	"c5.18xlarge",
+	"c5.24xlarge",
+	"c5n.large",
+	"c5n.xlarge",
+	"c5n.2xlarge",
+	"c5n.4xlarge",
+	"c5n.9xlarge",
+	"c5n.18xlarge",
 
 	// Memory Optimized
-	"r5.large", "r5.xlarge", "r5.2xlarge", "r5.4xlarge", "r5.8xlarge", "r5.12xlarge", "r5.16xlarge", "r5.24xlarge",
-	"x1.16xlarge", "x1.32xlarge", "x1e.xlarge", "x1e.2xlarge", "x1e.4xlarge", "x1e.8xlarge", "x1e.16xlarge", "x1e.32xlarge",
+	"r5.large",
+	"r5.xlarge",
+	"r5.2xlarge",
+	"r5.4xlarge",
+	"r5.8xlarge",
+	"r5.12xlarge",
+	"r5.16xlarge",
+	"r5.24xlarge",
+	"x1.16xlarge",
+	"x1.32xlarge",
+	"x1e.xlarge",
+	"x1e.2xlarge",
+	"x1e.4xlarge",
+	"x1e.8xlarge",
+	"x1e.16xlarge",
+	"x1e.32xlarge",
 
 	// Storage Optimized
-	"i3.large", "i3.xlarge", "i3.2xlarge", "i3.4xlarge", "i3.8xlarge", "i3.16xlarge",
-	"d2.xlarge", "d2.2xlarge", "d2.4xlarge", "d2.8xlarge",
-];
+	"i3.large",
+	"i3.xlarge",
+	"i3.2xlarge",
+	"i3.4xlarge",
+	"i3.8xlarge",
+	"i3.16xlarge",
+	"d2.xlarge",
+	"d2.2xlarge",
+	"d2.4xlarge",
+	"d2.8xlarge",
+] as const;
 
-const volumeTypes = ["gp2", "gp3", "io1", "io2", "st1", "sc1", "standard"];
-const tenancyOptions = ["default", "dedicated", "host"];
+const volumeTypes = [
+	"gp2",
+	"gp3",
+	"io1",
+	"io2",
+	"st1",
+	"sc1",
+	"standard",
+] as const;
+const tenancyOptions = ["default", "dedicated", "host"] as const;
 
-const EC2ConfigurationForm: React.FC<EC2ConfigurationFormProps> = ({ config, onChange }) => {
-	// Type-safe access to config properties
-	const ec2Config = config as unknown as EC2Configuration;
-
+const EC2ConfigurationForm: React.FC<EC2ConfigurationFormProps> = ({
+	config,
+	onChange,
+}) => {
 	const updateConfig = (
 		key: keyof EC2Configuration,
 		value: EC2Configuration[keyof EC2Configuration]
@@ -53,7 +137,7 @@ const EC2ConfigurationForm: React.FC<EC2ConfigurationFormProps> = ({ config, onC
 	};
 
 	const handleTagChange = (key: string, value: string) => {
-		const currentTags = (ec2Config.tags as Record<string, string>) || {};
+		const currentTags = config.tags || {};
 		if (value === "") {
 			const newTags = { ...currentTags };
 			delete newTags[key];
@@ -67,7 +151,7 @@ const EC2ConfigurationForm: React.FC<EC2ConfigurationFormProps> = ({ config, onC
 	};
 
 	const addTag = () => {
-		const currentTags = (ec2Config.tags as Record<string, string>) || {};
+		const currentTags = config.tags || {};
 		const key = `Tag${Object.keys(currentTags).length + 1}`;
 		onChange({
 			...config,
@@ -87,7 +171,7 @@ const EC2ConfigurationForm: React.FC<EC2ConfigurationFormProps> = ({ config, onC
 					<Label htmlFor="ec2-name">Name</Label>
 					<Input
 						id="ec2-name"
-						value={(config.name as string) || ""}
+						value={config.name || ""}
 						onChange={(e) => updateConfig("name", e.target.value)}
 						placeholder="e.g., Web Server"
 					/>
@@ -96,7 +180,7 @@ const EC2ConfigurationForm: React.FC<EC2ConfigurationFormProps> = ({ config, onC
 				<div className="space-y-2">
 					<Label htmlFor="instanceType">Instance Type</Label>
 					<Select
-						value={(config.instanceType as string) || ""}
+						value={config.instanceType || ""}
 						onValueChange={(value) => updateConfig("instanceType", value)}
 					>
 						<SelectTrigger>
@@ -116,7 +200,7 @@ const EC2ConfigurationForm: React.FC<EC2ConfigurationFormProps> = ({ config, onC
 					<Label htmlFor="amiId">AMI ID</Label>
 					<Input
 						id="amiId"
-						value={(config.amiId as string) || ""}
+						value={config.amiId || ""}
 						onChange={(e) => updateConfig("amiId", e.target.value)}
 						placeholder="e.g., ami-0abcdef1234567890"
 					/>
@@ -126,7 +210,7 @@ const EC2ConfigurationForm: React.FC<EC2ConfigurationFormProps> = ({ config, onC
 					<Label htmlFor="keyPairName">Key Pair Name</Label>
 					<Input
 						id="keyPairName"
-						value={(config.keyPairName as string) || ""}
+						value={config.keyPairName || ""}
 						onChange={(e) => updateConfig("keyPairName", e.target.value)}
 						placeholder="e.g., my-key-pair"
 					/>
@@ -143,7 +227,7 @@ const EC2ConfigurationForm: React.FC<EC2ConfigurationFormProps> = ({ config, onC
 					<Label htmlFor="availabilityZone">Availability Zone</Label>
 					<Input
 						id="availabilityZone"
-						value={(config.availabilityZone as string) || ""}
+						value={config.availabilityZone || ""}
 						onChange={(e) => updateConfig("availabilityZone", e.target.value)}
 						placeholder="e.g., us-east-1a"
 					/>
@@ -153,7 +237,7 @@ const EC2ConfigurationForm: React.FC<EC2ConfigurationFormProps> = ({ config, onC
 					<Label htmlFor="subnetId">Subnet ID</Label>
 					<Input
 						id="subnetId"
-						value={(config.subnetId as string) || ""}
+						value={config.subnetId || ""}
 						onChange={(e) => updateConfig("subnetId", e.target.value)}
 						placeholder="e.g., subnet-12345678"
 					/>
@@ -163,8 +247,13 @@ const EC2ConfigurationForm: React.FC<EC2ConfigurationFormProps> = ({ config, onC
 					<Label htmlFor="securityGroups">Security Groups</Label>
 					<Textarea
 						id="securityGroups"
-						value={((config.securityGroups as string[]) || []).join(", ")}
-						onChange={(e) => updateConfig("securityGroups", e.target.value.split(", ").filter(Boolean))}
+						value={(config.securityGroups || []).join(", ")}
+						onChange={(e) =>
+							updateConfig(
+								"securityGroups",
+								e.target.value.split(", ").filter(Boolean)
+							)
+						}
 						placeholder="sg-12345678, sg-87654321"
 						className="min-h-[60px]"
 					/>
@@ -174,7 +263,7 @@ const EC2ConfigurationForm: React.FC<EC2ConfigurationFormProps> = ({ config, onC
 					<Label htmlFor="iamInstanceProfile">IAM Instance Profile</Label>
 					<Input
 						id="iamInstanceProfile"
-						value={(config.iamInstanceProfile as string) || ""}
+						value={config.iamInstanceProfile || ""}
 						onChange={(e) => updateConfig("iamInstanceProfile", e.target.value)}
 						placeholder="e.g., EC2-Instance-Profile"
 					/>
@@ -192,8 +281,10 @@ const EC2ConfigurationForm: React.FC<EC2ConfigurationFormProps> = ({ config, onC
 					<Input
 						id="rootVolumeSize"
 						type="number"
-						value={(config.rootVolumeSize as number) || 8}
-						onChange={(e) => updateConfig("rootVolumeSize", parseInt(e.target.value) || 8)}
+						value={config.rootVolumeSize || 8}
+						onChange={(e) =>
+							updateConfig("rootVolumeSize", parseInt(e.target.value) || 8)
+						}
 						placeholder="8"
 						min="8"
 						max="16384"
@@ -203,7 +294,7 @@ const EC2ConfigurationForm: React.FC<EC2ConfigurationFormProps> = ({ config, onC
 				<div className="space-y-2">
 					<Label htmlFor="rootVolumeType">Root Volume Type</Label>
 					<Select
-						value={(config.rootVolumeType as string) || ""}
+						value={config.rootVolumeType || ""}
 						onValueChange={(value) => updateConfig("rootVolumeType", value)}
 					>
 						<SelectTrigger>
@@ -222,8 +313,10 @@ const EC2ConfigurationForm: React.FC<EC2ConfigurationFormProps> = ({ config, onC
 				<div className="flex items-center space-x-2">
 					<Checkbox
 						id="deleteOnTermination"
-						checked={(config.deleteOnTermination as boolean) || false}
-						onCheckedChange={(checked) => updateConfig("deleteOnTermination", !!checked)}
+						checked={config.deleteOnTermination ?? false}
+						onCheckedChange={(checked) =>
+							updateConfig("deleteOnTermination", !!checked)
+						}
 					/>
 					<Label htmlFor="deleteOnTermination">Delete on Termination</Label>
 				</div>
@@ -231,7 +324,7 @@ const EC2ConfigurationForm: React.FC<EC2ConfigurationFormProps> = ({ config, onC
 				<div className="flex items-center space-x-2">
 					<Checkbox
 						id="encrypted"
-						checked={(config.encrypted as boolean) || false}
+						checked={config.encrypted ?? false}
 						onCheckedChange={(checked) => updateConfig("encrypted", !!checked)}
 					/>
 					<Label htmlFor="encrypted">Encrypted</Label>
@@ -247,8 +340,10 @@ const EC2ConfigurationForm: React.FC<EC2ConfigurationFormProps> = ({ config, onC
 				<div className="flex items-center space-x-2">
 					<Checkbox
 						id="detailedMonitoring"
-						checked={(config.detailedMonitoring as boolean) || false}
-						onCheckedChange={(checked) => updateConfig("detailedMonitoring", !!checked)}
+						checked={config.detailedMonitoring ?? false}
+						onCheckedChange={(checked) =>
+							updateConfig("detailedMonitoring", !!checked)
+						}
 					/>
 					<Label htmlFor="detailedMonitoring">Detailed Monitoring</Label>
 				</div>
@@ -256,8 +351,10 @@ const EC2ConfigurationForm: React.FC<EC2ConfigurationFormProps> = ({ config, onC
 				<div className="flex items-center space-x-2">
 					<Checkbox
 						id="terminationProtection"
-						checked={(config.terminationProtection as boolean) || false}
-						onCheckedChange={(checked) => updateConfig("terminationProtection", !!checked)}
+						checked={config.terminationProtection ?? false}
+						onCheckedChange={(checked) =>
+							updateConfig("terminationProtection", !!checked)
+						}
 					/>
 					<Label htmlFor="terminationProtection">Termination Protection</Label>
 				</div>
@@ -265,8 +362,10 @@ const EC2ConfigurationForm: React.FC<EC2ConfigurationFormProps> = ({ config, onC
 				<div className="flex items-center space-x-2">
 					<Checkbox
 						id="autoRecovery"
-						checked={(config.autoRecovery as boolean) || false}
-						onCheckedChange={(checked) => updateConfig("autoRecovery", !!checked)}
+						checked={config.autoRecovery ?? false}
+						onCheckedChange={(checked) =>
+							updateConfig("autoRecovery", !!checked)
+						}
 					/>
 					<Label htmlFor="autoRecovery">Auto Recovery</Label>
 				</div>
@@ -282,7 +381,7 @@ const EC2ConfigurationForm: React.FC<EC2ConfigurationFormProps> = ({ config, onC
 					<Label htmlFor="userData">User Data Script</Label>
 					<Textarea
 						id="userData"
-						value={(config.userData as string) || ""}
+						value={config.userData || ""}
 						onChange={(e) => updateConfig("userData", e.target.value)}
 						placeholder="#!/bin/bash&#10;# Your bootstrap script here"
 						className="min-h-[120px] font-mono text-sm"
@@ -299,17 +398,23 @@ const EC2ConfigurationForm: React.FC<EC2ConfigurationFormProps> = ({ config, onC
 				<div className="flex items-center space-x-2">
 					<Checkbox
 						id="associatePublicIpAddress"
-						checked={(config.associatePublicIpAddress as boolean) || false}
-						onCheckedChange={(checked) => updateConfig("associatePublicIpAddress", !!checked)}
+						checked={config.associatePublicIpAddress ?? false}
+						onCheckedChange={(checked) =>
+							updateConfig("associatePublicIpAddress", !!checked)
+						}
 					/>
-					<Label htmlFor="associatePublicIpAddress">Associate Public IP Address</Label>
+					<Label htmlFor="associatePublicIpAddress">
+						Associate Public IP Address
+					</Label>
 				</div>
 
 				<div className="flex items-center space-x-2">
 					<Checkbox
 						id="enhancedNetworking"
-						checked={(config.enhancedNetworking as boolean) || false}
-						onCheckedChange={(checked) => updateConfig("enhancedNetworking", !!checked)}
+						checked={config.enhancedNetworking ?? false}
+						onCheckedChange={(checked) =>
+							updateConfig("enhancedNetworking", !!checked)
+						}
 					/>
 					<Label htmlFor="enhancedNetworking">Enhanced Networking</Label>
 				</div>
@@ -317,8 +422,10 @@ const EC2ConfigurationForm: React.FC<EC2ConfigurationFormProps> = ({ config, onC
 				<div className="flex items-center space-x-2">
 					<Checkbox
 						id="sriovNetSupport"
-						checked={(config.sriovNetSupport as boolean) || false}
-						onCheckedChange={(checked) => updateConfig("sriovNetSupport", !!checked)}
+						checked={config.sriovNetSupport ?? false}
+						onCheckedChange={(checked) =>
+							updateConfig("sriovNetSupport", !!checked)
+						}
 					/>
 					<Label htmlFor="sriovNetSupport">SR-IOV Net Support</Label>
 				</div>
@@ -333,7 +440,7 @@ const EC2ConfigurationForm: React.FC<EC2ConfigurationFormProps> = ({ config, onC
 				<div className="space-y-2">
 					<Label htmlFor="tenancy">Tenancy</Label>
 					<Select
-						value={(config.tenancy as string) || ""}
+						value={config.tenancy || ""}
 						onValueChange={(value) => updateConfig("tenancy", value)}
 					>
 						<SelectTrigger>
@@ -349,12 +456,12 @@ const EC2ConfigurationForm: React.FC<EC2ConfigurationFormProps> = ({ config, onC
 					</Select>
 				</div>
 
-				{(config.tenancy as string) === "host" && (
+				{config.tenancy === "host" && (
 					<div className="space-y-2">
 						<Label htmlFor="hostId">Host ID</Label>
 						<Input
 							id="hostId"
-							value={(config.hostId as string) || ""}
+							value={config.hostId || ""}
 							onChange={(e) => updateConfig("hostId", e.target.value)}
 							placeholder="h-1234567890abcdef0"
 						/>
@@ -369,12 +476,12 @@ const EC2ConfigurationForm: React.FC<EC2ConfigurationFormProps> = ({ config, onC
 				</h3>
 
 				<div className="space-y-2">
-					{Object.entries((config.tags as Record<string, string>) || {}).map(([key, value]) => (
+					{Object.entries(config.tags || {}).map(([key, value]) => (
 						<div key={key} className="flex space-x-2">
 							<Input
 								value={key}
 								onChange={(e) => {
-									const currentTags = (config.tags as Record<string, string>) || {};
+									const currentTags = config.tags || {};
 									const newKey = e.target.value;
 									const newTags = { ...currentTags };
 									delete newTags[key];
@@ -409,5 +516,5 @@ const EC2ConfigurationForm: React.FC<EC2ConfigurationFormProps> = ({ config, onC
 
 export default EC2ConfigurationForm;
 
-// Re-export the type for backward compatibility
-export type { EC2Configuration } from "@/lib/types/aws-resources";
+// Export the configuration type
+export type { EC2Configuration };

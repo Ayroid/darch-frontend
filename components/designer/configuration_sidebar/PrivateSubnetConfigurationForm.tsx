@@ -12,9 +12,17 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { PrivateSubnetConfiguration } from "@/lib/types/aws-resources";
 
 const AWS_REGIONS_WITH_AZS = {
-	"us-east-1": ["us-east-1a", "us-east-1b", "us-east-1c", "us-east-1d", "us-east-1e", "us-east-1f"],
+	"us-east-1": [
+		"us-east-1a",
+		"us-east-1b",
+		"us-east-1c",
+		"us-east-1d",
+		"us-east-1e",
+		"us-east-1f",
+	],
 	"us-east-2": ["us-east-2a", "us-east-2b", "us-east-2c"],
 	"us-west-1": ["us-west-1a", "us-west-1b", "us-west-1c"],
 	"us-west-2": ["us-west-2a", "us-west-2b", "us-west-2c", "us-west-2d"],
@@ -39,25 +47,25 @@ const COMMON_PRIVATE_CIDRS = [
 	"172.16.1.0/24",
 	"172.16.2.0/24",
 	"192.168.1.0/24",
-	"192.168.2.0/24"
+	"192.168.2.0/24",
 ];
 
 interface PrivateSubnetConfigurationFormProps {
-	config: Record<string, unknown>;
-	onChange: (config: Record<string, unknown>) => void;
+	config: PrivateSubnetConfiguration;
+	onChange: (config: PrivateSubnetConfiguration) => void;
 }
 
-const PrivateSubnetConfigurationForm: React.FC<PrivateSubnetConfigurationFormProps> = ({
-	config,
-	onChange,
-}) => {
+const PrivateSubnetConfigurationForm: React.FC<
+	PrivateSubnetConfigurationFormProps
+> = ({ config, onChange }) => {
 	const updateConfig = (key: string, value: unknown) => {
 		onChange({ ...config, [key]: value });
 	};
 
 	const vpcId = (config.vpcId as string) || "";
 	const region = "us-east-1"; // Default region - could be extracted from context in real scenarios
-	const availableAZs = AWS_REGIONS_WITH_AZS[region as keyof typeof AWS_REGIONS_WITH_AZS] || [];
+	const availableAZs =
+		AWS_REGIONS_WITH_AZS[region as keyof typeof AWS_REGIONS_WITH_AZS] || [];
 
 	return (
 		<div className="space-y-4">
@@ -148,9 +156,13 @@ const PrivateSubnetConfigurationForm: React.FC<PrivateSubnetConfigurationFormPro
 				<Checkbox
 					id="nat-gateway"
 					checked={(config.enableNatGateway as boolean) ?? false}
-					onCheckedChange={(checked) => updateConfig("enableNatGateway", checked)}
+					onCheckedChange={(checked) =>
+						updateConfig("enableNatGateway", checked)
+					}
 				/>
-				<Label htmlFor="nat-gateway">Enable NAT Gateway for internet access</Label>
+				<Label htmlFor="nat-gateway">
+					Enable NAT Gateway for internet access
+				</Label>
 			</div>
 
 			{/* Tags */}

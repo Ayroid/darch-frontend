@@ -12,15 +12,14 @@ import {
 import { ConfigurationProvider } from "@/lib/stores/configuration-context";
 import { architectureDataManager } from "@/lib/architecture-data-manager";
 import { TbCube } from "react-icons/tb";
-import {
-	FiCheck,
-	FiAlertTriangle,
-} from "react-icons/fi";
+import { FiCheck, FiAlertTriangle } from "react-icons/fi";
 import { Tooltip, TooltipTrigger } from "@radix-ui/react-tooltip";
 import { TooltipContent } from "../ui/tooltip";
 
+import { AVAILABLE_AWS_RESOURCE_CONFIGURATION } from "@/lib/types/aws-resources";
+
 type ConfigurationFormComponent = React.ComponentType<{
-	config: Record<string, unknown>;
+	config: AVAILABLE_AWS_RESOURCE_CONFIGURATION;
 	onChange: (config: Record<string, unknown>) => void;
 }>;
 
@@ -63,7 +62,8 @@ export default function ConfigurationSidebar({
 	} = useConfigurationStore();
 
 	// Local state for the current form
-	const [config, setConfig] = React.useState<Record<string, unknown>>({});
+	const [config, setConfig] =
+		React.useState<AVAILABLE_AWS_RESOURCE_CONFIGURATION>({});
 	const [hasUnsavedChanges, setHasUnsavedChanges] = React.useState(false);
 	const [isSaving, setIsSaving] = React.useState(false);
 
@@ -131,7 +131,9 @@ export default function ConfigurationSidebar({
 		}
 	}, [selectedNode, getNodeConfiguration, setNodeConfiguration]);
 
-	const handleConfigChange = (newConfig: Record<string, unknown>) => {
+	const handleConfigChange = (
+		newConfig: AVAILABLE_AWS_RESOURCE_CONFIGURATION
+	) => {
 		if (!selectedNode) return; // Guard clause for when no node is selected
 
 		setConfig(newConfig);

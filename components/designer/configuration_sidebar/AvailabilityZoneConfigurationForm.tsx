@@ -12,9 +12,17 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { AvailabilityZoneConfiguration } from "@/lib/types/aws-resources";
 
 const AWS_REGIONS_WITH_AZS = {
-	"us-east-1": ["us-east-1a", "us-east-1b", "us-east-1c", "us-east-1d", "us-east-1e", "us-east-1f"],
+	"us-east-1": [
+		"us-east-1a",
+		"us-east-1b",
+		"us-east-1c",
+		"us-east-1d",
+		"us-east-1e",
+		"us-east-1f",
+	],
 	"us-east-2": ["us-east-2a", "us-east-2b", "us-east-2c"],
 	"us-west-1": ["us-west-1a", "us-west-1b", "us-west-1c"],
 	"us-west-2": ["us-west-2a", "us-west-2b", "us-west-2c", "us-west-2d"],
@@ -45,23 +53,26 @@ const AWS_REGIONS_WITH_AZS = {
 	"sa-east-1": ["sa-east-1a", "sa-east-1b", "sa-east-1c"],
 	"us-gov-east-1": ["us-gov-east-1a", "us-gov-east-1b", "us-gov-east-1c"],
 	"us-gov-west-1": ["us-gov-west-1a", "us-gov-west-1b", "us-gov-west-1c"],
-};
-
+} as const;
 interface AvailabilityZoneConfigurationFormProps {
-	config: Record<string, unknown>;
-	onChange: (config: Record<string, unknown>) => void;
+	config: AvailabilityZoneConfiguration;
+	onChange: (config: AvailabilityZoneConfiguration) => void;
 }
 
-const AvailabilityZoneConfigurationForm: React.FC<AvailabilityZoneConfigurationFormProps> = ({
-	config,
-	onChange,
-}) => {
-	const updateConfig = (key: string, value: unknown) => {
+const AvailabilityZoneConfigurationForm: React.FC<
+	AvailabilityZoneConfigurationFormProps
+> = ({ config, onChange }) => {
+	const updateConfig = (
+		key: keyof AvailabilityZoneConfiguration,
+		value: AvailabilityZoneConfiguration[keyof AvailabilityZoneConfiguration]
+	) => {
 		onChange({ ...config, [key]: value });
 	};
 
-	const selectedRegion = (config.region as string) || "";
-	const availableAZs = AWS_REGIONS_WITH_AZS[selectedRegion as keyof typeof AWS_REGIONS_WITH_AZS] || [];
+	const selectedRegion = config.region || "";
+	const availableAZs =
+		AWS_REGIONS_WITH_AZS[selectedRegion as keyof typeof AWS_REGIONS_WITH_AZS] ||
+		[];
 
 	return (
 		<div className="space-y-4">
@@ -70,7 +81,7 @@ const AvailabilityZoneConfigurationForm: React.FC<AvailabilityZoneConfigurationF
 				<Input
 					id="az-name"
 					placeholder="Enter AZ name"
-					value={(config.name as string) || ""}
+					value={config.name || ""}
 					onChange={(e) => updateConfig("name", e.target.value)}
 				/>
 			</div>
@@ -101,12 +112,18 @@ const AvailabilityZoneConfigurationForm: React.FC<AvailabilityZoneConfigurationF
 			<div className="space-y-2">
 				<Label htmlFor="availability-zone">Availability Zone</Label>
 				<Select
-					value={(config.availabilityZone as string) || ""}
+					value={config.availabilityZone || ""}
 					onValueChange={(value) => updateConfig("availabilityZone", value)}
 					disabled={!selectedRegion}
 				>
 					<SelectTrigger>
-						<SelectValue placeholder={selectedRegion ? "Select availability zone" : "Select region first"} />
+						<SelectValue
+							placeholder={
+								selectedRegion
+									? "Select availability zone"
+									: "Select region first"
+							}
+						/>
 					</SelectTrigger>
 					<SelectContent>
 						{availableAZs.map((az) => (
@@ -123,7 +140,7 @@ const AvailabilityZoneConfigurationForm: React.FC<AvailabilityZoneConfigurationF
 				<Textarea
 					id="description"
 					placeholder="Availability zone description"
-					value={(config.description as string) || ""}
+					value={config.description || ""}
 					onChange={(e) => updateConfig("description", e.target.value)}
 				/>
 			</div>
@@ -131,8 +148,8 @@ const AvailabilityZoneConfigurationForm: React.FC<AvailabilityZoneConfigurationF
 			<div className="flex items-center space-x-2">
 				<Checkbox
 					id="enabled"
-					checked={(config.isEnabled as boolean) || true}
-					onCheckedChange={(checked) => updateConfig("isEnabled", checked)}
+					checked={config.isEnabled ?? true}
+					onCheckedChange={(checked) => updateConfig("isEnabled", !!checked)}
 				/>
 				<Label htmlFor="enabled">Enable Availability Zone</Label>
 			</div>
@@ -140,8 +157,8 @@ const AvailabilityZoneConfigurationForm: React.FC<AvailabilityZoneConfigurationF
 			<div className="flex items-center space-x-2">
 				<Checkbox
 					id="preferred"
-					checked={(config.isPreferred as boolean) || false}
-					onCheckedChange={(checked) => updateConfig("isPreferred", checked)}
+					checked={config.isPreferred ?? false}
+					onCheckedChange={(checked) => updateConfig("isPreferred", !!checked)}
 				/>
 				<Label htmlFor="preferred">Set as Preferred Zone</Label>
 			</div>
@@ -151,7 +168,7 @@ const AvailabilityZoneConfigurationForm: React.FC<AvailabilityZoneConfigurationF
 				<Textarea
 					id="tags"
 					placeholder="Environment=Production, Zone=Primary"
-					value={(config.tags as string) || ""}
+					value={config.tags || ""}
 					onChange={(e) => updateConfig("tags", e.target.value)}
 				/>
 			</div>
@@ -161,5 +178,5 @@ const AvailabilityZoneConfigurationForm: React.FC<AvailabilityZoneConfigurationF
 
 export default AvailabilityZoneConfigurationForm;
 
-// Re-export the type for backward compatibility
-export type { AvailabilityZoneConfiguration } from "@/lib/types/aws-resources";
+// Export the configuration type
+export type { AvailabilityZoneConfiguration };

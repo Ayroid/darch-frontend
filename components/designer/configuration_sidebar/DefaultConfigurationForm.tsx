@@ -5,9 +5,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
+import { DefaultConfiguration } from "@/lib/types/aws-resources";
+
 interface DefaultConfigurationFormProps {
-	config: Record<string, unknown>;
-	onChange: (config: Record<string, unknown>) => void;
+	config: DefaultConfiguration;
+	onChange: (config: DefaultConfiguration) => void;
 }
 
 export default function DefaultConfigurationForm({
@@ -22,9 +24,7 @@ export default function DefaultConfigurationForm({
 					id="service-name"
 					placeholder="Enter service name"
 					value={(config.name as string) || ""}
-					onChange={(e) =>
-						onChange({ ...config, name: e.target.value })
-					}
+					onChange={(e) => onChange({ ...config, name: e.target.value })}
 				/>
 			</div>
 			<div className="space-y-2">
@@ -33,9 +33,7 @@ export default function DefaultConfigurationForm({
 					id="description"
 					placeholder="Enter description"
 					value={(config.description as string) || ""}
-					onChange={(e) =>
-						onChange({ ...config, description: e.target.value })
-					}
+					onChange={(e) => onChange({ ...config, description: e.target.value })}
 				/>
 			</div>
 		</div>
