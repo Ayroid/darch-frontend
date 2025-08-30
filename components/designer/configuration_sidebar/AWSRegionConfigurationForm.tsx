@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -11,10 +10,14 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
-import { useConfigurationContext } from "@/lib/stores/configuration-context";
-import { useStoreAwareConfig } from "@/lib/stores/use-store-integration";
-import { AWSRegionConfiguration } from "@/lib/types/aws-resources";
+import { Input } from "@/components/ui/input";
+// import { Checkbox } from "@/components/ui/checkbox";
+import { useConfigurationContext } from "@/lib/stores";
+import { useStoreAwareConfig } from "@/lib/stores";
+import {
+	Available_AWS_Resource_Configuration,
+	AWSRegionConfiguration,
+} from "@/lib/types/aws-resources";
 
 const awsRegions = [
 	{ code: "us-east-1", name: "US East (N. Virginia)" },
@@ -53,7 +56,7 @@ const awsRegions = [
 
 interface AWSRegionConfigurationFormProps {
 	config: AWSRegionConfiguration;
-	onChange: (config: AWSRegionConfiguration) => void;
+	onChange: (config: Available_AWS_Resource_Configuration) => void;
 }
 
 const AWSRegionConfigurationForm: React.FC<AWSRegionConfigurationFormProps> = ({
@@ -73,17 +76,9 @@ const AWSRegionConfigurationForm: React.FC<AWSRegionConfigurationFormProps> = ({
 			<div className="space-y-2">
 				<Label htmlFor="region">AWS Region</Label>
 				<Select
-					value={config.regionCode || ""}
+					value={config.regionCode}
 					onValueChange={(value) => {
-						const selectedRegion = awsRegions.find((r) => r.code === value);
 						updateConfig("regionCode", value);
-						if (selectedRegion) {
-							updateConfig("displayName", selectedRegion.name);
-							// Auto-generate a name if not set
-							if (!config.name) {
-								updateConfig("name", selectedRegion.code);
-							}
-						}
 					}}
 				>
 					<SelectTrigger>
@@ -119,7 +114,7 @@ const AWSRegionConfigurationForm: React.FC<AWSRegionConfigurationFormProps> = ({
 				/>
 			</div>
 			{/* Region Description */}
-			<div className="space-y-2">
+			{/* <div className="space-y-2">
 				<Label htmlFor="description">Description</Label>
 				<Textarea
 					id="description"
@@ -127,25 +122,25 @@ const AWSRegionConfigurationForm: React.FC<AWSRegionConfigurationFormProps> = ({
 					value={config.description || ""}
 					onChange={(e) => updateConfig("description", e.target.value)}
 				/>
-			</div>
+			</div> */}
 			{/* Enable Region */}
-			<div className="flex items-center space-x-2">
+			{/* <div className="flex items-center space-x-2">
 				<Checkbox
 					id="enabled"
 					checked={config.isEnabled ?? true}
 					onCheckedChange={(checked) => updateConfig("isEnabled", checked)}
 				/>
 				<Label htmlFor="enabled">Enable Region</Label>
-			</div>
+			</div> */}
 			{/* Default Region */}
-			<div className="flex items-center space-x-2">
+			{/* <div className="flex items-center space-x-2">
 				<Checkbox
 					id="default-region"
 					checked={config.isDefault ?? false}
 					onCheckedChange={(checked) => updateConfig("isDefault", checked)}
 				/>
 				<Label htmlFor="default-region">Set as Default Region</Label>
-			</div>
+			</div> */}
 
 			{/* Tags */}
 			<div className="space-y-2">

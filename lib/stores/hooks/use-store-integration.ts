@@ -1,26 +1,28 @@
 import { useEffect, useCallback } from "react";
-import {
-	useConfigurationStore,
-	validateConfiguration,
-} from "./configuration-store";
-import { AVAILABLE_AWS_RESOURCE_CONFIGURATION } from "@/lib/types/aws-resources";
+import { useConfigurationStore } from "../configuration/configuration-store";
+import { useValidationStore } from "../validation/validation-store";
+import { Available_AWS_Resource_Configuration } from "@/lib/types/aws-resources";
 
 /**
- * Simple hook to integrate existing configuration forms with Zustand store
+ * Enhanced hook to integrate existing configuration forms with multiple stores
  * This allows gradual migration without major form rewrites
  */
 export const useStoreIntegration = (
 	nodeId: string | null,
 	serviceId: string,
-	config: AVAILABLE_AWS_RESOURCE_CONFIGURATION,
-	onChange: (config: Record<string, unknown>) => void
+	config: Available_AWS_Resource_Configuration,
+	onChange: (config: Available_AWS_Resource_Configuration) => void
 ) => {
 	const {
 		getNodeConfiguration,
 		updateNodeConfiguration,
+	} = useConfigurationStore();
+
+	const {
+		validateConfiguration,
 		setValidationErrors,
 		clearValidationErrors,
-	} = useConfigurationStore();
+	} = useValidationStore();
 
 	// Sync configuration changes to store and validate
 	const handleConfigChange = useCallback(
@@ -39,7 +41,7 @@ export const useStoreIntegration = (
 			}
 
 			// Call the original onChange
-			onChange(newConfig);
+			onChange(newConfig as Available_AWS_Resource_Configuration);
 		},
 		[
 			nodeId,
@@ -48,6 +50,7 @@ export const useStoreIntegration = (
 			setValidationErrors,
 			clearValidationErrors,
 			onChange,
+			validateConfiguration,
 		]
 	);
 
@@ -60,7 +63,7 @@ export const useStoreIntegration = (
 				const configStr = JSON.stringify(config);
 				const storedStr = JSON.stringify(storedConfig);
 				if (configStr !== storedStr) {
-					onChange(storedConfig as Record<string, unknown>);
+					onChange(storedConfig);
 				}
 			}
 		}
@@ -77,8 +80,8 @@ export const useStoreIntegration = (
 export const useStoreAwareConfig = (
 	nodeId: string | null,
 	serviceId: string,
-	config: AVAILABLE_AWS_RESOURCE_CONFIGURATION,
-	onChange: (config: Record<string, unknown>) => void
+	config: Available_AWS_Resource_Configuration,
+	onChange: (config: Available_AWS_Resource_Configuration) => void
 ) => {
 	const { handleConfigChange } = useStoreIntegration(
 		nodeId,

@@ -6,20 +6,20 @@ import { Node } from "@xyflow/react";
 import { ConfigurationSidebarMap } from "./configuration_sidebar";
 import {
 	useConfigurationStore,
+	useValidationStore,
 	getDefaultConfiguration,
-	validateConfiguration,
-} from "@/lib/stores/configuration-store";
-import { ConfigurationProvider } from "@/lib/stores/configuration-context";
+} from "@/lib/stores";
+import { ConfigurationProvider } from "@/lib/stores";
 import { architectureDataManager } from "@/lib/architecture-data-manager";
 import { TbCube } from "react-icons/tb";
 import { FiCheck, FiAlertTriangle } from "react-icons/fi";
 import { Tooltip, TooltipTrigger } from "@radix-ui/react-tooltip";
 import { TooltipContent } from "../ui/tooltip";
 
-import { AVAILABLE_AWS_RESOURCE_CONFIGURATION } from "@/lib/types/aws-resources";
+import { Available_AWS_Resource_Configuration } from "@/lib/types/aws-resources";
 
 type ConfigurationFormComponent = React.ComponentType<{
-	config: AVAILABLE_AWS_RESOURCE_CONFIGURATION;
+	config: Available_AWS_Resource_Configuration;
 	onChange: (config: Record<string, unknown>) => void;
 }>;
 
@@ -53,17 +53,21 @@ export default function ConfigurationSidebar({
 }: ConfigurationSidebarProps) {
 	// Zustand store hooks
 	const {
-		validationErrors,
 		setNodeConfiguration,
 		getNodeConfiguration,
 		updateNodeConfiguration,
+	} = useConfigurationStore();
+
+	const {
+		validationErrors,
 		setValidationErrors,
 		clearValidationErrors,
-	} = useConfigurationStore();
+		validateConfiguration,
+	} = useValidationStore();
 
 	// Local state for the current form
 	const [config, setConfig] =
-		React.useState<AVAILABLE_AWS_RESOURCE_CONFIGURATION>({});
+		React.useState<Available_AWS_Resource_Configuration>({});
 	const [hasUnsavedChanges, setHasUnsavedChanges] = React.useState(false);
 	const [isSaving, setIsSaving] = React.useState(false);
 
@@ -132,7 +136,7 @@ export default function ConfigurationSidebar({
 	}, [selectedNode, getNodeConfiguration, setNodeConfiguration]);
 
 	const handleConfigChange = (
-		newConfig: AVAILABLE_AWS_RESOURCE_CONFIGURATION
+		newConfig: Available_AWS_Resource_Configuration
 	) => {
 		if (!selectedNode) return; // Guard clause for when no node is selected
 
@@ -330,7 +334,7 @@ export default function ConfigurationSidebar({
 							Configuration Errors:
 						</h3>
 						<ul className="text-sm text-red-700 space-y-1">
-							{currentErrors.map((error, index) => (
+							{currentErrors.map((error: string, index: number) => (
 								<li key={index} className="flex items-start">
 									<span className="text-red-500 mr-1">•</span>
 									{error}

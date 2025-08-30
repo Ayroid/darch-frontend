@@ -5,177 +5,198 @@
 
 // Base interfaces
 export interface BaseAWSResource {
-  name: string;
-  description?: string;
-  tags?: Record<string, string>;
+	name: string;
+	description?: string;
+	tags?: Record<string, string>;
 }
 
 export interface ConfigurationFormProps<T = Record<string, unknown>> {
-  config: T;
-  onChange: (config: T) => void;
+	config: T;
+	onChange: (config: T) => void;
 }
 
 // VPC Configuration
 export interface VPCConfiguration {
-  name?: string;
-  cidrBlock?: string;
-  region?: string;
-  description?: string;
-  enableDnsSupport?: boolean;
-  enableDnsHostnames?: boolean;
-  tags?: string; // comma-separated key=value pairs for backward compatibility
+	name?: string;
+	cidrBlock?: string;
+	region?: string;
+	description?: string;
+	enableDnsSupport?: boolean;
+	enableDnsHostnames?: boolean;
+	tags?: string; // comma-separated key=value pairs for backward compatibility
 }
 
 // EC2 Configuration
 export interface EC2Configuration {
-  // Basic Configuration
-  name?: string;
-  instanceType?: string;
-  amiId?: string;
-  keyPairName?: string;
+	// Basic Configuration
+	name?: string;
+	instanceType?: string;
+	amiId?: string;
+	keyPairName?: string;
 
-  // Instance Details
-  availabilityZone?: string;
-  subnetId?: string;
-  securityGroups?: string[];
-  iamInstanceProfile?: string;
+	// Instance Details
+	availabilityZone?: string;
+	subnetId?: string;
+	securityGroups?: string[];
+	iamInstanceProfile?: string;
 
-  // Storage
-  rootVolumeSize?: number;
-  rootVolumeType?: string;
-  deleteOnTermination?: boolean;
-  encrypted?: boolean;
+	// Storage
+	rootVolumeSize?: number;
+	rootVolumeType?: string;
+	deleteOnTermination?: boolean;
+	encrypted?: boolean;
 
-  // Monitoring & Management
-  detailedMonitoring?: boolean;
-  terminationProtection?: boolean;
-  autoRecovery?: boolean;
+	// Monitoring & Management
+	detailedMonitoring?: boolean;
+	terminationProtection?: boolean;
+	autoRecovery?: boolean;
 
-  // User Data
-  userData?: string;
+	// User Data
+	userData?: string;
 
-  // Network Settings
-  associatePublicIpAddress?: boolean;
-  enhancedNetworking?: boolean;
-  sriovNetSupport?: boolean;
+	// Network Settings
+	associatePublicIpAddress?: boolean;
+	enhancedNetworking?: boolean;
+	sriovNetSupport?: boolean;
 
-  // Placement
-  tenancy?: string;
-  hostId?: string;
+	// Placement
+	tenancy?: string;
+	hostId?: string;
 
-  // Tags
-  tags?: Record<string, string>;
+	// Tags
+	tags?: Record<string, string>;
 }
 
 // Subnet Configurations
 export interface PublicSubnetConfiguration {
-  name?: string;
-  cidrBlock?: string;
-  vpcId?: string;
-  availabilityZone?: string;
-  description?: string;
-  mapPublicIpOnLaunch?: boolean;
-  tags?: string; // comma-separated key=value pairs for backward compatibility
+	name?: string;
+	cidrBlock?: string;
+	vpcId?: string;
+	availabilityZone?: string;
+	description?: string;
+	mapPublicIpOnLaunch?: boolean;
+	tags?: string; // comma-separated key=value pairs for backward compatibility
 }
 
 export interface PrivateSubnetConfiguration {
-  name?: string;
-  cidrBlock?: string;
-  vpcId?: string;
-  availabilityZone?: string;
-  description?: string;
-  mapPublicIpOnLaunch?: boolean;
-  enableNatGateway?: boolean;
-  tags?: string; // comma-separated key=value pairs for backward compatibility
+	name?: string;
+	cidrBlock?: string;
+	vpcId?: string;
+	availabilityZone?: string;
+	description?: string;
+	mapPublicIpOnLaunch?: boolean;
+	enableNatGateway?: boolean;
+	tags?: string; // comma-separated key=value pairs for backward compatibility
 }
 
 // AWS Region Configuration
 export interface AWSRegionConfiguration {
-  regionCode?: string;
-  name?: string;
-  displayName?: string;
-  description?: string;
-  isEnabled?: boolean;
-  isDefault?: boolean;
-  tags?: string; // comma-separated for backward compatibility
+	name: string;
+	regionCode: string;
+	displayName: string;
+	description: string;
+	isEnabled: boolean;
+	isDefault: boolean;
+	tags: string; // comma-separated for backward compatibility
 }
 
 // Availability Zone Configuration
 export interface AvailabilityZoneConfiguration {
-  name?: string;
-  region?: string;
-  availabilityZone?: string;
-  description?: string;
-  isEnabled?: boolean;
-  isPreferred?: boolean;
-  tags?: string; // comma-separated for backward compatibility
+	name?: string;
+	region?: string;
+	availabilityZone?: string;
+	description?: string;
+	isEnabled?: boolean;
+	isPreferred?: boolean;
+	tags?: string; // comma-separated for backward compatibility
 }
 
 // Default/Generic Configuration for unknown resources
 export interface DefaultConfiguration {
-  name?: string;
-  description?: string;
-  resourceType?: string;
-  properties?: Record<string, unknown>;
+	name?: string;
+	description?: string;
+	resourceType?: string;
+	properties?: Record<string, unknown>;
 }
 
 // Union type for all AWS resource configurations
 export type AWSResourceConfiguration =
-  | VPCConfiguration
-  | EC2Configuration
-  | PublicSubnetConfiguration
-  | PrivateSubnetConfiguration
-  | AWSRegionConfiguration
-  | AvailabilityZoneConfiguration
-  | DefaultConfiguration;
+	| VPCConfiguration
+	| EC2Configuration
+	| PublicSubnetConfiguration
+	| PrivateSubnetConfiguration
+	| AWSRegionConfiguration
+	| AvailabilityZoneConfiguration
+	| DefaultConfiguration;
 
 // Type guards for runtime type checking
-export function isVPCConfiguration(config: AWSResourceConfiguration): config is VPCConfiguration {
-  return 'cidrBlock' in config && 'region' in config;
+export function isVPCConfiguration(
+	config: AWSResourceConfiguration
+): config is VPCConfiguration {
+	return "cidrBlock" in config && "region" in config;
 }
 
-export function isEC2Configuration(config: AWSResourceConfiguration): config is EC2Configuration {
-  return 'instanceType' in config && 'amiId' in config;
+export function isEC2Configuration(
+	config: AWSResourceConfiguration
+): config is EC2Configuration {
+	return "instanceType" in config && "amiId" in config;
 }
 
-export function isPublicSubnetConfiguration(config: AWSResourceConfiguration): config is PublicSubnetConfiguration {
-  return 'cidrBlock' in config && 'availabilityZone' in config && 'vpcId' in config && 'mapPublicIpOnLaunch' in config;
+export function isPublicSubnetConfiguration(
+	config: AWSResourceConfiguration
+): config is PublicSubnetConfiguration {
+	return (
+		"cidrBlock" in config &&
+		"availabilityZone" in config &&
+		"vpcId" in config &&
+		"mapPublicIpOnLaunch" in config
+	);
 }
 
-export function isPrivateSubnetConfiguration(config: AWSResourceConfiguration): config is PrivateSubnetConfiguration {
-  return 'cidrBlock' in config && 'availabilityZone' in config && 'vpcId' in config && 'enableNatGateway' in config;
+export function isPrivateSubnetConfiguration(
+	config: AWSResourceConfiguration
+): config is PrivateSubnetConfiguration {
+	return (
+		"cidrBlock" in config &&
+		"availabilityZone" in config &&
+		"vpcId" in config &&
+		"enableNatGateway" in config
+	);
 }
 
-export function isAWSRegionConfiguration(config: AWSResourceConfiguration): config is AWSRegionConfiguration {
-  return 'regionCode' in config;
+export function isAWSRegionConfiguration(
+	config: AWSResourceConfiguration
+): config is AWSRegionConfiguration {
+	return "regionCode" in config;
 }
 
-export function isAvailabilityZoneConfiguration(config: AWSResourceConfiguration): config is AvailabilityZoneConfiguration {
-  return 'availabilityZone' in config && 'region' in config;
+export function isAvailabilityZoneConfiguration(
+	config: AWSResourceConfiguration
+): config is AvailabilityZoneConfiguration {
+	return "availabilityZone" in config && "region" in config;
 }
 
 // Service type mapping for configuration forms
 export const AWS_SERVICE_TYPE_MAP = {
-  'aws-vpc': 'VPC',
-  'aws-ec2': 'EC2',
-  'aws-public-subnet': 'PublicSubnet',
-  'aws-private-subnet': 'PrivateSubnet',
-  'aws-region': 'AWSRegion',
-  'aws-availability-zone': 'AvailabilityZone',
+	"aws-vpc": "VPC",
+	"aws-ec2": "EC2",
+	"aws-public-subnet": "PublicSubnet",
+	"aws-private-subnet": "PrivateSubnet",
+	"aws-region": "AWSRegion",
+	"aws-availability-zone": "AvailabilityZone",
 } as const;
 
-export type AVAILABLE_AWS_RESOURCE_CONFIGURATION =
-  | AvailabilityZoneConfiguration
-  | AWSRegionConfiguration
-  | EC2Configuration
-  | PrivateSubnetConfiguration
-  | VPCConfiguration
-  | PublicSubnetConfiguration
-  | DefaultConfiguration;
-
+export type Available_AWS_Resource_Configuration =
+	| AvailabilityZoneConfiguration
+	| AWSRegionConfiguration
+	| EC2Configuration
+	| PrivateSubnetConfiguration
+	| VPCConfiguration
+	| PublicSubnetConfiguration
+	| DefaultConfiguration;
 
 export type AWSServiceType = keyof typeof AWS_SERVICE_TYPE_MAP;
-export type AWSServiceName = typeof AWS_SERVICE_TYPE_MAP[AWSServiceType];
+export type AWSServiceName = (typeof AWS_SERVICE_TYPE_MAP)[AWSServiceType];
 
 // =============================================================================
 // COMMENTED OUT RESOURCES - NO CONFIGURATION FORMS AVAILABLE
