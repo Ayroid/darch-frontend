@@ -161,6 +161,14 @@ export default function ArchitectureDesigner() {
 		onShowHelp: handleShowHelp,
 	});
 
+	// Double click handler for nodes
+	const handleNodeDoubleClick = useCallback((node: Node) => {
+		setSelectedNode(node);
+		if (!isConfigurationSidebarOpen) {
+			setIsConfigurationSidebarOpen(true);
+		}
+	}, [isConfigurationSidebarOpen]);
+
 	return (
 		<div className="w-full h-screen relative overflow-hidden bg-gray-100">
 			<ReactFlowProvider>
@@ -189,6 +197,7 @@ export default function ArchitectureDesigner() {
 							onNodeAdd={handleNodeAdd}
 							onShowHelp={handleShowHelp}
 							onNodeSelect={handleNodeSelect}
+							onNodeDoubleClick={handleNodeDoubleClick}
 						/>
 					</div>
 

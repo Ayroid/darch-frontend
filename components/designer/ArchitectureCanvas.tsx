@@ -119,6 +119,7 @@ interface ArchitectureCanvasProps {
 	onNodeAdd?: (node: Node) => void;
 	onShowHelp?: () => void;
 	onNodeSelect?: (node: Node | null) => void;
+	onNodeDoubleClick?: (node: Node) => void;
 }
 
 const initialNodes: Node[] = [];
@@ -136,7 +137,14 @@ export default function ArchitectureCanvas({
 	onNodeAdd,
 	onShowHelp,
 	onNodeSelect,
+	onNodeDoubleClick,
 }: ArchitectureCanvasProps) {
+	// Double click handler for nodes
+	const handleNodeDoubleClick = useCallback((event: React.MouseEvent, node: Node) => {
+		if (onNodeDoubleClick) {
+			onNodeDoubleClick(node);
+		}
+	}, [onNodeDoubleClick]);
 	const reactFlowWrapper = useRef<HTMLDivElement>(null);
 	const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
 	const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
@@ -357,6 +365,7 @@ export default function ArchitectureCanvas({
 					proOptions={proOptions}
 					panOnScroll={true}
 					zoomOnScroll={false}
+					onNodeDoubleClick={handleNodeDoubleClick}
 				>
 					<Controls />
 					<Background gap={12} size={1} />
