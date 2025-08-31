@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 // import { Textarea } from "@/components/ui/textarea";
 // import { Checkbox } from "@/components/ui/checkbox";
 import { AWSRegionConfiguration } from "@/lib/types/aws-resources";
-import { AWS_REGIONS } from "@/lib/data/aws_data";
+import { AWS_REGIONS_WITH_NAMES } from "@/lib/data/aws_data";
 
 interface AWSRegionConfigurationFormProps {
 	config: AWSRegionConfiguration;
@@ -30,6 +30,20 @@ const AWSRegionConfigurationForm: React.FC<AWSRegionConfigurationFormProps> = ({
 			[field]: value,
 		};
 		onChange(updatedConfig);
+	};
+
+	const handleRegionChange = (region: string) => {
+		const selectedRegion = AWS_REGIONS_WITH_NAMES.find(
+			(availableRegion) => availableRegion.region === region
+		);
+		if (selectedRegion) {
+			const updatedConfig = {
+				...config,
+				region: region,
+				regionName: selectedRegion.regionName,
+			};
+			onChange(updatedConfig);
+		}
 	};
 
 	return (
@@ -49,15 +63,12 @@ const AWSRegionConfigurationForm: React.FC<AWSRegionConfigurationFormProps> = ({
 				<Label htmlFor="region">
 					AWS Region<span className="text-red-600">*</span>
 				</Label>
-				<Select
-					value={config.region || ""}
-					onValueChange={(value) => handleFieldChange("region", value)}
-				>
+				<Select value={config.region || ""} onValueChange={handleRegionChange}>
 					<SelectTrigger className="w-full">
 						<SelectValue placeholder="Select AWS region" />
 					</SelectTrigger>
 					<SelectContent>
-						{AWS_REGIONS.map((availableRegion) => (
+						{AWS_REGIONS_WITH_NAMES.map((availableRegion) => (
 							<SelectItem
 								key={availableRegion.region}
 								value={availableRegion.region}

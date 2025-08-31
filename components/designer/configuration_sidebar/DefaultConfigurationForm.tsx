@@ -16,6 +16,14 @@ export default function DefaultConfigurationForm({
 	config,
 	onChange,
 }: DefaultConfigurationFormProps) {
+	const handleFieldChange = (field: string, value: unknown) => {
+		const updatedConfig = {
+			...config,
+			[field]: value,
+		};
+		onChange(updatedConfig);
+	};
+
 	return (
 		<div className="space-y-4">
 			<div className="space-y-2">
@@ -24,7 +32,7 @@ export default function DefaultConfigurationForm({
 					id="service-name"
 					placeholder="Enter service name"
 					value={(config.serviceName as string) || ""}
-					onChange={(e) => onChange({ ...config, serviceName: e.target.value })}
+					onChange={(e) => handleFieldChange("serviceName", e.target.value)}
 				/>
 			</div>
 			<div className="space-y-2">
@@ -33,7 +41,7 @@ export default function DefaultConfigurationForm({
 					id="description"
 					placeholder="Enter description"
 					value={(config.description as string) || ""}
-					onChange={(e) => onChange({ ...config, description: e.target.value })}
+					onChange={(e) => handleFieldChange("description", e.target.value)}
 				/>
 			</div>
 		</div>

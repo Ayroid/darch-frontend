@@ -11,7 +11,7 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { VPCConfiguration } from "@/lib/types/aws-resources";
-import { AWS_REGIONS } from "@/lib/data/aws_data";
+import { AWS_REGIONS_WITH_NAMES } from "@/lib/data/aws_data";
 import { useFormValidation } from "@/lib/stores/hooks/use-form-validation";
 import { useConfigurationContext } from "@/lib/stores";
 
@@ -67,7 +67,7 @@ const VPCConfigurationForm: React.FC<VPCConfigurationFormProps> = ({
 						<SelectValue placeholder="Select region" />
 					</SelectTrigger>
 					<SelectContent>
-						{AWS_REGIONS.map((region) => (
+						{AWS_REGIONS_WITH_NAMES.map((region) => (
 							<SelectItem key={region.region} value={region.region}>
 								{region.region}
 							</SelectItem>

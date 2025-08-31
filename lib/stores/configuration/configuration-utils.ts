@@ -7,32 +7,82 @@ import { AWSResourceConfiguration } from "@/lib/types/aws-resources";
 // Define allowed fields for each resource type
 const RESOURCE_TYPE_FIELDS: Record<string, Set<string>> = {
 	"aws-vpc": new Set([
-		"serviceName", "resourceType", "cidrBlock", "region", "description",
-		"enableDnsSupport", "enableDnsHostnames", "tags"
+		"serviceName",
+		"resourceType",
+		"cidrBlock",
+		"region",
+		"description",
+		"enableDnsSupport",
+		"enableDnsHostnames",
+		"tags",
 	]),
 	"aws-ec2": new Set([
-		"serviceName", "resourceType", "instanceType", "amiId", "keyPairName",
-		"availabilityZone", "subnetId", "securityGroups", "iamInstanceProfile",
-		"rootVolumeSize", "rootVolumeType", "deleteOnTermination", "encrypted",
-		"detailedMonitoring", "terminationProtection", "autoRecovery", "userData",
-		"associatePublicIpAddress", "enhancedNetworking", "sriovNetSupport",
-		"tenancy", "hostId", "tags"
+		"serviceName",
+		"resourceType",
+		"instanceType",
+		"amiId",
+		"keyPairName",
+		"availabilityZone",
+		"subnetId",
+		"securityGroups",
+		"iamInstanceProfile",
+		"rootVolumeSize",
+		"rootVolumeType",
+		"deleteOnTermination",
+		"encrypted",
+		"detailedMonitoring",
+		"terminationProtection",
+		"autoRecovery",
+		"userData",
+		"associatePublicIpAddress",
+		"enhancedNetworking",
+		"sriovNetSupport",
+		"tenancy",
+		"hostId",
+		"tags",
 	]),
 	"aws-region": new Set([
-		"serviceName", "resourceType", "region", "regionName", "description",
-		"isEnabled", "isDefault", "tags"
+		"serviceName",
+		"resourceType",
+		"region",
+		"regionName",
+		"description",
+		"isEnabled",
+		"isDefault",
+		"tags",
 	]),
 	"aws-availability-zone": new Set([
-		"serviceName", "resourceType", "region", "availabilityZone", "description",
-		"isEnabled", "isPreferred", "tags"
+		"serviceName",
+		"resourceType",
+		"region",
+		"availabilityZone",
+		"description",
+		"isEnabled",
+		"isPreferred",
+		"tags",
 	]),
 	"aws-private-subnet": new Set([
-		"serviceName", "resourceType", "cidrBlock", "vpcId", "availabilityZone",
-		"description", "mapPublicIpOnLaunch", "enableNatGateway", "tags"
+		"serviceName",
+		"resourceType",
+		"cidrBlock",
+		"vpcId",
+		"region",
+		"availabilityZone",
+		"description",
+		"mapPublicIpOnLaunch",
+		"enableNatGateway",
+		"tags",
 	]),
 	"aws-public-subnet": new Set([
-		"serviceName", "resourceType", "cidrBlock", "vpcId", "availabilityZone",
-		"description", "mapPublicIpOnLaunch", "tags"
+		"serviceName",
+		"resourceType",
+		"cidrBlock",
+		"vpcId",
+		"region",
+		"availabilityZone",
+		"description",
+		"mapPublicIpOnLaunch",
+		"tags",
 	]),
 };
 
@@ -49,7 +99,9 @@ export function filterValidFields(
 	const allowedFields = RESOURCE_TYPE_FIELDS[resourceType];
 
 	if (!allowedFields) {
-		console.warn(`Unknown resource type: ${resourceType}. Allowing all fields.`);
+		console.warn(
+			`Unknown resource type: ${resourceType}. Allowing all fields.`
+		);
 		return updates;
 	}
 
@@ -59,7 +111,9 @@ export function filterValidFields(
 		if (allowedFields.has(key)) {
 			(filtered as Record<string, unknown>)[key] = value;
 		} else {
-			console.warn(`Field '${key}' is not valid for resource type '${resourceType}'. Ignoring.`);
+			console.warn(
+				`Field '${key}' is not valid for resource type '${resourceType}'. Ignoring.`
+			);
 		}
 	});
 
@@ -74,7 +128,8 @@ export function filterValidFields(
 export function validateConfigurationFields(
 	config: AWSResourceConfiguration
 ): boolean {
-	const resourceType = (config as Record<string, unknown>).resourceType as string;
+	const resourceType = (config as Record<string, unknown>)
+		.resourceType as string;
 
 	if (!resourceType) {
 		console.warn("Configuration missing resourceType field");
@@ -89,10 +144,13 @@ export function validateConfigurationFields(
 	}
 
 	const configKeys = Object.keys(config);
-	const invalidFields = configKeys.filter(key => !allowedFields.has(key));
+	const invalidFields = configKeys.filter((key) => !allowedFields.has(key));
 
 	if (invalidFields.length > 0) {
-		console.warn(`Invalid fields for resource type '${resourceType}':`, invalidFields);
+		console.warn(
+			`Invalid fields for resource type '${resourceType}':`,
+			invalidFields
+		);
 		return false;
 	}
 

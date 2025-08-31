@@ -77,27 +77,27 @@ export interface EC2Configuration {
 export interface PublicSubnetConfiguration {
 	serviceName: string;
 	serviceId: string;
-	resourceType?: string;
-	cidrBlock?: string;
-	vpcId?: string;
-	region?: string;
-	availabilityZone?: string;
-	description?: string;
-	mapPublicIpOnLaunch?: boolean;
+	resourceType: string;
+	cidrBlock: string;
+	vpcId: string;
+	region: string;
+	availabilityZone: string;
+	description: string;
+	mapPublicIpOnLaunch: boolean;
 	tags?: string; // comma-separated key=value pairs for backward compatibility
 }
 
 export interface PrivateSubnetConfiguration {
 	serviceName: string;
 	serviceId: string;
-	resourceType?: string;
-	cidrBlock?: string;
-	vpcId?: string;
-	region?: string;
-	availabilityZone?: string;
-	description?: string;
-	mapPublicIpOnLaunch?: boolean;
-	enableNatGateway?: boolean;
+	resourceType: string;
+	cidrBlock: string;
+	vpcId: string;
+	region: string;
+	availabilityZone: string;
+	description: string;
+	mapPublicIpOnLaunch: boolean;
+	enableNatGateway: boolean;
 	tags?: string; // comma-separated key=value pairs for backward compatibility
 }
 

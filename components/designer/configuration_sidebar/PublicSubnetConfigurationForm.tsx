@@ -13,7 +13,7 @@ import {
 // import { Textarea } from "@/components/ui/textarea";
 // import { Checkbox } from "@/components/ui/checkbox";
 import { PublicSubnetConfiguration } from "@/lib/types/aws-resources";
-import { AWS_REGIONS, AWS_REGIONS_WITH_AZS } from "@/lib/data/aws_data";
+import { AWS_REGIONS_WITH_AZS } from "@/lib/data/aws_data";
 
 interface PublicSubnetConfigurationFormProps {
 	config: PublicSubnetConfiguration;
@@ -31,10 +31,8 @@ const PublicSubnetConfigurationForm: React.FC<
 		onChange(updatedConfig);
 	};
 
-	const vpcId = (config.vpcId as string) || "";
-	const region = "us-east-1";
-	const availableAZs =
-		AWS_REGIONS_WITH_AZS[region as keyof typeof AWS_REGIONS_WITH_AZS] || [];
+	const selectedRegion = config.region;
+	const availableAZs = AWS_REGIONS_WITH_AZS[config.region];
 
 	return (
 		<div className="space-y-4">
@@ -46,7 +44,7 @@ const PublicSubnetConfigurationForm: React.FC<
 				<Input
 					id="subnet-name"
 					placeholder="Enter public subnet name"
-					value={(config.serviceName as string) || ""}
+					value={config.serviceName || ""}
 					onChange={(e) => handleFieldChange("serviceName", e.target.value)}
 				/>
 			</div>
@@ -59,7 +57,7 @@ const PublicSubnetConfigurationForm: React.FC<
 				<Input
 					id="vpc-id"
 					placeholder="vpc-xxxxxxxxx"
-					value={vpcId}
+					value={config.vpcId || ""}
 					onChange={(e) => handleFieldChange("vpcId", e.target.value)}
 				/>
 			</div>
@@ -72,7 +70,7 @@ const PublicSubnetConfigurationForm: React.FC<
 				<Input
 					id="cidr-block"
 					placeholder="10.0.0.0/24"
-					value={(config.cidrBlock as string) || ""}
+					value={config.cidrBlock || ""}
 					onChange={(e) => handleFieldChange("cidrBlock", e.target.value)}
 				/>
 			</div>
@@ -80,19 +78,19 @@ const PublicSubnetConfigurationForm: React.FC<
 			{/* Region */}
 			<div className="space-y-2">
 				<Label htmlFor="region">
-					Region <span className="text-red-600">*</span>
+					AWS Region <span className="text-red-600">*</span>
 				</Label>
 				<Select
-					value={config.region || ""}
+					value={config.region}
 					onValueChange={(value) => handleFieldChange("region", value)}
 				>
 					<SelectTrigger className="w-full">
-						<SelectValue placeholder="Select region" />
+						<SelectValue placeholder="Select AWS Region" />
 					</SelectTrigger>
 					<SelectContent>
-						{AWS_REGIONS.map((region) => (
-							<SelectItem key={region.region} value={region.region}>
-								{region.region}
+						{Object.keys(AWS_REGIONS_WITH_AZS).map((region) => (
+							<SelectItem key={region} value={region}>
+								{region}
 							</SelectItem>
 						))}
 					</SelectContent>
@@ -109,9 +107,16 @@ const PublicSubnetConfigurationForm: React.FC<
 					onValueChange={(value) =>
 						handleFieldChange("availabilityZone", value)
 					}
+					disabled={!selectedRegion}
 				>
 					<SelectTrigger className="w-full">
-						<SelectValue placeholder="Select availability zone" />
+						<SelectValue
+							placeholder={
+								selectedRegion
+									? "Select availability zone"
+									: "Select region first"
+							}
+						/>
 					</SelectTrigger>
 					<SelectContent>
 						{availableAZs.map((az) => (

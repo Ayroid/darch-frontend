@@ -23,10 +23,7 @@ interface ConfigurationActions {
 	setSelectedNode: (nodeId: string | null) => void;
 
 	// Configuration management
-	initializeNodeConfiguration: (
-		nodeId: string,
-		serviceId: string
-	) => void;
+	initializeNodeConfiguration: (nodeId: string, serviceId: string) => void;
 	setNodeConfiguration: (
 		nodeId: string,
 		config: AWSResourceConfiguration
@@ -50,10 +47,7 @@ interface ConfigurationActions {
 	importConfigurations: (
 		configurations: Record<string, AWSResourceConfiguration>
 	) => void;
-	exportConfigurations: () => Record<
-		string,
-		AWSResourceConfiguration
-	>;
+	exportConfigurations: () => Record<string, AWSResourceConfiguration>;
 }
 
 // Create the configuration store
@@ -98,35 +92,39 @@ export const useConfigurationStore = create<
 				return config;
 			},
 
-	updateNodeConfiguration: (nodeId, updates) =>
-		set((state) => {
-			console.log("[updateNodeConfiguration]", { nodeId, updates });
-			const existingConfig = state.nodeConfigurations[nodeId] || {};
+			updateNodeConfiguration: (nodeId, updates) =>
+				set((state) => {
+					console.log("[updateNodeConfiguration]", { nodeId, updates });
+					const existingConfig = state.nodeConfigurations[nodeId] || {};
 
-			// Get the resource type from existing config or updates
-			const resourceType = existingConfig.resourceType ||
-							   (updates as Record<string, unknown>).resourceType as string;
+					// Get the resource type from existing config or updates
+					const resourceType =
+						existingConfig.resourceType ||
+						((updates as Record<string, unknown>).resourceType as string);
 
-			if (!resourceType) {
-				console.warn(`No resourceType found for node ${nodeId}. Updates will not be filtered.`);
-				state.nodeConfigurations[nodeId] = {
-					...existingConfig,
-					...updates,
-				} as AWSResourceConfiguration;
-				return;
-			}
+					if (!resourceType) {
+						console.warn(
+							`No resourceType found for node ${nodeId}. Updates will not be filtered.`
+						);
+						state.nodeConfigurations[nodeId] = {
+							...existingConfig,
+							...updates,
+						} as AWSResourceConfiguration;
+						return;
+					}
 
-			// Filter updates to only include valid fields for this resource type
-			const filteredUpdates = filterValidFields(resourceType, updates);
+					// Filter updates to only include valid fields for this resource type
+					const filteredUpdates = filterValidFields(resourceType, updates);
 
-			const updatedConfig = {
-				...existingConfig,
-				...filteredUpdates,
-				resourceType, // Ensure resource type is preserved
-			} as AWSResourceConfiguration;
+					const updatedConfig = {
+						...existingConfig,
+						...filteredUpdates,
+						resourceType, // Ensure resource type is preserved
+					} as AWSResourceConfiguration;
 
-			state.nodeConfigurations[nodeId] = updatedConfig;
-		}),			deleteNodeConfiguration: (nodeId) =>
+					state.nodeConfigurations[nodeId] = updatedConfig;
+				}),
+			deleteNodeConfiguration: (nodeId) =>
 				set((state) => {
 					delete state.nodeConfigurations[nodeId];
 				}),
