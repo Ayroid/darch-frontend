@@ -171,8 +171,8 @@ const EC2ConfigurationForm: React.FC<EC2ConfigurationFormProps> = ({
 					<Label htmlFor="ec2-name">Name</Label>
 					<Input
 						id="ec2-name"
-						value={config.name || ""}
-						onChange={(e) => updateConfig("name", e.target.value)}
+						value={config.serviceName || ""}
+						onChange={(e) => updateConfig("serviceName", e.target.value)}
 						placeholder="e.g., Web Server"
 					/>
 				</div>
