@@ -78,9 +78,8 @@ const AWSRegionConfigurationForm: React.FC<AWSRegionConfigurationFormProps> = ({
 		if (selectedRegion) {
 			const updatedConfig = {
 				...config,
-				regionCode: regionCode,
+				regionCode: selectedRegion.regionCode,
 				regionName: selectedRegion.regionName,
-				displayName: `${selectedRegion.regionName} (${regionCode})`,
 			};
 			onChange(updatedConfig);
 		}
@@ -119,16 +118,6 @@ const AWSRegionConfigurationForm: React.FC<AWSRegionConfigurationFormProps> = ({
 					onChange={(e) => handleFieldChange("regionName", e.target.value)}
 				/>
 			</div>
-			{/* Region Display Name */}
-			{/* <div className="space-y-2">
-				<Label htmlFor="display-name">Display Name</Label>
-				<Input
-					id="display-name"
-					placeholder="Auto-filled from region selection"
-					value={config.displayName || ""}
-					onChange={(e) => handleFieldChange("displayName", e.target.value)}
-				/>
-			</div> */}
 			{/* Region Description */}
 			{/* <div className="space-y-2">
 				<Label htmlFor="description">Description</Label>
