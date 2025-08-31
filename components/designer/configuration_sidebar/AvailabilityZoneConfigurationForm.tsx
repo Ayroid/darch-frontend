@@ -81,8 +81,8 @@ const AvailabilityZoneConfigurationForm: React.FC<
 				<Input
 					id="az-name"
 					placeholder="Enter AZ name"
-					value={config.name || ""}
-					onChange={(e) => updateConfig("name", e.target.value)}
+					value={config.serviceName || ""}
+					onChange={(e) => updateConfig("serviceName", e.target.value)}
 				/>
 			</div>
 

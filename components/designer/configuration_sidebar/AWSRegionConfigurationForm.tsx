@@ -2,7 +2,6 @@
 
 import React from "react";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import {
 	Select,
 	SelectContent,
@@ -11,45 +10,44 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
+// import { Textarea } from "@/components/ui/textarea";
 // import { Checkbox } from "@/components/ui/checkbox";
 import { useConfigurationContext } from "@/lib/stores";
-import {
-	AWSRegionConfiguration,
-} from "@/lib/types/aws-resources";
+import { AWSRegionConfiguration } from "@/lib/types/aws-resources";
 
 const awsRegions = [
-	{ code: "us-east-1", name: "US East (N. Virginia)" },
-	{ code: "us-east-2", name: "US East (Ohio)" },
-	{ code: "us-west-1", name: "US West (N. California)" },
-	{ code: "us-west-2", name: "US West (Oregon)" },
-	{ code: "af-south-1", name: "Africa (Cape Town)" },
-	{ code: "ap-east-1", name: "Asia Pacific (Hong Kong)" },
-	{ code: "ap-south-1", name: "Asia Pacific (Mumbai)" },
-	{ code: "ap-south-2", name: "Asia Pacific (Hyderabad)" },
-	{ code: "ap-southeast-1", name: "Asia Pacific (Singapore)" },
-	{ code: "ap-southeast-2", name: "Asia Pacific (Sydney)" },
-	{ code: "ap-southeast-3", name: "Asia Pacific (Jakarta)" },
-	{ code: "ap-southeast-4", name: "Asia Pacific (Melbourne)" },
-	{ code: "ap-northeast-1", name: "Asia Pacific (Tokyo)" },
-	{ code: "ap-northeast-2", name: "Asia Pacific (Seoul)" },
-	{ code: "ap-northeast-3", name: "Asia Pacific (Osaka)" },
-	{ code: "ca-central-1", name: "Canada (Central)" },
-	{ code: "eu-central-1", name: "Europe (Frankfurt)" },
-	{ code: "eu-central-2", name: "Europe (Zurich)" },
-	{ code: "eu-north-1", name: "Europe (Stockholm)" },
-	{ code: "eu-south-1", name: "Europe (Milan)" },
-	{ code: "eu-south-2", name: "Europe (Spain)" },
-	{ code: "eu-west-1", name: "Europe (Ireland)" },
-	{ code: "eu-west-2", name: "Europe (London)" },
-	{ code: "eu-west-3", name: "Europe (Paris)" },
-	{ code: "il-central-1", name: "Israel (Tel Aviv)" },
-	{ code: "me-central-1", name: "Middle East (UAE)" },
-	{ code: "me-south-1", name: "Middle East (Bahrain)" },
-	{ code: "sa-east-1", name: "South America (São Paulo)" },
-	{ code: "us-gov-east-1", name: "AWS GovCloud (US-East)" },
-	{ code: "us-gov-west-1", name: "AWS GovCloud (US-West)" },
-	{ code: "cn-north-1", name: "China (Beijing)" },
-	{ code: "cn-northwest-1", name: "China (Ningxia)" },
+	{ regionCode: "us-east-1", regionName: "US East (N. Virginia)" },
+	{ regionCode: "us-east-2", regionName: "US East (Ohio)" },
+	{ regionCode: "us-west-1", regionName: "US West (N. California)" },
+	{ regionCode: "us-west-2", regionName: "US West (Oregon)" },
+	{ regionCode: "af-south-1", regionName: "Africa (Cape Town)" },
+	{ regionCode: "ap-east-1", regionName: "Asia Pacific (Hong Kong)" },
+	{ regionCode: "ap-south-1", regionName: "Asia Pacific (Mumbai)" },
+	{ regionCode: "ap-south-2", regionName: "Asia Pacific (Hyderabad)" },
+	{ regionCode: "ap-southeast-1", regionName: "Asia Pacific (Singapore)" },
+	{ regionCode: "ap-southeast-2", regionName: "Asia Pacific (Sydney)" },
+	{ regionCode: "ap-southeast-3", regionName: "Asia Pacific (Jakarta)" },
+	{ regionCode: "ap-southeast-4", regionName: "Asia Pacific (Melbourne)" },
+	{ regionCode: "ap-northeast-1", regionName: "Asia Pacific (Tokyo)" },
+	{ regionCode: "ap-northeast-2", regionName: "Asia Pacific (Seoul)" },
+	{ regionCode: "ap-northeast-3", regionName: "Asia Pacific (Osaka)" },
+	{ regionCode: "ca-central-1", regionName: "Canada (Central)" },
+	{ regionCode: "eu-central-1", regionName: "Europe (Frankfurt)" },
+	{ regionCode: "eu-central-2", regionName: "Europe (Zurich)" },
+	{ regionCode: "eu-north-1", regionName: "Europe (Stockholm)" },
+	{ regionCode: "eu-south-1", regionName: "Europe (Milan)" },
+	{ regionCode: "eu-south-2", regionName: "Europe (Spain)" },
+	{ regionCode: "eu-west-1", regionName: "Europe (Ireland)" },
+	{ regionCode: "eu-west-2", regionName: "Europe (London)" },
+	{ regionCode: "eu-west-3", regionName: "Europe (Paris)" },
+	{ regionCode: "il-central-1", regionName: "Israel (Tel Aviv)" },
+	{ regionCode: "me-central-1", regionName: "Middle East (UAE)" },
+	{ regionCode: "me-south-1", regionName: "Middle East (Bahrain)" },
+	{ regionCode: "sa-east-1", regionName: "South America (São Paulo)" },
+	{ regionCode: "us-gov-east-1", regionName: "AWS GovCloud (US-East)" },
+	{ regionCode: "us-gov-west-1", regionName: "AWS GovCloud (US-West)" },
+	{ regionCode: "cn-north-1", regionName: "China (Beijing)" },
+	{ regionCode: "cn-northwest-1", regionName: "China (Ningxia)" },
 ] as const;
 
 interface AWSRegionConfigurationFormProps {
@@ -74,13 +72,15 @@ const AWSRegionConfigurationForm: React.FC<AWSRegionConfigurationFormProps> = ({
 	};
 
 	const handleRegionChange = (regionCode: string) => {
-		const selectedRegion = awsRegions.find((region) => region.code === regionCode);
+		const selectedRegion = awsRegions.find(
+			(region) => region.regionCode === regionCode
+		);
 		if (selectedRegion) {
 			const updatedConfig = {
 				...config,
 				regionCode: regionCode,
-				name: selectedRegion.name,
-				displayName: `${selectedRegion.name} (${regionCode})`,
+				regionName: selectedRegion.regionName,
+				displayName: `${selectedRegion.regionName} (${regionCode})`,
 			};
 			onChange(updatedConfig);
 		}
@@ -89,7 +89,9 @@ const AWSRegionConfigurationForm: React.FC<AWSRegionConfigurationFormProps> = ({
 	return (
 		<div className="space-y-4">
 			<div className="space-y-2">
-				<Label htmlFor="region">AWS Region</Label>
+				<Label htmlFor="region">
+					AWS Region<span className="text-red-600">*</span>
+				</Label>
 				<Select
 					value={config.regionCode || ""}
 					onValueChange={handleRegionChange}
@@ -99,8 +101,8 @@ const AWSRegionConfigurationForm: React.FC<AWSRegionConfigurationFormProps> = ({
 					</SelectTrigger>
 					<SelectContent>
 						{awsRegions.map((region) => (
-							<SelectItem key={region.code} value={region.code}>
-								{region.name} ({region.code})
+							<SelectItem key={region.regionCode} value={region.regionCode}>
+								{region.regionCode}
 							</SelectItem>
 						))}
 					</SelectContent>
@@ -112,12 +114,13 @@ const AWSRegionConfigurationForm: React.FC<AWSRegionConfigurationFormProps> = ({
 				<Input
 					id="region-name"
 					placeholder="Enter region name"
-					value={config.name || ""}
-					onChange={(e) => handleFieldChange("name", e.target.value)}
+					value={config.regionName || ""}
+					disabled
+					onChange={(e) => handleFieldChange("regionName", e.target.value)}
 				/>
 			</div>
 			{/* Region Display Name */}
-			<div className="space-y-2">
+			{/* <div className="space-y-2">
 				<Label htmlFor="display-name">Display Name</Label>
 				<Input
 					id="display-name"
@@ -125,7 +128,7 @@ const AWSRegionConfigurationForm: React.FC<AWSRegionConfigurationFormProps> = ({
 					value={config.displayName || ""}
 					onChange={(e) => handleFieldChange("displayName", e.target.value)}
 				/>
-			</div>
+			</div> */}
 			{/* Region Description */}
 			{/* <div className="space-y-2">
 				<Label htmlFor="description">Description</Label>
@@ -156,7 +159,7 @@ const AWSRegionConfigurationForm: React.FC<AWSRegionConfigurationFormProps> = ({
 			</div> */}
 
 			{/* Tags */}
-			<div className="space-y-2">
+			{/* <div className="space-y-2">
 				<Label htmlFor="tags">Tags (key=value, separated by commas)</Label>
 				<Textarea
 					id="tags"
@@ -164,7 +167,7 @@ const AWSRegionConfigurationForm: React.FC<AWSRegionConfigurationFormProps> = ({
 					value={config.tags || ""}
 					onChange={(e) => handleFieldChange("tags", e.target.value)}
 				/>
-			</div>
+			</div> */}
 		</div>
 	);
 };

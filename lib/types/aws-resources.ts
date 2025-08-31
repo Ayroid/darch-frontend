@@ -5,7 +5,7 @@
 
 // Base interfaces
 export interface BaseAWSResource {
-	name: string;
+	serviceName: string;
 	description?: string;
 	tags?: Record<string, string>;
 }
@@ -17,7 +17,7 @@ export interface ConfigurationFormProps<T = Record<string, unknown>> {
 
 // VPC Configuration
 export interface VPCConfiguration {
-	name?: string;
+	serviceName: string;
 	cidrBlock?: string;
 	region?: string;
 	description?: string;
@@ -29,7 +29,7 @@ export interface VPCConfiguration {
 // EC2 Configuration
 export interface EC2Configuration {
 	// Basic Configuration
-	name?: string;
+	serviceName: string;
 	instanceType?: string;
 	amiId?: string;
 	keyPairName?: string;
@@ -69,7 +69,7 @@ export interface EC2Configuration {
 
 // Subnet Configurations
 export interface PublicSubnetConfiguration {
-	name?: string;
+	serviceName: string;
 	cidrBlock?: string;
 	vpcId?: string;
 	availabilityZone?: string;
@@ -79,7 +79,7 @@ export interface PublicSubnetConfiguration {
 }
 
 export interface PrivateSubnetConfiguration {
-	name?: string;
+	serviceName: string;
 	cidrBlock?: string;
 	vpcId?: string;
 	availabilityZone?: string;
@@ -91,9 +91,9 @@ export interface PrivateSubnetConfiguration {
 
 // AWS Region Configuration
 export interface AWSRegionConfiguration {
-	name: string;
+	serviceName: string;
 	regionCode: string;
-	displayName: string;
+	regionName: string;
 	description: string;
 	isEnabled: boolean;
 	isDefault: boolean;
@@ -102,7 +102,7 @@ export interface AWSRegionConfiguration {
 
 // Availability Zone Configuration
 export interface AvailabilityZoneConfiguration {
-	name?: string;
+	serviceName: string;
 	region?: string;
 	availabilityZone?: string;
 	description?: string;
@@ -113,7 +113,7 @@ export interface AvailabilityZoneConfiguration {
 
 // Default/Generic Configuration for unknown resources
 export interface DefaultConfiguration {
-	name?: string;
+	serviceName?: string;
 	description?: string;
 	resourceType?: string;
 	properties?: Record<string, unknown>;

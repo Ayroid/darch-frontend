@@ -94,7 +94,7 @@ const VPCConfigurationForm: React.FC<VPCConfigurationFormProps> = ({
 	const validationErrors = useMemo(() => {
 		const errors: Record<string, string> = {};
 
-		const nameError = validateVPCName(config.name || "");
+		const nameError = validateVPCName(config.serviceName || "");
 		if (nameError) errors.name = nameError;
 
 		const cidrError = validateCIDRBlock(config.cidrBlock || "");
@@ -138,8 +138,8 @@ const VPCConfigurationForm: React.FC<VPCConfigurationFormProps> = ({
 				<Input
 					id="vpc-name"
 					placeholder="Enter VPC name"
-					value={config.name || ""}
-					onChange={(e) => updateConfig("name", e.target.value)}
+					value={config.serviceName || ""}
+					onChange={(e) => updateConfig("serviceName", e.target.value)}
 					className={
 						validationErrors.name ? "border-red-300 focus:border-red-500" : ""
 					}
