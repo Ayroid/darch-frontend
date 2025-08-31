@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { FiUser, FiSettings } from "react-icons/fi";
 import { LuFileText } from "react-icons/lu";
 import ArchitectureImportExport from "./ArchitectureImportExport";
 import { Node, Edge } from "@xyflow/react";
+import { useUIStore } from "@/lib/stores";
 
 // Types
 interface Project {
@@ -34,7 +35,7 @@ export default function TopBar({
 	onDataLoaded,
 }: TopBarProps) {
 	const dropdownRef = useRef<HTMLDivElement>(null);
-	const [showProjectDropdown, setShowProjectDropdown] = useState(false);
+	const { showProjectDropdown, setProjectDropdownVisible, toggleProjectDropdown } = useUIStore();
 
 	// Click outside to close dropdown
 	useEffect(() => {
@@ -43,7 +44,7 @@ export default function TopBar({
 				dropdownRef.current &&
 				!dropdownRef.current.contains(event.target as HTMLElement)
 			) {
-				setShowProjectDropdown(false);
+				setProjectDropdownVisible(false);
 			}
 		};
 
@@ -51,7 +52,7 @@ export default function TopBar({
 		return () => {
 			document.removeEventListener("mousedown", handleClickOutside);
 		};
-	}, []);
+	}, [setProjectDropdownVisible]);
 
 	return (
 		<div className="absolute top-0 left-0 right-0 h-16 bg-white border-b border-gray-200 shadow-sm z-50 flex items-center justify-between px-6">
@@ -70,7 +71,7 @@ export default function TopBar({
 					<div className="flex items-center">
 						<div className="relative" ref={dropdownRef}>
 							<button
-								onClick={() => setShowProjectDropdown(!showProjectDropdown)}
+								onClick={() => toggleProjectDropdown()}
 								className="flex items-center space-x-2 px-3 py-1.5 rounded-md hover:bg-gray-50 transition-colors"
 							>
 								<span className="text-sm text-gray-700 font-medium">

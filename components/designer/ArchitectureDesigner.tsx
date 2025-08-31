@@ -9,7 +9,11 @@ import TopBar from "./TopBar";
 import KeyboardShortcutsHelp from "./KeyboardShortcutsHelp";
 import SettingsModal from "./SettingsModal";
 import { useApplicationShortcuts } from "@/lib/keyboard-shortcuts";
-import { useConfigurationStore } from "@/lib/stores";
+import {
+	useConfigurationStore,
+	useUIStore,
+	useCanvasStore,
+} from "@/lib/stores";
 import { AWSResourceConfiguration } from "@/lib/types/aws-resources";
 
 // Types
@@ -31,14 +35,21 @@ type TabType = "design" | "share" | "settings";
 export default function ArchitectureDesigner() {
 	// Store hooks
 	const { initializeNodeConfiguration } = useConfigurationStore();
+	const {
+		isSidebarOpen,
+		isConfigurationSidebarVisible,
+		isHelpOpen,
+		isSettingsOpen,
+		toggleSidebar,
+		toggleConfigurationSidebar,
+		setHelpOpen,
+		setSettingsOpen,
+		toggleHelp,
+	} = useUIStore();
+	const { selectedNode, setSelectedNode } = useCanvasStore();
 
-	// State management
-	const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-	const [isConfigurationSidebarOpen, setIsConfigurationSidebarOpen] = useState(false);
+	// State management (keeping only non-UI related state)
 	const [activeTab, setActiveTab] = useState<TabType>("design");
-	const [isHelpOpen, setIsHelpOpen] = useState(false);
-	const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-	const [selectedNode, setSelectedNode] = useState<Node | null>(null);
 	const [currentProject] = useState<Project>({
 		id: "1",
 		name: "Project 1",
@@ -58,29 +69,31 @@ export default function ArchitectureDesigner() {
 
 	// Event handlers
 	const handleToggleSidebar = useCallback(() => {
-		setIsSidebarOpen(!isSidebarOpen);
-	}, [isSidebarOpen]);
+		toggleSidebar();
+	}, [toggleSidebar]);
 
 	const handleToggleConfigurationSidebar = useCallback(() => {
-		// Always allow toggling the configuration sidebar
-		setIsConfigurationSidebarOpen(!isConfigurationSidebarOpen);
-	}, [isConfigurationSidebarOpen]);
+		toggleConfigurationSidebar();
+	}, [toggleConfigurationSidebar]);
 
-	const handleNodeAdd = useCallback((node: Node) => {
-		console.log("Node added:", node);
+	const handleNodeAdd = useCallback(
+		(node: Node) => {
+			console.log("Node added:", node);
 
-		// Initialize configuration for the new node
-		const data = node.data as AWSResourceConfiguration;
-		const serviceId = (data?.serviceId as string) || "";
-		if (serviceId) {
-			initializeNodeConfiguration(node.id, serviceId);
-		}
+			// Initialize configuration for the new node
+			const data = node.data as AWSResourceConfiguration;
+			const serviceId = (data?.serviceId as string) || "";
+			if (serviceId) {
+				initializeNodeConfiguration(node.id, serviceId);
+			}
 
-		setCurrentArchitecture((prev) => ({
-			...prev,
-			nodes: [...prev.nodes, node],
-		}));
-	}, [initializeNodeConfiguration]);
+			setCurrentArchitecture((prev) => ({
+				...prev,
+				nodes: [...prev.nodes, node],
+			}));
+		},
+		[initializeNodeConfiguration]
+	);
 
 	const handleNewArchitecture = useCallback(() => {
 		const newArch: Architecture = {
@@ -107,9 +120,9 @@ export default function ArchitectureDesigner() {
 
 	const handleSettings = useCallback(() => {
 		setActiveTab("settings");
-		setIsSettingsOpen(true);
+		setSettingsOpen(true);
 		console.log("Opening settings");
-	}, []);
+	}, [setSettingsOpen]);
 
 	const handleHelp = useCallback(() => {
 		console.log("Opening help");
@@ -131,32 +144,38 @@ export default function ArchitectureDesigner() {
 	}, []);
 
 	const handleShowHelp = useCallback(() => {
-		setIsHelpOpen(prev => !prev);
+		toggleHelp();
 		console.log("Toggling keyboard shortcuts help");
-	}, []);
+	}, [toggleHelp]);
 
 	const handleCloseHelp = useCallback(() => {
-		setIsHelpOpen(false);
-	}, []);
+		setHelpOpen(false);
+	}, [setHelpOpen]);
 
 	const handleCloseSettings = useCallback(() => {
-		setIsSettingsOpen(false);
-	}, []);
+		setSettingsOpen(false);
+	}, [setSettingsOpen]);
 
-	const handleNodeSelect = useCallback((node: Node | null) => {
-		setSelectedNode(node);
-		console.log("Node selected:", node?.id);
-	}, []);
+	const handleNodeSelect = useCallback(
+		(node: Node | null) => {
+			setSelectedNode(node);
+			console.log("Node selected:", node?.id);
+		},
+		[setSelectedNode]
+	);
 
-	const handleNodeUpdate = useCallback((nodeId: string, data: Record<string, unknown>) => {
-		setCurrentArchitecture((prev) => ({
-			...prev,
-			nodes: prev.nodes.map((node) =>
-				node.id === nodeId ? { ...node, data } : node
-			),
-		}));
-		console.log("Node updated:", nodeId, data);
-	}, []);
+	const handleNodeUpdate = useCallback(
+		(nodeId: string, data: Record<string, unknown>) => {
+			setCurrentArchitecture((prev) => ({
+				...prev,
+				nodes: prev.nodes.map((node) =>
+					node.id === nodeId ? { ...node, data } : node
+				),
+			}));
+			console.log("Node updated:", nodeId, data);
+		},
+		[]
+	);
 
 	const handleDataLoaded = useCallback((nodes: Node[], edges: Edge[]) => {
 		console.log("Loading architecture data:", { nodes, edges });
@@ -175,12 +194,15 @@ export default function ArchitectureDesigner() {
 	});
 
 	// Double click handler for nodes
-	const handleNodeDoubleClick = useCallback((node: Node) => {
-		setSelectedNode(node);
-		if (!isConfigurationSidebarOpen) {
-			setIsConfigurationSidebarOpen(true);
-		}
-	}, [isConfigurationSidebarOpen]);
+	const handleNodeDoubleClick = useCallback(
+		(node: Node) => {
+			setSelectedNode(node);
+			if (!isConfigurationSidebarVisible) {
+				toggleConfigurationSidebar();
+			}
+		},
+		[isConfigurationSidebarVisible, setSelectedNode, toggleConfigurationSidebar]
+	);
 
 	return (
 		<div className="w-full h-screen relative overflow-hidden bg-gray-100">
@@ -217,23 +239,17 @@ export default function ArchitectureDesigner() {
 					{/* Configuration Sidebar */}
 					<ConfigurationSidebar
 						selectedNode={selectedNode}
-						isOpen={isConfigurationSidebarOpen}
+						isOpen={isConfigurationSidebarVisible}
 						onToggle={handleToggleConfigurationSidebar}
 						onNodeUpdate={handleNodeUpdate}
 					/>
 				</div>
 
 				{/* Keyboard Shortcuts Help Modal */}
-				<KeyboardShortcutsHelp
-					isOpen={isHelpOpen}
-					onClose={handleCloseHelp}
-				/>
+				<KeyboardShortcutsHelp isOpen={isHelpOpen} onClose={handleCloseHelp} />
 
 				{/* Settings Modal */}
-				<SettingsModal
-					isOpen={isSettingsOpen}
-					onClose={handleCloseSettings}
-				/>
+				<SettingsModal isOpen={isSettingsOpen} onClose={handleCloseSettings} />
 			</ReactFlowProvider>
 		</div>
 	);

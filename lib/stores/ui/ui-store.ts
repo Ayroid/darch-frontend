@@ -14,16 +14,21 @@ interface UIState {
 	snapToGrid: boolean;
 	gridSize: number;
 
-	// Panel visibility
-	showServicesSidebar: boolean;
-	showPropertiesPanel: boolean;
+	// Modal states
+	isHelpOpen: boolean;
+	isSettingsOpen: boolean;
+
+	// Dropdown states
+	showProjectDropdown: boolean;
+
+	// Services sidebar state
+	expandedCategories: Set<string>;
 }
 
 // UI actions
 interface UIActions {
 	// Sidebar actions
-	openSidebar: () => void;
-	closeSidebar: () => void;
+	toggleSidebar: () => void;
 	toggleConfigurationSidebar: () => void;
 	setConfigurationSidebarVisible: (visible: boolean) => void;
 
@@ -33,9 +38,19 @@ interface UIActions {
 	setSnapToGrid: (snap: boolean) => void;
 	setGridSize: (size: number) => void;
 
-	// Panel actions
-	setServicesSidebarVisible: (visible: boolean) => void;
-	setPropertiesPanelVisible: (visible: boolean) => void;
+	// Modal actions
+	setHelpOpen: (open: boolean) => void;
+	setSettingsOpen: (open: boolean) => void;
+	toggleHelp: () => void;
+	toggleSettings: () => void;
+
+	// Dropdown actions
+	setProjectDropdownVisible: (visible: boolean) => void;
+	toggleProjectDropdown: () => void;
+
+	// Services sidebar actions
+	setExpandedCategories: (categories: Set<string>) => void;
+	toggleCategory: (category: string) => void;
 
 	// Reset UI state
 	resetUIState: () => void;
@@ -46,7 +61,7 @@ export const useUIStore = create<UIState & UIActions>()(
 	devtools(
 		immer((set) => ({
 			// Initial state
-			isSidebarOpen: false,
+			isSidebarOpen: true, // Match ArchitectureDesigner's initial state
 			isConfigurationSidebarVisible: false,
 			isCanvasLocked: false,
 			showGrid: true,
@@ -54,16 +69,21 @@ export const useUIStore = create<UIState & UIActions>()(
 			gridSize: 20,
 			showServicesSidebar: true,
 			showPropertiesPanel: true,
+			isHelpOpen: false,
+			isSettingsOpen: false,
+			showProjectDropdown: false,
+			expandedCategories: new Set([
+				"Infrastructure",
+				"Compute",
+				"Network",
+				"Storage",
+				"Database",
+			]),
 
 			// Actions
-			openSidebar: () =>
+			toggleSidebar: () =>
 				set((state) => {
-					state.isSidebarOpen = true;
-				}),
-
-			closeSidebar: () =>
-				set((state) => {
-					state.isSidebarOpen = false;
+					state.isSidebarOpen = !state.isSidebarOpen;
 				}),
 
 			toggleConfigurationSidebar: () =>
@@ -97,26 +117,73 @@ export const useUIStore = create<UIState & UIActions>()(
 					state.gridSize = size;
 				}),
 
-			setServicesSidebarVisible: (visible) =>
+			// Modal actions
+			setHelpOpen: (open) =>
 				set((state) => {
-					state.showServicesSidebar = visible;
+					state.isHelpOpen = open;
 				}),
 
-			setPropertiesPanelVisible: (visible) =>
+			setSettingsOpen: (open) =>
 				set((state) => {
-					state.showPropertiesPanel = visible;
+					state.isSettingsOpen = open;
+				}),
+
+			toggleHelp: () =>
+				set((state) => {
+					state.isHelpOpen = !state.isHelpOpen;
+				}),
+
+			toggleSettings: () =>
+				set((state) => {
+					state.isSettingsOpen = !state.isSettingsOpen;
+				}),
+
+			// Dropdown actions
+			setProjectDropdownVisible: (visible) =>
+				set((state) => {
+					state.showProjectDropdown = visible;
+				}),
+
+			toggleProjectDropdown: () =>
+				set((state) => {
+					state.showProjectDropdown = !state.showProjectDropdown;
+				}),
+
+			// Services sidebar actions
+			setExpandedCategories: (categories) =>
+				set((state) => {
+					state.expandedCategories = categories;
+				}),
+
+			toggleCategory: (category) =>
+				set((state) => {
+					const newExpanded = new Set(state.expandedCategories);
+					if (newExpanded.has(category)) {
+						newExpanded.delete(category);
+					} else {
+						newExpanded.add(category);
+					}
+					state.expandedCategories = newExpanded;
 				}),
 
 			resetUIState: () =>
 				set((state) => {
-					state.isSidebarOpen = false;
+					state.isSidebarOpen = true; // Match default initial state
 					state.isConfigurationSidebarVisible = false;
 					state.isCanvasLocked = false;
 					state.showGrid = true;
 					state.snapToGrid = true;
 					state.gridSize = 20;
-					state.showServicesSidebar = true;
-					state.showPropertiesPanel = true;
+					state.isHelpOpen = false;
+					state.isSettingsOpen = false;
+					state.showProjectDropdown = false;
+					state.expandedCategories = new Set([
+						"Infrastructure",
+						"Compute",
+						"Network",
+						"Storage",
+						"Database",
+					]);
 				}),
 		})),
 		{

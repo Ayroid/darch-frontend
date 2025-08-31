@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
+import { Node } from "@xyflow/react";
 
 // Canvas state for managing canvas-specific data
 interface CanvasState {
@@ -12,6 +13,7 @@ interface CanvasState {
 	// Selection
 	selectedNodes: string[];
 	selectedEdges: string[];
+	selectedNode: Node | null; // Currently selected single node
 
 	// Canvas interactions
 	isDragging: boolean;
@@ -50,6 +52,7 @@ interface CanvasActions {
 	deselectEdge: (edgeId: string) => void;
 	clearEdgeSelection: () => void;
 	clearAllSelections: () => void;
+	setSelectedNode: (node: Node | null) => void; // Set single selected node
 
 	// Canvas interaction actions
 	setDragging: (isDragging: boolean) => void;
@@ -79,6 +82,7 @@ export const useCanvasStore = create<CanvasState & CanvasActions>()(
 			panY: 0,
 			selectedNodes: [],
 			selectedEdges: [],
+			selectedNode: null,
 			isDragging: false,
 			isSelecting: false,
 			selectionBox: null,
@@ -173,6 +177,12 @@ export const useCanvasStore = create<CanvasState & CanvasActions>()(
 				set((state) => {
 					state.selectedNodes = [];
 					state.selectedEdges = [];
+					state.selectedNode = null;
+				}),
+
+			setSelectedNode: (node) =>
+				set((state) => {
+					state.selectedNode = node ? JSON.parse(JSON.stringify(node)) : null;
 				}),
 
 			setDragging: (isDragging) =>
@@ -208,6 +218,7 @@ export const useCanvasStore = create<CanvasState & CanvasActions>()(
 					state.panY = 0;
 					state.selectedNodes = [];
 					state.selectedEdges = [];
+					state.selectedNode = null;
 					state.isDragging = false;
 					state.isSelecting = false;
 					state.selectionBox = null;

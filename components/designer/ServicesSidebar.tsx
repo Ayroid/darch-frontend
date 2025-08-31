@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Image from "next/image";
 import {
 	FiChevronDown,
@@ -14,6 +14,7 @@ import {
 	FiBarChart,
 } from "react-icons/fi";
 import { BsBuilding } from "react-icons/bs";
+import { useUIStore } from "@/lib/stores";
 
 interface AWSService {
 	id: string;
@@ -487,9 +488,7 @@ export default function ServicesSidebar({
 	isOpen,
 	onToggle,
 }: ServicesSidebarProps) {
-	const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
-		new Set(["Infrastructure", "Compute", "Network", "Storage", "Database"])
-	);
+	const { expandedCategories, toggleCategory } = useUIStore();
 
 	const categories = [
 		"Infrastructure",
@@ -532,16 +531,6 @@ export default function ServicesSidebar({
 			default:
 				return <FiCpu {...iconProps} />;
 		}
-	};
-
-	const toggleCategory = (category: string) => {
-		const newExpanded = new Set(expandedCategories);
-		if (newExpanded.has(category)) {
-			newExpanded.delete(category);
-		} else {
-			newExpanded.add(category);
-		}
-		setExpandedCategories(newExpanded);
 	};
 
 	const getServicesForCategory = (category: string) => {
