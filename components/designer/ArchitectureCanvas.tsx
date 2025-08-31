@@ -41,6 +41,7 @@ const nodeStyles = `
 		min-height: 60px !important;
 		z-index: 1000 !important;
 		pointer-events: all !important;
+		border-radius: 4px !important;
 	}
 	.react-flow__node-awsService:hover {
 	  box-shadow: 0 0 0 1px #000000 !important;
