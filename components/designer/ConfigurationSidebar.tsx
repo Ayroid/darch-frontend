@@ -4,23 +4,15 @@ import React from "react";
 import { Node } from "@xyflow/react";
 
 import { ConfigurationSidebarMap } from "./configuration_sidebar";
-import {
-	useConfigurationStore,
-	useValidationStore,
-	getDefaultConfiguration,
-} from "@/lib/stores";
+import { useConfigurationStore, useValidationStore } from "@/lib/stores";
 import { ConfigurationProvider } from "@/lib/stores";
-import { architectureDataManager } from "@/lib/architecture-data-manager";
 import { TbCube } from "react-icons/tb";
-import { FiCheck, FiAlertTriangle } from "react-icons/fi";
-import { Tooltip, TooltipTrigger } from "@radix-ui/react-tooltip";
-import { TooltipContent } from "../ui/tooltip";
 
-import { Available_AWS_Resource_Configuration } from "@/lib/types/aws-resources";
+import { AWSResourceConfiguration } from "@/lib/types/aws-resources";
 
 type ConfigurationFormComponent = React.ComponentType<{
-	config: Available_AWS_Resource_Configuration;
-	onChange: (config: Record<string, unknown>) => void;
+	config: AWSResourceConfiguration;
+	onChange: (config: AWSResourceConfiguration) => void;
 }>;
 
 const awsServiceConfigurationMap: Record<string, ConfigurationFormComponent> = {
@@ -52,11 +44,7 @@ export default function ConfigurationSidebar({
 	onNodeUpdate,
 }: ConfigurationSidebarProps) {
 	// Zustand store hooks
-	const {
-		setNodeConfiguration,
-		getNodeConfiguration,
-		updateNodeConfiguration,
-	} = useConfigurationStore();
+	const { updateNodeConfiguration } = useConfigurationStore();
 
 	const {
 		validationErrors,
@@ -66,82 +54,12 @@ export default function ConfigurationSidebar({
 	} = useValidationStore();
 
 	// Local state for the current form
-	const [config, setConfig] =
-		React.useState<Available_AWS_Resource_Configuration>({});
-	const [hasUnsavedChanges, setHasUnsavedChanges] = React.useState(false);
-	const [isSaving, setIsSaving] = React.useState(false);
+	const [config, setConfig] = React.useState<AWSResourceConfiguration>({});
 
-	// Load configuration when node changes
-	React.useEffect(() => {
-		if (selectedNode) {
-			const nodeId = selectedNode.id;
-
-			// First try to get configuration from the architecture data manager
-			let existingConfig = architectureDataManager.getNodeConfiguration(nodeId);
-
-			if (!existingConfig) {
-				// If not found, try from the store (for backward compatibility)
-				const storeConfig = getNodeConfiguration(nodeId);
-
-				if (!storeConfig) {
-					// Create default configuration based on service type
-					const data = selectedNode.data as Record<string, unknown>;
-					const serviceId = (data?.serviceId as string) || "";
-					const defaultConfig = getDefaultConfiguration(serviceId);
-					const nodeConfig = (selectedNode.data as Record<string, unknown>)
-						.configuration as Record<string, unknown>;
-
-					existingConfig = {
-						...defaultConfig,
-						...(nodeConfig || {}),
-					} as Record<
-						string,
-						| string
-						| number
-						| boolean
-						| string[]
-						| number[]
-						| boolean[]
-						| Record<string, unknown>
-					>;
-				} else {
-					existingConfig = storeConfig as Record<
-						string,
-						| string
-						| number
-						| boolean
-						| string[]
-						| number[]
-						| boolean[]
-						| Record<string, unknown>
-					>;
-				}
-
-				// Store in architecture data manager
-				architectureDataManager.updateNodeConfiguration(nodeId, existingConfig);
-				// Also update the store for consistency
-				setNodeConfiguration(nodeId, existingConfig as Record<string, unknown>);
-			} else {
-				// Sync with the configuration store
-				setNodeConfiguration(nodeId, existingConfig as Record<string, unknown>);
-			}
-
-			setConfig(existingConfig as Record<string, unknown>);
-			setHasUnsavedChanges(false);
-		} else {
-			// Clear config when no node is selected
-			setConfig({});
-			setHasUnsavedChanges(false);
-		}
-	}, [selectedNode, getNodeConfiguration, setNodeConfiguration]);
-
-	const handleConfigChange = (
-		newConfig: Available_AWS_Resource_Configuration
-	) => {
+	const handleConfigChange = (newConfig: AWSResourceConfiguration) => {
 		if (!selectedNode) return; // Guard clause for when no node is selected
 
 		setConfig(newConfig);
-		setHasUnsavedChanges(true);
 		const nodeId = selectedNode.id;
 
 		// Update the store for immediate UI feedback
@@ -165,49 +83,15 @@ export default function ConfigurationSidebar({
 		});
 	};
 
-	const handleSave = async () => {
-		if (!selectedNode || !hasUnsavedChanges) return;
-
-		setIsSaving(true);
-		const nodeId = selectedNode.id;
-
-		try {
-			// Update the architecture data manager with the current config
-			const configToSave = config as Record<
-				string,
-				| string
-				| number
-				| boolean
-				| string[]
-				| number[]
-				| boolean[]
-				| Record<string, unknown>
-			>;
-			architectureDataManager.updateNodeConfiguration(nodeId, configToSave);
-
-			// Force save to ensure persistence
-			architectureDataManager.forceSave();
-
-			setHasUnsavedChanges(false);
-
-			// Show success feedback (optional - you can add a toast notification here)
-			console.log("Configuration saved successfully for node:", nodeId);
-		} catch (error) {
-			console.error("Failed to save configuration:", error);
-		} finally {
-			setIsSaving(false);
-		}
-	};
-
 	const getServiceName = (): string => {
 		if (!selectedNode) return "Configuration";
 
 		if (selectedNode.type === "awsService") {
-			const data = selectedNode.data as Record<string, unknown>;
+			const data = selectedNode.data as AWSResourceConfiguration;
 			return (data?.name as string) || "AWS Service";
 		}
 		if (selectedNode.type === "awsContainer") {
-			const data = selectedNode.data as Record<string, unknown>;
+			const data = selectedNode.data as AWSResourceConfiguration;
 			return (data?.name as string) || "AWS Container";
 		}
 		return "Configuration";
@@ -291,40 +175,6 @@ export default function ConfigurationSidebar({
 							{selectedNode ? getServiceName() : "Configuration Sidebar"}
 						</h2>
 					</div>
-					{selectedNode && (
-						<div className="flex items-center gap-2">
-							{hasUnsavedChanges && (
-								<Tooltip>
-									<TooltipTrigger asChild>
-										<FiAlertTriangle className="w-6 h-6 cursor-pointer text-amber-600" />
-									</TooltipTrigger>
-									<TooltipContent side="bottom" align="center">
-										Unsaved changes
-									</TooltipContent>
-								</Tooltip>
-							)}
-							<Tooltip>
-								<TooltipTrigger asChild>
-									<button
-										onClick={handleSave}
-										disabled={!hasUnsavedChanges || isSaving}
-										className="p-1 rounded hover:bg-gray-100 transition-colors disabled:opacity-50"
-										aria-label="Save"
-										type="button"
-									>
-										{isSaving ? (
-											<div className="w-5 h-5 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin" />
-										) : (
-											<FiCheck className="w-5 h-5 text-green-600" />
-										)}
-									</button>
-								</TooltipTrigger>
-								<TooltipContent side="bottom" align="center">
-									Save
-								</TooltipContent>
-							</Tooltip>
-						</div>
-					)}
 				</div>
 
 				{/* Validation Errors */}

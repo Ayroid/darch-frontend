@@ -13,9 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 // import { Checkbox } from "@/components/ui/checkbox";
 import { useConfigurationContext } from "@/lib/stores";
-import { useStoreAwareConfig } from "@/lib/stores";
 import {
-	Available_AWS_Resource_Configuration,
 	AWSRegionConfiguration,
 } from "@/lib/types/aws-resources";
 
@@ -56,7 +54,7 @@ const awsRegions = [
 
 interface AWSRegionConfigurationFormProps {
 	config: AWSRegionConfiguration;
-	onChange: (config: Available_AWS_Resource_Configuration) => void;
+	onChange: (config: AWSRegionConfiguration) => void;
 }
 
 const AWSRegionConfigurationForm: React.FC<AWSRegionConfigurationFormProps> = ({
@@ -64,22 +62,37 @@ const AWSRegionConfigurationForm: React.FC<AWSRegionConfigurationFormProps> = ({
 	onChange,
 }) => {
 	const { nodeId, serviceId } = useConfigurationContext();
-	const updateConfig = useStoreAwareConfig(
-		nodeId,
-		serviceId || "aws-region",
-		config,
-		onChange
-	);
+	console.log("Node ID:", nodeId);
+	console.log("Service ID:", serviceId);
+
+	const handleFieldChange = (field: string, value: unknown) => {
+		const updatedConfig = {
+			...config,
+			[field]: value,
+		};
+		onChange(updatedConfig);
+	};
+
+	const handleRegionChange = (regionCode: string) => {
+		const selectedRegion = awsRegions.find((region) => region.code === regionCode);
+		if (selectedRegion) {
+			const updatedConfig = {
+				...config,
+				regionCode: regionCode,
+				name: selectedRegion.name,
+				displayName: `${selectedRegion.name} (${regionCode})`,
+			};
+			onChange(updatedConfig);
+		}
+	};
 
 	return (
 		<div className="space-y-4">
 			<div className="space-y-2">
 				<Label htmlFor="region">AWS Region</Label>
 				<Select
-					value={config.regionCode}
-					onValueChange={(value) => {
-						updateConfig("regionCode", value);
-					}}
+					value={config.regionCode || ""}
+					onValueChange={handleRegionChange}
 				>
 					<SelectTrigger>
 						<SelectValue placeholder="Select AWS region" />
@@ -100,7 +113,7 @@ const AWSRegionConfigurationForm: React.FC<AWSRegionConfigurationFormProps> = ({
 					id="region-name"
 					placeholder="Enter region name"
 					value={config.name || ""}
-					onChange={(e) => updateConfig("name", e.target.value)}
+					onChange={(e) => handleFieldChange("name", e.target.value)}
 				/>
 			</div>
 			{/* Region Display Name */}
@@ -110,7 +123,7 @@ const AWSRegionConfigurationForm: React.FC<AWSRegionConfigurationFormProps> = ({
 					id="display-name"
 					placeholder="Auto-filled from region selection"
 					value={config.displayName || ""}
-					onChange={(e) => updateConfig("displayName", e.target.value)}
+					onChange={(e) => handleFieldChange("displayName", e.target.value)}
 				/>
 			</div>
 			{/* Region Description */}
@@ -120,7 +133,7 @@ const AWSRegionConfigurationForm: React.FC<AWSRegionConfigurationFormProps> = ({
 					id="description"
 					placeholder="Region description"
 					value={config.description || ""}
-					onChange={(e) => updateConfig("description", e.target.value)}
+					onChange={(e) => handleFieldChange("description", e.target.value)}
 				/>
 			</div> */}
 			{/* Enable Region */}
@@ -128,7 +141,7 @@ const AWSRegionConfigurationForm: React.FC<AWSRegionConfigurationFormProps> = ({
 				<Checkbox
 					id="enabled"
 					checked={config.isEnabled ?? true}
-					onCheckedChange={(checked) => updateConfig("isEnabled", checked)}
+					onCheckedChange={(checked) => handleFieldChange("isEnabled", checked)}
 				/>
 				<Label htmlFor="enabled">Enable Region</Label>
 			</div> */}
@@ -137,7 +150,7 @@ const AWSRegionConfigurationForm: React.FC<AWSRegionConfigurationFormProps> = ({
 				<Checkbox
 					id="default-region"
 					checked={config.isDefault ?? false}
-					onCheckedChange={(checked) => updateConfig("isDefault", checked)}
+					onCheckedChange={(checked) => handleFieldChange("isDefault", checked)}
 				/>
 				<Label htmlFor="default-region">Set as Default Region</Label>
 			</div> */}
@@ -149,7 +162,7 @@ const AWSRegionConfigurationForm: React.FC<AWSRegionConfigurationFormProps> = ({
 					id="tags"
 					placeholder="Environment=Production, Owner=TeamA"
 					value={config.tags || ""}
-					onChange={(e) => updateConfig("tags", e.target.value)}
+					onChange={(e) => handleFieldChange("tags", e.target.value)}
 				/>
 			</div>
 		</div>

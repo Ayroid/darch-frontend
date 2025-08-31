@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
-import { Available_AWS_Resource_Configuration } from "@/lib/types/aws-resources";
+import { AWSResourceConfiguration } from "@/lib/types/aws-resources";
 
 // Configuration state
 interface ConfigurationState {
@@ -9,10 +9,10 @@ interface ConfigurationState {
 	selectedNodeId: string | null;
 
 	// Configuration data for each node (nodeId -> config)
-	nodeConfigurations: Record<string, Available_AWS_Resource_Configuration>;
+	nodeConfigurations: Record<string, AWSResourceConfiguration>;
 
 	// Temporary/draft state for forms
-	draftConfiguration: Available_AWS_Resource_Configuration | null;
+	draftConfiguration: AWSResourceConfiguration | null;
 }
 
 // Configuration actions
@@ -23,30 +23,30 @@ interface ConfigurationActions {
 	// Configuration management
 	setNodeConfiguration: (
 		nodeId: string,
-		config: Available_AWS_Resource_Configuration
+		config: AWSResourceConfiguration
 	) => void;
 	getNodeConfiguration: (
 		nodeId: string
-	) => Available_AWS_Resource_Configuration | undefined;
+	) => AWSResourceConfiguration | undefined;
 	updateNodeConfiguration: (
 		nodeId: string,
-		updates: Partial<Available_AWS_Resource_Configuration>
+		updates: Partial<AWSResourceConfiguration>
 	) => void;
 	deleteNodeConfiguration: (nodeId: string) => void;
 
 	// Draft state for form editing
-	setDraftConfiguration: (config: Available_AWS_Resource_Configuration) => void;
+	setDraftConfiguration: (config: AWSResourceConfiguration) => void;
 	clearDraftConfiguration: () => void;
 	commitDraftConfiguration: (nodeId: string) => void;
 
 	// Bulk operations
 	clearAllConfigurations: () => void;
 	importConfigurations: (
-		configurations: Record<string, Available_AWS_Resource_Configuration>
+		configurations: Record<string, AWSResourceConfiguration>
 	) => void;
 	exportConfigurations: () => Record<
 		string,
-		Available_AWS_Resource_Configuration
+		AWSResourceConfiguration
 	>;
 }
 
@@ -69,24 +69,24 @@ export const useConfigurationStore = create<
 
 			setNodeConfiguration: (nodeId, config) =>
 				set((state) => {
+					console.log("[setNodeConfiguration]", { nodeId, config });
 					state.nodeConfigurations[nodeId] = config;
 				}),
 
 			getNodeConfiguration: (nodeId) => {
-				return get().nodeConfigurations[nodeId];
+				const config = get().nodeConfigurations[nodeId];
+				console.log("[getNodeConfiguration]", { nodeId, config });
+				return config;
 			},
 
 			updateNodeConfiguration: (nodeId, updates) =>
 				set((state) => {
-					if (state.nodeConfigurations[nodeId]) {
-						state.nodeConfigurations[nodeId] = {
-							...state.nodeConfigurations[nodeId],
-							...updates,
-						};
-					} else {
-						state.nodeConfigurations[nodeId] =
-							updates as Available_AWS_Resource_Configuration;
-					}
+					console.log("[updateNodeConfiguration]", { nodeId, updates });
+					const existingConfig = state.nodeConfigurations[nodeId] || {};
+					state.nodeConfigurations[nodeId] = {
+						...existingConfig,
+						...updates,
+					} as AWSResourceConfiguration;
 				}),
 
 			deleteNodeConfiguration: (nodeId) =>

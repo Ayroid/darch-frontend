@@ -5,13 +5,13 @@ import type {
 	AvailabilityZoneConfiguration,
 	PrivateSubnetConfiguration,
 	PublicSubnetConfiguration,
-	Available_AWS_Resource_Configuration,
+	AWSResourceConfiguration,
 } from "@/lib/types/aws-resources";
 
 // Default configuration values for different service types
 export const defaultConfigurations: Record<
 	string,
-	Partial<Available_AWS_Resource_Configuration>
+	Partial<AWSResourceConfiguration>
 > = {
 	"aws-vpc": {
 		name: "vpc-main",
@@ -77,6 +77,6 @@ export const defaultConfigurations: Record<
 // Utility function to get default configuration for a service type
 export const getDefaultConfiguration = (
 	serviceId: string
-): Available_AWS_Resource_Configuration => {
+): AWSResourceConfiguration => {
 	return defaultConfigurations[serviceId] || {};
 };

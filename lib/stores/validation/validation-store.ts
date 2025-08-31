@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
-import { Available_AWS_Resource_Configuration } from "@/lib/types/aws-resources";
+import { AWSResourceConfiguration } from "@/lib/types/aws-resources";
 
 // Validation state
 interface ValidationState {
@@ -42,7 +42,7 @@ interface ValidationActions {
 	// Validation execution
 	validateConfiguration: (
 		serviceId: string,
-		config: Available_AWS_Resource_Configuration
+		config: AWSResourceConfiguration
 	) => string[];
 	validateField: (
 		serviceId: string,

@@ -119,16 +119,6 @@ export interface DefaultConfiguration {
 	properties?: Record<string, unknown>;
 }
 
-// Union type for all AWS resource configurations
-export type AWSResourceConfiguration =
-	| VPCConfiguration
-	| EC2Configuration
-	| PublicSubnetConfiguration
-	| PrivateSubnetConfiguration
-	| AWSRegionConfiguration
-	| AvailabilityZoneConfiguration
-	| DefaultConfiguration;
-
 // Type guards for runtime type checking
 export function isVPCConfiguration(
 	config: AWSResourceConfiguration
@@ -186,7 +176,7 @@ export const AWS_SERVICE_TYPE_MAP = {
 	"aws-availability-zone": "AvailabilityZone",
 } as const;
 
-export type Available_AWS_Resource_Configuration =
+export type AWSResourceConfiguration =
 	| AvailabilityZoneConfiguration
 	| AWSRegionConfiguration
 	| EC2Configuration
