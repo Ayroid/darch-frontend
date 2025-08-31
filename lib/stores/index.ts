@@ -9,6 +9,7 @@ export type { ValidationRule } from './validation/validation-store';
 // Enhanced hooks
 export { useConfigurationForm } from './hooks/use-configuration-form';
 export { useStoreIntegration, useStoreAwareConfig, useNodeConfig } from './hooks/use-store-integration';
+export { useFormValidation, useFieldValidation } from './hooks/use-form-validation';
 
 // Context
 export { ConfigurationProvider, useConfigurationContext } from './configuration-context';

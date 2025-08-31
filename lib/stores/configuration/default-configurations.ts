@@ -14,7 +14,7 @@ export const defaultConfigurations: Record<
 	Partial<AWSResourceConfiguration>
 > = {
 	"aws-vpc": {
-		serviceName: "vpc-main",
+		serviceName: "default-vpc-name",
 		resourceType: "aws-vpc",
 		cidrBlock: "10.0.0.0/16",
 		region: "us-east-1",
@@ -24,7 +24,7 @@ export const defaultConfigurations: Record<
 	} as Partial<VPCConfiguration>,
 
 	"aws-ec2": {
-		serviceName: "ec2-instance",
+		serviceName: "default-ec2-name",
 		resourceType: "aws-ec2",
 		instanceType: "t3.micro",
 		amiId: "ami-0c55b159cbfafe1d0",
@@ -45,7 +45,7 @@ export const defaultConfigurations: Record<
 	} as Partial<EC2Configuration>,
 
 	"aws-region": {
-		serviceName: "us-east-1",
+		serviceName: "default-region-name",
 		resourceType: "aws-region",
 		region: "us-east-1",
 		regionName: "US East (N. Virginia)",
@@ -56,7 +56,7 @@ export const defaultConfigurations: Record<
 	} as Partial<AWSRegionConfiguration>,
 
 	"aws-availability-zone": {
-		serviceName: "us-east-1a",
+		serviceName: "default-availability-zone",
 		resourceType: "aws-availability-zone",
 		region: "us-east-1",
 		availabilityZone: "us-east-1a",
@@ -67,7 +67,7 @@ export const defaultConfigurations: Record<
 	} as Partial<AvailabilityZoneConfiguration>,
 
 	"aws-private-subnet": {
-		serviceName: "private-subnet",
+		serviceName: "default-private-subnet",
 		resourceType: "aws-private-subnet",
 		cidrBlock: "10.0.1.0/24",
 		availabilityZone: "us-east-1a",
@@ -77,7 +77,7 @@ export const defaultConfigurations: Record<
 	} as Partial<PrivateSubnetConfiguration>,
 
 	"aws-public-subnet": {
-		serviceName: "public-subnet",
+		serviceName: "default-public-subnet",
 		resourceType: "aws-public-subnet",
 		cidrBlock: "10.0.0.0/24",
 		availabilityZone: "us-east-1a",

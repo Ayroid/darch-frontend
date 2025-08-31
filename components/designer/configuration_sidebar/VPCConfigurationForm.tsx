@@ -1,9 +1,8 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import {
 	Select,
 	SelectContent,
@@ -11,204 +10,85 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
 import { VPCConfiguration } from "@/lib/types/aws-resources";
-
-const awsRegions = [
-	"us-east-1",
-	"us-east-2",
-	"us-west-1",
-	"us-west-2",
-	"eu-west-1",
-	"eu-west-2",
-	"eu-west-3",
-	"eu-central-1",
-	"eu-north-1",
-	"ap-southeast-1",
-	"ap-southeast-2",
-	"ap-northeast-1",
-	"ap-northeast-2",
-	"ap-south-1",
-	"ca-central-1",
-	"sa-east-1",
-	"af-south-1",
-	"me-south-1",
-] as const;
+import { AWS_REGIONS } from "@/lib/data/aws_data";
+import { useFormValidation } from "@/lib/stores/hooks/use-form-validation";
+import { useConfigurationContext } from "@/lib/stores";
 
 interface VPCConfigurationFormProps {
 	config: VPCConfiguration;
 	onChange: (config: VPCConfiguration) => void;
 }
 
-// Validation functions
-const validateCIDRBlock = (cidr: string): string | null => {
-	if (!cidr) return "CIDR block is required";
-
-	const cidrRegex = /^(\d{1,3}\.){3}\d{1,3}\/\d{1,2}$/;
-	if (!cidrRegex.test(cidr)) return "Invalid CIDR format (e.g., 10.0.0.0/16)";
-
-	const [ip, mask] = cidr.split("/");
-	const maskNum = parseInt(mask, 10);
-
-	if (maskNum < 16 || maskNum > 28) {
-		return "VPC CIDR mask must be between /16 and /28";
-	}
-
-	// Validate IP octets
-	const octets = ip.split(".").map((num) => parseInt(num, 10));
-	if (octets.some((octet) => octet < 0 || octet > 255)) {
-		return "Invalid IP address in CIDR block";
-	}
-
-	return null;
-};
-
-const validateVPCName = (name: string): string | null => {
-	if (!name.trim()) return "VPC name is required";
-	if (name.length > 255) return "VPC name must be less than 255 characters";
-	return null;
-};
-
-const validateTags = (tags: string): string | null => {
-	// Ensure tags is a string and handle empty/undefined cases
-	if (!tags || typeof tags !== "string" || !tags.trim()) return null;
-
-	const tagPairs = tags.split(",").map((tag) => tag.trim());
-	for (const pair of tagPairs) {
-		if (!pair.includes("=")) {
-			return "Tags must be in format: key=value, separated by commas";
-		}
-		const [key, value] = pair.split("=");
-		if (!key.trim() || !value.trim()) {
-			return "Tag keys and values cannot be empty";
-		}
-	}
-	return null;
-};
-
 const VPCConfigurationForm: React.FC<VPCConfigurationFormProps> = ({
 	config,
 	onChange,
 }) => {
-	// Validation state
-	const validationErrors = useMemo(() => {
-		const errors: Record<string, string> = {};
+	// Get context and validation
+	const { nodeId, serviceId } = useConfigurationContext();
+	const { validateField } = useFormValidation(nodeId, serviceId || "", config);
 
-		const nameError = validateVPCName(config.serviceName || "");
-		if (nameError) errors.name = nameError;
+	const handleFieldChange = (field: string, value: unknown) => {
+		const updatedConfig = {
+			...config,
+			[field]: value,
+		};
+		onChange(updatedConfig);
 
-		const cidrError = validateCIDRBlock(config.cidrBlock || "");
-		if (cidrError) errors.cidrBlock = cidrError;
-
-		const tagsError = validateTags(config.tags || "");
-		if (tagsError) errors.tags = tagsError;
-
-		if (!config.region) errors.region = "Region is required";
-
-		return errors;
-	}, [config]);
-
-	const updateConfig = (
-		key: keyof VPCConfiguration,
-		value: VPCConfiguration[keyof VPCConfiguration]
-	) => {
-		onChange({ ...config, [key]: value });
+		// Validate the field on change
+		validateField(field, value);
 	};
-
-	const hasErrors = Object.keys(validationErrors).length > 0;
 
 	return (
 		<div className="space-y-4">
 			{/* Status indicator */}
-			{hasErrors && (
-				<div className="p-3 bg-amber-50 border border-amber-200 rounded-md">
-					<p className="text-sm text-amber-800">
-						Please fix the validation errors below
-					</p>
-				</div>
-			)}
 
 			<div className="space-y-2">
-				<Label
-					htmlFor="vpc-name"
-					className={validationErrors.name ? "text-red-600" : ""}
-				>
-					VPC Name *
+				<Label htmlFor="vpc-name">
+					VPC Name <span className="text-red-600">*</span>
 				</Label>
 				<Input
 					id="vpc-name"
 					placeholder="Enter VPC name"
 					value={config.serviceName || ""}
-					onChange={(e) => updateConfig("serviceName", e.target.value)}
-					className={
-						validationErrors.name ? "border-red-300 focus:border-red-500" : ""
-					}
+					onChange={(e) => handleFieldChange("serviceName", e.target.value)}
 				/>
-				{validationErrors.name && (
-					<p className="text-sm text-red-600">{validationErrors.name}</p>
-				)}
 			</div>
 
 			<div className="space-y-2">
-				<Label
-					htmlFor="cidr-block"
-					className={validationErrors.cidrBlock ? "text-red-600" : ""}
+				<Label htmlFor="region">
+					Region <span className="text-red-600">*</span>
+				</Label>
+				<Select
+					value={config.region || ""}
+					onValueChange={(value) => handleFieldChange("region", value)}
 				>
-					CIDR Block *
+					<SelectTrigger className="w-full">
+						<SelectValue placeholder="Select region" />
+					</SelectTrigger>
+					<SelectContent>
+						{AWS_REGIONS.map((region) => (
+							<SelectItem key={region.region} value={region.region}>
+								{region.region}
+							</SelectItem>
+						))}
+					</SelectContent>
+				</Select>
+			</div>
+
+			<div className="space-y-2">
+				<Label htmlFor="cidr-block">
+					CIDR Block <span className="text-red-600">*</span>
 				</Label>
 				<Input
 					id="cidr-block"
 					placeholder="10.0.0.0/16"
 					value={config.cidrBlock || ""}
-					onChange={(e) => updateConfig("cidrBlock", e.target.value)}
-					className={
-						validationErrors.cidrBlock
-							? "border-red-300 focus:border-red-500"
-							: ""
-					}
+					onChange={(e) => handleFieldChange("cidrBlock", e.target.value)}
 				/>
-				{validationErrors.cidrBlock && (
-					<p className="text-sm text-red-600">{validationErrors.cidrBlock}</p>
-				)}
-				<p className="text-xs text-gray-500">
-					Recommended: 10.0.0.0/16, 172.16.0.0/16, or 192.168.0.0/16
-				</p>
 			</div>
 
-			<div className="space-y-2">
-				<Label
-					htmlFor="region"
-					className={validationErrors.region ? "text-red-600" : ""}
-				>
-					Region *
-				</Label>
-				<Select
-					value={config.region || ""}
-					onValueChange={(value) => updateConfig("region", value)}
-				>
-					<SelectTrigger
-						className={
-							validationErrors.region
-								? "border-red-300 focus:border-red-500"
-								: ""
-						}
-					>
-						<SelectValue placeholder="Select region" />
-					</SelectTrigger>
-					<SelectContent>
-						{awsRegions.map((region) => (
-							<SelectItem key={region} value={region}>
-								{region}
-							</SelectItem>
-						))}
-					</SelectContent>
-				</Select>
-				{validationErrors.region && (
-					<p className="text-sm text-red-600">{validationErrors.region}</p>
-				)}
-			</div>
-
-			<div className="space-y-2">
+			{/* <div className="space-y-2">
 				<Label htmlFor="description">Description</Label>
 				<Textarea
 					id="description"
@@ -217,9 +97,9 @@ const VPCConfigurationForm: React.FC<VPCConfigurationFormProps> = ({
 					onChange={(e) => updateConfig("description", e.target.value)}
 					rows={3}
 				/>
-			</div>
+			</div> */}
 
-			<div className="space-y-3">
+			{/* <div className="space-y-3">
 				<h4 className="text-sm font-medium text-gray-900">DNS Settings</h4>
 
 				<div className="flex items-center space-x-2">
@@ -253,9 +133,9 @@ const VPCConfigurationForm: React.FC<VPCConfigurationFormProps> = ({
 				<p className="text-xs text-gray-500 ml-6">
 					Assigns public DNS hostnames to instances with public IP addresses
 				</p>
-			</div>
+			</div> */}
 
-			<div className="space-y-2">
+			{/* <div className="space-y-2">
 				<Label
 					htmlFor="tags"
 					className={validationErrors.tags ? "text-red-600" : ""}
@@ -278,7 +158,7 @@ const VPCConfigurationForm: React.FC<VPCConfigurationFormProps> = ({
 				<p className="text-xs text-gray-500">
 					Format: key=value, separated by commas
 				</p>
-			</div>
+			</div> */}
 		</div>
 	);
 };

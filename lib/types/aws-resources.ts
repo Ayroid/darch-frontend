@@ -6,6 +6,7 @@
 // Base interfaces
 export interface BaseAWSResource {
 	serviceName: string;
+	serviceId: string;
 	resourceType?: string; // The service ID (e.g., 'aws-vpc', 'aws-ec2')
 	description?: string;
 	tags?: Record<string, string>;
@@ -19,6 +20,7 @@ export interface ConfigurationFormProps<T = Record<string, unknown>> {
 // VPC Configuration
 export interface VPCConfiguration {
 	serviceName: string;
+	serviceId: string;
 	resourceType?: string;
 	cidrBlock?: string;
 	region?: string;
@@ -32,6 +34,7 @@ export interface VPCConfiguration {
 export interface EC2Configuration {
 	// Basic Configuration
 	serviceName: string;
+	serviceId: string;
 	resourceType?: string;
 	instanceType?: string;
 	amiId?: string;
@@ -73,9 +76,11 @@ export interface EC2Configuration {
 // Subnet Configurations
 export interface PublicSubnetConfiguration {
 	serviceName: string;
+	serviceId: string;
 	resourceType?: string;
 	cidrBlock?: string;
 	vpcId?: string;
+	region?: string;
 	availabilityZone?: string;
 	description?: string;
 	mapPublicIpOnLaunch?: boolean;
@@ -84,9 +89,11 @@ export interface PublicSubnetConfiguration {
 
 export interface PrivateSubnetConfiguration {
 	serviceName: string;
+	serviceId: string;
 	resourceType?: string;
 	cidrBlock?: string;
 	vpcId?: string;
+	region?: string;
 	availabilityZone?: string;
 	description?: string;
 	mapPublicIpOnLaunch?: boolean;
@@ -97,6 +104,7 @@ export interface PrivateSubnetConfiguration {
 // AWS Region Configuration
 export interface AWSRegionConfiguration {
 	serviceName: string;
+	serviceId: string;
 	resourceType?: string;
 	region: string;
 	regionName: string;
@@ -109,6 +117,7 @@ export interface AWSRegionConfiguration {
 // Availability Zone Configuration
 export interface AvailabilityZoneConfiguration {
 	serviceName: string;
+	serviceId: string;
 	resourceType?: string;
 	region: string;
 	availabilityZone: string;
@@ -121,6 +130,7 @@ export interface AvailabilityZoneConfiguration {
 // Default/Generic Configuration for unknown resources
 export interface DefaultConfiguration {
 	serviceName?: string;
+	serviceId?: string;
 	description?: string;
 	resourceType?: string;
 	properties?: Record<string, unknown>;

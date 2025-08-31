@@ -31,15 +31,6 @@ const AvailabilityZoneConfigurationForm: React.FC<
 		onChange(updatedConfig);
 	};
 
-	const handleRegionChange = (region: string) => {
-		const updatedConfig = {
-			...config,
-			region,
-			availabilityZone: "",
-		};
-		onChange(updatedConfig);
-	};
-
 	const selectedRegion = config.region || "";
 	const availableAZs =
 		AWS_REGIONS_WITH_AZS[selectedRegion as keyof typeof AWS_REGIONS_WITH_AZS] ||
@@ -48,7 +39,10 @@ const AvailabilityZoneConfigurationForm: React.FC<
 	return (
 		<div className="space-y-4">
 			<div className="space-y-2">
-				<Label htmlFor="az-name">Availability Zone Name</Label>
+				<Label htmlFor="az-name">
+					AZ Name
+					<span className="text-red-600">*</span>
+				</Label>
 				<Input
 					id="az-name"
 					placeholder="Enter AZ name"
@@ -58,8 +52,13 @@ const AvailabilityZoneConfigurationForm: React.FC<
 			</div>
 
 			<div className="space-y-2">
-				<Label htmlFor="region">Region</Label>
-				<Select value={config.region} onValueChange={handleRegionChange}>
+				<Label htmlFor="region">
+					Region <span className="text-red-600">*</span>
+				</Label>
+				<Select
+					value={config.region}
+					onValueChange={(value) => handleFieldChange("region", value)}
+				>
 					<SelectTrigger className="w-full">
 						<SelectValue placeholder="Select region" />
 					</SelectTrigger>
@@ -74,7 +73,9 @@ const AvailabilityZoneConfigurationForm: React.FC<
 			</div>
 
 			<div className="space-y-2">
-				<Label htmlFor="availability-zone">Availability Zone</Label>
+				<Label htmlFor="availability-zone">
+					Availability Zone <span className="text-red-600">*</span>
+				</Label>
 				<Select
 					value={config.availabilityZone || ""}
 					onValueChange={(value) =>

@@ -102,11 +102,11 @@ export default function ConfigurationSidebar({
 
 		if (selectedNode.type === "awsService") {
 			const data = selectedNode.data as AWSResourceConfiguration;
-			return (data?.serviceName as string) || "AWS Service";
+			return (data.serviceName as string) || "AWS Service";
 		}
 		if (selectedNode.type === "awsContainer") {
 			const data = selectedNode.data as AWSResourceConfiguration;
-			return (data?.serviceName as string) || "AWS Container";
+			return (data.serviceName as string) || "AWS Container";
 		}
 		return "Configuration";
 	};

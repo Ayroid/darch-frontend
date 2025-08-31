@@ -32,27 +32,27 @@ const AWSRegionConfigurationForm: React.FC<AWSRegionConfigurationFormProps> = ({
 		onChange(updatedConfig);
 	};
 
-	const handleRegionChange = (region: string) => {
-		const selectedRegion = AWS_REGIONS.find(
-			(availableRegion) => availableRegion.region === region
-		);
-		if (selectedRegion) {
-			const updatedConfig = {
-				...config,
-				region: region,
-				regionName: selectedRegion.regionName,
-			};
-			onChange(updatedConfig);
-		}
-	};
-
 	return (
 		<div className="space-y-4">
+			<div className="space-y-2">
+				<Label htmlFor="region-name">
+					Region Name <span className="text-red-600">*</span>
+				</Label>
+				<Input
+					id="region-name"
+					placeholder="Enter Region name"
+					value={config.serviceName || ""}
+					onChange={(e) => handleFieldChange("serviceName", e.target.value)}
+				/>
+			</div>
 			<div className="space-y-2">
 				<Label htmlFor="region">
 					AWS Region<span className="text-red-600">*</span>
 				</Label>
-				<Select value={config.region || ""} onValueChange={handleRegionChange}>
+				<Select
+					value={config.region || ""}
+					onValueChange={(value) => handleFieldChange("region", value)}
+				>
 					<SelectTrigger className="w-full">
 						<SelectValue placeholder="Select AWS region" />
 					</SelectTrigger>

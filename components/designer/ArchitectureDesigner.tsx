@@ -10,6 +10,7 @@ import KeyboardShortcutsHelp from "./KeyboardShortcutsHelp";
 import SettingsModal from "./SettingsModal";
 import { useApplicationShortcuts } from "@/lib/keyboard-shortcuts";
 import { useConfigurationStore } from "@/lib/stores";
+import { AWSResourceConfiguration } from "@/lib/types/aws-resources";
 
 // Types
 interface Project {
@@ -69,7 +70,7 @@ export default function ArchitectureDesigner() {
 		console.log("Node added:", node);
 
 		// Initialize configuration for the new node
-		const data = node.data as Record<string, unknown>;
+		const data = node.data as AWSResourceConfiguration;
 		const serviceId = (data?.serviceId as string) || "";
 		if (serviceId) {
 			initializeNodeConfiguration(node.id, serviceId);
