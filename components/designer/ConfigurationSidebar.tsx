@@ -44,7 +44,11 @@ export default function ConfigurationSidebar({
 	onNodeUpdate,
 }: ConfigurationSidebarProps) {
 	// Zustand store hooks
-	const { updateNodeConfiguration } = useConfigurationStore();
+	const {
+		getNodeConfiguration,
+		updateNodeConfiguration,
+		initializeNodeConfiguration
+	} = useConfigurationStore();
 
 	const {
 		validationErrors,
@@ -53,13 +57,23 @@ export default function ConfigurationSidebar({
 		validateConfiguration,
 	} = useValidationStore();
 
-	// Local state for the current form
-	const [config, setConfig] = React.useState<AWSResourceConfiguration>({});
+	// Initialize configuration when node is selected
+	React.useEffect(() => {
+		if (selectedNode) {
+			const data = selectedNode.data as Record<string, unknown>;
+			const serviceId = (data?.serviceId as string) || "";
+			initializeNodeConfiguration(selectedNode.id, serviceId);
+		}
+	}, [selectedNode, initializeNodeConfiguration]);
+
+	// Get current configuration from store
+	const config = selectedNode
+		? getNodeConfiguration(selectedNode.id) || {}
+		: {};
 
 	const handleConfigChange = (newConfig: AWSResourceConfiguration) => {
 		if (!selectedNode) return; // Guard clause for when no node is selected
 
-		setConfig(newConfig);
 		const nodeId = selectedNode.id;
 
 		// Update the store for immediate UI feedback

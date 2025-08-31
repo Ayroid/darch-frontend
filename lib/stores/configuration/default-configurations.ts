@@ -14,7 +14,8 @@ export const defaultConfigurations: Record<
 	Partial<AWSResourceConfiguration>
 > = {
 	"aws-vpc": {
-		name: "vpc-main",
+		serviceName: "vpc-main",
+		resourceType: "aws-vpc",
 		cidrBlock: "10.0.0.0/16",
 		region: "us-east-1",
 		enableDnsSupport: true,
@@ -23,7 +24,8 @@ export const defaultConfigurations: Record<
 	} as Partial<VPCConfiguration>,
 
 	"aws-ec2": {
-		name: "ec2-instance",
+		serviceName: "ec2-instance",
+		resourceType: "aws-ec2",
 		instanceType: "t3.micro",
 		amiId: "ami-0c55b159cbfafe1d0",
 		keyPairName: "",
@@ -43,19 +45,30 @@ export const defaultConfigurations: Record<
 	} as Partial<EC2Configuration>,
 
 	"aws-region": {
-		name: "us-east-1",
-		displayName: "US East (N. Virginia)",
+		serviceName: "us-east-1",
+		resourceType: "aws-region",
+		region: "us-east-1",
+		regionName: "US East (N. Virginia)",
 		description: "",
+		isEnabled: true,
+		isDefault: true,
+		tags: "",
 	} as Partial<AWSRegionConfiguration>,
 
 	"aws-availability-zone": {
-		name: "us-east-1a",
+		serviceName: "us-east-1a",
+		resourceType: "aws-availability-zone",
 		region: "us-east-1",
-		state: "available",
+		availabilityZone: "us-east-1a",
+		description: "",
+		isEnabled: true,
+		isPreferred: false,
+		tags: "",
 	} as Partial<AvailabilityZoneConfiguration>,
 
 	"aws-private-subnet": {
-		name: "private-subnet",
+		serviceName: "private-subnet",
+		resourceType: "aws-private-subnet",
 		cidrBlock: "10.0.1.0/24",
 		availabilityZone: "us-east-1a",
 		vpcId: "",
@@ -64,7 +77,8 @@ export const defaultConfigurations: Record<
 	} as Partial<PrivateSubnetConfiguration>,
 
 	"aws-public-subnet": {
-		name: "public-subnet",
+		serviceName: "public-subnet",
+		resourceType: "aws-public-subnet",
 		cidrBlock: "10.0.0.0/24",
 		availabilityZone: "us-east-1a",
 		vpcId: "",
@@ -78,5 +92,9 @@ export const defaultConfigurations: Record<
 export const getDefaultConfiguration = (
 	serviceId: string
 ): AWSResourceConfiguration => {
-	return defaultConfigurations[serviceId] || {};
+	const defaultConfig = defaultConfigurations[serviceId] || {};
+	return {
+		...defaultConfig,
+		resourceType: serviceId, // Ensure resourceType is always set
+	};
 };

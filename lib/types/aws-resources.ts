@@ -6,6 +6,7 @@
 // Base interfaces
 export interface BaseAWSResource {
 	serviceName: string;
+	resourceType?: string; // The service ID (e.g., 'aws-vpc', 'aws-ec2')
 	description?: string;
 	tags?: Record<string, string>;
 }
@@ -18,6 +19,7 @@ export interface ConfigurationFormProps<T = Record<string, unknown>> {
 // VPC Configuration
 export interface VPCConfiguration {
 	serviceName: string;
+	resourceType?: string;
 	cidrBlock?: string;
 	region?: string;
 	description?: string;
@@ -30,6 +32,7 @@ export interface VPCConfiguration {
 export interface EC2Configuration {
 	// Basic Configuration
 	serviceName: string;
+	resourceType?: string;
 	instanceType?: string;
 	amiId?: string;
 	keyPairName?: string;
@@ -70,6 +73,7 @@ export interface EC2Configuration {
 // Subnet Configurations
 export interface PublicSubnetConfiguration {
 	serviceName: string;
+	resourceType?: string;
 	cidrBlock?: string;
 	vpcId?: string;
 	availabilityZone?: string;
@@ -80,6 +84,7 @@ export interface PublicSubnetConfiguration {
 
 export interface PrivateSubnetConfiguration {
 	serviceName: string;
+	resourceType?: string;
 	cidrBlock?: string;
 	vpcId?: string;
 	availabilityZone?: string;
@@ -92,7 +97,8 @@ export interface PrivateSubnetConfiguration {
 // AWS Region Configuration
 export interface AWSRegionConfiguration {
 	serviceName: string;
-	regionCode: string;
+	resourceType?: string;
+	region: string;
 	regionName: string;
 	description: string;
 	isEnabled: boolean;
@@ -103,12 +109,13 @@ export interface AWSRegionConfiguration {
 // Availability Zone Configuration
 export interface AvailabilityZoneConfiguration {
 	serviceName: string;
-	region?: string;
-	availabilityZone?: string;
-	description?: string;
-	isEnabled?: boolean;
-	isPreferred?: boolean;
-	tags?: string; // comma-separated for backward compatibility
+	resourceType?: string;
+	region: string;
+	availabilityZone: string;
+	description: string;
+	isEnabled: boolean;
+	isPreferred: boolean;
+	tags: string; // comma-separated for backward compatibility
 }
 
 // Default/Generic Configuration for unknown resources

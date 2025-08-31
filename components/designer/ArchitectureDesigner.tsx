@@ -9,6 +9,7 @@ import TopBar from "./TopBar";
 import KeyboardShortcutsHelp from "./KeyboardShortcutsHelp";
 import SettingsModal from "./SettingsModal";
 import { useApplicationShortcuts } from "@/lib/keyboard-shortcuts";
+import { useConfigurationStore } from "@/lib/stores";
 
 // Types
 interface Project {
@@ -27,6 +28,9 @@ interface Architecture {
 type TabType = "design" | "share" | "settings";
 
 export default function ArchitectureDesigner() {
+	// Store hooks
+	const { initializeNodeConfiguration } = useConfigurationStore();
+
 	// State management
 	const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 	const [isConfigurationSidebarOpen, setIsConfigurationSidebarOpen] = useState(false);
@@ -63,11 +67,19 @@ export default function ArchitectureDesigner() {
 
 	const handleNodeAdd = useCallback((node: Node) => {
 		console.log("Node added:", node);
+
+		// Initialize configuration for the new node
+		const data = node.data as Record<string, unknown>;
+		const serviceId = (data?.serviceId as string) || "";
+		if (serviceId) {
+			initializeNodeConfiguration(node.id, serviceId);
+		}
+
 		setCurrentArchitecture((prev) => ({
 			...prev,
 			nodes: [...prev.nodes, node],
 		}));
-	}, []);
+	}, [initializeNodeConfiguration]);
 
 	const handleNewArchitecture = useCallback(() => {
 		const newArch: Architecture = {
