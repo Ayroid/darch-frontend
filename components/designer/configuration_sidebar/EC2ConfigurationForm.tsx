@@ -12,7 +12,6 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useNodeConfiguration } from "@/lib/stores";
 import { EC2Configuration } from "@/lib/types/aws-resources";
 
 interface EC2ConfigurationFormProps {
@@ -129,21 +128,12 @@ const EC2ConfigurationForm: React.FC<EC2ConfigurationFormProps> = ({
 	config,
 	onChange,
 }) => {
-	const { selectedNodeId, updateNodeConfiguration } = useNodeConfiguration();
-
 	const updateConfig = (
 		key: keyof EC2Configuration,
 		value: EC2Configuration[keyof EC2Configuration]
 	) => {
 		const updatedConfig = { ...config, [key]: value };
-		
-		// Update local state immediately for UI responsiveness
 		onChange(updatedConfig);
-		
-		// Update the unified store if we have a selected node
-		if (selectedNodeId) {
-			updateNodeConfiguration(selectedNodeId, { [key]: value });
-		}
 	};
 
 	const handleTagChange = (key: string, value: string) => {

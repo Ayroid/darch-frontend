@@ -4,7 +4,7 @@ import React from "react";
 import { Node } from "@xyflow/react";
 
 import { ConfigurationSidebarMap } from "./configuration_sidebar";
-import { useConfigurationStore, useValidationStore } from "@/lib/stores";
+import { useArchitectureStore } from "@/lib/stores/architecture/architecture-store";
 import { ConfigurationProvider } from "@/lib/stores";
 import { TbCube } from "react-icons/tb";
 
@@ -43,19 +43,12 @@ export default function ConfigurationSidebar({
 	onToggle,
 	onNodeUpdate,
 }: ConfigurationSidebarProps) {
-	// Zustand store hooks
+	// Unified architecture store
 	const {
 		getNodeConfiguration,
 		updateNodeConfiguration,
 		initializeNodeConfiguration
-	} = useConfigurationStore();
-
-	const {
-		validationErrors,
-		setValidationErrors,
-		clearValidationErrors,
-		validateConfiguration,
-	} = useValidationStore();
+	} = useArchitectureStore();
 
 	// Initialize configuration when node is selected
 	React.useEffect(() => {
@@ -76,19 +69,8 @@ export default function ConfigurationSidebar({
 
 		const nodeId = selectedNode.id;
 
-		// Update the store for immediate UI feedback
+		// Update the architecture store (this will update both the configuration and the JSON data)
 		updateNodeConfiguration(nodeId, newConfig);
-
-		// Validate the configuration
-		const data = selectedNode.data as Record<string, unknown>;
-		const serviceId = (data?.serviceId as string) || "";
-		const errors = validateConfiguration(serviceId, newConfig);
-
-		if (errors.length > 0) {
-			setValidationErrors(nodeId, errors);
-		} else {
-			clearValidationErrors(nodeId);
-		}
 
 		// Update the node data for the canvas
 		onNodeUpdate(selectedNode.id, {
@@ -168,11 +150,6 @@ export default function ConfigurationSidebar({
 		);
 	};
 
-	// Get validation errors for current node
-	const currentErrors = selectedNode
-		? validationErrors[selectedNode.id] || []
-		: [];
-
 	return (
 		<div className="relative">
 			{/* Sidebar */}
@@ -190,23 +167,6 @@ export default function ConfigurationSidebar({
 						</h2>
 					</div>
 				</div>
-
-				{/* Validation Errors */}
-				{selectedNode && currentErrors.length > 0 && (
-					<div className="p-4 bg-red-50 border-b border-red-200">
-						<h3 className="text-sm font-medium text-red-800 mb-2">
-							Configuration Errors:
-						</h3>
-						<ul className="text-sm text-red-700 space-y-1">
-							{currentErrors.map((error: string, index: number) => (
-								<li key={index} className="flex items-start">
-									<span className="text-red-500 mr-1">•</span>
-									{error}
-								</li>
-							))}
-						</ul>
-					</div>
-				)}
 
 				{/* Content */}
 				<div className="flex-1 overflow-y-auto p-4">
