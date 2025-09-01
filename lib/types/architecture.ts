@@ -12,6 +12,7 @@ export interface Dimensions {
   height: number;
 }
 
+// TODO: Replace with AWSResourceConfiguration Type
 export interface NodeConfiguration {
   [key: string]: string | number | boolean | string[] | number[] | boolean[] | Record<string, unknown>;
 }
