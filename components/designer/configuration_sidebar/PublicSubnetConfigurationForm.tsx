@@ -32,7 +32,7 @@ const PublicSubnetConfigurationForm: React.FC<
 	};
 
 	const selectedRegion = config.region;
-	const availableAZs = AWS_REGIONS_WITH_AZS[config.region];
+	const availableAZs = AWS_REGIONS_WITH_AZS[config.region] || [];
 
 	return (
 		<div className="space-y-4">

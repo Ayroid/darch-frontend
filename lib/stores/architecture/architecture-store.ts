@@ -322,16 +322,27 @@ export const useArchitectureStore = create<ArchitectureState & ArchitectureActio
 							node.id = generateUniqueId();
 						}
 
-						// Get service type for default configuration
+						// Get service type for configuration
 						const data = node.data as Record<string, unknown>;
 						const serviceType = (data?.serviceId as string) || "unknown";
 
-						// Initialize configuration
-						const defaultConfig = getDefaultConfigurationForService(serviceType);
-						state.nodeConfigurations[node.id] = defaultConfig;
+						// Check if node already has configuration (e.g., from copy-paste)
+						let nodeConfig: AWSResourceConfiguration;
+						if (data?.configuration && typeof data.configuration === 'object') {
+							// Use existing configuration from copied node
+							nodeConfig = data.configuration as AWSResourceConfiguration;
+							console.log("Using existing configuration for copied node:", node.id, nodeConfig);
+						} else {
+							// Initialize with default configuration for new nodes
+							nodeConfig = getDefaultConfigurationForService(serviceType);
+							console.log("Initializing default configuration for new node:", node.id, nodeConfig);
+						}
+
+						// Store configuration in the unified store
+						state.nodeConfigurations[node.id] = nodeConfig;
 
 						// Convert and add to architecture data
-						const archNode = convertReactFlowNodeToArchNode(node, defaultConfig);
+						const archNode = convertReactFlowNodeToArchNode(node, nodeConfig);
 						state.currentData!.nodes.push(archNode);
 						state.currentData!.metadata.lastModified = new Date().toISOString();
 						state.hasUnsavedChanges = true;

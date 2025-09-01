@@ -10,11 +10,10 @@ import KeyboardShortcutsHelp from "./KeyboardShortcutsHelp";
 import SettingsModal from "./SettingsModal";
 import { useApplicationShortcuts } from "@/lib/keyboard-shortcuts";
 import {
-	useConfigurationStore,
 	useUIStore,
 	useCanvasStore,
+	useArchitectureStore,
 } from "@/lib/stores";
-import { AWSResourceConfiguration } from "@/lib/types/aws-resources";
 
 // Types
 interface Project {
@@ -34,7 +33,7 @@ type TabType = "design" | "share" | "settings";
 
 export default function ArchitectureDesigner() {
 	// Store hooks
-	const { initializeNodeConfiguration } = useConfigurationStore();
+	const { addNode } = useArchitectureStore();
 	const {
 		isSidebarOpen,
 		isConfigurationSidebarVisible,
@@ -80,19 +79,16 @@ export default function ArchitectureDesigner() {
 		(node: Node) => {
 			console.log("Node added:", node);
 
-			// Initialize configuration for the new node
-			const data = node.data as AWSResourceConfiguration;
-			const serviceId = (data?.serviceId as string) || "";
-			if (serviceId) {
-				initializeNodeConfiguration(node.id, serviceId);
-			}
+			// Add node to the unified architecture store
+			// This will automatically handle configuration initialization
+			addNode(node);
 
 			setCurrentArchitecture((prev) => ({
 				...prev,
 				nodes: [...prev.nodes, node],
 			}));
 		},
-		[initializeNodeConfiguration]
+		[addNode]
 	);
 
 	const handleNewArchitecture = useCallback(() => {

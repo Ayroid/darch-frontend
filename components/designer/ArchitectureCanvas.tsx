@@ -18,6 +18,7 @@ import {
 import "@xyflow/react/dist/style.css";
 import { useCanvasShortcuts, useUndoRedo } from "@/lib/keyboard-shortcuts";
 import { useArchitectureData } from "@/hooks/use-architecture-data";
+import { useArchitectureStore } from "@/lib/stores";
 import { updateNodeParentRelationships, clearContainerCaches } from "@/lib/container-logic";
 import UndoRedoControls from "./UndoRedoControls";
 import ShortcutsButton from "./ShortcutsButton";
@@ -161,6 +162,7 @@ export default function ArchitectureCanvas({
 		addConnection: addArchConnection,
 		convertToReactFlow,
 	} = useArchitectureData();
+	const { getNodeConfiguration } = useArchitectureStore();
 
 	// Load initial data from architecture manager (only on first load)
 	useEffect(() => {
@@ -182,7 +184,8 @@ export default function ArchitectureCanvas({
 		setNodes,
 		setEdges,
 		onNodesChange,
-		onNodeAdd
+		onNodeAdd,
+		getNodeConfiguration
 	);
 
 	// Create node types

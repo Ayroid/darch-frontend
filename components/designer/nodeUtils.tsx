@@ -521,7 +521,8 @@ export const createNodeHandlers = (
 	setNodes: (nodes: Node[] | ((nodes: Node[]) => Node[])) => void,
 	setEdges: (edges: Edge[] | ((edges: Edge[]) => Edge[])) => void,
 	onNodesChange: (changes: NodeChange[]) => void,
-	onNodeAdd?: (node: Node) => void
+	onNodeAdd?: (node: Node) => void,
+	getNodeConfiguration?: (nodeId: string) => unknown
 ) => {
 	// Debounce timer for parent relationship updates
 	let parentUpdateTimeout: NodeJS.Timeout | null = null;
@@ -644,7 +645,21 @@ export const createNodeHandlers = (
 	// Handle copying selected nodes
 	const handleCopyNodes = () => {
 		const selectedNodes = nodes.filter((node) => node.selected);
-		return selectedNodes;
+		
+		// Enhance copied nodes with their configurations
+		const nodesWithConfigs = selectedNodes.map((node) => {
+			const config = getNodeConfiguration?.(node.id);
+			return {
+				...node,
+				data: {
+					...node.data,
+					configuration: config, // Embed configuration in the node data
+				},
+			};
+		});
+		
+		console.log("Copied nodes with configurations:", nodesWithConfigs);
+		return nodesWithConfigs;
 	};
 
 	// Handle pasting copied nodes
@@ -681,19 +696,26 @@ export const createNodeHandlers = (
 		const selectedNodes = nodes.filter((node) => node.selected);
 		if (selectedNodes.length === 0) return;
 
-		const newNodes = selectedNodes.map((node) => ({
-			...node,
-			id: getNodeId(
-				typeof node.data?.serviceId === "string"
-					? node.data.serviceId
-					: "dndnode"
-			),
-			position: {
-				x: node.position.x + 50, // Offset by 50px
-				y: node.position.y + 50,
-			},
-			selected: true, // Select the new nodes
-		}));
+		const newNodes = selectedNodes.map((node) => {
+			const config = getNodeConfiguration?.(node.id);
+			return {
+				...node,
+				id: getNodeId(
+					typeof node.data?.serviceId === "string"
+						? node.data.serviceId
+						: "dndnode"
+				),
+				position: {
+					x: node.position.x + 50, // Offset by 50px
+					y: node.position.y + 50,
+				},
+				selected: true, // Select the new nodes
+				data: {
+					...node.data,
+					configuration: config, // Embed configuration in the node data
+				},
+			};
+		});
 
 		setNodes((nds) => [
 			...nds.map((n) => ({ ...n, selected: false })),
