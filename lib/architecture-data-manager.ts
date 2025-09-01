@@ -10,6 +10,7 @@ import {
 	NodeConnection,
 	ArchitectureMetadata,
 } from "./types/architecture";
+import { AWSResourceConfiguration } from "./types/aws-resources";
 
 const DEFAULT_FILE_NAME = "architecture.json";
 const AUTO_SAVE_DELAY = 1000; // 1 second debounce for auto-save
@@ -402,7 +403,7 @@ export class ArchitectureDataManager {
 	/**
 	 * Get node configuration by node ID
 	 */
-	getNodeConfiguration(nodeId: string): Record<string, string | number | boolean | string[] | number[] | boolean[] | Record<string, unknown>> | null {
+	getNodeConfiguration(nodeId: string): AWSResourceConfiguration | null {
 		if (this.currentData) {
 			const node = this.currentData.nodes.find((n) => n.id === nodeId);
 			return node ? node.configuration : null;

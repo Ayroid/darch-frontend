@@ -2,6 +2,8 @@
  * Types for Architecture JSON Data Management
  */
 
+import { AWSResourceConfiguration } from "./aws-resources";
+
 export interface Position {
   x: number;
   y: number;
@@ -10,11 +12,6 @@ export interface Position {
 export interface Dimensions {
   width: number;
   height: number;
-}
-
-// TODO: Replace with AWSResourceConfiguration Type
-export interface NodeConfiguration {
-  [key: string]: string | number | boolean | string[] | number[] | boolean[] | Record<string, unknown>;
 }
 
 export interface NodeConnection {
@@ -34,7 +31,7 @@ export interface ArchitectureNode {
   icon: string;
   position: Position;
   dimensions?: Dimensions;
-  configuration: NodeConfiguration;
+  configuration: AWSResourceConfiguration;
   isContainer?: boolean;
   parentId?: string; // For nodes inside containers
 }

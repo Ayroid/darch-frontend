@@ -6,6 +6,14 @@ export { useCanvasStore } from './canvas/canvas-store';
 export { useValidationStore } from './validation/validation-store';
 export type { ValidationRule } from './validation/validation-store';
 
+// New unified architecture store
+export { 
+	useArchitectureStore,
+	useArchitectureData,
+	useArchitectureActions,
+	useNodeConfiguration 
+} from './architecture/architecture-store';
+
 // Enhanced hooks
 export { useConfigurationForm } from './hooks/use-configuration-form';
 export { useStoreIntegration, useStoreAwareConfig, useNodeConfig } from './hooks/use-store-integration';

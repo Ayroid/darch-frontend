@@ -1,16 +1,18 @@
 /**
  * React Hook for Architecture Data Management
+ * Now powered by the unified Zustand store
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback } from 'react';
 import { Node, Edge } from '@xyflow/react';
-import { architectureDataManager } from '../lib/architecture-data-manager';
 import { ArchitectureData, ArchitectureMetadata } from '../lib/types/architecture';
+import { useArchitectureStore } from '../lib/stores/architecture/architecture-store';
 
 export interface UseArchitectureDataReturn {
   // Data
   currentData: ArchitectureData | null;
   isLoading: boolean;
+  hasUnsavedChanges: boolean;
 
   // Actions
   createNew: (metadata?: Partial<ArchitectureMetadata>) => void;
@@ -36,134 +38,102 @@ export interface UseArchitectureDataReturn {
 }
 
 export function useArchitectureData(): UseArchitectureDataReturn {
-  const [currentData, setCurrentData] = useState<ArchitectureData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  // Get state and actions from the unified store
+  const {
+    currentData,
+    isLoading,
+    hasUnsavedChanges,
+    createNew: storeCreateNew,
+    clear: storeClear,
+    updateFromReactFlow: storeUpdateFromReactFlow,
+    addNode: storeAddNode,
+    removeNode: storeRemoveNode,
+    updateNodeConfiguration: storeUpdateNodeConfiguration,
+    updateNodePosition: storeUpdateNodePosition,
+    addConnection: storeAddConnection,
+    removeConnection: storeRemoveConnection,
+    loadFromJSON: storeLoadFromJSON,
+    exportToJSON: storeExportToJSON,
+    importFromFile: storeImportFromFile,
+    exportToFile: storeExportToFile,
+    saveToFile: storeSaveToFile,
+    loadFromFile: storeLoadFromFile,
+    convertToReactFlow: storeConvertToReactFlow,
+  } = useArchitectureStore();
 
-  // Initialize data manager and subscribe to changes
-  useEffect(() => {
-    setIsLoading(true);
-
-    // Get initial data
-    const data = architectureDataManager.getCurrentData();
-    setCurrentData(data);
-    setIsLoading(false);
-
-    // Subscribe to changes
-    const unsubscribe = architectureDataManager.subscribe((updatedData: ArchitectureData) => {
-      setCurrentData(updatedData);
-    });
-
-    return unsubscribe;
-  }, []);
-
-  // Create new architecture
+  // Wrap actions in useCallback for performance
   const createNew = useCallback((metadata?: Partial<ArchitectureMetadata>) => {
-    const newData = architectureDataManager.createNew(metadata);
-    setCurrentData(newData);
-  }, []);
+    storeCreateNew(metadata);
+  }, [storeCreateNew]);
 
-  // Update from ReactFlow state
   const updateFromReactFlow = useCallback((nodes: Node[], edges: Edge[]) => {
-    architectureDataManager.updateFromReactFlow(nodes, edges);
-  }, []);
+    storeUpdateFromReactFlow(nodes, edges);
+  }, [storeUpdateFromReactFlow]);
 
-  // Add node
   const addNode = useCallback((node: Node): string => {
-    return architectureDataManager.addNode(node);
-  }, []);
+    return storeAddNode(node);
+  }, [storeAddNode]);
 
-  // Remove node
   const removeNode = useCallback((nodeId: string) => {
-    architectureDataManager.removeNode(nodeId);
-  }, []);
+    storeRemoveNode(nodeId);
+  }, [storeRemoveNode]);
 
-  // Update node configuration
-  const updateNodeConfiguration = useCallback((nodeId: string, configuration: Record<string, string | number | boolean | string[] | number[] | boolean[] | Record<string, unknown>>) => {
-    architectureDataManager.updateNodeConfiguration(nodeId, configuration);
-  }, []);
+  const updateNodeConfiguration = useCallback((
+    nodeId: string, 
+    configuration: Record<string, string | number | boolean | string[] | number[] | boolean[] | Record<string, unknown>>
+  ) => {
+    storeUpdateNodeConfiguration(nodeId, configuration);
+  }, [storeUpdateNodeConfiguration]);
 
-  // Update node position
   const updateNodePosition = useCallback((nodeId: string, position: { x: number; y: number }) => {
-    architectureDataManager.updateNodePosition(nodeId, position);
-  }, []);
+    storeUpdateNodePosition(nodeId, position);
+  }, [storeUpdateNodePosition]);
 
-  // Add connection
   const addConnection = useCallback((edge: Edge) => {
-    architectureDataManager.addConnection(edge);
-  }, []);
+    storeAddConnection(edge);
+  }, [storeAddConnection]);
 
-  // Remove connection
   const removeConnection = useCallback((connectionId: string) => {
-    architectureDataManager.removeConnection(connectionId);
-  }, []);
+    storeRemoveConnection(connectionId);
+  }, [storeRemoveConnection]);
 
-  // Load from JSON
   const loadFromJSON = useCallback((jsonData: ArchitectureData) => {
-    return architectureDataManager.loadFromJSON(jsonData);
-  }, []);
+    return storeLoadFromJSON(jsonData);
+  }, [storeLoadFromJSON]);
 
-  // Export to JSON
   const exportToJSON = useCallback(() => {
-    return architectureDataManager.exportToJSON();
-  }, []);
+    return storeExportToJSON();
+  }, [storeExportToJSON]);
 
-  // Import from file
   const importFromFile = useCallback(async (file: File) => {
-    return architectureDataManager.importFromFile(file);
-  }, []);
+    return storeImportFromFile(file);
+  }, [storeImportFromFile]);
 
-  // Export to file
   const exportToFile = useCallback((filename?: string) => {
-    architectureDataManager.exportToFile(filename);
-  }, []);
+    storeExportToFile(filename);
+  }, [storeExportToFile]);
 
-  // Save to file (explicit save)
   const saveToFile = useCallback((filename?: string) => {
-    architectureDataManager.saveToFile(filename);
-  }, []);
+    storeSaveToFile(filename);
+  }, [storeSaveToFile]);
 
-  // Load from file (replace current data)
   const loadFromFile = useCallback(async (file: File) => {
-    await architectureDataManager.loadFromFile(file);
-    // Return the updated data
-    if (currentData) {
-      const nodes = currentData.nodes.map((node) =>
-        architectureDataManager.convertArchNodeToReactFlowNode(node)
-      );
-      const edges = currentData.connections.map((conn) =>
-        architectureDataManager.convertConnectionToReactFlowEdge(conn)
-      );
-      return { nodes, edges };
-    }
-    return { nodes: [], edges: [] };
-  }, [currentData]);
+    return storeLoadFromFile(file);
+  }, [storeLoadFromFile]);
 
-  // Clear all data
   const clear = useCallback(() => {
-    architectureDataManager.clear();
-  }, []);
+    storeClear();
+  }, [storeClear]);
 
-  // Convert current data to ReactFlow format
-  const convertToReactFlow = useCallback((): { nodes: Node[], edges: Edge[] } => {
-    if (!currentData) {
-      return { nodes: [], edges: [] };
-    }
-
-    const nodes = currentData.nodes.map((node) =>
-      architectureDataManager.convertArchNodeToReactFlowNode(node)
-    );
-
-    const edges = currentData.connections.map((conn) =>
-      architectureDataManager.convertConnectionToReactFlowEdge(conn)
-    );
-
-    return { nodes, edges };
-  }, [currentData]);
+  const convertToReactFlow = useCallback(() => {
+    return storeConvertToReactFlow();
+  }, [storeConvertToReactFlow]);
 
   return {
     // Data
     currentData,
     isLoading,
+    hasUnsavedChanges,
 
     // Actions
     createNew,
