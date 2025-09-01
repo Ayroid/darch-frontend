@@ -25,7 +25,7 @@ export interface NodeConnection {
 
 export interface ArchitectureNode {
   id: string;
-  type: 'awsService' | 'awsContainer';
+  nodeType: 'awsService' | 'awsContainer';
   serviceType: string; // e.g., 'ec2', 'vpc', 's3'
   name: string;
   icon: string;

@@ -185,7 +185,7 @@ const convertReactFlowNodeToArchNode = (node: Node, nodeConfig?: AWSResourceConf
 	const data = node.data as Record<string, unknown>;
 	return {
 		id: node.id,
-		type: node.type as "awsService" | "awsContainer",
+		nodeType: node.type as "awsService" | "awsContainer",
 		serviceType: (typeof data?.serviceId === 'string' ? data.serviceId : 
 					 typeof data?.name === 'string' ? data.name.toLowerCase() : "unknown"),
 		name: (typeof data?.name === 'string' ? data.name : "Unnamed Service"),
@@ -217,7 +217,7 @@ const convertReactFlowEdgeToConnection = (edge: Edge): NodeConnection => {
 const convertArchNodeToReactFlowNode = (archNode: ArchitectureNode): Node => {
 	return {
 		id: archNode.id,
-		type: archNode.type,
+		type: archNode.nodeType,
 		position: archNode.position,
 		data: {
 			icon: archNode.icon,
