@@ -13,7 +13,7 @@ import {
 // import { Textarea } from "@/components/ui/textarea";
 // import { Checkbox } from "@/components/ui/checkbox";
 import { PublicSubnetConfiguration } from "@/lib/types/aws-resources";
-import { AWS_REGIONS_WITH_AZS } from "@/lib/data/aws_data";
+import { AWS_REGIONS_WITH_AZS } from "@/lib/data/aws_regions";
 
 interface PublicSubnetConfigurationFormProps {
 	config: PublicSubnetConfiguration;

@@ -11,7 +11,7 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { VPCConfiguration } from "@/lib/types/aws-resources";
-import { AWS_REGIONS_WITH_NAMES } from "@/lib/data/aws_data";
+import { AWS_REGIONS_WITH_NAMES } from "@/lib/data/aws_regions";
 import { useFormValidation } from "@/lib/stores/hooks/use-form-validation";
 import { useConfigurationContext } from "@/lib/stores";
 

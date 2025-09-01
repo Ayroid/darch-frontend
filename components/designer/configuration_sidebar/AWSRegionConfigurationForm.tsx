@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 // import { Textarea } from "@/components/ui/textarea";
 // import { Checkbox } from "@/components/ui/checkbox";
 import { AWSRegionConfiguration } from "@/lib/types/aws-resources";
-import { AWS_REGIONS_WITH_NAMES } from "@/lib/data/aws_data";
+import { AWS_REGIONS_WITH_NAMES } from "@/lib/data/aws_regions";
 
 interface AWSRegionConfigurationFormProps {
 	config: AWSRegionConfiguration;
@@ -81,7 +81,7 @@ const AWSRegionConfigurationForm: React.FC<AWSRegionConfigurationFormProps> = ({
 			</div>
 			{/* Region Name */}
 			<div className="space-y-2">
-				<Label htmlFor="region-name">Region Name</Label>
+				<Label htmlFor="region-name">Name</Label>
 				<Input
 					id="region-name"
 					placeholder="Enter region name"
