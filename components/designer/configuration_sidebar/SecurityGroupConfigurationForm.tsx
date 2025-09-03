@@ -15,6 +15,8 @@ import { Button } from "@/components/ui/button";
 import type { SecurityGroupConfiguration, SecurityGroupRule } from "@/lib/types/aws-resources";
 import { useConfigurationContext } from "@/lib/stores";
 import { useFormValidation } from "@/lib/stores/hooks/use-form-validation";
+import { useAutoConfiguration } from "@/hooks/use-auto-configuration";
+import { TooltipProvider, Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface SecurityGroupConfigurationFormProps {
   config: SecurityGroupConfiguration;
@@ -41,6 +43,10 @@ const SecurityGroupConfigurationForm: React.FC<SecurityGroupConfigurationFormPro
 }) => {
   const { nodeId, serviceId } = useConfigurationContext();
   const { validateField } = useFormValidation(nodeId, serviceId || "", config);
+  const { isFieldDisabled } = useAutoConfiguration({
+    nodeId: nodeId || '',
+    resourceType: 'aws-security-group'
+  });
 
   const handleFieldChange = (field: keyof SecurityGroupConfiguration, value: unknown) => {
     const updatedConfig: SecurityGroupConfiguration = {
@@ -88,30 +94,43 @@ const SecurityGroupConfigurationForm: React.FC<SecurityGroupConfigurationFormPro
   };
 
   return (
-    <div className="space-y-6">
-      {/* Basic */}
-      <div className="space-y-4">
-        <h3 className="text-sm font-semibold text-gray-700 border-b pb-2">Basic</h3>
+    <TooltipProvider>
+      <div className="space-y-6">
+        {/* Basic */}
+        <div className="space-y-4">
+          <h3 className="text-sm font-semibold text-gray-700 border-b pb-2">Basic</h3>
 
-        <div className="space-y-2">
-          <Label htmlFor="sg-name">Security Group Name<span className="text-red-600">*</span></Label>
-          <Input
-            id="sg-name"
-            value={config.serviceName || ""}
-            onChange={(e) => handleFieldChange("serviceName", e.target.value)}
-            placeholder="e.g., WebSecurityGroup"
-          />
-        </div>
+          <div className="space-y-2">
+            <Label htmlFor="sg-name">Security Group Name<span className="text-red-600">*</span></Label>
+            <Input
+              id="sg-name"
+              value={config.serviceName || ""}
+              onChange={(e) => handleFieldChange("serviceName", e.target.value)}
+              placeholder="e.g., WebSecurityGroup"
+            />
+          </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="vpcId">VPC ID<span className="text-red-600">*</span></Label>
-          <Input
-            id="vpcId"
-            value={config.vpcId || ""}
-            onChange={(e) => handleFieldChange("vpcId", e.target.value)}
-            placeholder="e.g., vpc-0abc123def456"
-          />
-        </div>
+          <div className="space-y-2">
+            <Label htmlFor="vpcId">VPC ID<span className="text-red-600">*</span></Label>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div>
+                  <Input
+                    id="vpcId"
+                    value={config.vpcId || ""}
+                    onChange={(e) => handleFieldChange("vpcId", e.target.value)}
+                    placeholder="e.g., vpc-0abc123def456"
+                    disabled={isFieldDisabled('vpcId')}
+                  />
+                </div>
+              </TooltipTrigger>
+              {isFieldDisabled('vpcId') && (
+                <TooltipContent>
+                  <p>This field is auto-configured from the parent VPC container</p>
+                </TooltipContent>
+              )}
+            </Tooltip>
+          </div>
 
         <div className="space-y-2">
           <Label htmlFor="description">Description</Label>
@@ -238,7 +257,8 @@ const SecurityGroupConfigurationForm: React.FC<SecurityGroupConfigurationFormPro
           </div>
         ))}
       </div>
-    </div>
+      </div>
+    </TooltipProvider>
   );
 };
 

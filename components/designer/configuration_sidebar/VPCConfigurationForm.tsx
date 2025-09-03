@@ -14,6 +14,8 @@ import { VPCConfiguration } from "@/lib/types/aws-resources";
 import { AWS_REGIONS_WITH_NAMES } from "@/lib/data/aws_regions";
 import { useFormValidation } from "@/lib/stores/hooks/use-form-validation";
 import { useConfigurationContext } from "@/lib/stores";
+import { useAutoConfiguration } from "@/hooks/use-auto-configuration";
+import { TooltipProvider, Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface VPCConfigurationFormProps {
 	config: VPCConfiguration;
@@ -27,6 +29,10 @@ const VPCConfigurationForm: React.FC<VPCConfigurationFormProps> = ({
 	// Get context and validation
 	const { nodeId, serviceId } = useConfigurationContext();
 	const { validateField } = useFormValidation(nodeId, serviceId || "", config);
+	const { isFieldDisabled } = useAutoConfiguration({
+		nodeId: nodeId || '',
+		resourceType: 'aws-vpc'
+	});
 
 	const handleFieldChange = (field: string, value: unknown) => {
 		const updatedConfig = {
@@ -40,40 +46,55 @@ const VPCConfigurationForm: React.FC<VPCConfigurationFormProps> = ({
 	};
 
 	return (
-		<div className="space-y-4">
-			{/* Status indicator */}
+		<TooltipProvider>
+			<div className="space-y-4">
+				{/* Status indicator */}
 
-			<div className="space-y-2">
-				<Label htmlFor="vpc-name">
-					VPC Name <span className="text-red-600">*</span>
-				</Label>
-				<Input
-					id="vpc-name"
-					placeholder="Enter VPC name"
-					value={config.serviceName || ""}
-					onChange={(e) => handleFieldChange("serviceName", e.target.value)}
-				/>
-			</div>
+				<div className="space-y-2">
+					<Label htmlFor="vpc-name">
+						VPC Name <span className="text-red-600">*</span>
+					</Label>
+					<Input
+						id="vpc-name"
+						placeholder="Enter VPC name"
+						value={config.serviceName || ""}
+						onChange={(e) => handleFieldChange("serviceName", e.target.value)}
+					/>
+				</div>
 
 			<div className="space-y-2">
 				<Label htmlFor="region">
 					Region <span className="text-red-600">*</span>
 				</Label>
-				<Select
-					value={config.region || ""}
-					onValueChange={(value) => handleFieldChange("region", value)}
-				>
-					<SelectTrigger className="w-full">
-						<SelectValue placeholder="Select region" />
-					</SelectTrigger>
-					<SelectContent>
-						{AWS_REGIONS_WITH_NAMES.map((region) => (
-							<SelectItem key={region.region} value={region.region}>
-								{region.region}
-							</SelectItem>
-						))}
-					</SelectContent>
-				</Select>
+				<TooltipProvider>
+					<Tooltip>
+						<TooltipTrigger asChild>
+							<div>
+								<Select
+									value={config.region || ""}
+									onValueChange={(value) => handleFieldChange("region", value)}
+									disabled={isFieldDisabled('region')}
+								>
+									<SelectTrigger className="w-full">
+										<SelectValue placeholder="Select region" />
+									</SelectTrigger>
+									<SelectContent>
+										{AWS_REGIONS_WITH_NAMES.map((region) => (
+											<SelectItem key={region.region} value={region.region}>
+												{region.region}
+											</SelectItem>
+										))}
+									</SelectContent>
+								</Select>
+							</div>
+						</TooltipTrigger>
+						{isFieldDisabled('region') && (
+							<TooltipContent>
+								<p>This field is auto-configured from the parent Region container</p>
+							</TooltipContent>
+						)}
+					</Tooltip>
+				</TooltipProvider>
 			</div>
 
 			<div className="space-y-2">
@@ -159,7 +180,8 @@ const VPCConfigurationForm: React.FC<VPCConfigurationFormProps> = ({
 					Format: key=value, separated by commas
 				</p>
 			</div> */}
-		</div>
+			</div>
+		</TooltipProvider>
 	);
 };
 

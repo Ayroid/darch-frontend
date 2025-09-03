@@ -10,8 +10,6 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-// import { Textarea } from "@/components/ui/textarea";
-// import { Checkbox } from "@/components/ui/checkbox";
 import { AWSRegionConfiguration } from "@/lib/types/aws-resources";
 import { AWS_REGIONS_WITH_NAMES } from "@/lib/data/aws_regions";
 

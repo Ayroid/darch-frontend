@@ -11,9 +11,12 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { EC2Configuration } from "@/lib/types/aws-resources";
-import { ec2InstanceTypes, ebsVolumeTypes, tenancyOptions } from "@/lib/data/aws_ec2"
+import { ec2InstanceTypes, ebsVolumeTypes } from "@/lib/data/aws_ec2"
+import { useConfigurationContext } from "@/lib/stores";
+import { useAutoConfiguration } from "@/hooks/use-auto-configuration";
 
 interface EC2ConfigurationFormProps {
 	config: EC2Configuration;
@@ -24,6 +27,12 @@ const EC2ConfigurationForm: React.FC<EC2ConfigurationFormProps> = ({
 	config,
 	onChange,
 }) => {
+	const { nodeId } = useConfigurationContext();
+	const { isFieldDisabled, getFieldInfo } = useAutoConfiguration({
+		nodeId: nodeId || "",
+		resourceType: "aws-ec2",
+	});
+
 	const handleFieldChange = (field: string, value: unknown) => {
 		const updatedConfig = {
 			...config,
@@ -31,6 +40,10 @@ const EC2ConfigurationForm: React.FC<EC2ConfigurationFormProps> = ({
 		};
 		onChange(updatedConfig);
 	};
+
+	// Get auto-configuration info for fields
+	const availabilityZoneInfo = getFieldInfo("availabilityZone");
+	const subnetIdInfo = getFieldInfo("subnetId");
 
 	// const handleTagChange = (key: string, value: string) => {
 	// 	const currentTags = config.tags || {};
@@ -56,7 +69,8 @@ const EC2ConfigurationForm: React.FC<EC2ConfigurationFormProps> = ({
 	// };
 
 	return (
-		<div className="space-y-6">
+		<TooltipProvider>
+			<div className="space-y-6">
 			{/* Basic Configuration */}
 			<div className="space-y-4">
 				<h3 className="text-sm font-semibold text-gray-700 border-b pb-2">
@@ -120,27 +134,81 @@ const EC2ConfigurationForm: React.FC<EC2ConfigurationFormProps> = ({
 				</h3>
 
 				<div className="space-y-2">
-					<Label htmlFor="availabilityZone">Availability Zone<span className="text-red-600">*</span></Label>
+					<div className="flex items-center gap-2">
+						<Label htmlFor="availabilityZone">Availability Zone<span className="text-red-600">*</span></Label>
+						{availabilityZoneInfo?.isAutoConfigured && (
+							<Tooltip>
+								<TooltipTrigger>
+									<Badge variant="secondary" className="text-xs">
+										Auto
+									</Badge>
+								</TooltipTrigger>
+								<TooltipContent>
+									<p>Auto-configured from {availabilityZoneInfo.sourceName} ({availabilityZoneInfo.sourceType})</p>
+								</TooltipContent>
+							</Tooltip>
+						)}
+					</div>
 					<Input
 						id="availabilityZone"
 						value={config.availabilityZone || ""}
 						onChange={(e) => handleFieldChange("availabilityZone", e.target.value)}
 						placeholder="e.g., us-east-1a"
+						disabled={isFieldDisabled("availabilityZone")}
 					/>
+					{isFieldDisabled("availabilityZone") && (
+						<p className="text-xs text-muted-foreground">
+							This field is automatically configured based on the container hierarchy.
+						</p>
+					)}
 				</div>
 
 				<div className="space-y-2">
-					<Label htmlFor="subnetId">Subnet ID<span className="text-red-600">*</span></Label>
+					<div className="flex items-center gap-2">
+						<Label htmlFor="subnetId">Subnet ID<span className="text-red-600">*</span></Label>
+						{subnetIdInfo?.isAutoConfigured && (
+							<Tooltip>
+								<TooltipTrigger>
+									<Badge variant="secondary" className="text-xs">
+										Auto
+									</Badge>
+								</TooltipTrigger>
+								<TooltipContent>
+									<p>Auto-configured from {subnetIdInfo.sourceName} ({subnetIdInfo.sourceType})</p>
+								</TooltipContent>
+							</Tooltip>
+						)}
+					</div>
 					<Input
 						id="subnetId"
 						value={config.subnetId || ""}
 						onChange={(e) => handleFieldChange("subnetId", e.target.value)}
 						placeholder="e.g., subnet-12345678"
+						disabled={isFieldDisabled("subnetId")}
 					/>
+					{isFieldDisabled("subnetId") && (
+						<p className="text-xs text-muted-foreground">
+							This field is automatically configured based on the container hierarchy.
+						</p>
+					)}
 				</div>
 
 				<div className="space-y-2">
-					<Label htmlFor="securityGroups">Security Groups<span className="text-red-600">*</span></Label>
+					<div className="flex items-center gap-2">
+						<Label htmlFor="securityGroups">Security Groups<span className="text-red-600">*</span></Label>
+						{getFieldInfo("securityGroups")?.isAutoConfigured && (
+							<Tooltip>
+								<TooltipTrigger>
+									<Badge variant="secondary" className="text-xs">
+										Auto
+									</Badge>
+								</TooltipTrigger>
+								<TooltipContent>
+									<p>Auto-configured from Security Group containers</p>
+								</TooltipContent>
+							</Tooltip>
+						)}
+					</div>
 					<Textarea
 						id="securityGroups"
 						value={(config.securityGroups || []).join(", ")}
@@ -152,7 +220,13 @@ const EC2ConfigurationForm: React.FC<EC2ConfigurationFormProps> = ({
 						}
 						placeholder="sg-12345678, sg-87654321"
 						className="min-h-[60px]"
+						disabled={isFieldDisabled("securityGroups")}
 					/>
+					{isFieldDisabled("securityGroups") && (
+						<p className="text-xs text-muted-foreground">
+							This field is automatically configured from Security Group containers.
+						</p>
+					)}
 				</div>
 
 				<div className="space-y-2">
@@ -406,7 +480,8 @@ const EC2ConfigurationForm: React.FC<EC2ConfigurationFormProps> = ({
 					</button>
 				</div>
 			</div> */}
-		</div>
+			</div>
+		</TooltipProvider>
 	);
 };
 

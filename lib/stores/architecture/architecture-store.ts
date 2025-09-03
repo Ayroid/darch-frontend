@@ -9,7 +9,7 @@ import {
 	NodeConnection,
 	ArchitectureMetadata,
 } from '@/lib/types/architecture';
-import { 
+import {
 	AWSResourceConfiguration,
 	VPCConfiguration,
 	EC2Configuration,
@@ -21,6 +21,7 @@ import {
 } from '@/lib/types/aws-resources';
 import { getDefaultConfiguration } from '../configuration/default-configurations';
 import { filterValidFields } from '../configuration/configuration-utils';
+import { autoConfigureNode, autoConfigureAffectedNodes } from '../../auto-configuration';
 
 const DEFAULT_FILE_NAME = 'architecture.json';
 const AUTO_SAVE_DELAY = 1000; // 1 second debounce for auto-save
@@ -29,18 +30,18 @@ const AUTO_SAVE_DELAY = 1000; // 1 second debounce for auto-save
 interface ArchitectureState {
 	// Core architecture data
 	currentData: ArchitectureData | null;
-	
+
 	// Node configurations (integrated from configuration store)
 	nodeConfigurations: Record<string, AWSResourceConfiguration>;
-	
+
 	// UI state
 	selectedNodeId: string | null;
 	isLoading: boolean;
-	
+
 	// File management
 	currentFileName: string;
 	hasUnsavedChanges: boolean;
-	
+
 	// Auto-save management
 	autoSaveTimeout: NodeJS.Timeout | null;
 }
@@ -51,13 +52,13 @@ interface ArchitectureActions {
 	createNew: (metadata?: Partial<ArchitectureMetadata>) => ArchitectureData;
 	clear: () => void;
 	getCurrentData: () => ArchitectureData | null;
-	
+
 	// Node management
 	addNode: (node: Node) => string;
 	removeNode: (nodeId: string) => void;
 	updateNodePosition: (nodeId: string, position: { x: number; y: number }) => void;
 	updateFromReactFlow: (nodes: Node[], edges: Edge[]) => void;
-	
+
 	// Configuration management
 	initializeNodeConfiguration: (nodeId: string, serviceId: string) => void;
 	updateNodeConfiguration: (
@@ -67,11 +68,11 @@ interface ArchitectureActions {
 	getNodeConfiguration: (nodeId: string) => AWSResourceConfiguration | null;
 	deleteNodeConfiguration: (nodeId: string) => void;
 	setSelectedNode: (nodeId: string | null) => void;
-	
+
 	// Connection management
 	addConnection: (edge: Edge) => void;
 	removeConnection: (connectionId: string) => void;
-	
+
 	// Import/Export
 	loadFromJSON: (jsonData: ArchitectureData) => { nodes: Node[]; edges: Edge[] };
 	exportToJSON: () => ArchitectureData | null;
@@ -79,7 +80,7 @@ interface ArchitectureActions {
 	exportToFile: (filename?: string) => void;
 	saveToFile: (filename?: string) => void;
 	loadFromFile: (file: File) => Promise<{ nodes: Node[]; edges: Edge[] }>;
-	
+
 	// Utility methods
 	convertToReactFlow: () => { nodes: Node[]; edges: Edge[] };
 	forceSave: () => void;
@@ -184,10 +185,10 @@ const getDefaultConfigurationForService = (serviceType: string): AWSResourceConf
 		} as SecurityGroupConfiguration,
 	};
 
-	return defaultConfigurations[serviceType] || { 
+	return defaultConfigurations[serviceType] || {
 		serviceName: 'Unknown Service',
 		serviceId: serviceType,
-		resourceType: serviceType 
+		resourceType: serviceType
 	} as AWSResourceConfiguration;
 };
 
@@ -197,7 +198,7 @@ const convertReactFlowNodeToArchNode = (node: Node, nodeConfig?: AWSResourceConf
 	return {
 		id: node.id,
 		nodeType: node.type as "awsService" | "awsContainer",
-		serviceType: (typeof data?.serviceId === 'string' ? data.serviceId : 
+		serviceType: (typeof data?.serviceId === 'string' ? data.serviceId :
 					 typeof data?.name === 'string' ? data.name.toLowerCase() : "unknown"),
 		name: (typeof data?.name === 'string' ? data.name : "Unnamed Service"),
 		icon: (typeof data?.icon === 'string' ? data.icon : ""),
@@ -312,7 +313,7 @@ export const useArchitectureStore = create<ArchitectureState & ArchitectureActio
 							state.autoSaveTimeout = null;
 						}
 					});
-					
+
 					// Create new after clearing
 					get().createNew();
 				},
@@ -357,6 +358,26 @@ export const useArchitectureStore = create<ArchitectureState & ArchitectureActio
 						state.currentData!.nodes.push(archNode);
 						state.currentData!.metadata.lastModified = new Date().toISOString();
 						state.hasUnsavedChanges = true;
+
+						// Auto-configure the new node based on its container hierarchy
+						const { nodes } = get().convertToReactFlow();
+						// Add the new node to the nodes array for hierarchy calculation
+						const nodesWithNew = [...nodes, node];
+
+						const { updatedConfig, autoPopulatedFields } = autoConfigureNode(
+							node.id,
+							nodeConfig,
+							nodesWithNew,
+							state.nodeConfigurations
+						);
+
+						// Apply auto-configuration if any fields were populated
+						if (autoPopulatedFields.length > 0) {
+							state.nodeConfigurations[node.id] = updatedConfig;
+							archNode.configuration = updatedConfig;
+
+							console.log(`Auto-configured new node ${node.id} with fields:`, autoPopulatedFields);
+						}
 					});
 
 					get().forceSave();
@@ -373,15 +394,15 @@ export const useArchitectureStore = create<ArchitectureState & ArchitectureActio
 								(conn) => conn.source !== nodeId && conn.target !== nodeId
 							);
 							state.currentData.metadata.lastModified = new Date().toISOString();
-							
+
 							// Remove configuration
 							delete state.nodeConfigurations[nodeId];
-							
+
 							// Clear selection if this node was selected
 							if (state.selectedNodeId === nodeId) {
 								state.selectedNodeId = null;
 							}
-							
+
 							state.hasUnsavedChanges = true;
 						}
 					});
@@ -464,7 +485,7 @@ export const useArchitectureStore = create<ArchitectureState & ArchitectureActio
 				updateNodeConfiguration: (nodeId, updates) => {
 					set((state) => {
 						const existingConfig = state.nodeConfigurations[nodeId] || {};
-						const resourceType = existingConfig.resourceType || 
+						const resourceType = existingConfig.resourceType ||
 							((updates as Record<string, unknown>).resourceType as string);
 
 						if (!resourceType) {
@@ -493,6 +514,31 @@ export const useArchitectureStore = create<ArchitectureState & ArchitectureActio
 								state.currentData.metadata.lastModified = new Date().toISOString();
 								state.hasUnsavedChanges = true;
 							}
+
+							// Auto-configure affected child nodes
+							const { nodes } = get().convertToReactFlow();
+							const affectedUpdates = autoConfigureAffectedNodes(
+								nodeId,
+								nodes,
+								state.nodeConfigurations
+							);
+
+							// Apply auto-configuration updates
+							for (const { nodeId: affectedNodeId, updatedConfig } of affectedUpdates) {
+								state.nodeConfigurations[affectedNodeId] = updatedConfig;
+
+								// Update the corresponding node in architecture data
+								const affectedNode = state.currentData.nodes.find((n) => n.id === affectedNodeId);
+								if (affectedNode) {
+									affectedNode.configuration = updatedConfig;
+								}
+							}
+
+							// Log auto-configuration results
+							if (affectedUpdates.length > 0) {
+								console.log(`Auto-configured ${affectedUpdates.length} nodes after updating ${nodeId}:`,
+									affectedUpdates.map(u => ({ nodeId: u.nodeId, fields: u.autoPopulatedFields })));
+							}
 						}
 					});
 
@@ -507,7 +553,7 @@ export const useArchitectureStore = create<ArchitectureState & ArchitectureActio
 				deleteNodeConfiguration: (nodeId) => {
 					set((state) => {
 						delete state.nodeConfigurations[nodeId];
-						
+
 						// Update architecture data
 						if (state.currentData) {
 							const node = state.currentData.nodes.find((n) => n.id === nodeId);
@@ -599,11 +645,11 @@ export const useArchitectureStore = create<ArchitectureState & ArchitectureActio
 							try {
 								const jsonData = JSON.parse(e.target?.result as string);
 								const result = get().loadFromJSON(jsonData);
-								
+
 								set((state) => {
 									state.currentFileName = file.name;
 								});
-								
+
 								resolve(result);
 							} catch (error: unknown) {
 								reject(
@@ -666,7 +712,7 @@ export const useArchitectureStore = create<ArchitectureState & ArchitectureActio
 				forceSave: () => {
 					// Auto-save logic (in a real app, this might save to backend)
 					console.log('Architecture data auto-saved');
-					
+
 					set((state) => {
 						if (state.autoSaveTimeout) {
 							clearTimeout(state.autoSaveTimeout);

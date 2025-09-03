@@ -634,7 +634,7 @@ export const createNodeHandlers = (
 				setNodes((currentNodes) => {
 					// Use batch update for better performance with multiple containers
 					if (changedNodeIds.size > 1) {
-						return batchUpdateNodeRelationships(currentNodes);
+						return batchUpdateNodeRelationships(currentNodes, changedNodeIds, true);
 					} else {
 						// Single node update with drag end flag
 						return updateNodeParentRelationships(currentNodes);

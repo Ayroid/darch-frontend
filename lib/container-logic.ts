@@ -22,8 +22,7 @@ import {
   getGroupedHierarchyOrder
 } from "./parent-child-logic";
 
-// COMMENTED OUT: Import parent-child logic (under development)
-/*
+// Import parent-child logic (now enabled for auto-configuration)
 import {
   NodeBounds,
   getNodeBounds,
@@ -38,16 +37,14 @@ import {
   updateNodeParentRelationship,
   getContainerHierarchy,
   validateContainerRelationships,
-  getContainerHierarchyOrder,
   canContainerContainContainer,
   getContainerChildren,
   clearParentChildCaches,
   invalidateNodeCache
 } from "./parent-child-logic";
-*/
 
-// COMMENTED OUT: Export types
-// export type { NodeBounds };
+// Export types
+export type { NodeBounds };
 
 // Export shipping-ready z-index functions
 export {
@@ -61,8 +58,7 @@ export {
   getGroupedHierarchyOrder
 };
 
-// COMMENTED OUT: Export parent-child functions (under development)
-/*
+// Export parent-child functions (now enabled)
 export {
   getNodeBounds,
   isRectangleInside,
@@ -76,20 +72,17 @@ export {
   updateNodeParentRelationship,
   getContainerHierarchy,
   validateContainerRelationships,
-  getContainerHierarchyOrder,
   canContainerContainContainer,
   getContainerChildren,
   invalidateNodeCache
 };
-*/
 
 /**
  * Clear all caches - unified function for both z-index and parent-child caches
- * CURRENTLY: Only clearing z-index caches (parent-child logic commented out)
  */
 export function clearContainerCaches(): void {
   clearZIndexCaches();
-  // COMMENTED OUT: clearParentChildCaches();
+  clearParentChildCaches();
 }
 
 /**
@@ -97,21 +90,16 @@ export function clearContainerCaches(): void {
  * Implements performance optimizations to skip expensive calculations during active dragging.
  * Handles z-index assignment and parent relationship updates in a single pass.
  *
- * DEVELOPMENT NOTE: Parent-child logic is currently commented out.
- * Only z-index logic is active for shipping.
- *
- * Time Complexity: O(n) - z-index only updates
+ * Time Complexity: O(n log n) with full parent-child logic
  */
 export function updateNodeParentRelationships(
-  nodes: Node[]
+  nodes: Node[],
+  forceUpdate: boolean = false,
+  isDragEnd: boolean = false
 ): Node[] {
   // Early return for empty arrays
   if (nodes.length === 0) return nodes;
 
-  // SHIPPING VERSION: Always use z-index-only updates for optimal performance
-  return updateNodesZIndex(nodes);
-
-  /* COMMENTED OUT: Parent-child relationship logic
   // PERFORMANCE: If any node is actively being dragged and this isn't a forced update
   // or drag end event, use shipping-ready z-index-only updates
   if (!forceUpdate && !isDragEnd) {
@@ -133,7 +121,7 @@ export function updateNodeParentRelationships(
     // Calculate z-index efficiently using shipping-ready logic
     const zIndex = getNodeZIndex(node, childToParent);
 
-    // Find potential new parent efficiently (parent-child logic - under development)
+    // Find potential new parent efficiently (parent-child logic)
     const potentialNewParent = findParentContainer(
       node,
       containers,
@@ -141,7 +129,7 @@ export function updateNodeParentRelationships(
       isDragEnd
     );
 
-    // Check if we should actually update the parent (parent-child logic - under development)
+    // Check if we should actually update the parent (parent-child logic)
     const shouldUpdate = shouldUpdateParent(
       node,
       potentialNewParent,
@@ -165,7 +153,7 @@ export function updateNodeParentRelationships(
     hasChanges = true;
     let updatedNode: Node = { ...node, zIndex };
 
-    // Handle parent relationship changes (parent-child logic - under development)
+    // Handle parent relationship changes (parent-child logic)
     if (node.parentId !== newParentId) {
       updatedNode = updateNodeParentRelationship(
         updatedNode,
@@ -183,7 +171,6 @@ export function updateNodeParentRelationships(
   }
 
   return updatedNodes;
-  */
 }
 
 /**
@@ -191,18 +178,13 @@ export function updateNodeParentRelationships(
  * Only processes nodes that have actually changed or are related to changed nodes.
  * Implements drag-aware optimizations to maintain performance during interactive operations.
  *
- * DEVELOPMENT NOTE: Parent-child logic is currently commented out.
- * Only z-index logic is active for shipping.
- *
- * Time Complexity: O(n) with z-index-only updates
+ * Time Complexity: O(n log n) with parent-child logic enabled
  */
 export function batchUpdateNodeRelationships(
-  nodes: Node[]
+  nodes: Node[],
+  changedNodeIds: Set<string>,
+  isDragEnd: boolean = false
 ): Node[] {
-  // SHIPPING VERSION: Always use z-index-only updates
-  return updateNodesZIndex(nodes);
-
-  /* COMMENTED OUT: Parent-child relationship logic
   // Only update nodes that actually changed or their potential parents/children
   const { parentToChildren, childToParent, containers } =
     buildParentChildMap(nodes);
@@ -235,7 +217,7 @@ export function batchUpdateNodeRelationships(
     // Use shipping-ready z-index logic
     const zIndex = getNodeZIndex(node, childToParent);
 
-    // Use parent-child logic (under development)
+    // Use parent-child logic
     const potentialNewParent = findParentContainer(
       node,
       containers,
@@ -243,7 +225,7 @@ export function batchUpdateNodeRelationships(
       isDragEnd
     );
 
-    // Check if we should actually update the parent (parent-child logic - under development)
+    // Check if we should actually update the parent
     const shouldUpdate = shouldUpdateParent(
       node,
       potentialNewParent,
@@ -270,5 +252,4 @@ export function batchUpdateNodeRelationships(
 
     return updatedNode;
   });
-  */
 }
