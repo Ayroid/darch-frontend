@@ -6,6 +6,7 @@ import type {
 	PrivateSubnetConfiguration,
 	PublicSubnetConfiguration,
 	AWSResourceConfiguration,
+	SecurityGroupConfiguration,
 } from "@/lib/types/aws-resources";
 
 // Default configuration values for different service types
@@ -88,6 +89,18 @@ export const defaultConfigurations: Record<
 		internetGatewayId: "",
 		tags: "",
 	} as Partial<PublicSubnetConfiguration>,
+
+	"aws-security-group": {
+		serviceName: "default-security-group",
+		resourceType: "aws-security-group",
+		vpcId: "",
+		description: "",
+		ingressRules: [],
+		egressRules: [
+			{ protocol: "all", port: "all", destination: "0.0.0.0/0", description: "All outbound" },
+		],
+		tags: {},
+	} as Partial<SecurityGroupConfiguration>,
 };
 
 // Utility function to get default configuration for a service type

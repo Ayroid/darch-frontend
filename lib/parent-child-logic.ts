@@ -27,14 +27,58 @@ const CONTAINER_HIERARCHY = [
   "aws-private-subnet",
   "aws-public-subnet",
   "aws-auto-scaling",
+  "aws-security-group",
   "aws-local-zone",
   "aws-corporate-datacenter",
   "aws-edge-location",
 ];
 
-const HIERARCHY_INDEX_MAP = new Map(
-  CONTAINER_HIERARCHY.map((type, index) => [type, index])
-);
+// Resource groups that should be at the same hierarchy level
+const RESOURCE_GROUPS = {
+  "subnet": ["aws-private-subnet", "aws-public-subnet"],
+  "zone": ["aws-availability-zone", "aws-local-zone"],
+  "scaling": ["aws-auto-scaling"],
+  "security": ["aws-security-group"],
+  "datacenter": ["aws-corporate-datacenter", "aws-edge-location"]
+};
+
+// Create hierarchy index map with grouped resources at same level
+const HIERARCHY_INDEX_MAP = new Map();
+const groupedHierarchy: string[][] = [];
+
+// Group resources by their logical level
+let currentLevel = 0;
+const processedResources = new Set<string>();
+
+// Process each resource in the original hierarchy
+for (const resource of CONTAINER_HIERARCHY) {
+  if (processedResources.has(resource)) continue;
+
+  // Find if this resource belongs to a group
+  let resourceGroup: string[] | null = null;
+  for (const resources of Object.values(RESOURCE_GROUPS)) {
+    if (resources.includes(resource)) {
+      resourceGroup = resources;
+      break;
+    }
+  }
+
+  if (resourceGroup) {
+    // Process all resources in this group at the same level
+    groupedHierarchy.push([...resourceGroup]);
+    for (const groupResource of resourceGroup) {
+      HIERARCHY_INDEX_MAP.set(groupResource, currentLevel);
+      processedResources.add(groupResource);
+    }
+  } else {
+    // Single resource at this level
+    groupedHierarchy.push([resource]);
+    HIERARCHY_INDEX_MAP.set(resource, currentLevel);
+    processedResources.add(resource);
+  }
+
+  currentLevel++;
+}
 
 /**
  * Clear all parent-child relationship caches
@@ -658,6 +702,7 @@ export function validateContainerRelationships(nodes: Node[]): boolean {
  * Returns a copy of the AWS container hierarchy order for external configuration.
  * The hierarchy defines the allowed nesting order from top-level (account) to bottom-level containers.
  * Used for validating and enforcing proper container relationships.
+ * Similar resources are grouped at the same level.
  *
  * Time Complexity: O(1)
  */
@@ -666,9 +711,20 @@ export const getContainerHierarchyOrder = (): string[] => {
 };
 
 /**
+ * Returns the grouped hierarchy showing which resources are at the same level.
+ * Similar resources like subnets appear in the same array.
+ *
+ * Time Complexity: O(1)
+ */
+export const getGroupedHierarchyOrder = (): string[][] => {
+  return groupedHierarchy.map(group => [...group]); // Return deep copy to prevent mutation
+};
+
+/**
  * Determines if one container can legally contain another based on AWS hierarchy rules.
  * Uses pre-computed hierarchy indices for O(1) lookup performance.
  * Containers can only contain other containers that come after them in the hierarchy.
+ * Similar resources (like different subnet types) are considered at the same level.
  *
  * Time Complexity: O(1) with pre-computed hierarchy map
  */
@@ -688,6 +744,11 @@ export function canContainerContainContainer(
   }
 
   // Container A can contain B if A comes before B in hierarchy
+  // Similar resources at the same level cannot contain each other
+  if (aIndex === bIndex) {
+    return false; // Same level resources cannot contain each other
+  }
+
   return aIndex < bIndex;
 }
 

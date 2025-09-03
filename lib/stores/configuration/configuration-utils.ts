@@ -84,6 +84,16 @@ const RESOURCE_TYPE_FIELDS: Record<string, Set<string>> = {
 		"mapPublicIpOnLaunch",
 		"tags",
 	]),
+	"aws-security-group": new Set([
+		"serviceName",
+		"resourceType",
+		"groupId",
+		"vpcId",
+		"description",
+		"ingressRules",
+		"egressRules",
+		"tags",
+	]),
 };
 
 /**

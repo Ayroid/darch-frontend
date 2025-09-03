@@ -326,6 +326,8 @@ export function AWSContainerNode({
 				return "#4A90E2"; // Blue for local zones
 			case "aws-edge-location":
 				return "#FF9500"; // Orange for edge locations
+			case "aws-security-group":
+				return "#FF0000"; // Orange for security groups
 			default:
 				return "#8C4FFF"; // Default purple (VPC color)
 		}
@@ -645,7 +647,7 @@ export const createNodeHandlers = (
 	// Handle copying selected nodes
 	const handleCopyNodes = () => {
 		const selectedNodes = nodes.filter((node) => node.selected);
-		
+
 		// Enhance copied nodes with their configurations
 		const nodesWithConfigs = selectedNodes.map((node) => {
 			const config = getNodeConfiguration?.(node.id);
@@ -657,7 +659,7 @@ export const createNodeHandlers = (
 				},
 			};
 		});
-		
+
 		console.log("Copied nodes with configurations:", nodesWithConfigs);
 		return nodesWithConfigs;
 	};

@@ -5,6 +5,7 @@ import AWSRegionConfigurationForm from "./AWSRegionConfigurationForm";
 import AvailabilityZoneConfigurationForm from "./AvailabilityZoneConfigurationForm";
 import PrivateSubnetConfigurationForm from "./PrivateSubnetConfigurationForm";
 import PublicSubnetConfigurationForm from "./PublicSubnetConfigurationForm";
+import SecurityGroupConfigurationForm from "./SecurityGroupConfigurationForm";
 
 const ConfigurationSidebarMap = {
 	VPCConfigurationForm,
@@ -14,6 +15,7 @@ const ConfigurationSidebarMap = {
 	AvailabilityZoneConfigurationForm,
 	PrivateSubnetConfigurationForm,
 	PublicSubnetConfigurationForm,
+	SecurityGroupConfigurationForm,
 };
 
 export { ConfigurationSidebarMap };

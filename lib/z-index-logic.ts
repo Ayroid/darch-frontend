@@ -9,6 +9,26 @@ import { Node } from "@xyflow/react";
 // Cache for depth calculations
 const depthCache = new Map<string, number>();
 
+// Helper function to get the base z-index for similar resources
+function getResourceGroupZIndex(serviceId: string): number {
+  // Base z-indices for different resource groups
+  const GROUP_Z_INDEX_MAP = {
+    "aws-account": 10,
+    "aws-region": 20,
+    "aws-availability-zone": 30,
+    "aws-local-zone": 30, // Same as availability-zone
+    "aws-vpc": 40,
+    "aws-private-subnet": 50,
+    "aws-public-subnet": 50, // Same as private-subnet
+    "aws-auto-scaling": 60,
+    "aws-security-group": 70,
+    "aws-corporate-datacenter": 80,
+    "aws-edge-location": 80, // Same as corporate-datacenter
+  };
+
+  return GROUP_Z_INDEX_MAP[serviceId as keyof typeof GROUP_Z_INDEX_MAP] || 100;
+}
+
 /**
  * Clear z-index related caches
  */
@@ -54,6 +74,7 @@ export function calculateContainerDepth(
  * Calculates the appropriate z-index for a node based on its type and hierarchy depth.
  * Container nodes get lower z-index values to appear behind their children.
  * Service nodes get higher z-index values to appear in front of containers.
+ * Similar resources (like subnets) get the same base z-index to appear at the same level.
  *
  * Time Complexity: O(1) amortized through depth caching
  *
@@ -65,15 +86,16 @@ export function getNodeZIndex(
   node: Node,
   childToParentMap: Map<string, string>
 ): number {
-  const baseZIndex = 1;
-  const containerZIndexIncrement = 10;
   const serviceNodeZIndex = 1000;
-
   const depth = calculateContainerDepth(node, childToParentMap);
 
   if (node.data?.isContainer) {
-    return baseZIndex + depth * containerZIndexIncrement;
+    // Use grouped z-index for containers with similar resources at same level
+    const serviceId = (node.data?.serviceId as string) || "";
+    const baseZIndex = getResourceGroupZIndex(serviceId);
+    return baseZIndex + depth;
   } else {
+    // Service nodes always appear in front of containers
     return serviceNodeZIndex + depth;
   }
 }

@@ -111,6 +111,7 @@ function getResourceTypeName(serviceId: string): string {
 		case "aws-public-subnet": return "Public Subnet";
 		case "aws-region": return "Region";
 		case "aws-availability-zone": return "Availability Zone";
+		case "aws-security-group": return "Security Group";
 		default: return "Resource";
 	}
 }
@@ -257,6 +258,58 @@ export const useValidationStore = create<ValidationState & ValidationActions>()(
 
 						const tagsError = validateTags(tags);
 						if (tagsError) errors.push(tagsError);
+						break;
+					}
+
+					case "aws-security-group": {
+						const serviceName = getConfigProperty("serviceName") || "";
+						const vpcId = getConfigProperty("vpcId") || "";
+						const nameError = validateServiceName(serviceName, "Security Group");
+						if (nameError) errors.push(nameError);
+						if (!vpcId || !/^vpc-[a-z0-9]{8,}$/.test(vpcId)) {
+							errors.push("Valid VPC ID is required (e.g., vpc-0abc1234)");
+						}
+
+						// Validate rules
+						const cfgObj = config as unknown as Record<string, unknown>;
+						const ingressRules = cfgObj["ingressRules"] as unknown[] | undefined;
+						const egressRules = cfgObj["egressRules"] as unknown[] | undefined;
+
+						type RuleShape = { protocol?: unknown; port?: unknown; source?: unknown; destination?: unknown };
+						const validateRuleArray = (rules: unknown[] | undefined, type: "ingress" | "egress") => {
+							if (!rules) return;
+							rules.forEach((r, idx) => {
+								const rule = r as RuleShape;
+								const protocol = (rule.protocol ?? "").toString();
+								if (!["tcp", "udp", "icmp", "all"].includes(protocol)) {
+									errors.push(`${type} rule #${idx + 1}: invalid protocol`);
+								}
+								const portVal = rule.port as unknown;
+								if (typeof portVal === "string") {
+									if (portVal.toLowerCase() !== "all") {
+										errors.push(`${type} rule #${idx + 1}: port must be a number or 'all'`);
+									}
+								} else if (typeof portVal === "number") {
+									if (portVal < 0 || portVal > 65535) {
+										errors.push(`${type} rule #${idx + 1}: port must be between 0 and 65535`);
+									}
+								}
+								if (type === "ingress") {
+									const source = (rule.source ?? "") as string;
+									if (!source || (!source.includes("/") && !source.startsWith("sg-"))) {
+										errors.push(`${type} rule #${idx + 1}: source must be CIDR or SG ID`);
+									}
+								} else {
+									const dest = (rule.destination ?? "") as string;
+									if (!dest || (!dest.includes("/") && !dest.startsWith("sg-"))) {
+										errors.push(`${type} rule #${idx + 1}: destination must be CIDR or SG ID`);
+									}
+								}
+							});
+						};
+
+						validateRuleArray(ingressRules, "ingress");
+						validateRuleArray(egressRules, "egress");
 						break;
 					}
 

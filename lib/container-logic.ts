@@ -16,6 +16,12 @@ import {
   clearZIndexCaches
 } from "./z-index-logic";
 
+// Import shipping-ready hierarchy functions
+import {
+  getContainerHierarchyOrder,
+  getGroupedHierarchyOrder
+} from "./parent-child-logic";
+
 // COMMENTED OUT: Import parent-child logic (under development)
 /*
 import {
@@ -47,6 +53,12 @@ import {
 export {
   getNodeZIndex,
   updateNodesZIndex
+};
+
+// Export hierarchy utility functions
+export {
+  getContainerHierarchyOrder,
+  getGroupedHierarchyOrder
 };
 
 // COMMENTED OUT: Export parent-child functions (under development)

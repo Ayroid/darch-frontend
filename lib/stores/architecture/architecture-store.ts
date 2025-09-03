@@ -17,6 +17,7 @@ import {
 	AvailabilityZoneConfiguration,
 	PrivateSubnetConfiguration,
 	PublicSubnetConfiguration,
+	SecurityGroupConfiguration,
 } from '@/lib/types/aws-resources';
 import { getDefaultConfiguration } from '../configuration/default-configurations';
 import { filterValidFields } from '../configuration/configuration-utils';
@@ -171,6 +172,16 @@ const getDefaultConfigurationForService = (serviceType: string): AWSResourceConf
 			mapPublicIpOnLaunch: true,
 			tags: 'Type=Public',
 		} as PublicSubnetConfiguration,
+		'aws-security-group': {
+			serviceName: 'Security Group',
+			serviceId: 'aws-security-group',
+			resourceType: 'aws-security-group',
+			vpcId: '',
+			description: '',
+			ingressRules: [],
+			egressRules: [{ protocol: 'all', port: 'all', destination: '0.0.0.0/0', description: 'All outbound' }],
+			tags: {},
+		} as SecurityGroupConfiguration,
 	};
 
 	return defaultConfigurations[serviceType] || { 

@@ -191,6 +191,7 @@ export const AWS_SERVICE_TYPE_MAP = {
 	"aws-private-subnet": "PrivateSubnet",
 	"aws-region": "AWSRegion",
 	"aws-availability-zone": "AvailabilityZone",
+	"aws-security-group": "SecurityGroup",
 } as const;
 
 export type AWSResourceConfiguration =
@@ -200,10 +201,36 @@ export type AWSResourceConfiguration =
 	| PrivateSubnetConfiguration
 	| VPCConfiguration
 	| PublicSubnetConfiguration
+	| SecurityGroupConfiguration
 	| DefaultConfiguration;
 
 export type AWSServiceType = keyof typeof AWS_SERVICE_TYPE_MAP;
 export type AWSServiceName = (typeof AWS_SERVICE_TYPE_MAP)[AWSServiceType];
+
+// =============================================================================
+// SECURITY GROUP CONFIGURATION - NOW IMPLEMENTED
+// =============================================================================
+
+// Security Group Configuration
+export interface SecurityGroupConfiguration extends BaseAWSResource {
+	serviceName: string;
+	serviceId: string;
+	resourceType?: string;
+	groupId?: string;
+	vpcId: string;
+	description?: string;
+	ingressRules: SecurityGroupRule[];
+	egressRules: SecurityGroupRule[];
+	tags?: Record<string, string>;
+}
+
+export interface SecurityGroupRule {
+	protocol: 'tcp' | 'udp' | 'icmp' | 'all';
+	port: number | string; // can be port number or 'all'
+	source?: string; // CIDR or security group ID for ingress
+	destination?: string; // CIDR or security group ID for egress
+	description?: string;
+}
 
 // =============================================================================
 // COMMENTED OUT RESOURCES - NO CONFIGURATION FORMS AVAILABLE
@@ -212,21 +239,6 @@ export type AWSServiceName = (typeof AWS_SERVICE_TYPE_MAP)[AWSServiceType];
 // and are commented out until forms are implemented.
 
 /*
-// Security Group Configuration
-export interface SecurityGroupConfiguration extends BaseAWSResource {
-  groupId?: string;
-  vpcId: string;
-  ingressRules: SecurityGroupRule[];
-  egressRules: SecurityGroupRule[];
-}
-
-export interface SecurityGroupRule {
-  protocol: 'tcp' | 'udp' | 'icmp' | 'all';
-  port: number | string; // can be port number or 'all'
-  source?: string; // CIDR or security group ID for ingress
-  destination?: string; // CIDR or security group ID for egress
-  description?: string;
-}
 
 // Internet Gateway Configuration
 export interface InternetGatewayConfiguration extends BaseAWSResource {

@@ -36,7 +36,7 @@ const awsServices: AWSService[] = [
 		isContainer: true,
 		status: "ready",
 	},
-		{
+	{
 		id: "aws-availability-zone",
 		name: "Availability Zone",
 		icon: "/aws_icons/architecture_group_icons/Region_32.svg",
@@ -102,6 +102,7 @@ const awsServices: AWSService[] = [
 		name: "Security Group",
 		icon: "/aws_icons/architecture_group_icons/EC2-instance-contents_32.svg",
 		category: "Compute",
+		isContainer: true,
 		status: "ready",
 	},
 
@@ -615,12 +616,18 @@ export default function ServicesSidebar({
 														<div
 															key={service.id}
 															draggable
-															onDragStart={(event) => onDragStart(event, service)}
+															onDragStart={(event) =>
+																onDragStart(event, service)
+															}
 															className={`flex items-center p-3 border rounded-lg cursor-move transition-colors group bg-white border-gray-200 ${
 																service.isContainer
 																	? "hover:border-purple-500 hover:bg-purple-50"
 																	: "hover:border-blue-400 hover:bg-blue-50"
-															} ${service.status === "in-development" ? "opacity-50" : ""}`}
+															} ${
+																service.status === "in-development"
+																	? "opacity-50"
+																	: ""
+															}`}
 														>
 															<div className="relative w-8 h-8 mr-3 flex-shrink-0">
 																<Image
@@ -644,12 +651,18 @@ export default function ServicesSidebar({
 														<div
 															key={service.id}
 															draggable
-															onDragStart={(event) => onDragStart(event, service)}
+															onDragStart={(event) =>
+																onDragStart(event, service)
+															}
 															className={`flex flex-col items-center p-2 border rounded-lg cursor-move transition-colors group bg-white border-gray-200 ${
 																service.isContainer
 																	? "hover:border-blue-500 hover:bg-blue-50"
 																	: "hover:border-blue-400 hover:bg-blue-50"
-															} ${service.status === "in-development" ? "opacity-50" : ""}`}
+															} ${
+																service.status === "in-development"
+																	? "opacity-50"
+																	: ""
+															}`}
 														>
 															<div className="relative w-8 h-8 mb-1">
 																<Image

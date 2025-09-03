@@ -28,6 +28,8 @@ const awsServiceConfigurationMap: Record<string, ConfigurationFormComponent> = {
 		ConfigurationSidebarMap.PrivateSubnetConfigurationForm as ConfigurationFormComponent,
 	"aws-public-subnet":
 		ConfigurationSidebarMap.PublicSubnetConfigurationForm as ConfigurationFormComponent,
+	"aws-security-group":
+		ConfigurationSidebarMap.SecurityGroupConfigurationForm as ConfigurationFormComponent,
 };
 
 interface ConfigurationSidebarProps {
