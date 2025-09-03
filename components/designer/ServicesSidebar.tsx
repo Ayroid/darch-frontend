@@ -97,6 +97,13 @@ const awsServices: AWSService[] = [
 		category: "Compute",
 		status: "in-development",
 	},
+	{
+		id: "aws-security-group",
+		name: "Security Group",
+		icon: "/aws_icons/Architecture-Service-Icons_07312025/Arch_Security/32/Arch_AWS-Security-Group_32.svg",
+		category: "Compute",
+		status: "ready",
+	},
 
 	// Networking Services
 	{
