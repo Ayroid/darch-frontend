@@ -152,20 +152,20 @@ export { Input };
 <Input placeholder="Enter architecture name" />
 
 // Input with icon
-<Input 
+<Input
   icon={<Search className="w-4 h-4" />}
   placeholder="Search services..."
 />
 
 // Input with error state
-<Input 
+<Input
   error={!!errors.name}
   placeholder="VPC Name"
   {...register("name")}
 />
 
 // Input with suffix
-<Input 
+<Input
   placeholder="10.0.0.0"
   suffix={<span className="text-xs text-muted-foreground">/16</span>}
 />
@@ -308,9 +308,9 @@ export {
         Configure your architecture settings here.
       </DialogDescription>
     </DialogHeader>
-    
+
     {/* Dialog content */}
-    
+
     <DialogFooter>
       <Button variant="outline" onClick={() => setIsOpen(false)}>
         Cancel
@@ -525,7 +525,7 @@ const form = useForm<FormData>({
         </FormItem>
       )}
     />
-    
+
     <FormField
       control={form.control}
       name="cidrBlock"
@@ -539,7 +539,7 @@ const form = useForm<FormData>({
         </FormItem>
       )}
     />
-    
+
     <Button type="submit">Create VPC</Button>
   </form>
 </Form>
@@ -1061,7 +1061,7 @@ export {
         {/* Sidebar content */}
       </SidebarContent>
     </Sidebar>
-    
+
     <main className="flex-1">
       {/* Main content */}
     </main>
@@ -1444,7 +1444,7 @@ const ValidationWrapper = ({ value, schema, children }: ValidationWrapperProps) 
 <ValidationWrapper value={formData.cidrBlock} schema={cidrSchema}>
   {({ isValid, errors }) => (
     <div>
-      <Input 
+      <Input
         value={formData.cidrBlock}
         onChange={handleChange}
         className={!isValid ? "border-red-500" : ""}

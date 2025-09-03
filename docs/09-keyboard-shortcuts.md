@@ -254,7 +254,7 @@ const isInputElement = (target: HTMLElement): boolean => {
 // Enhanced input detection
 const shouldPreventShortcut = (event: KeyboardEvent): boolean => {
   const target = event.target as HTMLElement;
-  
+
   if (isInputElement(target)) {
     return true;
   }
@@ -262,7 +262,7 @@ const shouldPreventShortcut = (event: KeyboardEvent): boolean => {
   // Allow certain shortcuts even in input fields
   const { key, ctrlKey, metaKey } = event;
   const isModifier = ctrlKey || metaKey;
-  
+
   // Allow Ctrl+A in input fields for select all
   if (isModifier && key === "a" && isInputElement(target)) {
     return true;
@@ -326,13 +326,13 @@ const handleCopy = useCallback(() => {
       nodes: selectedNodes,
       timestamp: Date.now(),
     };
-    
+
     // Store in application clipboard
     setClipboard(clipboardData);
-    
+
     // Also copy to system clipboard as JSON
     navigator.clipboard.writeText(JSON.stringify(clipboardData));
-    
+
     toast.success(`Copied ${selectedNodes.length} node(s)`);
   }
 }, [getNodes, setClipboard]);
@@ -350,7 +350,7 @@ const handlePaste = useCallback(() => {
       },
       selected: true,
     }));
-    
+
     setNodes(prev => [...prev.map(n => ({ ...n, selected: false })), ...newNodes]);
     toast.success(`Pasted ${newNodes.length} node(s)`);
   }
@@ -370,7 +370,7 @@ const selectionShortcuts = {
 // Implementation
 const handleSelectAll = useCallback(() => {
   setNodes(nodes => nodes.map(node => ({ ...node, selected: true })));
-  
+
   const nodeCount = getNodes().length;
   if (nodeCount > 0) {
     toast.success(`Selected ${nodeCount} node(s)`);
@@ -420,8 +420,8 @@ const handleZoomReset = useCallback(() => {
 const handleFitView = useCallback(() => {
   const reactFlowInstance = getReactFlowInstance();
   if (reactFlowInstance) {
-    reactFlowInstance.fitView({ 
-      padding: 50, 
+    reactFlowInstance.fitView({
+      padding: 50,
       duration: 300,
       minZoom: 0.1,
       maxZoom: 2,
@@ -445,7 +445,7 @@ const toggleShortcuts = {
 const handleToggleGrid = useCallback(() => {
   const { toggleGrid } = useCanvasStore.getState();
   toggleGrid();
-  
+
   const { showGrid } = useCanvasStore.getState();
   toast.success(`Grid ${showGrid ? 'enabled' : 'disabled'}`);
 }, []);
@@ -453,7 +453,7 @@ const handleToggleGrid = useCallback(() => {
 const handleToggleMinimap = useCallback(() => {
   const { toggleMinimap } = useCanvasStore.getState();
   toggleMinimap();
-  
+
   const { showMinimap } = useCanvasStore.getState();
   toast.success(`Minimap ${showMinimap ? 'enabled' : 'disabled'}`);
 }, []);
@@ -497,12 +497,12 @@ export default function ArchitectureDesigner() {
   return (
     <div className="architecture-designer">
       {/* Main content */}
-      
+
       <KeyboardShortcutsHelp
         isOpen={showHelp}
         onClose={() => setShowHelp(false)}
       />
-      
+
       <ImportExportModal
         isOpen={showImportExport}
         onClose={() => setShowImportExport(false)}
@@ -652,7 +652,7 @@ export default function KeyboardShortcutsHelp({
 
         <div className="pt-4 border-t">
           <p className="text-sm text-gray-500">
-            Press <kbd className="px-1 py-0.5 bg-gray-100 rounded text-xs">?</kbd> 
+            Press <kbd className="px-1 py-0.5 bg-gray-100 rounded text-xs">?</kbd>
             to toggle this help dialog
           </p>
         </div>
@@ -676,7 +676,7 @@ const ShortcutHint = ({ shortcut, description }: { shortcut: string; description
 };
 
 // Usage in components
-<Button 
+<Button
   onClick={handleSave}
   className="relative group"
 >
@@ -693,7 +693,7 @@ const ShortcutHint = ({ shortcut, description }: { shortcut: string; description
 
 ```typescript
 // Detect platform and adjust modifiers
-const isMac = typeof navigator !== 'undefined' && 
+const isMac = typeof navigator !== 'undefined' &&
   /Mac|iPod|iPhone|iPad/.test(navigator.platform);
 
 const getModifierKey = () => isMac ? "metaKey" : "ctrlKey";
@@ -744,13 +744,13 @@ const defaultShortcuts: ShortcutConfig[] = [
 // Store shortcuts in settings
 const useShortcutSettings = () => {
   const [shortcuts, setShortcuts] = useState(defaultShortcuts);
-  
+
   const updateShortcut = (action: string, newShortcut: Partial<ShortcutConfig>) => {
-    setShortcuts(prev => 
+    setShortcuts(prev =>
       prev.map(s => s.action === action ? { ...s, ...newShortcut } : s)
     );
   };
-  
+
   return { shortcuts, updateShortcut };
 };
 ```
@@ -767,7 +767,7 @@ const announceAction = (action: string) => {
   announcement.setAttribute('aria-atomic', 'true');
   announcement.className = 'sr-only';
   announcement.textContent = `Action: ${action}`;
-  
+
   document.body.appendChild(announcement);
   setTimeout(() => document.body.removeChild(announcement), 1000);
 };
@@ -789,10 +789,10 @@ const useFocusManagement = () => {
     const focusableElements = container.querySelectorAll(
       'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
     );
-    
+
     const firstElement = focusableElements[0] as HTMLElement;
     const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
-    
+
     const handleTabKey = (e: KeyboardEvent) => {
       if (e.key === 'Tab') {
         if (e.shiftKey) {
@@ -808,11 +808,11 @@ const useFocusManagement = () => {
         }
       }
     };
-    
+
     container.addEventListener('keydown', handleTabKey);
     return () => container.removeEventListener('keydown', handleTabKey);
   }, []);
-  
+
   return { trapFocus };
 };
 ```
@@ -826,29 +826,29 @@ const useFocusManagement = () => {
 const useOptimizedShortcuts = () => {
   const lastKeyTime = useRef(0);
   const DEBOUNCE_TIME = 50; // 50ms debounce
-  
+
   const handleKeyDown = useCallback((event: KeyboardEvent) => {
     const now = Date.now();
     if (now - lastKeyTime.current < DEBOUNCE_TIME) {
       return;
     }
     lastKeyTime.current = now;
-    
+
     // Process shortcuts...
   }, []);
-  
+
   return { handleKeyDown };
 };
 
 // Efficient cleanup
 useEffect(() => {
   const controller = new AbortController();
-  
+
   window.addEventListener("keydown", handleKeyDown, {
     signal: controller.signal,
     passive: false,
   });
-  
+
   return () => controller.abort();
 }, [handleKeyDown]);
 ```

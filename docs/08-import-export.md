@@ -359,14 +359,14 @@ const handleFileSelect = useCallback(
       const { nodes, edges } = await importFromFile(file);
       onDataLoaded?.(nodes, edges);
       onClose();
-      
+
       // Show success notification
       toast.success(`Architecture "${file.name}" imported successfully`);
     } catch (error) {
       console.error("Import failed:", error);
       toast.error(
-        error instanceof Error 
-          ? error.message 
+        error instanceof Error
+          ? error.message
           : "Failed to import architecture"
       );
     } finally {
@@ -387,7 +387,7 @@ const handleFileSelect = useCallback(
 const handleDrop = useCallback((event: React.DragEvent) => {
   event.preventDefault();
   const file = event.dataTransfer.files[0];
-  
+
   if (file && file.type === "application/json") {
     handleFileSelect({ target: { files: [file] } } as any);
   }
@@ -547,7 +547,7 @@ return (
     <Button onClick={handleImportExport}>
       Import/Export
     </Button>
-    
+
     <ImportExportModal
       isOpen={showImportExport}
       onClose={() => setShowImportExport(false)}
@@ -653,7 +653,7 @@ const validateArchitectureData = (data: unknown): ArchitectureData => {
 ```typescript
 const handleImportError = (error: Error, file: File) => {
   console.error('Import failed:', error);
-  
+
   // Log detailed error information
   console.error('File details:', {
     name: file.name,
@@ -664,7 +664,7 @@ const handleImportError = (error: Error, file: File) => {
 
   // Show user-friendly error message
   let userMessage = 'Failed to import architecture file.';
-  
+
   if (error.message.includes('JSON')) {
     userMessage = 'Invalid JSON format. Please check your file.';
   } else if (error.message.includes('schema')) {
@@ -693,7 +693,7 @@ const recoverFromBackup = () => {
     const backup = localStorage.getItem('architecture-recovery');
     if (backup) {
       const { data, timestamp } = JSON.parse(backup);
-      
+
       // Only recover if backup is less than 24 hours old
       if (Date.now() - timestamp < 24 * 60 * 60 * 1000) {
         return data;

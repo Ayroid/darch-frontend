@@ -129,7 +129,7 @@ export function AWSContainerNode({
 
       {/* Resize Handles */}
       <div className="resize-handle bottom-right" />
-      
+
       {/* Connection Handles */}
       {/* Top, Right, Bottom, Left handles */}
     </div>
@@ -211,9 +211,9 @@ export const createNodeHandlers = (
   // Delete selected nodes
   const handleDeleteNodes = useCallback(() => {
     const selectedNodeIds = nodes.filter((node) => node.selected).map((node) => node.id);
-    
+
     setNodes((nds) => nds.filter((node) => !node.selected));
-    setEdges((eds) => eds.filter((edge) => 
+    setEdges((eds) => eds.filter((edge) =>
       !selectedNodeIds.includes(edge.source) && !selectedNodeIds.includes(edge.target)
     ));
   }, [nodes, setNodes, setEdges]);

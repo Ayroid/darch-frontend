@@ -84,11 +84,11 @@ interface ArchitectureActions {
 import { useArchitectureStore } from '@/lib/stores';
 
 function MyComponent() {
-  const { 
-    currentData, 
-    addNode, 
+  const {
+    currentData,
+    addNode,
     updateNodeConfiguration,
-    exportToFile 
+    exportToFile
   } = useArchitectureStore();
 
   const handleAddNode = (node: Node) => {
@@ -153,11 +153,11 @@ interface CanvasActions {
 import { useCanvasStore } from '@/lib/stores';
 
 function CanvasComponent() {
-  const { 
-    zoom, 
-    selectedNode, 
-    setZoom, 
-    setSelectedNode 
+  const {
+    zoom,
+    selectedNode,
+    setZoom,
+    setSelectedNode
   } = useCanvasStore();
 
   const handleZoomIn = () => setZoom(Math.min(zoom * 1.2, 3));
@@ -204,11 +204,11 @@ interface UIActions {
 import { useUIStore } from '@/lib/stores';
 
 function HeaderComponent() {
-  const { 
-    isSidebarOpen, 
-    toggleSidebar, 
-    isHelpOpen, 
-    setHelpOpen 
+  const {
+    isSidebarOpen,
+    toggleSidebar,
+    isHelpOpen,
+    setHelpOpen
   } = useUIStore();
 
   return (
@@ -310,7 +310,7 @@ Complex operations combine multiple stores:
 const handleSaveArchitecture = useCallback(() => {
   const { currentData } = useArchitectureStore.getState();
   const { addNotification } = useUIStore.getState();
-  
+
   try {
     exportToFile(currentData);
     addNotification({
@@ -454,7 +454,7 @@ export function useStoreIntegration() {
       canvas.setSelectedNode(node);
       ui.setConfigurationSidebarVisible(true);
     },
-    
+
     // Computed values
     hasUnsavedChanges: architecture.hasUnsavedChanges,
     canSave: !!architecture.currentData,

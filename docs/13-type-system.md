@@ -38,34 +38,34 @@ export interface ArchitectureData {
 export interface ArchitectureMetadata {
   /** Unique name for the architecture */
   name: string;
-  
+
   /** Optional description */
   description?: string;
-  
+
   /** Semantic version (e.g., "1.0.0") */
   version: string;
-  
+
   /** Creation timestamp */
   createdAt: string;
-  
+
   /** Last modification timestamp */
   lastModified: string;
-  
+
   /** Cloud provider */
   provider: CloudProvider;
-  
+
   /** Author information */
   author?: string;
-  
+
   /** License information */
   license?: string;
-  
+
   /** Tags for categorization */
   tags?: string[];
-  
+
   /** Architecture complexity level */
   complexity?: 'simple' | 'moderate' | 'complex' | 'enterprise';
-  
+
   /** Estimated monthly cost (if calculated) */
   estimatedCost?: {
     amount: number;
@@ -80,43 +80,43 @@ export interface ArchitectureMetadata {
 export interface ArchitectureNode {
   /** Unique identifier for the node */
   id: string;
-  
+
   /** Type of node (service or container) */
   nodeType: NodeType;
-  
+
   /** AWS service type identifier */
   serviceType: string;
-  
+
   /** Display name for the node */
   name: string;
-  
+
   /** Icon path or URL */
   icon: string;
-  
+
   /** Position on canvas */
   position: Position;
-  
+
   /** Dimensions for container nodes */
   dimensions?: Dimensions;
-  
+
   /** Service-specific configuration */
   configuration: AWSResourceConfiguration;
-  
+
   /** Whether this node can contain other nodes */
   isContainer: boolean;
-  
+
   /** Parent container ID (if any) */
   parentId?: string;
-  
+
   /** Custom styling */
   style?: NodeStyle;
-  
+
   /** Whether the node is currently selected */
   selected?: boolean;
-  
+
   /** Whether the node is locked from editing */
   locked?: boolean;
-  
+
   /** Custom data for extensions */
   customData?: Record<string, unknown>;
 }
@@ -127,37 +127,37 @@ export interface ArchitectureNode {
 export interface NodeConnection {
   /** Unique identifier for the connection */
   id: string;
-  
+
   /** Source node ID */
   source: string;
-  
+
   /** Target node ID */
   target: string;
-  
+
   /** Source connection handle */
   sourceHandle?: string;
-  
+
   /** Target connection handle */
   targetHandle?: string;
-  
+
   /** Connection type for styling */
   type: ConnectionType;
-  
+
   /** Connection label */
   label?: string;
-  
+
   /** Custom styling */
   style?: ConnectionStyle;
-  
+
   /** Whether the connection is bidirectional */
   bidirectional?: boolean;
-  
+
   /** Connection protocol or type */
   protocol?: 'http' | 'https' | 'tcp' | 'udp' | 'icmp' | 'custom';
-  
+
   /** Port information */
   port?: number | string;
-  
+
   /** Custom data */
   data?: Record<string, unknown>;
 }
@@ -209,10 +209,10 @@ export type CloudProvider = 'aws' | 'azure' | 'gcp' | 'multi-cloud';
 
 export type NodeType = 'awsService' | 'awsContainer' | 'customService' | 'customContainer';
 
-export type ConnectionType = 
-  | 'smoothstep' 
-  | 'straight' 
-  | 'step' 
+export type ConnectionType =
+  | 'smoothstep'
+  | 'straight'
+  | 'step'
   | 'simplebezier'
   | 'custom';
 
@@ -277,25 +277,25 @@ export interface ArchitectureStats {
 export interface AWSResourceConfiguration {
   /** Service name/identifier */
   serviceName: string;
-  
+
   /** AWS service ID */
   serviceId: string;
-  
+
   /** Resource type */
   resourceType: string;
-  
+
   /** AWS region */
   region?: string;
-  
+
   /** Resource tags */
   tags?: Record<string, string>;
-  
+
   /** Resource description */
   description?: string;
-  
+
   /** Whether the resource is enabled */
   enabled?: boolean;
-  
+
   /** Custom configuration data */
   [key: string]: unknown;
 }
@@ -305,13 +305,13 @@ export interface AWSResourceConfiguration {
  */
 export interface AWSRegionConfiguration extends AWSResourceConfiguration {
   resourceType: 'aws-region';
-  
+
   /** AWS region code */
   region: AWSRegion;
-  
+
   /** Human-readable region name */
   regionName: string;
-  
+
   /** Whether this is the default region */
   isDefault?: boolean;
 }
@@ -321,25 +321,25 @@ export interface AWSRegionConfiguration extends AWSResourceConfiguration {
  */
 export interface VPCConfiguration extends AWSResourceConfiguration {
   resourceType: 'aws-vpc';
-  
+
   /** VPC CIDR block */
   cidrBlock: string;
-  
+
   /** Enable DNS support */
   enableDnsSupport: boolean;
-  
+
   /** Enable DNS hostnames */
   enableDnsHostnames: boolean;
-  
+
   /** Instance tenancy */
   tenancy: 'default' | 'dedicated';
-  
+
   /** VPC ID (if existing) */
   vpcId?: string;
-  
+
   /** Associated DHCP options set */
   dhcpOptionsId?: string;
-  
+
   /** VPC endpoints */
   endpoints?: VPCEndpoint[];
 }
@@ -349,25 +349,25 @@ export interface VPCConfiguration extends AWSResourceConfiguration {
  */
 export interface SubnetConfiguration extends AWSResourceConfiguration {
   resourceType: 'aws-subnet';
-  
+
   /** Subnet CIDR block */
   cidrBlock: string;
-  
+
   /** Availability zone */
   availabilityZone: string;
-  
+
   /** Parent VPC ID */
   vpcId: string;
-  
+
   /** Whether subnet is public */
   isPublic: boolean;
-  
+
   /** Map public IP on launch */
   mapPublicIpOnLaunch: boolean;
-  
+
   /** Associated route table */
   routeTableId?: string;
-  
+
   /** Associated network ACL */
   networkAclId?: string;
 }
@@ -377,49 +377,49 @@ export interface SubnetConfiguration extends AWSResourceConfiguration {
  */
 export interface EC2Configuration extends AWSResourceConfiguration {
   resourceType: 'aws-ec2';
-  
+
   /** Instance type */
   instanceType: EC2InstanceType;
-  
+
   /** AMI ID */
   amiId: string;
-  
+
   /** Key pair name */
   keyName: string;
-  
+
   /** Subnet ID */
   subnetId: string;
-  
+
   /** Security group IDs */
   securityGroupIds: string[];
-  
+
   /** User data script */
   userData?: string;
-  
+
   /** IAM instance profile */
   iamInstanceProfile?: string;
-  
+
   /** Monitoring enabled */
   monitoring: boolean;
-  
+
   /** Termination protection */
   terminationProtection: boolean;
-  
+
   /** EBS optimized */
   ebsOptimized: boolean;
-  
+
   /** Root volume configuration */
   rootVolume: EBSVolumeConfiguration;
-  
+
   /** Additional EBS volumes */
   additionalVolumes?: EBSVolumeConfiguration[];
-  
+
   /** Network interfaces */
   networkInterfaces?: NetworkInterface[];
-  
+
   /** Auto-recovery enabled */
   autoRecovery?: boolean;
-  
+
   /** Placement configuration */
   placement?: PlacementConfiguration;
 }
@@ -429,16 +429,16 @@ export interface EC2Configuration extends AWSResourceConfiguration {
  */
 export interface SecurityGroupConfiguration extends AWSResourceConfiguration {
   resourceType: 'aws-security-group';
-  
+
   /** VPC ID */
   vpcId: string;
-  
+
   /** Ingress rules */
   ingressRules: SecurityGroupRule[];
-  
+
   /** Egress rules */
   egressRules: SecurityGroupRule[];
-  
+
   /** Security group ID (if existing) */
   securityGroupId?: string;
 }
@@ -449,22 +449,22 @@ export interface SecurityGroupConfiguration extends AWSResourceConfiguration {
 export interface SecurityGroupRule {
   /** Protocol */
   protocol: 'tcp' | 'udp' | 'icmp' | 'all';
-  
+
   /** Port number (for single port) */
   port?: number;
-  
+
   /** Port range */
   portRange?: {
     from: number;
     to: number;
   };
-  
+
   /** Source/destination type */
   sourceType: 'cidr' | 'securityGroup' | 'prefixList';
-  
+
   /** Source/destination value */
   source: string;
-  
+
   /** Rule description */
   description?: string;
 }
@@ -475,28 +475,28 @@ export interface SecurityGroupRule {
 export interface EBSVolumeConfiguration {
   /** Volume type */
   volumeType: 'gp2' | 'gp3' | 'io1' | 'io2' | 'st1' | 'sc1';
-  
+
   /** Volume size in GB */
   size: number;
-  
+
   /** IOPS (for provisioned IOPS volumes) */
   iops?: number;
-  
+
   /** Throughput (for gp3 volumes) */
   throughput?: number;
-  
+
   /** Encryption enabled */
   encrypted: boolean;
-  
+
   /** KMS key ID for encryption */
   kmsKeyId?: string;
-  
+
   /** Delete on termination */
   deleteOnTermination: boolean;
-  
+
   /** Device name */
   deviceName?: string;
-  
+
   /** Snapshot ID (for restore) */
   snapshotId?: string;
 }
@@ -507,22 +507,22 @@ export interface EBSVolumeConfiguration {
 export interface NetworkInterface {
   /** Device index */
   deviceIndex: number;
-  
+
   /** Subnet ID */
   subnetId: string;
-  
+
   /** Security group IDs */
   securityGroupIds: string[];
-  
+
   /** Private IP address */
   privateIpAddress?: string;
-  
+
   /** Associate public IP */
   associatePublicIp: boolean;
-  
+
   /** Delete on termination */
   deleteOnTermination: boolean;
-  
+
   /** Description */
   description?: string;
 }
@@ -533,22 +533,22 @@ export interface NetworkInterface {
 export interface PlacementConfiguration {
   /** Availability zone */
   availabilityZone?: string;
-  
+
   /** Placement group */
   groupName?: string;
-  
+
   /** Host ID (for dedicated hosts) */
   hostId?: string;
-  
+
   /** Tenancy */
   tenancy?: 'default' | 'dedicated' | 'host';
-  
+
   /** Spread domain */
   spreadDomain?: string;
-  
+
   /** Host resource group ARN */
   hostResourceGroupArn?: string;
-  
+
   /** Partition number */
   partitionNumber?: number;
 }
@@ -559,22 +559,22 @@ export interface PlacementConfiguration {
 export interface VPCEndpoint {
   /** Service name */
   serviceName: string;
-  
+
   /** Endpoint type */
   type: 'Gateway' | 'Interface';
-  
+
   /** Associated subnets (for interface endpoints) */
   subnetIds?: string[];
-  
+
   /** Security group IDs (for interface endpoints) */
   securityGroupIds?: string[];
-  
+
   /** Route table IDs (for gateway endpoints) */
   routeTableIds?: string[];
-  
+
   /** Policy document */
   policyDocument?: string;
-  
+
   /** Private DNS enabled */
   privateDnsEnabled?: boolean;
 }
@@ -584,70 +584,70 @@ export interface VPCEndpoint {
  */
 export interface RDSConfiguration extends AWSResourceConfiguration {
   resourceType: 'aws-rds';
-  
+
   /** Database engine */
   engine: 'mysql' | 'postgres' | 'oracle' | 'sqlserver' | 'aurora' | 'aurora-mysql' | 'aurora-postgresql';
-  
+
   /** Engine version */
   engineVersion: string;
-  
+
   /** Instance class */
   instanceClass: RDSInstanceClass;
-  
+
   /** Database name */
   databaseName: string;
-  
+
   /** Master username */
   masterUsername: string;
-  
+
   /** Master password */
   masterPassword?: string;
-  
+
   /** Allocated storage (GB) */
   allocatedStorage: number;
-  
+
   /** Storage type */
   storageType: 'gp2' | 'gp3' | 'io1' | 'io2';
-  
+
   /** Storage encrypted */
   storageEncrypted: boolean;
-  
+
   /** KMS key ID */
   kmsKeyId?: string;
-  
+
   /** VPC security group IDs */
   vpcSecurityGroupIds: string[];
-  
+
   /** Subnet group name */
   subnetGroupName?: string;
-  
+
   /** Parameter group name */
   parameterGroupName?: string;
-  
+
   /** Option group name */
   optionGroupName?: string;
-  
+
   /** Backup retention period */
   backupRetentionPeriod: number;
-  
+
   /** Backup window */
   backupWindow?: string;
-  
+
   /** Maintenance window */
   maintenanceWindow?: string;
-  
+
   /** Multi-AZ deployment */
   multiAZ: boolean;
-  
+
   /** Auto minor version upgrade */
   autoMinorVersionUpgrade: boolean;
-  
+
   /** Deletion protection */
   deletionProtection: boolean;
-  
+
   /** Performance Insights enabled */
   performanceInsightsEnabled?: boolean;
-  
+
   /** Monitoring configuration */
   monitoring?: {
     enabled: boolean;
@@ -661,35 +661,35 @@ export interface RDSConfiguration extends AWSResourceConfiguration {
  */
 export interface LoadBalancerConfiguration extends AWSResourceConfiguration {
   resourceType: 'aws-load-balancer';
-  
+
   /** Load balancer type */
   type: 'application' | 'network' | 'gateway' | 'classic';
-  
+
   /** Scheme */
   scheme: 'internet-facing' | 'internal';
-  
+
   /** Subnet IDs */
   subnetIds: string[];
-  
+
   /** Security group IDs */
   securityGroupIds?: string[];
-  
+
   /** IP address type */
   ipAddressType?: 'ipv4' | 'dualstack';
-  
+
   /** Deletion protection */
   deletionProtection: boolean;
-  
+
   /** Access logs */
   accessLogs?: {
     enabled: boolean;
     bucket?: string;
     prefix?: string;
   };
-  
+
   /** Listeners */
   listeners: LoadBalancerListener[];
-  
+
   /** Target groups */
   targetGroups?: TargetGroup[];
 }
@@ -700,19 +700,19 @@ export interface LoadBalancerConfiguration extends AWSResourceConfiguration {
 export interface LoadBalancerListener {
   /** Port */
   port: number;
-  
+
   /** Protocol */
   protocol: 'HTTP' | 'HTTPS' | 'TCP' | 'TLS' | 'UDP' | 'TCP_UDP';
-  
+
   /** SSL policy */
   sslPolicy?: string;
-  
+
   /** Certificate ARN */
   certificateArn?: string;
-  
+
   /** Default actions */
   defaultActions: ListenerAction[];
-  
+
   /** Rules */
   rules?: ListenerRule[];
 }
@@ -723,15 +723,15 @@ export interface LoadBalancerListener {
 export interface ListenerAction {
   /** Action type */
   type: 'forward' | 'redirect' | 'fixed-response' | 'authenticate-oidc' | 'authenticate-cognito';
-  
+
   /** Target group ARN (for forward action) */
   targetGroupArn?: string;
-  
+
   /** Forward configuration */
   forwardConfig?: {
     targetGroups: { targetGroupArn: string; weight: number; }[];
   };
-  
+
   /** Redirect configuration */
   redirectConfig?: {
     host?: string;
@@ -741,7 +741,7 @@ export interface ListenerAction {
     query?: string;
     statusCode: 'HTTP_301' | 'HTTP_302';
   };
-  
+
   /** Fixed response configuration */
   fixedResponseConfig?: {
     statusCode: string;
@@ -756,10 +756,10 @@ export interface ListenerAction {
 export interface ListenerRule {
   /** Priority */
   priority: number;
-  
+
   /** Conditions */
   conditions: ListenerRuleCondition[];
-  
+
   /** Actions */
   actions: ListenerAction[];
 }
@@ -770,15 +770,15 @@ export interface ListenerRule {
 export interface ListenerRuleCondition {
   /** Field */
   field: 'host-header' | 'path-pattern' | 'http-header' | 'http-request-method' | 'query-string' | 'source-ip';
-  
+
   /** Values */
   values: string[];
-  
+
   /** HTTP header configuration */
   httpHeaderConfig?: {
     httpHeaderName: string;
   };
-  
+
   /** Query string configuration */
   queryStringConfig?: {
     key?: string;
@@ -792,19 +792,19 @@ export interface ListenerRuleCondition {
 export interface TargetGroup {
   /** Name */
   name: string;
-  
+
   /** Protocol */
   protocol: 'HTTP' | 'HTTPS' | 'TCP' | 'TLS' | 'UDP' | 'TCP_UDP';
-  
+
   /** Port */
   port: number;
-  
+
   /** VPC ID */
   vpcId: string;
-  
+
   /** Target type */
   targetType: 'instance' | 'ip' | 'lambda' | 'alb';
-  
+
   /** Health check configuration */
   healthCheck: {
     enabled: boolean;
@@ -817,14 +817,14 @@ export interface TargetGroup {
     path?: string;
     matcher?: string;
   };
-  
+
   /** Targets */
   targets?: {
     id: string;
     port?: number;
     availabilityZone?: string;
   }[];
-  
+
   /** Attributes */
   attributes?: Record<string, string>;
 }
@@ -832,20 +832,20 @@ export interface TargetGroup {
 /**
  * AWS service type enums
  */
-export type AWSRegion = 
+export type AWSRegion =
   | 'us-east-1' | 'us-east-2' | 'us-west-1' | 'us-west-2'
   | 'eu-west-1' | 'eu-west-2' | 'eu-west-3' | 'eu-central-1' | 'eu-north-1'
   | 'ap-southeast-1' | 'ap-southeast-2' | 'ap-northeast-1' | 'ap-northeast-2' | 'ap-south-1'
   | 'sa-east-1' | 'ca-central-1' | 'af-south-1' | 'me-south-1';
 
-export type EC2InstanceType = 
+export type EC2InstanceType =
   | 't3.micro' | 't3.small' | 't3.medium' | 't3.large' | 't3.xlarge' | 't3.2xlarge'
   | 'm5.large' | 'm5.xlarge' | 'm5.2xlarge' | 'm5.4xlarge' | 'm5.8xlarge' | 'm5.12xlarge' | 'm5.16xlarge' | 'm5.24xlarge'
   | 'c5.large' | 'c5.xlarge' | 'c5.2xlarge' | 'c5.4xlarge' | 'c5.9xlarge' | 'c5.12xlarge' | 'c5.18xlarge' | 'c5.24xlarge'
   | 'r5.large' | 'r5.xlarge' | 'r5.2xlarge' | 'r5.4xlarge' | 'r5.8xlarge' | 'r5.12xlarge' | 'r5.16xlarge' | 'r5.24xlarge'
   | 'i3.large' | 'i3.xlarge' | 'i3.2xlarge' | 'i3.4xlarge' | 'i3.8xlarge' | 'i3.16xlarge';
 
-export type RDSInstanceClass = 
+export type RDSInstanceClass =
   | 'db.t3.micro' | 'db.t3.small' | 'db.t3.medium' | 'db.t3.large' | 'db.t3.xlarge' | 'db.t3.2xlarge'
   | 'db.m5.large' | 'db.m5.xlarge' | 'db.m5.2xlarge' | 'db.m5.4xlarge' | 'db.m5.8xlarge' | 'db.m5.12xlarge' | 'db.m5.16xlarge' | 'db.m5.24xlarge'
   | 'db.r5.large' | 'db.r5.xlarge' | 'db.r5.2xlarge' | 'db.r5.4xlarge' | 'db.r5.8xlarge' | 'db.r5.12xlarge' | 'db.r5.16xlarge' | 'db.r5.24xlarge';
@@ -880,7 +880,7 @@ export function isLoadBalancerConfiguration(config: AWSResourceConfiguration): c
 /**
  * Utility types for configuration management
  */
-export type ConfigurationByType<T extends string> = 
+export type ConfigurationByType<T extends string> =
   T extends 'aws-vpc' ? VPCConfiguration :
   T extends 'aws-subnet' ? SubnetConfiguration :
   T extends 'aws-ec2' ? EC2Configuration :
@@ -921,19 +921,19 @@ export interface ConfigurationSuggestion extends ConfigurationError {
 export interface ResourceDependency {
   /** Dependent resource ID */
   resourceId: string;
-  
+
   /** Dependency type */
   type: 'required' | 'optional' | 'conditional';
-  
+
   /** Dependency field */
   field: string;
-  
+
   /** Target resource ID */
   targetResourceId: string;
-  
+
   /** Target field */
   targetField: string;
-  
+
   /** Condition for conditional dependencies */
   condition?: (config: AWSResourceConfiguration) => boolean;
 }
@@ -944,22 +944,22 @@ export interface ResourceDependency {
 export interface CostEstimate {
   /** Resource ID */
   resourceId: string;
-  
+
   /** Service type */
   serviceType: string;
-  
+
   /** Monthly cost estimate */
   monthlyCost: number;
-  
+
   /** Currency */
   currency: string;
-  
+
   /** Cost breakdown */
   breakdown: CostBreakdown[];
-  
+
   /** Estimation confidence */
   confidence: 'low' | 'medium' | 'high';
-  
+
   /** Assumptions made */
   assumptions: string[];
 }
@@ -967,16 +967,16 @@ export interface CostEstimate {
 export interface CostBreakdown {
   /** Cost component name */
   component: string;
-  
+
   /** Cost amount */
   amount: number;
-  
+
   /** Unit of measurement */
   unit: string;
-  
+
   /** Quantity */
   quantity: number;
-  
+
   /** Rate per unit */
   rate: number;
 }
@@ -993,45 +993,45 @@ export interface CostBreakdown {
 export interface FormField<T = unknown> {
   /** Field name */
   name: string;
-  
+
   /** Field label */
   label: string;
-  
+
   /** Field type */
   type: FormFieldType;
-  
+
   /** Field value */
   value: T;
-  
+
   /** Default value */
   defaultValue?: T;
-  
+
   /** Whether field is required */
   required: boolean;
-  
+
   /** Whether field is disabled */
   disabled: boolean;
-  
+
   /** Field placeholder */
   placeholder?: string;
-  
+
   /** Field description */
   description?: string;
-  
+
   /** Validation rules */
   validation?: ValidationRule[];
-  
+
   /** Field options (for select/radio) */
   options?: FieldOption[];
-  
+
   /** Field dependencies */
   dependencies?: FieldDependency[];
-  
+
   /** Custom field data */
   data?: Record<string, unknown>;
 }
 
-export type FormFieldType = 
+export type FormFieldType =
   | 'text' | 'email' | 'password' | 'number' | 'tel' | 'url'
   | 'select' | 'multiselect' | 'radio' | 'checkbox' | 'switch'
   | 'textarea' | 'date' | 'time' | 'datetime'
@@ -1041,19 +1041,19 @@ export type FormFieldType =
 export interface FieldOption {
   /** Option value */
   value: string | number;
-  
+
   /** Option label */
   label: string;
-  
+
   /** Option description */
   description?: string;
-  
+
   /** Whether option is disabled */
   disabled?: boolean;
-  
+
   /** Option icon */
   icon?: string;
-  
+
   /** Option group */
   group?: string;
 }
@@ -1061,10 +1061,10 @@ export interface FieldOption {
 export interface FieldDependency {
   /** Field name that this field depends on */
   dependsOn: string;
-  
+
   /** Condition for dependency */
   condition: DependencyCondition;
-  
+
   /** Action when condition is met */
   action: DependencyAction;
 }
@@ -1072,7 +1072,7 @@ export interface FieldDependency {
 export interface DependencyCondition {
   /** Comparison operator */
   operator: 'equals' | 'not-equals' | 'contains' | 'not-contains' | 'greater-than' | 'less-than';
-  
+
   /** Value to compare against */
   value: unknown;
 }
@@ -1080,7 +1080,7 @@ export interface DependencyCondition {
 export interface DependencyAction {
   /** Action type */
   type: 'show' | 'hide' | 'enable' | 'disable' | 'set-value' | 'set-options';
-  
+
   /** Action value */
   value?: unknown;
 }
@@ -1091,18 +1091,18 @@ export interface DependencyAction {
 export interface ValidationRule {
   /** Rule type */
   type: ValidationRuleType;
-  
+
   /** Rule parameters */
   params?: Record<string, unknown>;
-  
+
   /** Error message */
   message: string;
-  
+
   /** Whether rule is conditional */
   conditional?: ValidationCondition;
 }
 
-export type ValidationRuleType = 
+export type ValidationRuleType =
   | 'required' | 'min-length' | 'max-length' | 'pattern' | 'email' | 'url'
   | 'min' | 'max' | 'integer' | 'decimal'
   | 'date' | 'time' | 'datetime'
@@ -1112,10 +1112,10 @@ export type ValidationRuleType =
 export interface ValidationCondition {
   /** Field to check */
   field: string;
-  
+
   /** Comparison operator */
   operator: string;
-  
+
   /** Value to compare */
   value: unknown;
 }
@@ -1123,16 +1123,16 @@ export interface ValidationCondition {
 export interface ValidationResult {
   /** Whether validation passed */
   isValid: boolean;
-  
+
   /** Field-specific errors */
   fieldErrors: Record<string, string[]>;
-  
+
   /** General form errors */
   formErrors: string[];
-  
+
   /** Validation warnings */
   warnings: Record<string, string[]>;
-  
+
   /** Validation timestamp */
   timestamp: number;
 }
@@ -1143,37 +1143,37 @@ export interface ValidationResult {
 export interface CanvasState {
   /** Canvas zoom level */
   zoom: number;
-  
+
   /** Canvas viewport position */
   viewport: Position;
-  
+
   /** Canvas bounds */
   bounds: Bounds;
-  
+
   /** Whether grid is visible */
   showGrid: boolean;
-  
+
   /** Grid size */
   gridSize: number;
-  
+
   /** Whether minimap is visible */
   showMinimap: boolean;
-  
+
   /** Canvas background pattern */
   backgroundPattern: 'dots' | 'lines' | 'cross' | 'none';
-  
+
   /** Snap to grid enabled */
   snapToGrid: boolean;
-  
+
   /** Pan on scroll enabled */
   panOnScroll: boolean;
-  
+
   /** Zoom on scroll enabled */
   zoomOnScroll: boolean;
-  
+
   /** Selection mode */
   selectionMode: 'single' | 'multiple' | 'box';
-  
+
   /** Connection mode */
   connectionMode: 'loose' | 'strict' | 'smart';
 }
@@ -1181,22 +1181,22 @@ export interface CanvasState {
 export interface NodeHandleConfig {
   /** Handle ID */
   id: string;
-  
+
   /** Handle type */
   type: 'source' | 'target';
-  
+
   /** Handle position */
   position: 'top' | 'right' | 'bottom' | 'left';
-  
+
   /** Handle style */
   style?: React.CSSProperties;
-  
+
   /** Whether handle is connectable */
   isConnectable: boolean;
-  
+
   /** Connection limit */
   connectionLimit?: number;
-  
+
   /** Valid connection types */
   validConnectionTypes?: string[];
 }
@@ -1207,19 +1207,19 @@ export interface NodeHandleConfig {
 export interface StoreState {
   /** Loading state */
   isLoading: boolean;
-  
+
   /** Error state */
   error: string | null;
-  
+
   /** Last action timestamp */
   lastAction: number;
-  
+
   /** Undo/redo history */
   history: HistoryEntry[];
-  
+
   /** Current history index */
   historyIndex: number;
-  
+
   /** Maximum history size */
   maxHistorySize: number;
 }
@@ -1227,13 +1227,13 @@ export interface StoreState {
 export interface HistoryEntry {
   /** Action name */
   action: string;
-  
+
   /** Timestamp */
   timestamp: number;
-  
+
   /** State snapshot */
   state: unknown;
-  
+
   /** Action description */
   description?: string;
 }
@@ -1244,13 +1244,13 @@ export interface HistoryEntry {
 export interface CustomEventData {
   /** Event type */
   type: string;
-  
+
   /** Event data */
   data: Record<string, unknown>;
-  
+
   /** Event timestamp */
   timestamp: number;
-  
+
   /** Event source */
   source: string;
 }
@@ -1258,16 +1258,16 @@ export interface CustomEventData {
 export interface DragDropEventData {
   /** Dragged item type */
   itemType: string;
-  
+
   /** Dragged item data */
   itemData: unknown;
-  
+
   /** Drop position */
   position?: Position;
-  
+
   /** Drop target */
   target?: string;
-  
+
   /** Modifier keys */
   modifiers: {
     ctrl: boolean;
@@ -1282,13 +1282,13 @@ export interface DragDropEventData {
 export interface APIResponse<T = unknown> {
   /** Response data */
   data: T;
-  
+
   /** Success status */
   success: boolean;
-  
+
   /** Error message */
   error?: string;
-  
+
   /** Response metadata */
   meta?: {
     timestamp: number;

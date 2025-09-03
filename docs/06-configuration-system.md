@@ -113,9 +113,9 @@ const getConfigurationForm = (serviceId: string) => {
 **File**: `components/designer/configuration_sidebar/EC2ConfigurationForm.tsx`
 
 ```typescript
-export default function EC2ConfigurationForm({ 
-  node, 
-  onUpdate 
+export default function EC2ConfigurationForm({
+  node,
+  onUpdate
 }: ConfigurationFormProps) {
   const { getNodeConfiguration, updateNodeConfiguration } = useArchitectureStore();
   const configuration = getNodeConfiguration(node.id) as EC2Configuration | null;
@@ -136,7 +136,7 @@ export default function EC2ConfigurationForm({
       {/* Basic Configuration */}
       <div className="space-y-4">
         <h3 className="text-lg font-semibold">Basic Configuration</h3>
-        
+
         <FormField
           label="Instance Type"
           name="instanceType"
@@ -170,7 +170,7 @@ export default function EC2ConfigurationForm({
       {/* Network Configuration */}
       <div className="space-y-4">
         <h3 className="text-lg font-semibold">Network Configuration</h3>
-        
+
         <FormField
           label="Availability Zone"
           name="availabilityZone"
@@ -193,7 +193,7 @@ export default function EC2ConfigurationForm({
       {/* Storage Configuration */}
       <div className="space-y-4">
         <h3 className="text-lg font-semibold">Storage Configuration</h3>
-        
+
         <FormField
           label="Root Volume Size (GB)"
           name="rootVolumeSize"
@@ -218,7 +218,7 @@ export default function EC2ConfigurationForm({
       {/* Security Configuration */}
       <div className="space-y-4">
         <h3 className="text-lg font-semibold">Security Configuration</h3>
-        
+
         <FormField
           label="Security Groups"
           name="securityGroups"
@@ -248,16 +248,16 @@ export default function EC2ConfigurationForm({
 **File**: `components/designer/configuration_sidebar/VPCConfigurationForm.tsx`
 
 ```typescript
-export default function VPCConfigurationForm({ 
-  node, 
-  onUpdate 
+export default function VPCConfigurationForm({
+  node,
+  onUpdate
 }: ConfigurationFormProps) {
   return (
     <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
       {/* Basic Configuration */}
       <div className="space-y-4">
         <h3 className="text-lg font-semibold">VPC Configuration</h3>
-        
+
         <FormField
           label="CIDR Block"
           name="cidrBlock"
@@ -280,7 +280,7 @@ export default function VPCConfigurationForm({
       {/* DNS Configuration */}
       <div className="space-y-4">
         <h3 className="text-lg font-semibold">DNS Configuration</h3>
-        
+
         <FormField
           label="Enable DNS Support"
           name="enableDnsSupport"
@@ -299,7 +299,7 @@ export default function VPCConfigurationForm({
       {/* Tags */}
       <div className="space-y-4">
         <h3 className="text-lg font-semibold">Tags</h3>
-        
+
         <FormField
           label="Tags"
           name="tags"
@@ -334,7 +334,7 @@ export function autoConfigureNode(
 } {
   const resourceType = currentConfig.resourceType;
   const rules = AWS_RESOURCE_FIELD_RULES[resourceType];
-  
+
   if (!rules) {
     return { updatedConfig: currentConfig, autoPopulatedFields: [] };
   }
@@ -587,7 +587,7 @@ const handleFormSubmit = useCallback((data: ConfigurationType) => {
   try {
     updateNodeConfiguration(node.id, data);
     onUpdate?.(node.id, data);
-    
+
     // Show success notification
     toast.success('Configuration updated successfully');
   } catch (error) {

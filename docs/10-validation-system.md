@@ -28,10 +28,10 @@ interface ValidationState {
   errors: Record<string, string[]>;
   warnings: Record<string, string[]>;
   isValidating: boolean;
-  
+
   // Validation History
   validationHistory: ValidationResult[];
-  
+
   // Actions
   validateField: (field: string, value: unknown, schema: z.ZodSchema) => ValidationResult;
   validateObject: (data: unknown, schema: z.ZodSchema) => ValidationResult;
@@ -39,7 +39,7 @@ interface ValidationState {
   clearWarnings: (field?: string) => void;
   addError: (field: string, message: string) => void;
   addWarning: (field: string, message: string) => void;
-  
+
   // Bulk Validation
   validateConfiguration: (nodeId: string, config: unknown) => Promise<ValidationResult>;
   validateArchitecture: (data: unknown) => Promise<ValidationResult>;
@@ -67,7 +67,7 @@ export const useValidationStore = create<ValidationState>()(
 
       try {
         const validatedValue = schema.parse(value);
-        
+
         // Clear existing errors for this field
         set((state) => {
           if (state.errors[field]) {
@@ -86,7 +86,7 @@ export const useValidationStore = create<ValidationState>()(
       } catch (error) {
         if (error instanceof ZodError) {
           const errorMessages = error.errors.map((err) => err.message);
-          
+
           set((state) => {
             state.errors[field] = errorMessages;
             state.isValidating = false;
@@ -122,7 +122,7 @@ export const useValidationStore = create<ValidationState>()(
 
       try {
         const validatedData = schema.parse(data);
-        
+
         // Clear all errors
         set((state) => {
           state.errors = {};
@@ -149,7 +149,7 @@ export const useValidationStore = create<ValidationState>()(
       } catch (error) {
         if (error instanceof ZodError) {
           const errors: Record<string, string[]> = {};
-          
+
           error.errors.forEach((err) => {
             const path = err.path.join(".");
             if (!errors[path]) {
@@ -299,7 +299,7 @@ export const vpcConfigSchema = baseConfigurationSchema.extend({
       const maskNum = parseInt(mask);
       return maskNum >= 16 && maskNum <= 28;
     }, "VPC CIDR mask must be between /16 and /28"),
-  
+
   region: z.string().min(1, "Region is required"),
   enableDnsSupport: z.boolean().default(true),
   enableDnsHostnames: z.boolean().default(true),
@@ -310,7 +310,7 @@ export const vpcConfigSchema = baseConfigurationSchema.extend({
 export const subnetConfigSchema = baseConfigurationSchema.extend({
   cidrBlock: z.string()
     .regex(/^(\d{1,3}\.){3}\d{1,3}\/\d{1,2}$/, "Invalid CIDR format"),
-  
+
   availabilityZone: z.string().min(1, "Availability zone is required"),
   vpcId: z.string().min(1, "VPC ID is required"),
   isPublic: z.boolean().default(false),
@@ -325,19 +325,19 @@ export const ec2ConfigSchema = baseConfigurationSchema.extend({
     "c5.large", "c5.xlarge", "c5.2xlarge",
     "r5.large", "r5.xlarge", "r5.2xlarge",
   ]),
-  
+
   amiId: z.string().regex(/^ami-[a-zA-Z0-9]{8,17}$/, "Invalid AMI ID format"),
   keyName: z.string().min(1, "Key pair name is required").max(255),
-  
+
   subnetId: z.string().min(1, "Subnet ID is required"),
   securityGroupIds: z.array(z.string()).min(1, "At least one security group required"),
-  
+
   userData: z.string().max(16384).optional(),
   iamInstanceProfile: z.string().optional(),
-  
+
   monitoring: z.boolean().default(false),
   terminationProtection: z.boolean().default(false),
-  
+
   ebsOptimized: z.boolean().default(false),
   rootVolumeSize: z.number().int().min(8).max(1000).default(20),
   rootVolumeType: z.enum(["gp2", "gp3", "io1", "io2"]).default("gp3"),
@@ -346,7 +346,7 @@ export const ec2ConfigSchema = baseConfigurationSchema.extend({
 // Security Group Configuration Schema
 export const securityGroupConfigSchema = baseConfigurationSchema.extend({
   vpcId: z.string().min(1, "VPC ID is required"),
-  
+
   ingressRules: z.array(z.object({
     protocol: z.enum(["tcp", "udp", "icmp", "all"]),
     port: z.number().int().min(0).max(65535).optional(),
@@ -358,7 +358,7 @@ export const securityGroupConfigSchema = baseConfigurationSchema.extend({
     source: z.string().min(1),
     description: z.string().max(255).optional(),
   })).default([]),
-  
+
   egressRules: z.array(z.object({
     protocol: z.enum(["tcp", "udp", "icmp", "all"]),
     port: z.number().int().min(0).max(65535).optional(),
@@ -498,7 +498,7 @@ export function ValidatedForm<T extends z.ZodType>({
   children,
 }: ValidatedFormProps<T>) {
   const { addError, clearErrors } = useValidationStore();
-  
+
   const form = useForm<z.infer<T>>({
     resolver: zodResolver(schema),
     defaultValues,
@@ -510,7 +510,7 @@ export function ValidatedForm<T extends z.ZodType>({
   // Sync validation state with store
   useEffect(() => {
     const errors: Record<string, string[]> = {};
-    
+
     Object.entries(formState.errors).forEach(([field, error]) => {
       if (error?.message) {
         errors[field] = [error.message];
@@ -562,7 +562,7 @@ export function ValidatedInput({
     (event: React.FocusEvent<HTMLInputElement>) => {
       const value = event.target.value;
       const result = validateField(name, value, schema);
-      
+
       if (!result.isValid) {
         const errorMessage = Object.values(result.errors)[0]?.[0] || "";
         setLocalError(errorMessage);
@@ -581,7 +581,7 @@ export function ValidatedInput({
         {label}
         {required && <span className="text-red-500 ml-1">*</span>}
       </Label>
-      
+
       <Input
         id={name}
         type={type}
@@ -590,7 +590,7 @@ export function ValidatedInput({
         onBlur={handleBlur}
         className={errorMessage ? "border-red-500" : ""}
       />
-      
+
       {errorMessage && (
         <p className="text-sm text-red-500 flex items-center gap-1">
           <AlertCircle className="w-4 h-4" />
@@ -615,7 +615,7 @@ export const useRealTimeValidation = (
 ) => {
   const { validateObject } = useValidationStore();
   const [validationResult, setValidationResult] = useState<ValidationResult | null>(null);
-  
+
   const debouncedValidate = useMemo(
     () => debounce((value: unknown) => {
       const result = validateObject(value, schema);
@@ -654,7 +654,7 @@ const ConfigurationForm = ({ nodeId, configuration }: ConfigurationFormProps) =>
           </AlertDescription>
         </Alert>
       )}
-      
+
       {/* Form fields */}
     </div>
   );
@@ -716,10 +716,10 @@ interface ValidationErrorsProps {
   className?: string;
 }
 
-export function ValidationErrors({ 
-  errors, 
-  warnings = {}, 
-  className 
+export function ValidationErrors({
+  errors,
+  warnings = {},
+  className
 }: ValidationErrorsProps) {
   const hasErrors = Object.keys(errors).length > 0;
   const hasWarnings = Object.keys(warnings).length > 0;

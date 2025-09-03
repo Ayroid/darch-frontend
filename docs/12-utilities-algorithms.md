@@ -57,13 +57,13 @@ export function generateNodeId(serviceType?: string): string {
  */
 export function formatBytes(bytes: number, decimals: number = 2): string {
   if (bytes === 0) return '0 Bytes';
-  
+
   const k = 1024;
   const dm = decimals < 0 ? 0 : decimals;
   const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-  
+
   const i = Math.floor(Math.log(bytes) / Math.log(k));
-  
+
   return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
 }
 
@@ -72,7 +72,7 @@ export function formatBytes(bytes: number, decimals: number = 2): string {
  */
 export function formatDate(date: string | Date): string {
   const dateObj = typeof date === 'string' ? new Date(date) : date;
-  
+
   return new Intl.DateTimeFormat('en-US', {
     year: 'numeric',
     month: 'long',
@@ -89,9 +89,9 @@ export function formatRelativeTime(date: string | Date): string {
   const dateObj = typeof date === 'string' ? new Date(date) : date;
   const now = new Date();
   const diffInMs = now.getTime() - dateObj.getTime();
-  
+
   const rtf = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
-  
+
   const diffInSeconds = Math.floor(diffInMs / 1000);
   const diffInMinutes = Math.floor(diffInSeconds / 60);
   const diffInHours = Math.floor(diffInMinutes / 60);
@@ -99,14 +99,14 @@ export function formatRelativeTime(date: string | Date): string {
   const diffInWeeks = Math.floor(diffInDays / 7);
   const diffInMonths = Math.floor(diffInDays / 30);
   const diffInYears = Math.floor(diffInDays / 365);
-  
+
   if (diffInYears > 0) return rtf.format(-diffInYears, 'year');
   if (diffInMonths > 0) return rtf.format(-diffInMonths, 'month');
   if (diffInWeeks > 0) return rtf.format(-diffInWeeks, 'week');
   if (diffInDays > 0) return rtf.format(-diffInDays, 'day');
   if (diffInHours > 0) return rtf.format(-diffInHours, 'hour');
   if (diffInMinutes > 0) return rtf.format(-diffInMinutes, 'minute');
-  
+
   return 'Just now';
 }
 
@@ -118,16 +118,16 @@ export function debounce<T extends (...args: any[]) => any>(
   delay: number
 ): T & { cancel: () => void } {
   let timeoutId: NodeJS.Timeout;
-  
+
   const debouncedFunction = ((...args: Parameters<T>) => {
     clearTimeout(timeoutId);
     timeoutId = setTimeout(() => func(...args), delay);
   }) as T & { cancel: () => void };
-  
+
   debouncedFunction.cancel = () => {
     clearTimeout(timeoutId);
   };
-  
+
   return debouncedFunction;
 }
 
@@ -139,7 +139,7 @@ export function throttle<T extends (...args: any[]) => any>(
   limit: number
 ): T {
   let inThrottle: boolean;
-  
+
   return ((...args: Parameters<T>) => {
     if (!inThrottle) {
       func(...args);
@@ -156,15 +156,15 @@ export function deepClone<T>(obj: T): T {
   if (obj === null || typeof obj !== 'object') {
     return obj;
   }
-  
+
   if (obj instanceof Date) {
     return new Date(obj.getTime()) as T;
   }
-  
+
   if (obj instanceof Array) {
     return obj.map(item => deepClone(item)) as T;
   }
-  
+
   if (typeof obj === 'object') {
     const clonedObj = {} as T;
     for (const key in obj) {
@@ -174,7 +174,7 @@ export function deepClone<T>(obj: T): T {
     }
     return clonedObj;
   }
-  
+
   return obj;
 }
 
@@ -183,24 +183,24 @@ export function deepClone<T>(obj: T): T {
  */
 export function deepEqual(a: any, b: any): boolean {
   if (a === b) return true;
-  
+
   if (a instanceof Date && b instanceof Date) {
     return a.getTime() === b.getTime();
   }
-  
+
   if (!a || !b || (typeof a !== 'object' && typeof b !== 'object')) {
     return a === b;
   }
-  
+
   if (a === null || a === undefined || b === null || b === undefined) {
     return false;
   }
-  
+
   if (a.prototype !== b.prototype) return false;
-  
+
   let keys = Object.keys(a);
   if (keys.length !== Object.keys(b).length) return false;
-  
+
   return keys.every(k => deepEqual(a[k], b[k]));
 }
 
@@ -291,10 +291,10 @@ export function hexToRgb(hex: string): { r: number; g: number; b: number } | nul
 export function getContrastColor(hexColor: string): string {
   const rgb = hexToRgb(hexColor);
   if (!rgb) return '#000000';
-  
+
   // Calculate luminance
   const luminance = (0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b) / 255;
-  
+
   return luminance > 0.5 ? '#000000' : '#ffffff';
 }
 
@@ -318,13 +318,13 @@ export function truncateText(text: string, maxLength: number): string {
  */
 export function removeUndefined<T extends Record<string, any>>(obj: T): Partial<T> {
   const result: Partial<T> = {};
-  
+
   for (const key in obj) {
     if (obj[key] !== undefined) {
       result[key] = obj[key];
     }
   }
-  
+
   return result;
 }
 
@@ -503,7 +503,7 @@ export function calculateContainerPosition(
 
   // Create grid of occupied positions
   const occupiedGrid = new Set<string>();
-  
+
   existingChildren.forEach(child => {
     const relativeX = child.position.x - availableArea.x;
     const relativeY = child.position.y - availableArea.y;
@@ -594,16 +594,16 @@ export function getContainerDescendants(
 ): Node[] {
   const descendants: Node[] = [];
   const directChildren = getContainerChildren(containerId, allNodes);
-  
+
   descendants.push(...directChildren);
-  
+
   // Recursively get children of container children
   directChildren.forEach(child => {
     if (child.data?.isContainer) {
       descendants.push(...getContainerDescendants(child.id, allNodes));
     }
   });
-  
+
   return descendants;
 }
 
@@ -664,7 +664,7 @@ export function validateContainerPlacement(
   // Check container capacity (if applicable)
   const existingChildren = getContainerChildren(containerId, allNodes);
   const maxChildren = getMaxChildrenForContainer(container.data?.serviceId || '');
-  
+
   if (maxChildren && existingChildren.length >= maxChildren) {
     errors.push(`Container has reached maximum capacity of ${maxChildren} children`);
   }
@@ -674,7 +674,7 @@ export function validateContainerPlacement(
     const sameTypeChildren = existingChildren.filter(
       child => child.data?.serviceId === node.data?.serviceId
     );
-    
+
     if (node.data?.serviceId === 'aws-public-subnet' && sameTypeChildren.length >= 1) {
       warnings.push("Multiple public subnets in the same AZ is unusual");
     }
@@ -696,7 +696,7 @@ function getMaxChildrenForContainer(serviceType: string): number | null {
     'aws-public-subnet': 5,      // Practical limit for subnet
     'aws-private-subnet': 5,     // Practical limit for subnet
   };
-  
+
   return limits[serviceType] || null;
 }
 
@@ -710,7 +710,7 @@ export function autoArrangeContainer(
 ): Node[] {
   const container = allNodes.find(n => n.id === containerId);
   const children = getContainerChildren(containerId, allNodes);
-  
+
   if (!container || children.length === 0) {
     return allNodes;
   }
@@ -758,11 +758,11 @@ function arrangeInGrid(
 ): Node[] {
   const availableWidth = containerBounds.width - (padding * 2);
   const cols = Math.floor(availableWidth / (nodeSize.width + spacing));
-  
+
   return children.map((child, index) => {
     const row = Math.floor(index / cols);
     const col = index % cols;
-    
+
     return {
       ...child,
       position: {
@@ -783,17 +783,17 @@ function arrangeInFlow(
   let currentX = containerBounds.x + padding;
   let currentY = containerBounds.y + padding;
   const availableWidth = containerBounds.width - (padding * 2);
-  
+
   return children.map(child => {
     // Check if node fits in current row
     if (currentX + nodeSize.width > containerBounds.x + availableWidth) {
       currentX = containerBounds.x + padding;
       currentY += nodeSize.height + spacing;
     }
-    
+
     const position = { x: currentX, y: currentY };
     currentX += nodeSize.width + spacing;
-    
+
     return {
       ...child,
       position,
@@ -814,17 +814,17 @@ function arrangeHierarchically(
     const bIsContainer = b.data?.isContainer ? 1 : 0;
     return bIsContainer - aIsContainer;
   });
-  
+
   let currentY = containerBounds.y + padding;
-  
+
   return sortedChildren.map(child => {
     const position = {
       x: containerBounds.x + padding,
       y: currentY,
     };
-    
+
     currentY += nodeSize.height + spacing;
-    
+
     return {
       ...child,
       position,
@@ -865,7 +865,7 @@ export function buildHierarchyTree(nodes: Node[]): HierarchyNode[] {
   // Build parent-child relationships
   nodes.forEach(node => {
     const hierarchyNode = nodeMap.get(node.id)!;
-    
+
     if (node.parentId) {
       const parent = nodeMap.get(node.parentId);
       if (parent) {
@@ -896,14 +896,14 @@ export interface HierarchyNode {
 export function getPathToRoot(nodeId: string, nodes: Node[]): Node[] {
   const path: Node[] = [];
   let currentNode = nodes.find(n => n.id === nodeId);
-  
+
   while (currentNode) {
     path.unshift(currentNode);
-    currentNode = currentNode.parentId 
+    currentNode = currentNode.parentId
       ? nodes.find(n => n.id === currentNode!.parentId)
       : undefined;
   }
-  
+
   return path;
 }
 
@@ -918,22 +918,22 @@ export function findCommonAncestor(nodeIds: string[], nodes: Node[]): Node | nul
 
   // Get paths to root for all nodes
   const paths = nodeIds.map(id => getPathToRoot(id, nodes));
-  
+
   // Find common prefix
   let commonAncestor: Node | null = null;
   const minLength = Math.min(...paths.map(path => path.length));
-  
+
   for (let i = 0; i < minLength; i++) {
     const currentNodes = paths.map(path => path[i]);
     const firstNode = currentNodes[0];
-    
+
     if (currentNodes.every(node => node.id === firstNode.id)) {
       commonAncestor = firstNode;
     } else {
       break;
     }
   }
-  
+
   return commonAncestor;
 }
 
@@ -943,9 +943,9 @@ export function findCommonAncestor(nodeIds: string[], nodes: Node[]): Node | nul
 export function getSiblings(nodeId: string, nodes: Node[]): Node[] {
   const node = nodes.find(n => n.id === nodeId);
   if (!node) return [];
-  
-  return nodes.filter(n => 
-    n.id !== nodeId && 
+
+  return nodes.filter(n =>
+    n.id !== nodeId &&
     n.parentId === node.parentId
   );
 }
@@ -959,7 +959,7 @@ export function calculateInheritedConfiguration(
 ): Partial<AWSResourceConfiguration> {
   const inheritedConfig: Partial<AWSResourceConfiguration> = {};
   const pathToRoot = getPathToRoot(childNode.id, allNodes);
-  
+
   // Start from root and apply configurations down the hierarchy
   pathToRoot.forEach((node, index) => {
     const nodeConfig = node.data?.configuration as AWSResourceConfiguration;
@@ -992,7 +992,7 @@ function applyInheritanceRules(
         inheritedConfig.region = nodeConfig.region;
       }
       break;
-      
+
     case 'aws-vpc':
       if (nodeConfig.region) {
         inheritedConfig.region = nodeConfig.region;
@@ -1005,13 +1005,13 @@ function applyInheritanceRules(
         inheritedConfig.vpcId = nodeConfig.vpcId || nodeConfig.serviceName;
       }
       break;
-      
+
     case 'aws-availability-zone':
       if (nodeConfig.availabilityZone) {
         inheritedConfig.availabilityZone = nodeConfig.availabilityZone;
       }
       break;
-      
+
     case 'aws-public-subnet':
     case 'aws-private-subnet':
       if (nodeConfig.subnetId || !isParent) {
@@ -1021,7 +1021,7 @@ function applyInheritanceRules(
         inheritedConfig.availabilityZone = nodeConfig.availabilityZone;
       }
       break;
-      
+
     case 'aws-security-group':
       if (nodeConfig.securityGroupId || !isParent) {
         const currentGroups = inheritedConfig.securityGroupIds || [];
@@ -1055,7 +1055,7 @@ export function validateHierarchy(nodes: Node[]): {
   // Check for orphaned containers
   const containerNodes = nodes.filter(n => n.data?.isContainer);
   const nonContainerNodes = nodes.filter(n => !n.data?.isContainer);
-  
+
   nonContainerNodes.forEach(node => {
     if (!node.parentId) {
       warnings.push(`Node ${node.data?.name || node.id} is not inside any container`);
@@ -1081,17 +1081,17 @@ export function validateHierarchy(nodes: Node[]): {
 function hasCircularReference(nodeId: string, nodes: Node[]): boolean {
   const visited = new Set<string>();
   let currentId: string | undefined = nodeId;
-  
+
   while (currentId) {
     if (visited.has(currentId)) {
       return true;
     }
-    
+
     visited.add(currentId);
     const currentNode = nodes.find(n => n.id === currentId);
     currentId = currentNode?.parentId;
   }
-  
+
   return false;
 }
 
@@ -1101,14 +1101,14 @@ function hasCircularReference(nodeId: string, nodes: Node[]): boolean {
 function validateAWSHierarchy(node: Node, allNodes: Node[]): string[] {
   const errors: string[] = [];
   const serviceType = node.data?.serviceId || '';
-  
+
   if (!node.parentId) return errors;
-  
+
   const parent = allNodes.find(n => n.id === node.parentId);
   if (!parent) return errors;
-  
+
   const parentServiceType = parent.data?.serviceId || '';
-  
+
   // Define required parent-child relationships
   const requiredParents: Record<string, string[]> = {
     'aws-vpc': ['aws-region'],
@@ -1120,14 +1120,14 @@ function validateAWSHierarchy(node: Node, allNodes: Node[]): string[] {
     'aws-internet-gateway': ['aws-vpc'],
     'aws-nat-gateway': ['aws-public-subnet'],
   };
-  
+
   const allowedParents = requiredParents[serviceType];
   if (allowedParents && !allowedParents.includes(parentServiceType)) {
     errors.push(
       `${node.data?.name || serviceType} cannot be placed inside ${parent.data?.name || parentServiceType}`
     );
   }
-  
+
   return errors;
 }
 
@@ -1140,14 +1140,14 @@ export function autoCorrectHierarchy(nodes: Node[]): {
 } {
   const correctedNodes = [...nodes];
   const corrections: string[] = [];
-  
+
   // Move orphaned nodes to appropriate containers
-  const orphanedNodes = correctedNodes.filter(n => 
-    !n.data?.isContainer && 
+  const orphanedNodes = correctedNodes.filter(n =>
+    !n.data?.isContainer &&
     !n.parentId &&
     n.data?.serviceId !== 'aws-region'
   );
-  
+
   orphanedNodes.forEach(orphan => {
     const suitableParent = findSuitableParent(orphan, correctedNodes);
     if (suitableParent) {
@@ -1161,7 +1161,7 @@ export function autoCorrectHierarchy(nodes: Node[]): {
       );
     }
   });
-  
+
   return { correctedNodes, corrections };
 }
 
@@ -1170,7 +1170,7 @@ export function autoCorrectHierarchy(nodes: Node[]): {
  */
 function findSuitableParent(node: Node, allNodes: Node[]): Node | null {
   const serviceType = node.data?.serviceId || '';
-  
+
   // Define preferred parent types
   const preferredParents: Record<string, string[]> = {
     'aws-vpc': ['aws-region'],
@@ -1180,21 +1180,21 @@ function findSuitableParent(node: Node, allNodes: Node[]): Node | null {
     'aws-rds': ['aws-private-subnet'],
     'aws-security-group': ['aws-vpc'],
   };
-  
+
   const preferred = preferredParents[serviceType];
   if (!preferred) return null;
-  
+
   // Find the first available preferred parent
   for (const parentType of preferred) {
-    const parent = allNodes.find(n => 
-      n.data?.serviceId === parentType && 
+    const parent = allNodes.find(n =>
+      n.data?.serviceId === parentType &&
       n.data?.isContainer
     );
     if (parent) {
       return parent;
     }
   }
-  
+
   return null;
 }
 
@@ -1210,15 +1210,15 @@ export function getHierarchyStats(nodes: Node[]): {
     const path = getPathToRoot(node.id, nodes);
     return path.length - 1; // Root is depth 0
   });
-  
+
   const maxDepth = Math.max(...depths);
   const avgDepth = depths.reduce((sum, depth) => sum + depth, 0) / depths.length;
-  
+
   const nodesByDepth: Record<number, number> = {};
   depths.forEach(depth => {
     nodesByDepth[depth] = (nodesByDepth[depth] || 0) + 1;
   });
-  
+
   return { maxDepth, avgDepth, nodesByDepth };
 }
 ```
@@ -1269,7 +1269,7 @@ export function getZIndex(
 ): number {
   const layer = Z_INDEX_LAYERS[layerName];
   if (!layer) return 0;
-  
+
   const index = layer.baseIndex + Math.max(0, Math.min(offset, layer.range - 1));
   return index;
 }
@@ -1284,23 +1284,23 @@ export function calculateNodeZIndex(
 ): number {
   const node = nodes.find(n => n.id === nodeId);
   if (!node) return getZIndex('SERVICES');
-  
+
   const isContainer = node.data?.isContainer || false;
   const isSelected = selectedNodeIds.includes(nodeId);
   const depth = getNodeDepth(nodeId, nodes);
-  
+
   // Base layer
   const baseLayer = isContainer ? 'CONTAINERS' : 'SERVICES';
   let zIndex = getZIndex(baseLayer);
-  
+
   // Add depth offset (deeper nodes appear on top)
   zIndex += depth * 2;
-  
+
   // Selected nodes get higher z-index
   if (isSelected) {
     zIndex += getZIndex('SELECTION', 0) - getZIndex(baseLayer);
   }
-  
+
   return zIndex;
 }
 
@@ -1310,12 +1310,12 @@ export function calculateNodeZIndex(
 function getNodeDepth(nodeId: string, nodes: Node[]): number {
   let depth = 0;
   let currentNode = nodes.find(n => n.id === nodeId);
-  
+
   while (currentNode?.parentId) {
     depth++;
     currentNode = nodes.find(n => n.id === currentNode!.parentId);
   }
-  
+
   return depth;
 }
 
@@ -1326,20 +1326,20 @@ export function resolveContainerOverlap(
   containerNodes: Node[]
 ): Record<string, number> {
   const zIndexMap: Record<string, number> = {};
-  
+
   // Sort containers by size (larger containers behind smaller ones)
   const sortedContainers = [...containerNodes].sort((a, b) => {
     const aSize = (a.style?.width as number || 0) * (a.style?.height as number || 0);
     const bSize = (b.style?.width as number || 0) * (b.style?.height as number || 0);
     return bSize - aSize; // Larger first (lower z-index)
   });
-  
+
   sortedContainers.forEach((container, index) => {
     const baseZIndex = getZIndex('CONTAINERS');
     const depth = getNodeDepth(container.id, containerNodes);
     zIndexMap[container.id] = baseZIndex + depth * 5 + index;
   });
-  
+
   return zIndexMap;
 }
 
@@ -1370,7 +1370,7 @@ export function getNotificationZIndex(priority: 'low' | 'normal' | 'high' = 'nor
     normal: 10,
     high: 20,
   };
-  
+
   return getZIndex('NOTIFICATIONS', priorityOffset[priority]);
 }
 
@@ -1384,17 +1384,17 @@ export function getConnectionZIndex(
 ): number {
   const sourceNode = nodes.find(n => n.id === sourceNodeId);
   const targetNode = nodes.find(n => n.id === targetNodeId);
-  
+
   if (!sourceNode || !targetNode) {
     return getZIndex('CONNECTIONS');
   }
-  
+
   // Use the minimum z-index of connected nodes minus a small offset
   // This ensures connections appear behind both connected nodes
   const sourceZIndex = calculateNodeZIndex(sourceNodeId, nodes);
   const targetZIndex = calculateNodeZIndex(targetNodeId, nodes);
   const minNodeZIndex = Math.min(sourceZIndex, targetZIndex);
-  
+
   return Math.max(
     getZIndex('CONNECTIONS'),
     minNodeZIndex - 1
@@ -1414,44 +1414,44 @@ export function getSelectionIndicatorZIndex(nodeZIndex: number): number {
  */
 export class ZIndexManager {
   private layerCounters: Record<string, number> = {};
-  
+
   constructor() {
     // Initialize counters for each layer
     Object.keys(Z_INDEX_LAYERS).forEach(layer => {
       this.layerCounters[layer] = 0;
     });
   }
-  
+
   /**
    * Allocates the next available z-index in a layer
    */
   allocate(layerName: keyof typeof Z_INDEX_LAYERS): number {
     const layer = Z_INDEX_LAYERS[layerName];
     if (!layer) return 0;
-    
+
     const currentCount = this.layerCounters[layerName] || 0;
     const zIndex = layer.baseIndex + currentCount;
-    
+
     // Increment counter for next allocation
     this.layerCounters[layerName] = Math.min(currentCount + 1, layer.range - 1);
-    
+
     return zIndex;
   }
-  
+
   /**
    * Resets the counter for a specific layer
    */
   resetLayer(layerName: keyof typeof Z_INDEX_LAYERS): void {
     this.layerCounters[layerName] = 0;
   }
-  
+
   /**
    * Gets the current counter value for a layer
    */
   getLayerCount(layerName: keyof typeof Z_INDEX_LAYERS): number {
     return this.layerCounters[layerName] || 0;
   }
-  
+
   /**
    * Resets all layer counters
    */
@@ -1484,12 +1484,12 @@ export function zIndexStyle(
  */
 export function createZIndexCSSVariables(): Record<string, string> {
   const cssVars: Record<string, string> = {};
-  
+
   Object.entries(Z_INDEX_LAYERS).forEach(([layerName, layer]) => {
     const varName = `--z-index-${layerName.toLowerCase().replace(/_/g, '-')}`;
     cssVars[varName] = layer.baseIndex.toString();
   });
-  
+
   return cssVars;
 }
 
@@ -1503,31 +1503,31 @@ export function validateZIndexConfiguration(): {
 } {
   const conflicts: string[] = [];
   const suggestions: string[] = [];
-  
+
   const layers = Object.entries(Z_INDEX_LAYERS);
-  
+
   // Check for overlapping ranges
   for (let i = 0; i < layers.length; i++) {
     for (let j = i + 1; j < layers.length; j++) {
       const [nameA, layerA] = layers[i];
       const [nameB, layerB] = layers[j];
-      
+
       const aEnd = layerA.baseIndex + layerA.range;
       const bStart = layerB.baseIndex;
-      
+
       if (aEnd > bStart && layerA.baseIndex < layerB.baseIndex + layerB.range) {
         conflicts.push(`Layer ${nameA} overlaps with layer ${nameB}`);
       }
     }
   }
-  
+
   // Check for insufficient range
   layers.forEach(([name, layer]) => {
     if (layer.range < 10) {
       suggestions.push(`Layer ${name} has a small range (${layer.range}), consider increasing it`);
     }
   });
-  
+
   return {
     isValid: conflicts.length === 0,
     conflicts,

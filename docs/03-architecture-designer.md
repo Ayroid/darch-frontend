@@ -361,9 +361,9 @@ Resource configuration panel:
 ### 1. Keyboard Shortcuts Help
 
 ```typescript
-<KeyboardShortcutsHelp 
-  isOpen={isHelpOpen} 
-  onClose={handleCloseHelp} 
+<KeyboardShortcutsHelp
+  isOpen={isHelpOpen}
+  onClose={handleCloseHelp}
 />
 ```
 
@@ -375,9 +375,9 @@ Resource configuration panel:
 ### 2. Settings Modal
 
 ```typescript
-<SettingsModal 
-  isOpen={isSettingsOpen} 
-  onClose={handleCloseSettings} 
+<SettingsModal
+  isOpen={isSettingsOpen}
+  onClose={handleCloseSettings}
 />
 ```
 
