@@ -13,7 +13,7 @@
       "type": "awsContainer",
       "serviceType": "vpc",
       "name": "Main VPC",
-      "icon": "/aws_icons/Architecture-Group-Icons_07312025/Virtual-private-cloud-VPC_32.svg",
+      "icon": "/aws_icons/architecture_group_icons/Virtual-private-cloud-VPC_32.svg",
       "position": { "x": 100, "y": 100 },
       "dimensions": { "width": 600, "height": 400 },
       "configuration": {
@@ -28,7 +28,7 @@
       "type": "awsContainer",
       "serviceType": "subnet",
       "name": "Public Subnet 1",
-      "icon": "/aws_icons/Architecture-Group-Icons_07312025/Public-subnet_32.svg",
+      "icon": "/aws_icons/architecture_group_icons/Public-subnet_32.svg",
       "position": { "x": 150, "y": 150 },
       "dimensions": { "width": 200, "height": 150 },
       "configuration": {
@@ -44,7 +44,7 @@
       "type": "awsContainer",
       "serviceType": "subnet",
       "name": "Public Subnet 2",
-      "icon": "/aws_icons/Architecture-Group-Icons_07312025/Public-subnet_32.svg",
+      "icon": "/aws_icons/architecture_group_icons/Public-subnet_32.svg",
       "position": { "x": 400, "y": 150 },
       "dimensions": { "width": 200, "height": 150 },
       "configuration": {
@@ -60,7 +60,7 @@
       "type": "awsService",
       "serviceType": "ec2",
       "name": "Web Server 1",
-      "icon": "/aws_icons/Architecture-Service-Icons_07312025/Arch_Compute/Amazon-EC2_48.svg",
+      "icon": "/aws_icons/architecture_service_icons/Arch_Compute/Amazon-EC2_48.svg",
       "position": { "x": 200, "y": 200 },
       "configuration": {
         "instanceType": "t3.micro",
@@ -75,7 +75,7 @@
       "type": "awsService",
       "serviceType": "ec2",
       "name": "Web Server 2",
-      "icon": "/aws_icons/Architecture-Service-Icons_07312025/Arch_Compute/Amazon-EC2_48.svg",
+      "icon": "/aws_icons/architecture_service_icons/Arch_Compute/Amazon-EC2_48.svg",
       "position": { "x": 450, "y": 200 },
       "configuration": {
         "instanceType": "t3.micro",
@@ -90,7 +90,7 @@
       "type": "awsService",
       "serviceType": "security-group",
       "name": "Web Security Group",
-      "icon": "/aws_icons/Architecture-Service-Icons_07312025/Arch_Security-Identity-Compliance/AWS-Identity-and-Access-Management_48.svg",
+      "icon": "/aws_icons/architecture_service_icons/Arch_Security-Identity-Compliance/AWS-Identity-and-Access-Management_48.svg",
       "position": { "x": 325, "y": 350 },
       "configuration": {
         "description": "Security group for web servers",

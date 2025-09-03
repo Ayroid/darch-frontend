@@ -137,8 +137,8 @@ frontend/
 │   └── utils.ts                 # Utility functions
 └── public/
     └── aws_icons/               # AWS service icons (official)
-        ├── Architecture-Service-Icons_07312025/
-        ├── Architecture-Group-Icons_07312025/
+        ├── architecture_service_icons/
+        ├── architecture_group_icons/
         ├── Category-Icons_07312025/
         └── Resource-Icons_07312025/
 ```
