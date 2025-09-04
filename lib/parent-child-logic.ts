@@ -110,6 +110,76 @@ export function invalidateNodeCache(nodeId: string): void {
 }
 
 /**
+ * Detects if a node is near a container and could be snapped to it.
+ * Returns potential snap targets for visual feedback during dragging.
+ * ENHANCED: Adds snap detection for better UX.
+ *
+ * Time Complexity: O(c) where c is the number of containers
+ */
+export function getSnapTargets(
+  node: Node,
+  containers: Node[],
+  nodeMap: Map<string, Node>,
+  snapDistance: number = 50
+): Node[] {
+  const snapTargets: Node[] = [];
+  
+  for (const container of containers) {
+    // Skip self and current parent
+    if (container.id === node.id || container.id === node.parentId) {
+      continue;
+    }
+
+    // Skip containers that are being dragged
+    if (container.dragging) {
+      continue;
+    }
+
+    // Check AWS hierarchy constraints for container-to-container relationships
+    if (
+      node.data?.isContainer &&
+      !canContainerContainContainer(container, node)
+    ) {
+      continue;
+    }
+
+    // Check if node is near the container (within snap distance)
+    const nodeBounds = getNodeBounds(node);
+    const containerBounds = getNodeBounds(container);
+    const absoluteNodePos = getAbsoluteNodePosition(node, nodeMap);
+    const absoluteContainerPos = getAbsoluteNodePosition(container, nodeMap);
+
+    const absoluteNodeBounds = {
+      x: absoluteNodePos.x,
+      y: absoluteNodePos.y,
+      width: nodeBounds.width,
+      height: nodeBounds.height,
+    };
+
+    const absoluteContainerBounds = {
+      x: absoluteContainerPos.x,
+      y: absoluteContainerPos.y,
+      width: containerBounds.width,
+      height: containerBounds.height,
+    };
+
+    // Check if the node is near the container (within snap distance)
+    const isNear = (
+      absoluteNodeBounds.x - snapDistance <= absoluteContainerBounds.x + absoluteContainerBounds.width &&
+      absoluteNodeBounds.x + absoluteNodeBounds.width + snapDistance >= absoluteContainerBounds.x &&
+      absoluteNodeBounds.y - snapDistance <= absoluteContainerBounds.y + absoluteContainerBounds.height &&
+      absoluteNodeBounds.y + absoluteNodeBounds.height + snapDistance >= absoluteContainerBounds.y
+    );
+
+    if (isNear) {
+      snapTargets.push(container);
+    }
+  }
+
+  return snapTargets;
+}
+
+/**
  * Calculates and caches the bounding rectangle of a node including its position and dimensions.
  * Uses default dimensions if not specified: containers default to 250x200, regular nodes to 80x80.
  * Results are cached for performance optimization using position and style as cache key.
@@ -161,15 +231,14 @@ export function isRectangleInside(
 
 /**
  * Determines if a rectangle has significant overlap with a container (used for container assignment).
- * This uses a higher threshold than isRectangleMostlyInside to ensure only well-contained nodes
- * are assigned to containers, making movement more free.
+ * ENHANCED: Simplified to use a single threshold that balances assignment and removal.
  *
  * Time Complexity: O(1)
  */
 export function isRectangleWellContained(
   inner: NodeBounds,
   outer: NodeBounds,
-  overlapThreshold: number = 0.75
+  overlapThreshold: number = 0.6 // Balanced threshold for both assignment and removal
 ): boolean {
   // Calculate overlap area
   const overlapLeft = Math.max(inner.x, outer.x);
@@ -187,8 +256,9 @@ export function isRectangleWellContained(
   const overlapArea =
     (overlapRight - overlapLeft) * (overlapBottom - overlapTop);
   const innerArea = inner.width * inner.height;
+  const overlapRatio = overlapArea / innerArea;
 
-  return overlapArea / innerArea >= overlapThreshold;
+  return overlapRatio >= overlapThreshold;
 }
 
 /**
@@ -400,8 +470,8 @@ export function isNodeSignificantlyOutside(
 
 /**
  * Determines whether a node should update its parent relationship based on various criteria.
- * Implements stability checks to prevent unnecessary parent changes during dragging operations.
- * Allows intentional moves outside parents while preventing accidental relationship changes.
+ * Implements stability checks while allowing free movement and easy parent escape.
+ * ENHANCED: Much more permissive to allow nodes to break free from containers easily.
  *
  * Time Complexity: O(depth) for position calculations, with performance shortcuts during dragging
  */
@@ -425,79 +495,104 @@ export function shouldUpdateParent(
     return true;
   }
 
-  // PERFORMANCE: During active dragging (not drag end), be more permissive to allow free movement
-  // Allow nodes to break free more easily during dragging
+  // ENHANCED: During active dragging, allow much more freedom to move
   if (!isDragEnd && node.dragging) {
-    // For containers being dragged, allow them to break free when not well-contained
-    // This fixes the issue where containers get stuck inside other containers
-    if (node.data?.isContainer) {
-      if (currentParentId) {
-        const currentParent = nodeMap.get(currentParentId);
-        if (currentParent) {
-          // Check if still well-contained (75% overlap) in current parent
-          const isWellContained = isNodeInsideContainer(node, currentParent, nodeMap);
-          // If not well-contained, allow removal even during dragging
-          return !isWellContained;
-        }
-      }
-      return false;
+    // Always allow nodes to break free from current parents during dragging
+    // This makes movement feel natural and removes the "sticky container" problem
+    if (currentParentId && !newParentId) {
+      return true; // Allow breaking free immediately
+    }
+    
+    // For containers being dragged, always allow them to break free
+    if (node.data?.isContainer && currentParentId) {
+      return true; // Containers can always break free during drag
     }
 
-    // For regular nodes, allow movement when not well-contained in current parent
-    if (currentParentId) {
+    // Allow assignment to new parent only if well-contained (intentional placement)
+    if (!currentParentId && newParentId) {
+      return newParent ? isNodeInsideContainer(node, newParent, nodeMap) : false;
+    }
+
+    // Allow switching between parents if new parent is better contained
+    if (currentParentId && newParentId) {
       const currentParent = nodeMap.get(currentParentId);
-      if (currentParent) {
-        // Check if still well-contained (75% overlap) in current parent
-        const isWellContained = isNodeInsideContainer(node, currentParent, nodeMap);
-        // If not well-contained, allow removal even during dragging
-        return !isWellContained;
+      if (currentParent && newParent) {
+        const wellContainedInCurrent = isNodeInsideContainer(node, currentParent, nodeMap);
+        const wellContainedInNew = isNodeInsideContainer(node, newParent, nodeMap);
+        
+        // Switch if new parent contains it better, or if not well-contained in current
+        return !wellContainedInCurrent || wellContainedInNew;
       }
     }
 
     return false;
   }
 
-  // If node currently has a parent
+  // ENHANCED: At drag end, be more responsive to user intent
+  if (isDragEnd) {
+    // If node currently has a parent
+    if (currentParentId) {
+      const currentParent = nodeMap.get(currentParentId);
+      if (currentParent) {
+        const isWellContained = isNodeInsideContainer(node, currentParent, nodeMap);
+        
+        // If not well-contained in current parent, allow removal
+        if (!isWellContained) {
+          return true;
+        }
+
+        // If well-contained in current but also well-contained in a new parent
+        if (newParent && isWellContained) {
+          const isWellContainedInNew = isNodeInsideContainer(node, newParent, nodeMap);
+          if (isWellContainedInNew) {
+            // Prefer smaller (more specific) containers
+            const currentParentBounds = getNodeBounds(currentParent);
+            const newParentBounds = getNodeBounds(newParent);
+            const currentArea = currentParentBounds.width * currentParentBounds.height;
+            const newArea = newParentBounds.width * newParentBounds.height;
+            return newArea < currentArea * 0.8; // Switch to smaller container
+          }
+        }
+
+        return false; // Stay with current parent if well-contained
+      }
+    }
+
+    // If no current parent, check if new parent should be assigned
+    if (newParent) {
+      return isNodeInsideContainer(node, newParent, nodeMap);
+    }
+  }
+
+  // For non-dragging scenarios, use well-contained logic
   if (currentParentId) {
     const currentParent = nodeMap.get(currentParentId);
     if (currentParent) {
       const isWellContained = isNodeInsideContainer(node, currentParent, nodeMap);
-      const isSignificantlyOutside = isNodeSignificantlyOutside(
-        node,
-        currentParent,
-        nodeMap
-      );
-
-      // If node is significantly outside current parent, definitely allow the change
-      if (isSignificantlyOutside) {
-        return true;
-      }
-
-      // NEW LOGIC: If node is no longer well-contained (75% overlap), allow removal
-      // This makes it much easier for nodes to break free from containers
+      
+      // If not well-contained, allow removal
       if (!isWellContained) {
         return true;
       }
 
-      // If node is still well-contained and there's a new potential parent
+      // If well-contained in current and new parent exists
       if (newParent && isWellContained) {
-        // Check if new parent is more specific (smaller area)
-        const currentParentBounds = getNodeBounds(currentParent);
-        const newParentBounds = getNodeBounds(newParent);
-        const currentArea =
-          currentParentBounds.width * currentParentBounds.height;
-        const newArea = newParentBounds.width * newParentBounds.height;
-
-        // Only change if new parent is significantly smaller (more specific)
-        return newArea < currentArea * 0.7;
+        const isWellContainedInNew = isNodeInsideContainer(node, newParent, nodeMap);
+        if (isWellContainedInNew) {
+          // Prefer smaller containers
+          const currentParentBounds = getNodeBounds(currentParent);
+          const newParentBounds = getNodeBounds(newParent);
+          const currentArea = currentParentBounds.width * currentParentBounds.height;
+          const newArea = newParentBounds.width * newParentBounds.height;
+          return newArea < currentArea * 0.7;
+        }
       }
 
-      // Stay with current parent only if still well-contained and no better option
-      return false;
+      return false; // Stay with current parent
     }
   }
 
-  // If no current parent or current parent doesn't exist, check new parent
+  // If no current parent, check new parent
   if (newParent) {
     return isNodeInsideContainer(node, newParent, nodeMap);
   }
@@ -578,7 +673,7 @@ export function findParentContainer(
 /**
  * Updates a single node's parent relationship and adjusts its position coordinates.
  * Handles conversion between absolute and relative positioning when nodes move between parents.
- * Manages the extent property to constrain nodes within their parent containers.
+ * REMOVED extent constraints to allow free movement - nodes are no longer bounded by parent containers.
  *
  * Time Complexity: O(depth) due to absolute position calculations
  */
@@ -603,7 +698,7 @@ export function updateNodeParentRelationship(
         ...node,
         parentId: undefined,
         position: absolutePos,
-        extent: undefined,
+        extent: undefined, // Allow free movement
       };
     }
   }
@@ -620,7 +715,7 @@ export function updateNodeParentRelationship(
           x: node.position.x - newParentAbsolutePos.x,
           y: node.position.y - newParentAbsolutePos.y,
         },
-        extent: "parent",
+        extent: undefined, // FIXED: Remove extent constraint to allow free movement
       };
     }
   }
@@ -641,7 +736,7 @@ export function updateNodeParentRelationship(
           x: absolutePos.x - newParentAbsolutePos.x,
           y: absolutePos.y - newParentAbsolutePos.y,
         },
-        extent: "parent",
+        extent: undefined, // FIXED: Remove extent constraint to allow free movement
       };
     }
   }
@@ -649,7 +744,7 @@ export function updateNodeParentRelationship(
   return {
     ...node,
     parentId: newParentId,
-    extent: newParentId ? "parent" : undefined,
+    extent: undefined, // FIXED: Always allow free movement
   };
 }
 

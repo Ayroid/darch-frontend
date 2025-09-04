@@ -12,14 +12,15 @@ import {
 	NodeChange,
 	NodeProps,
 } from "@xyflow/react";
-import { updateNodeParentRelationships, clearContainerCaches, batchUpdateNodeRelationships, updateNodeParentRelationshipsWithTracking, batchUpdateNodeRelationshipsWithTracking } from "@/lib/container-logic";
+import { updateNodeParentRelationships, clearContainerCaches, updateNodeParentRelationshipsWithTracking, batchUpdateNodeRelationshipsWithTracking } from "@/lib/container-logic";
 import { autoConfigureNode } from "@/lib/auto-configuration";
+import { AWSResourceConfiguration } from "@/lib/types/aws-resources";
 
 // Type for architecture store - we'll use specific methods
 type ArchitectureStore = {
-	getNodeConfiguration: (nodeId: string) => any;
-	updateNodeConfiguration: (nodeId: string, config: any) => void;
-	nodeConfigurations: Record<string, any>;
+	getNodeConfiguration: (nodeId: string) => AWSResourceConfiguration | null;
+	updateNodeConfiguration: (nodeId: string, config: Partial<AWSResourceConfiguration>) => void;
+	nodeConfigurations: Record<string, AWSResourceConfiguration>;
 };
 
 // Interfaces
@@ -644,7 +645,7 @@ export const createNodeHandlers = (
 					// Use batch update for better performance with multiple containers
 					if (changedNodeIds.size > 1) {
 						const { updatedNodes, nodesWithChangedParents } = batchUpdateNodeRelationshipsWithTracking(currentNodes, changedNodeIds, true);
-						
+
 						// Trigger auto-configuration for nodes with changed parents
 						if (nodesWithChangedParents.size > 0 && architectureStore) {
 							setTimeout(() => {
@@ -662,12 +663,12 @@ export const createNodeHandlers = (
 								}
 							}, 0);
 						}
-						
+
 						return updatedNodes;
 					} else {
 						// Single node update with drag end flag - FIXED: pass isDragEnd: true
 						const { updatedNodes, nodesWithChangedParents } = updateNodeParentRelationshipsWithTracking(currentNodes, false, true);
-						
+
 						// Trigger auto-configuration for nodes with changed parents
 						if (nodesWithChangedParents.size > 0 && architectureStore) {
 							setTimeout(() => {
@@ -685,7 +686,7 @@ export const createNodeHandlers = (
 								}
 							}, 0);
 						}
-						
+
 						return updatedNodes;
 					}
 				});

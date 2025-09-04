@@ -40,7 +40,8 @@ import {
   canContainerContainContainer,
   getContainerChildren,
   clearParentChildCaches,
-  invalidateNodeCache
+  invalidateNodeCache,
+  getSnapTargets
 } from "./parent-child-logic";
 
 // Export types
@@ -74,7 +75,8 @@ export {
   validateContainerRelationships,
   canContainerContainContainer,
   getContainerChildren,
-  invalidateNodeCache
+  invalidateNodeCache,
+  getSnapTargets
 };
 
 /**
