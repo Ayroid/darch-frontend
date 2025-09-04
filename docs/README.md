@@ -44,12 +44,14 @@ frontend/
 
 1. **Visual Architecture Designer** - Drag-and-drop interface for creating cloud diagrams
 2. **AWS Service Library** - Comprehensive collection of AWS services and resources
-3. **Auto-Configuration System** - Intelligent field population based on container relationships
-4. **State Management** - Persistent state with undo/redo capabilities
-5. **Import/Export Functionality** - Save and load architecture configurations
-6. **Keyboard Shortcuts** - Complete keyboard navigation support
-7. **Configuration Management** - Detailed configuration forms for each AWS resource
-8. **Real-time Validation** - Form validation with error handling
+3. **Architecture Templates** - Pre-built templates using ready AWS services for quick start
+4. **Auto-Configuration System** - Intelligent field population based on container relationships
+5. **State Management** - Persistent state with undo/redo capabilities
+6. **Import/Export Functionality** - Save and load architecture configurations
+7. **Keyboard Shortcuts** - Complete keyboard navigation support
+8. **Configuration Management** - Detailed configuration forms for each AWS resource
+9. **Real-time Validation** - Form validation with error handling
+10. **Responsive Homepage** - Modern landing page with recent projects and templates
 
 ## Documentation Structure
 
@@ -68,7 +70,7 @@ Each major functionality is documented in detail:
 - **[UI Components](./11-ui-components.md)** - Reusable component library
 - **[Utility Functions](./12-utility-functions.md)** - Helper functions and algorithms
 - **[Type System](./13-type-system.md)** - TypeScript types and interfaces
-- **[Homepage](./14-homepage.md)** - Landing page and recent items
+- **[Homepage System](./14-homepage.md)** - Landing page, recent projects, and architecture templates
 
 ## Getting Started
 

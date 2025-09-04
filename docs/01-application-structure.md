@@ -141,8 +141,8 @@ components/
 │   ├── Homepage.tsx            # Main homepage container
 │   ├── DarchSidebar.tsx       # Homepage sidebar
 │   ├── TopBar.tsx             # Homepage top bar
-│   ├── RecentArchitectures.tsx # Recent items display
-│   └── RecentDeployments.tsx   # Deployment history
+│   ├── RecentArchitectures.tsx # Recent user architectures
+│   └── ArchitectureTemplates.tsx # Pre-built architecture templates
 └── ui/                         # Reusable UI components
     ├── button.tsx              # Button component
     ├── card.tsx               # Card component
@@ -199,8 +199,8 @@ lib/
 1. **Route**: User visits `/`
 2. **Component**: `Homepage.tsx` renders
 3. **Sidebar**: `DarchSidebar.tsx` provides navigation
-4. **Content**: Recent architectures and deployments display
-5. **Navigation**: User can navigate to `/designer`
+4. **Content**: Recent architectures and pre-built templates display in 2x2 grid layout
+5. **Navigation**: User can navigate to `/designer` or load templates directly
 
 ### 3. Designer Flow
 1. **Route**: User visits `/designer`
