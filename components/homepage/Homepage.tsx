@@ -3,7 +3,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import DarchSidebar from "./DarchSidebar";
 import TopBar from "./TopBar";
 import RecentArchitectures from "./RecentArchitectures";
-import RecentDeployments from "./RecentDeployments";
+import ArchitectureTemplates from "./ArchitectureTemplates";
 
 export default function Homepage() {
 	return (
@@ -24,8 +24,8 @@ export default function Homepage() {
 								{/* Recent Architectures */}
 								<RecentArchitectures />
 
-								{/* Recent Deployments */}
-								<RecentDeployments />
+								{/* Architecture Templates */}
+								<ArchitectureTemplates />
 							</div>
 						</div>
 					</SidebarInset>
