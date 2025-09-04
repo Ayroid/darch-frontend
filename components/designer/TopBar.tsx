@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
+import Link from "next/link";
 import { FiUser, FiSettings } from "react-icons/fi";
 import { LuFileText } from "react-icons/lu";
 import ArchitectureImportExport from "./ArchitectureImportExport";
@@ -35,7 +36,11 @@ export default function TopBar({
 	onDataLoaded,
 }: TopBarProps) {
 	const dropdownRef = useRef<HTMLDivElement>(null);
-	const { showProjectDropdown, setProjectDropdownVisible, toggleProjectDropdown } = useUIStore();
+	const {
+		showProjectDropdown,
+		setProjectDropdownVisible,
+		toggleProjectDropdown,
+	} = useUIStore();
 
 	// Click outside to close dropdown
 	useEffect(() => {
@@ -59,13 +64,12 @@ export default function TopBar({
 			<div className="flex flex-1 items-center">
 				{/* Left Section */}
 				<div className="flex items-center space-x-6 w-full justify-start">
-					{/* Logo */}
-					<div className="flex items-center space-x-3">
+					<Link className="flex items-center space-x-3" href="/">
 						<div className="w-8 h-8 bg-gradient-to-br from-gray-500 to-black rounded-lg flex items-center justify-center">
 							<span className="text-white text-sm font-bold">D</span>
 						</div>
 						<span className="text-xl font-semibold text-gray-900">Darch</span>
-					</div>
+					</Link>
 
 					{/* Project Selector */}
 					<div className="flex items-center">
