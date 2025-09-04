@@ -534,7 +534,12 @@ export const createNodeHandlers = (
 	onNodesChange: (changes: NodeChange[]) => void,
 	onNodeAdd?: (node: Node) => void,
 	getNodeConfiguration?: (nodeId: string) => unknown,
-	architectureStore?: ArchitectureStore
+	architectureStore?: ArchitectureStore,
+	undoRedoHook?: {
+		saveAfterNodeOperation: (nodes: Node[], edges: Edge[], operation: 'add' | 'delete' | 'move' | 'resize' | 'configure') => void;
+		saveAfterEdgeOperation: (nodes: Node[], edges: Edge[], operation: 'add' | 'delete') => void;
+		saveAfterBulkOperation: (nodes: Node[], edges: Edge[], operation: 'paste' | 'duplicate' | 'import' | 'bulk') => void;
+	}
 ) => {
 	// Debounce timer for parent relationship updates
 	let parentUpdateTimeout: NodeJS.Timeout | null = null;
@@ -690,6 +695,19 @@ export const createNodeHandlers = (
 						return updatedNodes;
 					}
 				});
+				
+				// Save state after node movement
+				if (undoRedoHook) {
+					setTimeout(() => {
+						setNodes((currentNodes) => {
+							setEdges((currentEdges) => {
+								undoRedoHook.saveAfterNodeOperation(currentNodes, currentEdges, 'move');
+								return currentEdges;
+							});
+							return currentNodes;
+						});
+					}, 100); // Small delay to ensure state is updated
+				}
 			}, 1000); // Reduced from 150ms to 100ms for better responsiveness
 		}
 	};
@@ -740,6 +758,19 @@ export const createNodeHandlers = (
 		// Call onNodeAdd for each new node
 		newNodes.forEach((node) => onNodeAdd?.(node));
 
+		// Save state after pasting
+		setTimeout(() => {
+			if (undoRedoHook) {
+				setNodes((currentNodes) => {
+					setEdges((currentEdges) => {
+						undoRedoHook.saveAfterBulkOperation(currentNodes, currentEdges, 'paste');
+						return currentEdges;
+					});
+					return currentNodes;
+				});
+			}
+		}, 0);
+
 		console.log(`Pasted ${newNodes.length} node(s)`);
 	};
 
@@ -777,6 +808,19 @@ export const createNodeHandlers = (
 		// Call onNodeAdd for each new node
 		newNodes.forEach((node) => onNodeAdd?.(node));
 
+		// Save state after duplicating
+		setTimeout(() => {
+			if (undoRedoHook) {
+				setNodes((currentNodes) => {
+					setEdges((currentEdges) => {
+						undoRedoHook.saveAfterBulkOperation(currentNodes, currentEdges, 'duplicate');
+						return currentEdges;
+					});
+					return currentNodes;
+				});
+			}
+		}, 0);
+
 		console.log(`Duplicated ${newNodes.length} node(s)`);
 	};
 
@@ -798,6 +842,8 @@ export const createNodeHandlers = (
 		if (selectedNodes.length === 0) return;
 
 		const selectedNodeIds = selectedNodes.map((node) => node.id);
+		
+		// Apply the changes
 		setNodes((nds) => nds.filter((node) => !node.selected));
 		setEdges((eds) =>
 			eds.filter(
@@ -806,6 +852,20 @@ export const createNodeHandlers = (
 					!selectedNodeIds.includes(edge.target)
 			)
 		);
+		
+		// Save state after deletion
+		setTimeout(() => {
+			if (undoRedoHook) {
+				setNodes((currentNodes) => {
+					setEdges((currentEdges) => {
+						undoRedoHook.saveAfterNodeOperation(currentNodes, currentEdges, 'delete');
+						return currentEdges;
+					});
+					return currentNodes;
+				});
+			}
+		}, 0);
+		
 		console.log(`Deleted ${selectedNodes.length} node(s)`);
 	};
 

@@ -15,7 +15,8 @@ All components have been updated to use the new store structure. The old monolit
 ```
 lib/stores/
 ├── canvas/
-│   └── canvas-store.ts           # Canvas state (zoom, pan, selection)
+│   ├── canvas-store.ts           # Canvas state (zoom, pan, selection)
+│   └── undo-redo-store.ts        # Undo/redo state management
 ├── configuration/
 │   ├── configuration-store.ts   # Node configurations management
 │   └── default-configurations.ts # Default configs for AWS resources
@@ -86,7 +87,43 @@ Manages canvas-specific state including viewport and selections.
 - `clearAllSelections()`: Clear all selections
 - `setSelectionBox(box)`: Set selection rectangle
 
-### 4. Validation Store (`validation/validation-store.ts`)
+### 4. Undo/Redo Store (`canvas/undo-redo-store.ts`)
+
+**NEW**: Enhanced undo/redo state management with action tracking and intelligent state saving.
+
+#### State:
+- `history`: Array of state snapshots with timestamps and actions
+- `currentIndex`: Current position in history
+- `maxHistorySize`: Maximum number of states to keep (default: 50)
+- `isUndoing`: Flag to prevent saves during undo operations
+- `isRedoing`: Flag to prevent saves during redo operations
+
+#### Key Actions:
+- `saveState(nodes, edges, action)`: Save current state with action description
+- `undo()`: Move to previous state and return snapshot
+- `redo()`: Move to next state and return snapshot
+- `canUndo()`: Check if undo is possible
+- `canRedo()`: Check if redo is possible
+- `clearHistory()`: Clear all history
+- `setMaxHistorySize(size)`: Configure history limit
+
+#### State Snapshot:
+```typescript
+interface StateSnapshot {
+  nodes: Node[];
+  edges: Edge[];
+  timestamp: number;
+  action?: string; // e.g., 'node_add', 'edge_delete', 'paste'
+}
+```
+
+#### Smart Features:
+- **Deep State Comparison**: Prevents duplicate saves
+- **Action Tracking**: Each state includes what action caused it
+- **Conflict Prevention**: Won't save during undo/redo operations
+- **Performance Optimized**: Efficient cloning and memory management
+
+### 5. Validation Store (`validation/validation-store.ts`)
 
 Handles form validation and error management.
 
@@ -104,6 +141,42 @@ Handles form validation and error management.
 ---
 
 ## Hooks
+
+### `useUndoRedo()` 
+
+**NEW**: Enhanced undo/redo hook with action tracking.
+
+```typescript
+const {
+  saveState,        // (nodes, edges, action?) => void
+  undo,             // () => StateSnapshot | null
+  redo,             // () => StateSnapshot | null
+  canUndo,          // boolean
+  canRedo,          // boolean
+  clearHistory,     // () => void
+  getHistoryInfo,   // () => HistoryInfo
+  setMaxHistorySize // (size: number) => void
+} = useUndoRedo();
+```
+
+### `useCanvasUndoRedo()`
+
+**NEW**: Canvas-specific undo/redo hook with operation-based saving.
+
+```typescript
+const {
+  undo,                      // Core undo/redo
+  redo,
+  canUndo,
+  canRedo,
+  saveCanvasState,           // General state saving
+  saveAfterNodeOperation,    // Node-specific: add, delete, move, resize, configure
+  saveAfterEdgeOperation,    // Edge-specific: add, delete
+  saveAfterBulkOperation,    // Bulk: paste, duplicate, import
+  debouncedSave,            // Debounced saving with configurable delay
+  clearHistory
+} = useCanvasUndoRedo();
+```
 
 ### `useConfigurationForm(nodeId)`
 

@@ -383,15 +383,42 @@ interface AppShortcutActions {
 }
 ```
 
-#### `useUndoRedo()`
-Provides undo/redo functionality.
+#### `useUndoRedo()` (Enhanced)
+Provides advanced undo/redo functionality with action tracking and intelligent state management.
 ```typescript
 interface UndoRedoHook {
-  saveState: (nodes: Node[], edges: Edge[]) => void;
-  undo: () => { nodes: Node[]; edges: Edge[] } | null;
-  redo: () => { nodes: Node[]; edges: Edge[] } | null;
+  saveState: (nodes: Node[], edges: Edge[], action?: string) => void;
+  undo: () => StateSnapshot | null;
+  redo: () => StateSnapshot | null;
   canUndo: boolean;
   canRedo: boolean;
+  clearHistory: () => void;
+  getHistoryInfo: () => HistoryInfo;
+  setMaxHistorySize: (size: number) => void;
+}
+
+interface StateSnapshot {
+  nodes: Node[];
+  edges: Edge[];
+  timestamp: number;
+  action?: string;
+}
+```
+
+#### `useCanvasUndoRedo()`
+Specialized hook for canvas operations with operation-specific state saving.
+```typescript
+interface CanvasUndoRedoHook {
+  undo: () => StateSnapshot | null;
+  redo: () => StateSnapshot | null;
+  canUndo: boolean;
+  canRedo: boolean;
+  saveCanvasState: (nodes: Node[], edges: Edge[], action: UndoRedoActionType, description?: string) => void;
+  saveAfterNodeOperation: (nodes: Node[], edges: Edge[], operation: 'add' | 'delete' | 'move' | 'resize' | 'configure') => void;
+  saveAfterEdgeOperation: (nodes: Node[], edges: Edge[], operation: 'add' | 'delete') => void;
+  saveAfterBulkOperation: (nodes: Node[], edges: Edge[], operation: 'paste' | 'duplicate' | 'import' | 'bulk') => void;
+  debouncedSave: (nodes: Node[], edges: Edge[], delay?: number) => NodeJS.Timeout;
+  clearHistory: () => void;
 }
 ```
 

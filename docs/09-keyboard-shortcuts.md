@@ -309,14 +309,37 @@ if (isModifier && key === "n") {
 ```typescript
 // Clipboard and edit shortcuts
 const editShortcuts = {
-  undo: { key: "Ctrl+Z", action: "Undo last action" },
-  redo: { key: "Ctrl+Y / Ctrl+Shift+Z", action: "Redo last undone action" },
+  undo: { key: "Ctrl+Z", action: "Undo last action with action tracking" },
+  redo: { key: "Ctrl+Y / Ctrl+Shift+Z", action: "Redo last undone action with action tracking" },
   copy: { key: "Ctrl+C", action: "Copy selected nodes" },
   paste: { key: "Ctrl+V", action: "Paste copied nodes" },
   cut: { key: "Ctrl+X", action: "Cut selected nodes" },
   duplicate: { key: "Ctrl+D", action: "Duplicate selected nodes" },
   delete: { key: "Delete / Backspace", action: "Delete selected nodes" },
 };
+
+// Enhanced undo/redo with action tracking
+const handleUndo = useCallback(() => {
+  const previousState = undoRedoHook.undo();
+  if (previousState) {
+    setNodes(previousState.nodes);
+    setEdges(previousState.edges);
+    console.log("Undid:", previousState.action || 'unknown action');
+    // Show toast notification with action description
+    showToast(`Undid: ${previousState.action || 'action'}`);
+  }
+}, [undoRedoHook, setNodes, setEdges]);
+
+const handleRedo = useCallback(() => {
+  const nextState = undoRedoHook.redo();
+  if (nextState) {
+    setNodes(nextState.nodes);
+    setEdges(nextState.edges);
+    console.log("Redid:", nextState.action || 'unknown action');
+    // Show toast notification with action description
+    showToast(`Redid: ${nextState.action || 'action'}`);
+  }
+}, [undoRedoHook, setNodes, setEdges]);
 
 // Clipboard operations integration
 const handleCopy = useCallback(() => {

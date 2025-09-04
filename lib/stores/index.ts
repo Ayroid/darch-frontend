@@ -3,6 +3,8 @@ export { useConfigurationStore } from './configuration/configuration-store';
 export { getDefaultConfiguration, defaultConfigurations } from './configuration/default-configurations';
 export { useUIStore } from './ui/ui-store';
 export { useCanvasStore } from './canvas/canvas-store';
+export { useUndoRedoStore, useUndoRedo, UndoRedoActions } from './canvas/undo-redo-store';
+export type { UndoRedoActionType } from './canvas/undo-redo-store';
 export { useValidationStore } from './validation/validation-store';
 export type { ValidationRule } from './validation/validation-store';
 

@@ -71,6 +71,7 @@ Each major functionality is documented in detail:
 - **[Utility Functions](./12-utility-functions.md)** - Helper functions and algorithms
 - **[Type System](./13-type-system.md)** - TypeScript types and interfaces
 - **[Homepage System](./14-homepage.md)** - Landing page, recent projects, and architecture templates
+- **[Undo/Redo System](./15-undo-redo-system.md)** - Enhanced state management with action tracking
 
 ## Getting Started
 

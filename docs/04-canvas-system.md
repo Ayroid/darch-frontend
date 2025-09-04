@@ -470,43 +470,231 @@ const handleNodeDoubleClick = useCallback((event: React.MouseEvent, node: Node) 
 
 ## Undo/Redo System
 
-### Undo/Redo Hook
+### Overview
+The undo/redo system has been completely redesigned to provide reliable, performant state management with action tracking and intelligent state saving.
+
+**Key Components:**
+- **Undo/Redo Store**: Zustand-based state management (`lib/stores/canvas/undo-redo-store.ts`)
+- **Canvas Hook**: Specialized operations hook (`hooks/use-canvas-undo-redo.ts`)
+- **Action Tracking**: Named actions for better debugging and user feedback
+
+### Store-Based Architecture
+
+#### Undo/Redo Store
 ```typescript
-const { saveState, undo, redo, canUndo, canRedo } = useUndoRedo();
+// lib/stores/canvas/undo-redo-store.ts
+export const useUndoRedoStore = create<UndoRedoState & UndoRedoActions>()(
+  devtools((set, get) => ({
+    history: [],
+    currentIndex: -1,
+    maxHistorySize: 50,
+    isUndoing: false,
+    isRedoing: false,
+
+    saveState: (nodes: Node[], edges: Edge[], action?: string) => {
+      // Prevents saving during undo/redo operations
+      if (state.isUndoing || state.isRedoing) return;
+      
+      // Deep state comparison to avoid duplicate saves
+      if (statesAreEqual(nodesCopy, edgesCopy, currentSnapshot.nodes, currentSnapshot.edges)) {
+        return;
+      }
+      
+      // Save with action tracking
+      const newSnapshot = { nodes: nodesCopy, edges: edgesCopy, timestamp: Date.now(), action };
+      // ... history management
+    },
+    
+    undo: () => { /* Returns previous state snapshot */ },
+    redo: () => { /* Returns next state snapshot */ },
+  }))
+);
 ```
 
-### State Saving
+#### Canvas Hook
 ```typescript
-useEffect(() => {
-  const timeoutId = setTimeout(() => {
-    saveState(nodes, edges);
-    updateFromReactFlow(nodes, edges);
-  }, 500); // Debounce state saving
+// hooks/use-canvas-undo-redo.ts
+export function useCanvasUndoRedo() {
+  const { saveState, undo, redo, canUndo, canRedo } = useUndoRedo();
 
-  return () => clearTimeout(timeoutId);
-}, [nodes, edges, saveState, updateFromReactFlow]);
+  // Specialized save methods for different operations
+  const saveAfterNodeOperation = useCallback((
+    nodes: Node[], 
+    edges: Edge[], 
+    operation: 'add' | 'delete' | 'move' | 'resize' | 'configure'
+  ) => {
+    const actionMap = {
+      add: UndoRedoActions.NODE_ADD,
+      delete: UndoRedoActions.NODE_DELETE,
+      move: UndoRedoActions.NODE_MOVE,
+      resize: UndoRedoActions.NODE_RESIZE,
+      configure: UndoRedoActions.NODE_CONFIG_CHANGE,
+    };
+    saveCanvasState(nodes, edges, actionMap[operation]);
+  }, [saveCanvasState]);
+
+  const saveAfterEdgeOperation = useCallback(/* ... */);
+  const saveAfterBulkOperation = useCallback(/* ... */);
+  
+  return { undo, redo, canUndo, canRedo, saveAfterNodeOperation, /* ... */ };
+}
 ```
 
-### Undo/Redo Handlers
-```typescript
-const handleUndo = useCallback(() => {
-  const previousState = undo();
-  if (previousState) {
-    setNodes(previousState.nodes);
-    setEdges(previousState.edges);
-    console.log("Undid last action");
-  }
-}, [undo, setNodes, setEdges]);
+### Action-Based State Saving
 
-const handleRedo = useCallback(() => {
-  const nextState = redo();
-  if (nextState) {
-    setNodes(nextState.nodes);
-    setEdges(nextState.edges);
-    console.log("Redid last action");
-  }
-}, [redo, setNodes, setEdges]);
+#### Action Types
+```typescript
+export const UndoRedoActions = {
+  NODE_ADD: 'node_add',
+  NODE_DELETE: 'node_delete',
+  NODE_MOVE: 'node_move',
+  NODE_RESIZE: 'node_resize',
+  NODE_CONFIG_CHANGE: 'node_config_change',
+  EDGE_ADD: 'edge_add',
+  EDGE_DELETE: 'edge_delete',
+  BULK_OPERATION: 'bulk_operation',
+  PASTE: 'paste',
+  DUPLICATE: 'duplicate',
+  IMPORT: 'import',
+} as const;
 ```
+
+#### Intelligent State Saving
+State is saved at specific moments rather than on every change:
+
+**Node Operations:**
+```typescript
+// After adding a node (drag & drop)
+setTimeout(() => {
+  undoRedoHook.saveAfterNodeOperation(nodes, edges, 'add');
+}, 0);
+
+// After deleting nodes
+setTimeout(() => {
+  undoRedoHook.saveAfterNodeOperation(nodes, edges, 'delete');
+}, 0);
+
+// After moving nodes (drag end)
+setTimeout(() => {
+  undoRedoHook.saveAfterNodeOperation(nodes, edges, 'move');
+}, 100);
+```
+
+**Edge Operations:**
+```typescript
+// After adding a connection
+setTimeout(() => {
+  undoRedoHook.saveAfterEdgeOperation(nodes, edges, 'add');
+}, 0);
+
+// After deleting an edge
+setTimeout(() => {
+  undoRedoHook.saveAfterEdgeOperation(nodes, edges, 'delete');
+}, 0);
+```
+
+**Bulk Operations:**
+```typescript
+// After pasting nodes
+setTimeout(() => {
+  undoRedoHook.saveAfterBulkOperation(nodes, edges, 'paste');
+}, 0);
+
+// After duplicating nodes
+setTimeout(() => {
+  undoRedoHook.saveAfterBulkOperation(nodes, edges, 'duplicate');
+}, 0);
+```
+
+### Canvas Integration
+
+#### Canvas Component Setup
+```typescript
+// components/designer/ArchitectureCanvas.tsx
+export default function ArchitectureCanvas() {
+  // Use the enhanced canvas undo/redo hook
+  const undoRedoHook = useCanvasUndoRedo();
+  const { undo, redo, canUndo, canRedo } = undoRedoHook;
+
+  // Pass hook to node handlers for operation-specific saving
+  const nodeHandlers = createNodeHandlers(
+    nodes, setNodes, setEdges, onNodesChange, onNodeAdd,
+    getNodeConfiguration, architectureStore, undoRedoHook
+  );
+
+  // Handlers with action logging
+  const handleUndo = useCallback(() => {
+    const previousState = undo();
+    if (previousState) {
+      setNodes(previousState.nodes);
+      setEdges(previousState.edges);
+      console.log("Undid:", previousState.action || 'unknown');
+    }
+  }, [undo, setNodes, setEdges]);
+
+  const handleRedo = useCallback(() => {
+    const nextState = redo();
+    if (nextState) {
+      setNodes(nextState.nodes);
+      setEdges(nextState.edges);
+      console.log("Redid:", nextState.action || 'unknown');
+    }
+  }, [redo, setNodes, setEdges]);
+}
+```
+
+#### Enhanced Node Handlers
+```typescript
+// components/designer/nodeUtils.tsx
+export const createNodeHandlers = (
+  nodes, setNodes, setEdges, onNodesChange, onNodeAdd,
+  getNodeConfiguration, architectureStore, undoRedoHook
+) => {
+  const handleDeleteNodes = () => {
+    // Apply deletions
+    setNodes((nds) => nds.filter((node) => !node.selected));
+    setEdges((eds) => eds.filter(/* remove connected edges */));
+    
+    // Save state after deletion
+    setTimeout(() => {
+      if (undoRedoHook) {
+        undoRedoHook.saveAfterNodeOperation(currentNodes, currentEdges, 'delete');
+      }
+    }, 0);
+  };
+
+  const handlePasteNodes = (copiedNodes) => {
+    // Apply paste operation
+    setNodes((nds) => [...nds.map(n => ({...n, selected: false})), ...newNodes]);
+    
+    // Save state after pasting
+    setTimeout(() => {
+      if (undoRedoHook) {
+        undoRedoHook.saveAfterBulkOperation(currentNodes, currentEdges, 'paste');
+      }
+    }, 0);
+  };
+  
+  // Similar pattern for duplicate, move operations...
+};
+```
+
+### State Management Features
+
+#### Conflict Prevention
+- **Operation Flags**: Prevents saving state during undo/redo operations
+- **Async Handling**: Uses setTimeout to avoid race conditions
+- **State Comparison**: Deep comparison prevents duplicate saves
+
+#### Performance Optimizations
+- **Smart Saving**: Only saves when meaningful changes occur
+- **History Limit**: Configurable history size (default: 50 states)
+- **Efficient Cloning**: JSON-based deep cloning for state snapshots
+
+#### Debugging & Monitoring
+- **Action Tracking**: Each state change includes action description
+- **Console Logging**: Undo/redo operations log action names
+- **Zustand DevTools**: Full state inspection in browser DevTools
 
 ### Undo/Redo Controls
 ```typescript
@@ -517,6 +705,23 @@ const handleRedo = useCallback(() => {
   onRedo={handleRedo}
 />
 ```
+
+### Key Improvements Over Previous System
+
+**✅ Fixed Issues:**
+1. **Stale Closures**: Removed callback dependencies on `historyIndex`
+2. **Race Conditions**: Added operation flags and proper timing
+3. **Excessive Saves**: Moved from timer-based to operation-based saving
+4. **No State Comparison**: Added deep comparison to prevent duplicates
+5. **Poor Performance**: Optimized with targeted saves and efficient cloning
+
+**✅ New Features:**
+1. **Action Tracking**: Know exactly what action is being undone/redone
+2. **Zustand Integration**: Better state management and DevTools support
+3. **Operation-Specific Saving**: Different strategies for different operations
+4. **Conflict Prevention**: Robust handling of concurrent operations
+
+This new undo/redo system provides reliable, performant state management that integrates seamlessly with the canvas operations and provides clear feedback to users about what actions are being undone or redone.
 
 ## Keyboard Shortcuts Integration
 
