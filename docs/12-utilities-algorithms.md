@@ -1,19 +1,30 @@
 # Utility Functions and Algorithms
 
-This document covers the comprehensive utility functions, algorithms, and helper modules that support core functionality throughout the application, including data manipulation, formatting, calculations, and common operations.
+This document covers the comprehensive utility functions, algorithms, and helper modules that support core functionality throughout the application, including container movement, parent-child relationships, auto-configuration, and performance optimizations.
 
 ## Overview
 
-The utility system provides reusable functions and algorithms that handle common operations, data transformations, calculations, and business logic. These utilities maintain consistency and reduce code duplication across the application.
+The utility system provides reusable functions and algorithms that handle complex operations like **free movement container logic**, **smart snapping detection**, **parent-child relationships**, and **performance-optimized calculations**. These utilities ensure consistent behavior and optimal performance across the application.
 
 **Main Utilities Location**: `lib/`
 
 **Key Areas**:
 - Core utilities (`lib/utils.ts`)
-- Container logic (`lib/container-logic.ts`)
-- Parent-child relationships (`lib/parent-child-logic.ts`)
+- **Enhanced container logic** (`lib/container-logic.ts`) - Free movement and snapping
+- **Revolutionary parent-child logic** (`lib/parent-child-logic.ts`) - Boundary constraint removal
 - Z-index management (`lib/z-index-logic.ts`)
 - Auto-configuration algorithms (`lib/auto-configuration.ts`)
+
+## Recent Major Enhancements
+
+### 🚀 Container Movement Revolution
+**Problem Solved**: Removed ReactFlow `extent: "parent"` constraints that trapped nodes inside containers
+
+**Key Improvements**:
+- **Complete Movement Freedom**: Nodes can now move anywhere on canvas
+- **Smart Overlap Detection**: 75% threshold for intelligent container assignment
+- **Easy Breakout Logic**: 60% threshold for escaping containers during drag
+- **Performance Optimized**: Light updates during drag, heavy calculations on drag end
 
 ## Core Utilities
 
@@ -427,9 +438,9 @@ export function updateNodeParentRelationshipsWithTracking(
   nodes: Node[],
   forceUpdate: boolean = false,
   isDragEnd: boolean = false
-): { 
-  updatedNodes: Node[], 
-  nodesWithChangedParents: Set<string> 
+): {
+  updatedNodes: Node[],
+  nodesWithChangedParents: Set<string>
 } {
   // Enhanced version that tracks which nodes had parent changes
   // Enables automatic configuration updates for affected nodes
@@ -439,9 +450,9 @@ export function batchUpdateNodeRelationshipsWithTracking(
   nodes: Node[],
   changedNodeIds: Set<string>,
   isDragEnd: boolean = false
-): { 
-  updatedNodes: Node[], 
-  nodesWithChangedParents: Set<string> 
+): {
+  updatedNodes: Node[],
+  nodesWithChangedParents: Set<string>
 } {
   // Batch version with tracking capabilities
   // Returns both updated nodes and tracking information
@@ -454,7 +465,7 @@ The tracking functions enable seamless integration with the auto-configuration s
 
 ```typescript
 // Usage in node movement handlers
-const { updatedNodes, nodesWithChangedParents } = 
+const { updatedNodes, nodesWithChangedParents } =
   updateNodeParentRelationshipsWithTracking(currentNodes, false, true);
 
 // Trigger auto-configuration for affected nodes
@@ -953,7 +964,7 @@ export function shouldUpdateParent(
       }
     }
   }
-  
+
   // Enhanced logic for parent changes...
 }
 ```

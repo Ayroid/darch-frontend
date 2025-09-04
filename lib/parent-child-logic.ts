@@ -123,7 +123,7 @@ export function getSnapTargets(
   snapDistance: number = 50
 ): Node[] {
   const snapTargets: Node[] = [];
-  
+
   for (const container of containers) {
     // Skip self and current parent
     if (container.id === node.id || container.id === node.parentId) {
@@ -502,7 +502,7 @@ export function shouldUpdateParent(
     if (currentParentId && !newParentId) {
       return true; // Allow breaking free immediately
     }
-    
+
     // For containers being dragged, always allow them to break free
     if (node.data?.isContainer && currentParentId) {
       return true; // Containers can always break free during drag
@@ -519,7 +519,7 @@ export function shouldUpdateParent(
       if (currentParent && newParent) {
         const wellContainedInCurrent = isNodeInsideContainer(node, currentParent, nodeMap);
         const wellContainedInNew = isNodeInsideContainer(node, newParent, nodeMap);
-        
+
         // Switch if new parent contains it better, or if not well-contained in current
         return !wellContainedInCurrent || wellContainedInNew;
       }
@@ -535,7 +535,7 @@ export function shouldUpdateParent(
       const currentParent = nodeMap.get(currentParentId);
       if (currentParent) {
         const isWellContained = isNodeInsideContainer(node, currentParent, nodeMap);
-        
+
         // If not well-contained in current parent, allow removal
         if (!isWellContained) {
           return true;
@@ -569,7 +569,7 @@ export function shouldUpdateParent(
     const currentParent = nodeMap.get(currentParentId);
     if (currentParent) {
       const isWellContained = isNodeInsideContainer(node, currentParent, nodeMap);
-      
+
       // If not well-contained, allow removal
       if (!isWellContained) {
         return true;

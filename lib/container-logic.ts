@@ -183,9 +183,9 @@ export function updateNodeParentRelationshipsWithTracking(
   nodes: Node[],
   forceUpdate: boolean = false,
   isDragEnd: boolean = false
-): { 
-  updatedNodes: Node[], 
-  nodesWithChangedParents: Set<string> 
+): {
+  updatedNodes: Node[],
+  nodesWithChangedParents: Set<string>
 } {
   // Early return for empty arrays
   if (nodes.length === 0) return { updatedNodes: nodes, nodesWithChangedParents: new Set() };
@@ -354,9 +354,9 @@ export function batchUpdateNodeRelationshipsWithTracking(
   nodes: Node[],
   changedNodeIds: Set<string>,
   isDragEnd: boolean = false
-): { 
-  updatedNodes: Node[], 
-  nodesWithChangedParents: Set<string> 
+): {
+  updatedNodes: Node[],
+  nodesWithChangedParents: Set<string>
 } {
   // Only update nodes that actually changed or their potential parents/children
   const { parentToChildren, childToParent, containers } =

@@ -281,50 +281,78 @@ const onDragOver = useCallback((event: React.DragEvent) => {
 
 ## Container Movement System
 
-### Enhanced Container Freedom
+### Complete Movement Freedom (Enhanced)
 
-The canvas system now supports free movement of containers and services with improved containment logic:
+The canvas system now provides **complete freedom of movement** for all nodes, removing previous container boundary restrictions:
 
 **Key Features:**
-- **Liberal Movement**: Containers and services can be moved freely without getting stuck
-- **Smart Containment**: Only assigns nodes to containers when 75% or more of the node overlaps
-- **Easy Breakout**: Nodes can easily break free from containers when moved outside
-- **Real-time Updates**: Parent relationships update during and after dragging
+- **No Boundary Constraints**: Nodes can be moved anywhere on the canvas without getting stuck inside containers
+- **Smart Container Assignment**: Uses 75% overlap threshold for intelligent container relationships
+- **Easy Breakout**: Nodes can easily break free from containers when moved outside the overlap threshold
+- **Real-time Updates**: Parent relationships update intelligently during and after dragging
+- **Performance Optimized**: Light calculations during dragging, full updates on drag end
 
 ### Container Assignment Logic
 
 ```typescript
-// New containment logic uses 75% overlap threshold
+// Revolutionary change: Removed ReactFlow extent constraints completely
+// BEFORE: extent: "parent" - nodes were trapped inside containers
+// AFTER: No extent property - complete movement freedom
+
+// Smart overlap-based containment (replaces boundary restrictions)
 export function isRectangleWellContained(
   inner: NodeBounds,
   outer: NodeBounds,
   overlapThreshold: number = 0.75
 ): boolean {
-  // Calculate overlap area
   const overlapArea = calculateOverlap(inner, outer);
   const innerArea = inner.width * inner.height;
-  
   return overlapArea / innerArea >= overlapThreshold;
+}
+
+// Enhanced parent update logic with breakout capability
+function shouldUpdateParent(
+  node: Node,
+  potentialParent: Node,
+  allNodes: Node[],
+  isDragEnd: boolean = false
+): boolean {
+  // During dragging: allow easy breakout with lower threshold
+  if (!isDragEnd && node.parentId === potentialParent.id) {
+    return isRectangleWellContained(nodeBounds, parentBounds, 0.6);
+  }
+
+  // For new assignment: require substantial overlap
+  return isRectangleWellContained(nodeBounds, parentBounds, 0.75);
 }
 ```
 
-**Improvements Made:**
-1. **Increased Overlap Threshold**: Changed from strict containment to 75% overlap requirement
-2. **Container Dragging Freedom**: Containers can now break free during dragging when not well-contained
-3. **Permissive Removal**: Nodes are removed from parents when less than 75% contained
-4. **Auto-Configuration Integration**: Parent relationship changes automatically trigger configuration updates
+**Revolutionary Improvements Made:**
+1. **Removed ReactFlow Extent Constraints**: The `extent: "parent"` property that trapped nodes inside containers has been completely removed
+2. **Enhanced Overlap Threshold**: Changed from strict boundary containment to 75% overlap requirement for assignment
+3. **Breakout Capability**: Lower threshold (60%) during dragging allows easy escape from containers
+4. **Smart Assignment**: Container relationships only form with intentional, substantial overlap
+5. **Performance Optimized**: Heavy calculations only run on drag end, light updates during dragging
 
 ### Movement Behavior
 
-**During Dragging:**
-- Nodes can break free from containers when dragged outside the 75% threshold
-- Real-time parent relationship evaluation
-- Visual feedback through positioning
+**During Active Dragging:**
+- Nodes move completely freely without any boundary restrictions
+- Light parent relationship updates for visual feedback only
+- Real-time z-index adjustments for proper layering
+- No heavy computations that could affect dragging performance
 
-**After Drag End:**
-- Final parent relationship determination
-- Auto-configuration updates for affected nodes
-- Cached calculations for performance
+**On Drag End:**
+- Final parent relationship determination using 75% overlap threshold
+- Auto-configuration updates for nodes with changed parents
+- Cached calculations for performance optimization
+- Debounced processing (1000ms) for multiple rapid movements
+
+**Smart Container Interaction:**
+- Nodes only become children when **75% or more** overlaps with container
+- Easy breakout when dragged below **60%** overlap during movement
+- Visual feedback through positioning and hierarchy indication
+- Respect for AWS service hierarchy rules in parent-child relationships
 
 ## Connection System
 
