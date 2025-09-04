@@ -9,11 +9,11 @@ export { useValidationStore } from './validation/validation-store';
 export type { ValidationRule } from './validation/validation-store';
 
 // New unified architecture store
-export { 
+export {
 	useArchitectureStore,
 	useArchitectureData,
 	useArchitectureActions,
-	useNodeConfiguration 
+	useNodeConfiguration
 } from './architecture/architecture-store';
 
 // Enhanced hooks

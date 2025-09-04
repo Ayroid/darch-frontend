@@ -11,8 +11,8 @@ export function useCanvasUndoRedo() {
 
   // Save state with a specific action type
   const saveCanvasState = useCallback((
-    nodes: Node[], 
-    edges: Edge[], 
+    nodes: Node[],
+    edges: Edge[],
     action: UndoRedoActionType,
     description?: string
   ) => {
@@ -22,8 +22,8 @@ export function useCanvasUndoRedo() {
 
   // Save state after node operations
   const saveAfterNodeOperation = useCallback((
-    nodes: Node[], 
-    edges: Edge[], 
+    nodes: Node[],
+    edges: Edge[],
     operation: 'add' | 'delete' | 'move' | 'resize' | 'configure'
   ) => {
     const actionMap = {
@@ -33,28 +33,28 @@ export function useCanvasUndoRedo() {
       resize: UndoRedoActions.NODE_RESIZE,
       configure: UndoRedoActions.NODE_CONFIG_CHANGE,
     };
-    
+
     saveCanvasState(nodes, edges, actionMap[operation]);
   }, [saveCanvasState]);
 
   // Save state after edge operations
   const saveAfterEdgeOperation = useCallback((
-    nodes: Node[], 
-    edges: Edge[], 
+    nodes: Node[],
+    edges: Edge[],
     operation: 'add' | 'delete'
   ) => {
     const actionMap = {
       add: UndoRedoActions.EDGE_ADD,
       delete: UndoRedoActions.EDGE_DELETE,
     };
-    
+
     saveCanvasState(nodes, edges, actionMap[operation]);
   }, [saveCanvasState]);
 
   // Save state after bulk operations
   const saveAfterBulkOperation = useCallback((
-    nodes: Node[], 
-    edges: Edge[], 
+    nodes: Node[],
+    edges: Edge[],
     operation: 'paste' | 'duplicate' | 'import' | 'bulk'
   ) => {
     const actionMap = {
@@ -63,14 +63,14 @@ export function useCanvasUndoRedo() {
       import: UndoRedoActions.IMPORT,
       bulk: UndoRedoActions.BULK_OPERATION,
     };
-    
+
     saveCanvasState(nodes, edges, actionMap[operation]);
   }, [saveCanvasState]);
 
   // Debounced save for general changes (with longer delay to avoid too many saves)
   const debouncedSave = useCallback((
-    nodes: Node[], 
-    edges: Edge[], 
+    nodes: Node[],
+    edges: Edge[],
     delay: number = 1000
   ) => {
     return setTimeout(() => {
@@ -85,7 +85,7 @@ export function useCanvasUndoRedo() {
     canUndo,
     canRedo,
     clearHistory,
-    
+
     // Specific save methods
     saveCanvasState,
     saveAfterNodeOperation,

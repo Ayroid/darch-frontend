@@ -494,17 +494,17 @@ export const useUndoRedoStore = create<UndoRedoState & UndoRedoActions>()(
     saveState: (nodes: Node[], edges: Edge[], action?: string) => {
       // Prevents saving during undo/redo operations
       if (state.isUndoing || state.isRedoing) return;
-      
+
       // Deep state comparison to avoid duplicate saves
       if (statesAreEqual(nodesCopy, edgesCopy, currentSnapshot.nodes, currentSnapshot.edges)) {
         return;
       }
-      
+
       // Save with action tracking
       const newSnapshot = { nodes: nodesCopy, edges: edgesCopy, timestamp: Date.now(), action };
       // ... history management
     },
-    
+
     undo: () => { /* Returns previous state snapshot */ },
     redo: () => { /* Returns next state snapshot */ },
   }))
@@ -519,8 +519,8 @@ export function useCanvasUndoRedo() {
 
   // Specialized save methods for different operations
   const saveAfterNodeOperation = useCallback((
-    nodes: Node[], 
-    edges: Edge[], 
+    nodes: Node[],
+    edges: Edge[],
     operation: 'add' | 'delete' | 'move' | 'resize' | 'configure'
   ) => {
     const actionMap = {
@@ -535,7 +535,7 @@ export function useCanvasUndoRedo() {
 
   const saveAfterEdgeOperation = useCallback(/* ... */);
   const saveAfterBulkOperation = useCallback(/* ... */);
-  
+
   return { undo, redo, canUndo, canRedo, saveAfterNodeOperation, /* ... */ };
 }
 ```
@@ -654,7 +654,7 @@ export const createNodeHandlers = (
     // Apply deletions
     setNodes((nds) => nds.filter((node) => !node.selected));
     setEdges((eds) => eds.filter(/* remove connected edges */));
-    
+
     // Save state after deletion
     setTimeout(() => {
       if (undoRedoHook) {
@@ -666,7 +666,7 @@ export const createNodeHandlers = (
   const handlePasteNodes = (copiedNodes) => {
     // Apply paste operation
     setNodes((nds) => [...nds.map(n => ({...n, selected: false})), ...newNodes]);
-    
+
     // Save state after pasting
     setTimeout(() => {
       if (undoRedoHook) {
@@ -674,7 +674,7 @@ export const createNodeHandlers = (
       }
     }, 0);
   };
-  
+
   // Similar pattern for duplicate, move operations...
 };
 ```

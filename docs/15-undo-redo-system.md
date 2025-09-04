@@ -31,7 +31,7 @@ The Darch undo/redo system provides reliable, performant state management for th
 **Fixed Issues from Previous Implementation:**
 
 1. **Stale Closures** - Removed dependency on `historyIndex` in callbacks
-2. **Race Conditions** - Added operation flags and proper async handling  
+2. **Race Conditions** - Added operation flags and proper async handling
 3. **Excessive State Saving** - Moved from timer-based to operation-based saving
 4. **No State Comparison** - Deep comparison prevents duplicate saves
 5. **Poor Performance** - Optimized with targeted saves and efficient cloning
@@ -70,7 +70,7 @@ interface StateSnapshot {
 ```typescript
 export const UndoRedoActions = {
   NODE_ADD: 'node_add',
-  NODE_DELETE: 'node_delete', 
+  NODE_DELETE: 'node_delete',
   NODE_MOVE: 'node_move',
   NODE_RESIZE: 'node_resize',
   NODE_CONFIG_CHANGE: 'node_config_change',
@@ -92,7 +92,7 @@ Instead of automatic debounced saving, state is saved at specific operation mome
 **Node Operations:**
 - **Add Node** - Immediately after drag & drop completion
 - **Delete Nodes** - After deletion and edge cleanup
-- **Move Nodes** - After drag end with parent relationship updates  
+- **Move Nodes** - After drag end with parent relationship updates
 - **Resize Containers** - After resize operation completes
 - **Configure Nodes** - After configuration changes
 
@@ -115,7 +115,7 @@ setTimeout(() => {
 
 // Delayed save for operations requiring state settling
 setTimeout(() => {
-  undoRedoHook.saveAfterNodeOperation(nodes, edges, 'move');  
+  undoRedoHook.saveAfterNodeOperation(nodes, edges, 'move');
 }, 100);
 
 // Longer delay for complex operations
@@ -140,8 +140,8 @@ function statesAreEqual(
   // Compare nodes - checks id, type, position, selection, data
   for (let i = 0; i < nodes1.length; i++) {
     const node1 = nodes1[i];
-    const node2 = nodes2[i]; 
-    
+    const node2 = nodes2[i];
+
     if (node1.id !== node2.id ||
         node1.position.x !== node2.position.x ||
         JSON.stringify(node1.data) !== JSON.stringify(node2.data)) {
@@ -153,7 +153,7 @@ function statesAreEqual(
   for (let i = 0; i < edges1.length; i++) {
     const edge1 = edges1[i];
     const edge2 = edges2[i];
-    
+
     if (edge1.source !== edge2.source ||
         edge1.target !== edge2.target ||
         JSON.stringify(edge1.data) !== JSON.stringify(edge2.data)) {
@@ -194,7 +194,7 @@ const handleDeleteNodes = () => {
   // Apply changes immediately
   setNodes(filteredNodes);
   setEdges(filteredEdges);
-  
+
   // Save state after React has processed updates
   setTimeout(() => {
     setNodes((currentNodes) => {
@@ -235,7 +235,7 @@ const handleUndo = useCallback(() => {
 const onDrop = useCallback((event) => {
   // ... create and add node
   setNodes(nodesWithNew);
-  
+
   // Save state with specific action
   setTimeout(() => {
     undoRedoHook.saveAfterNodeOperation(nodes, edges, 'add');
@@ -246,8 +246,8 @@ const onDrop = useCallback((event) => {
 const handlePaste = useCallback((copiedNodes) => {
   // ... paste logic
   setNodes(updatedNodes);
-  
-  // Save state for bulk operation  
+
+  // Save state for bulk operation
   setTimeout(() => {
     undoRedoHook.saveAfterBulkOperation(nodes, edges, 'paste');
   }, 0);
@@ -259,8 +259,8 @@ const handlePaste = useCallback((copiedNodes) => {
 ```typescript
 // Save with custom action description
 undoRedoHook.saveCanvasState(
-  nodes, 
-  edges, 
+  nodes,
+  edges,
   'custom_action' as UndoRedoActionType,
   'User performed custom operation'
 );
@@ -274,19 +274,19 @@ undoRedoHook.saveCanvasState(
 // components/designer/ArchitectureCanvas.tsx
 export default function ArchitectureCanvas() {
   const undoRedoHook = useCanvasUndoRedo();
-  
+
   // Pass to node handlers for integrated saving
   const nodeHandlers = createNodeHandlers(
-    nodes, setNodes, setEdges, onNodesChange, 
-    onNodeAdd, getNodeConfiguration, 
+    nodes, setNodes, setEdges, onNodesChange,
+    onNodeAdd, getNodeConfiguration,
     architectureStore, undoRedoHook // Pass hook
   );
-  
+
   // Enhanced event handlers with state saving
   const onConnect = useCallback((params) => {
     // ... create edge
     setEdges(addEdge(newEdge, eds));
-    
+
     // Save state after edge addition
     setTimeout(() => {
       undoRedoHook.saveAfterEdgeOperation(nodes, edges, 'add');
@@ -358,7 +358,7 @@ Every undo/redo operation logs the action being performed:
 ```typescript
 // Console output examples:
 "Undid: node_add"
-"Redid: edge_delete" 
+"Redid: edge_delete"
 "Undid: paste"
 "Redid: node_move"
 ```
@@ -389,7 +389,7 @@ console.log('Is undoing:', store.isUndoing);
 
 ✅ **Use operation-specific saves** for different types of changes
 ✅ **Include action descriptions** for better debugging
-✅ **Test undo/redo after major changes** to verify functionality  
+✅ **Test undo/redo after major changes** to verify functionality
 ✅ **Use setTimeout(0)** for async state updates
 ✅ **Pass undoRedoHook to handlers** that modify state
 

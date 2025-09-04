@@ -142,7 +142,7 @@ Handles form validation and error management.
 
 ## Hooks
 
-### `useUndoRedo()` 
+### `useUndoRedo()`
 
 **NEW**: Enhanced undo/redo hook with action tracking.
 

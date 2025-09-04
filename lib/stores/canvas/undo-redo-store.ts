@@ -25,17 +25,17 @@ interface UndoRedoActions {
 	saveState: (nodes: Node[], edges: Edge[], action?: string) => void;
 	undo: () => StateSnapshot | null;
 	redo: () => StateSnapshot | null;
-	
+
 	// State checks
 	canUndo: () => boolean;
 	canRedo: () => boolean;
-	
+
 	// Configuration
 	setMaxHistorySize: (size: number) => void;
-	
+
 	// Clear history
 	clearHistory: () => void;
-	
+
 	// Get current state info
 	getCurrentSnapshot: () => StateSnapshot | null;
 	getHistoryInfo: () => {
@@ -61,7 +61,7 @@ function statesAreEqual(
 	for (let i = 0; i < nodes1.length; i++) {
 		const node1 = nodes1[i];
 		const node2 = nodes2[i];
-		
+
 		if (
 			node1.id !== node2.id ||
 			node1.type !== node2.type ||
@@ -79,7 +79,7 @@ function statesAreEqual(
 	for (let i = 0; i < edges1.length; i++) {
 		const edge1 = edges1[i];
 		const edge2 = edges2[i];
-		
+
 		if (
 			edge1.id !== edge2.id ||
 			edge1.source !== edge2.source ||
@@ -109,7 +109,7 @@ export const useUndoRedoStore = create<UndoRedoState & UndoRedoActions>()(
 		// Save a new state to history
 		saveState: (nodes: Node[], edges: Edge[], action?: string) => {
 			const state = get();
-			
+
 			// Don't save state during undo/redo operations
 			if (state.isUndoing || state.isRedoing) {
 				return;
@@ -163,7 +163,7 @@ export const useUndoRedoStore = create<UndoRedoState & UndoRedoActions>()(
 		// Undo operation
 		undo: () => {
 			const state = get();
-			
+
 			if (!state.canUndo()) {
 				return null;
 			}
@@ -188,7 +188,7 @@ export const useUndoRedoStore = create<UndoRedoState & UndoRedoActions>()(
 		// Redo operation
 		redo: () => {
 			const state = get();
-			
+
 			if (!state.canRedo()) {
 				return null;
 			}
@@ -228,7 +228,7 @@ export const useUndoRedoStore = create<UndoRedoState & UndoRedoActions>()(
 				const newMaxSize = Math.max(1, size);
 				const newHistory = [...state.history];
 				let newCurrentIndex = state.currentIndex;
-				
+
 				// Trim history if needed
 				if (newHistory.length > newMaxSize) {
 					const excess = newHistory.length - newMaxSize;
@@ -278,7 +278,7 @@ export const useUndoRedoStore = create<UndoRedoState & UndoRedoActions>()(
 // Helper hook for easier usage
 export function useUndoRedo() {
 	const store = useUndoRedoStore();
-	
+
 	return {
 		saveState: store.saveState,
 		undo: store.undo,

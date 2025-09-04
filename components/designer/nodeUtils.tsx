@@ -695,7 +695,7 @@ export const createNodeHandlers = (
 						return updatedNodes;
 					}
 				});
-				
+
 				// Save state after node movement
 				if (undoRedoHook) {
 					setTimeout(() => {
@@ -842,7 +842,7 @@ export const createNodeHandlers = (
 		if (selectedNodes.length === 0) return;
 
 		const selectedNodeIds = selectedNodes.map((node) => node.id);
-		
+
 		// Apply the changes
 		setNodes((nds) => nds.filter((node) => !node.selected));
 		setEdges((eds) =>
@@ -852,7 +852,7 @@ export const createNodeHandlers = (
 					!selectedNodeIds.includes(edge.target)
 			)
 		);
-		
+
 		// Save state after deletion
 		setTimeout(() => {
 			if (undoRedoHook) {
@@ -865,7 +865,7 @@ export const createNodeHandlers = (
 				});
 			}
 		}, 0);
-		
+
 		console.log(`Deleted ${selectedNodes.length} node(s)`);
 	};
 

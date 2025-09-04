@@ -164,10 +164,10 @@ export default function ArchitectureCanvas({
 		addConnection: addArchConnection,
 		convertToReactFlow,
 	} = useArchitectureData();
-	const { 
-		getNodeConfiguration, 
-		updateNodeConfiguration, 
-		nodeConfigurations 
+	const {
+		getNodeConfiguration,
+		updateNodeConfiguration,
+		nodeConfigurations
 	} = useArchitectureStore();
 
 	// Load initial data from architecture manager (only on first load)
@@ -189,10 +189,10 @@ export default function ArchitectureCanvas({
 	const onEdgesChange = useCallback((changes: EdgeChange[]) => {
 		// Check if any edges are being deleted
 		const deleteChanges = changes.filter(change => change.type === 'remove');
-		
+
 		// Apply the default edge changes
 		onEdgesChangeDefault(changes);
-		
+
 		// Save state if edges were deleted
 		if (deleteChanges.length > 0) {
 			setTimeout(() => {
@@ -233,7 +233,7 @@ export default function ArchitectureCanvas({
 	// 		return () => clearTimeout(timeoutId);
 	// 	}
 	// }, [nodes, edges, undoRedoHook, updateFromReactFlow]);
-	
+
 	// Update architecture data manager when nodes/edges change
 	React.useEffect(() => {
 		updateFromReactFlow(nodes, edges);
@@ -301,7 +301,7 @@ export default function ArchitectureCanvas({
 			setEdges((eds) => addEdge(newEdge, eds));
 			// Add to architecture data
 			addArchConnection(newEdge);
-			
+
 			// Save state after adding edge
 			setTimeout(() => {
 				setNodes((currentNodes) => {
@@ -370,7 +370,7 @@ export default function ArchitectureCanvas({
 				// Add to architecture data
 				addArchNode(newNode);
 				onNodeAdd?.(newNode);
-				
+
 				// Save state after adding node
 				setTimeout(() => {
 					setNodes((currentNodes) => {
