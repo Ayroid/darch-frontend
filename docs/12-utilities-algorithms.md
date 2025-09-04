@@ -392,9 +392,84 @@ export function omit<T, K extends keyof T>(obj: T, keys: K[]): Omit<T, K> {
 
 ## Container Logic
 
-### Container Relationship Management
+### Enhanced Container Relationship Management
 
 **File**: `lib/container-logic.ts`
+
+The container logic has been enhanced with new tracking capabilities to support automatic configuration updates when parent relationships change.
+
+#### Core Functions
+
+**Standard Parent Relationship Updates**
+```typescript
+export function updateNodeParentRelationships(
+  nodes: Node[],
+  forceUpdate: boolean = false,
+  isDragEnd: boolean = false
+): Node[] {
+  // Updates parent relationships based on node positions
+  // Returns updated nodes with new parent assignments and z-indices
+}
+
+export function batchUpdateNodeRelationships(
+  nodes: Node[],
+  changedNodeIds: Set<string>,
+  isDragEnd: boolean = false
+): Node[] {
+  // Optimized batch processing for multiple node changes
+  // Only processes nodes that actually changed or are related
+}
+```
+
+**Enhanced Tracking Functions**
+```typescript
+export function updateNodeParentRelationshipsWithTracking(
+  nodes: Node[],
+  forceUpdate: boolean = false,
+  isDragEnd: boolean = false
+): { 
+  updatedNodes: Node[], 
+  nodesWithChangedParents: Set<string> 
+} {
+  // Enhanced version that tracks which nodes had parent changes
+  // Enables automatic configuration updates for affected nodes
+}
+
+export function batchUpdateNodeRelationshipsWithTracking(
+  nodes: Node[],
+  changedNodeIds: Set<string>,
+  isDragEnd: boolean = false
+): { 
+  updatedNodes: Node[], 
+  nodesWithChangedParents: Set<string> 
+} {
+  // Batch version with tracking capabilities
+  // Returns both updated nodes and tracking information
+}
+```
+
+#### Integration with Auto-Configuration
+
+The tracking functions enable seamless integration with the auto-configuration system:
+
+```typescript
+// Usage in node movement handlers
+const { updatedNodes, nodesWithChangedParents } = 
+  updateNodeParentRelationshipsWithTracking(currentNodes, false, true);
+
+// Trigger auto-configuration for affected nodes
+if (nodesWithChangedParents.size > 0 && architectureStore) {
+  for (const nodeId of nodesWithChangedParents) {
+    const nodeConfig = architectureStore.getNodeConfiguration(nodeId);
+    if (nodeConfig) {
+      const { updatedConfig } = autoConfigureNode(
+        nodeId, nodeConfig, updatedNodes, architectureStore.nodeConfigurations
+      );
+      architectureStore.updateNodeConfiguration(nodeId, updatedConfig);
+    }
+  }
+}
+```
 
 ```typescript
 import { Node, Edge } from "@xyflow/react";
@@ -835,9 +910,76 @@ function arrangeHierarchically(
 
 ## Parent-Child Logic
 
-### Hierarchical Relationship Management
+### Enhanced Hierarchical Relationship Management
 
 **File**: `lib/parent-child-logic.ts`
+
+The parent-child logic has been significantly enhanced to provide more freedom in container movement while maintaining intelligent containment behavior.
+
+#### Key Improvements
+
+**1. Liberal Containment Logic**
+```typescript
+/**
+ * Enhanced containment check using overlap threshold
+ */
+export function isRectangleWellContained(
+  inner: NodeBounds,
+  outer: NodeBounds,
+  overlapThreshold: number = 0.75
+): boolean {
+  const overlapArea = calculateOverlap(inner, outer);
+  const innerArea = inner.width * inner.height;
+  return overlapArea / innerArea >= overlapThreshold;
+}
+```
+
+**2. Permissive Movement During Dragging**
+```typescript
+export function shouldUpdateParent(
+  node: Node,
+  newParent: Node | null,
+  nodeMap: Map<string, Node>,
+  forceUpdate: boolean = false,
+  isDragEnd: boolean = false
+): boolean {
+  // During dragging, containers can break free when not well-contained
+  if (!isDragEnd && node.dragging) {
+    if (node.data?.isContainer && currentParentId) {
+      const currentParent = nodeMap.get(currentParentId);
+      if (currentParent) {
+        const isWellContained = isNodeInsideContainer(node, currentParent, nodeMap);
+        return !isWellContained; // Allow removal if not well-contained
+      }
+    }
+  }
+  
+  // Enhanced logic for parent changes...
+}
+```
+
+**3. Smart Parent Assignment**
+- **75% Overlap Threshold**: Nodes are only assigned to containers when 75% or more overlaps
+- **Easy Breakout**: Nodes can break free when moved outside the threshold
+- **Container Freedom**: Containers themselves can be moved freely between parents
+- **Real-time Updates**: Parent relationships update during and after dragging
+
+#### Container Movement Behavior
+
+**Assignment Rules:**
+- Nodes are assigned to the smallest container that well-contains them (75%+ overlap)
+- AWS hierarchy constraints are respected for initial assignment but not for removal
+- Containers can contain other containers following logical AWS hierarchy
+
+**Removal Rules:**
+- Nodes are removed from parents when less than 75% contained
+- Significantly outside nodes (30px+ buffer) are immediately removed
+- Drag end operations trigger final parent relationship determination
+
+**Performance Optimizations:**
+- Cached calculations for expensive position computations
+- Debounced updates during dragging for smooth performance
+- Batch processing for multiple node movements
 
 ```typescript
 import { Node } from "@xyflow/react";

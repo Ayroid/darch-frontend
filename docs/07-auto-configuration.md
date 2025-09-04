@@ -480,7 +480,101 @@ export function isFieldDisabled(
 }
 ```
 
+## Integration with Parent Relationship Changes
+
+### Real-time Auto-Configuration Updates
+
+The auto-configuration system has been enhanced to automatically trigger when nodes are moved between containers through drag-and-drop operations. This ensures that configuration values are always synchronized with the current container hierarchy.
+
+#### Parent Relationship Change Detection
+
+```typescript
+// Enhanced container logic with auto-configuration tracking
+export function updateNodeParentRelationshipsWithTracking(
+  nodes: Node[],
+  forceUpdate: boolean = false,
+  isDragEnd: boolean = false
+): { 
+  updatedNodes: Node[], 
+  nodesWithChangedParents: Set<string> 
+} {
+  // ... parent relationship logic ...
+  
+  // Track nodes whose parent relationships changed
+  if (node.parentId !== newParentId) {
+    updatedNode = updateNodeParentRelationship(updatedNode, newParentId, nodeMap);
+    nodesWithChangedParents.add(node.id);
+  }
+  
+  return { updatedNodes, nodesWithChangedParents };
+}
+```
+
+#### Automatic Configuration Updates
+
+When nodes are moved between containers, the system automatically:
+
+1. **Detects Parent Changes**: Tracks which nodes had their parent relationships modified
+2. **Triggers Auto-Configuration**: Calls `autoConfigureNode` for each affected node
+3. **Updates Store**: Synchronizes the new configuration with the architecture store
+4. **Real-time Updates**: Configuration forms immediately reflect the changes
+
+```typescript
+// In node movement handler
+if (nodesWithChangedParents.size > 0 && architectureStore) {
+  setTimeout(() => {
+    for (const nodeId of nodesWithChangedParents) {
+      const nodeConfig = architectureStore.getNodeConfiguration(nodeId);
+      if (nodeConfig) {
+        const { updatedConfig } = autoConfigureNode(
+          nodeId,
+          nodeConfig,
+          updatedNodes,
+          architectureStore.nodeConfigurations
+        );
+        architectureStore.updateNodeConfiguration(nodeId, updatedConfig);
+      }
+    }
+  }, 0);
+}
+```
+
+#### Movement Scenarios
+
+**1. Service Placed in Container**
+- Service inherits configuration values from the container
+- Relevant fields are auto-populated (e.g., region, VPC ID, subnet ID)
+- Fields become disabled to prevent manual override
+
+**2. Service Moved Between Containers**
+- Previous auto-configured values are cleared
+- New values are inherited from the new parent container
+- Configuration forms update in real-time
+
+**3. Service Removed from Container**
+- Auto-configured values are cleared
+- Fields become editable again
+- Default values may be applied if specified in rules
+
+#### Enhanced Movement Freedom
+
+The integration works seamlessly with the enhanced container movement system:
+
+- **75% Overlap Threshold**: Auto-configuration only triggers when nodes are well-contained
+- **Liberal Movement**: Nodes can be moved freely without unwanted configuration changes
+- **Batch Processing**: Multiple node movements are handled efficiently
+- **Debounced Updates**: Configuration updates are debounced to prevent excessive calls
+
+#### Performance Optimizations
+
+- **Async Updates**: Configuration updates happen asynchronously to avoid blocking UI
+- **Change Detection**: Only nodes with actual parent changes trigger auto-configuration
+- **Batch Operations**: Multiple related updates are processed together
+- **Cache Invalidation**: Relevant caches are cleared when parent relationships change
+
 ## Integration with Architecture Store
+
+### Configuration Management
 
 ### Store Integration
 

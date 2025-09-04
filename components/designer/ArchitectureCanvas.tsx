@@ -162,7 +162,11 @@ export default function ArchitectureCanvas({
 		addConnection: addArchConnection,
 		convertToReactFlow,
 	} = useArchitectureData();
-	const { getNodeConfiguration } = useArchitectureStore();
+	const { 
+		getNodeConfiguration, 
+		updateNodeConfiguration, 
+		nodeConfigurations 
+	} = useArchitectureStore();
 
 	// Load initial data from architecture manager (only on first load)
 	useEffect(() => {
@@ -185,7 +189,8 @@ export default function ArchitectureCanvas({
 		setEdges,
 		onNodesChange,
 		onNodeAdd,
-		getNodeConfiguration
+		getNodeConfiguration,
+		{ getNodeConfiguration, updateNodeConfiguration, nodeConfigurations }
 	);
 
 	// Create node types

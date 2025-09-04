@@ -160,6 +160,38 @@ export function isRectangleInside(
 }
 
 /**
+ * Determines if a rectangle has significant overlap with a container (used for container assignment).
+ * This uses a higher threshold than isRectangleMostlyInside to ensure only well-contained nodes
+ * are assigned to containers, making movement more free.
+ *
+ * Time Complexity: O(1)
+ */
+export function isRectangleWellContained(
+  inner: NodeBounds,
+  outer: NodeBounds,
+  overlapThreshold: number = 0.75
+): boolean {
+  // Calculate overlap area
+  const overlapLeft = Math.max(inner.x, outer.x);
+  const overlapRight = Math.min(inner.x + inner.width, outer.x + outer.width);
+  const overlapTop = Math.max(inner.y, outer.y);
+  const overlapBottom = Math.min(
+    inner.y + inner.height,
+    outer.y + outer.height
+  );
+
+  if (overlapLeft >= overlapRight || overlapTop >= overlapBottom) {
+    return false; // No overlap
+  }
+
+  const overlapArea =
+    (overlapRight - overlapLeft) * (overlapBottom - overlapTop);
+  const innerArea = inner.width * inner.height;
+
+  return overlapArea / innerArea >= overlapThreshold;
+}
+
+/**
  * Determines if one rectangle has significant overlap with another rectangle.
  * Uses an overlap threshold to determine if the inner rectangle is "mostly" inside the outer one.
  * This is more lenient than strict containment and used for stability checks.
@@ -281,7 +313,9 @@ export function isNodeInsideContainer(
     height: containerBounds.height,
   };
 
-  return isRectangleInside(absoluteNodeBounds, absoluteContainerBounds, 20);
+  // Use the new "well contained" logic that requires 75% overlap instead of strict containment
+  // This makes container assignment more liberal and movement more free
+  return isRectangleWellContained(absoluteNodeBounds, absoluteContainerBounds);
 }
 
 /**
@@ -391,19 +425,32 @@ export function shouldUpdateParent(
     return true;
   }
 
-  // PERFORMANCE: During active dragging (not drag end), be very conservative
-  // Only allow changes for nodes that are significantly outside their parent
+  // PERFORMANCE: During active dragging (not drag end), be more permissive to allow free movement
+  // Allow nodes to break free more easily during dragging
   if (!isDragEnd && node.dragging) {
-    // For containers being dragged, never change parent relationships
+    // For containers being dragged, allow them to break free when not well-contained
+    // This fixes the issue where containers get stuck inside other containers
     if (node.data?.isContainer) {
+      if (currentParentId) {
+        const currentParent = nodeMap.get(currentParentId);
+        if (currentParent) {
+          // Check if still well-contained (75% overlap) in current parent
+          const isWellContained = isNodeInsideContainer(node, currentParent, nodeMap);
+          // If not well-contained, allow removal even during dragging
+          return !isWellContained;
+        }
+      }
       return false;
     }
 
-    // For regular nodes, only change if significantly outside current parent
+    // For regular nodes, allow movement when not well-contained in current parent
     if (currentParentId) {
       const currentParent = nodeMap.get(currentParentId);
       if (currentParent) {
-        return isNodeSignificantlyOutside(node, currentParent, nodeMap);
+        // Check if still well-contained (75% overlap) in current parent
+        const isWellContained = isNodeInsideContainer(node, currentParent, nodeMap);
+        // If not well-contained, allow removal even during dragging
+        return !isWellContained;
       }
     }
 
@@ -414,7 +461,7 @@ export function shouldUpdateParent(
   if (currentParentId) {
     const currentParent = nodeMap.get(currentParentId);
     if (currentParent) {
-      const isStillInside = isNodeInsideContainer(node, currentParent, nodeMap);
+      const isWellContained = isNodeInsideContainer(node, currentParent, nodeMap);
       const isSignificantlyOutside = isNodeSignificantlyOutside(
         node,
         currentParent,
@@ -426,46 +473,14 @@ export function shouldUpdateParent(
         return true;
       }
 
-      // If node is completely outside current parent, allow the change (intentional move)
-      if (!isStillInside) {
-        const isMostlyInside = (() => {
-          // Calculate if node is mostly inside using absolute positions
-          const nodeBounds = getNodeBounds(node);
-          const absoluteNodePos = getAbsoluteNodePosition(node, nodeMap);
-          const absoluteParentPos = getAbsoluteNodePosition(
-            currentParent,
-            nodeMap
-          );
-          const parentBounds = getNodeBounds(currentParent);
-
-          const absoluteNodeBounds = {
-            x: absoluteNodePos.x,
-            y: absoluteNodePos.y,
-            width: nodeBounds.width,
-            height: nodeBounds.height,
-          };
-
-          const absoluteParentBounds = {
-            x: absoluteParentPos.x,
-            y: absoluteParentPos.y,
-            width: parentBounds.width,
-            height: parentBounds.height,
-          };
-
-          return isRectangleMostlyInside(
-            absoluteNodeBounds,
-            absoluteParentBounds
-          );
-        })();
-
-        // If not mostly inside anymore, allow the move
-        if (!isMostlyInside) {
-          return true;
-        }
+      // NEW LOGIC: If node is no longer well-contained (75% overlap), allow removal
+      // This makes it much easier for nodes to break free from containers
+      if (!isWellContained) {
+        return true;
       }
 
-      // If node is still inside current parent and there's a new potential parent
-      if (newParent && isStillInside) {
+      // If node is still well-contained and there's a new potential parent
+      if (newParent && isWellContained) {
         // Check if new parent is more specific (smaller area)
         const currentParentBounds = getNodeBounds(currentParent);
         const newParentBounds = getNodeBounds(newParent);
@@ -477,7 +492,7 @@ export function shouldUpdateParent(
         return newArea < currentArea * 0.7;
       }
 
-      // Stay with current parent if still mostly inside and no better option
+      // Stay with current parent only if still well-contained and no better option
       return false;
     }
   }

@@ -279,6 +279,53 @@ const onDragOver = useCallback((event: React.DragEvent) => {
 }, []);
 ```
 
+## Container Movement System
+
+### Enhanced Container Freedom
+
+The canvas system now supports free movement of containers and services with improved containment logic:
+
+**Key Features:**
+- **Liberal Movement**: Containers and services can be moved freely without getting stuck
+- **Smart Containment**: Only assigns nodes to containers when 75% or more of the node overlaps
+- **Easy Breakout**: Nodes can easily break free from containers when moved outside
+- **Real-time Updates**: Parent relationships update during and after dragging
+
+### Container Assignment Logic
+
+```typescript
+// New containment logic uses 75% overlap threshold
+export function isRectangleWellContained(
+  inner: NodeBounds,
+  outer: NodeBounds,
+  overlapThreshold: number = 0.75
+): boolean {
+  // Calculate overlap area
+  const overlapArea = calculateOverlap(inner, outer);
+  const innerArea = inner.width * inner.height;
+  
+  return overlapArea / innerArea >= overlapThreshold;
+}
+```
+
+**Improvements Made:**
+1. **Increased Overlap Threshold**: Changed from strict containment to 75% overlap requirement
+2. **Container Dragging Freedom**: Containers can now break free during dragging when not well-contained
+3. **Permissive Removal**: Nodes are removed from parents when less than 75% contained
+4. **Auto-Configuration Integration**: Parent relationship changes automatically trigger configuration updates
+
+### Movement Behavior
+
+**During Dragging:**
+- Nodes can break free from containers when dragged outside the 75% threshold
+- Real-time parent relationship evaluation
+- Visual feedback through positioning
+
+**After Drag End:**
+- Final parent relationship determination
+- Auto-configuration updates for affected nodes
+- Cached calculations for performance
+
 ## Connection System
 
 ### Edge Configuration

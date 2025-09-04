@@ -12,7 +12,15 @@ import {
 	NodeChange,
 	NodeProps,
 } from "@xyflow/react";
-import { updateNodeParentRelationships, clearContainerCaches, batchUpdateNodeRelationships } from "@/lib/container-logic";
+import { updateNodeParentRelationships, clearContainerCaches, batchUpdateNodeRelationships, updateNodeParentRelationshipsWithTracking, batchUpdateNodeRelationshipsWithTracking } from "@/lib/container-logic";
+import { autoConfigureNode } from "@/lib/auto-configuration";
+
+// Type for architecture store - we'll use specific methods
+type ArchitectureStore = {
+	getNodeConfiguration: (nodeId: string) => any;
+	updateNodeConfiguration: (nodeId: string, config: any) => void;
+	nodeConfigurations: Record<string, any>;
+};
 
 // Interfaces
 export interface AWSServiceNodeData {
@@ -524,7 +532,8 @@ export const createNodeHandlers = (
 	setEdges: (edges: Edge[] | ((edges: Edge[]) => Edge[])) => void,
 	onNodesChange: (changes: NodeChange[]) => void,
 	onNodeAdd?: (node: Node) => void,
-	getNodeConfiguration?: (nodeId: string) => unknown
+	getNodeConfiguration?: (nodeId: string) => unknown,
+	architectureStore?: ArchitectureStore
 ) => {
 	// Debounce timer for parent relationship updates
 	let parentUpdateTimeout: NodeJS.Timeout | null = null;
@@ -634,10 +643,50 @@ export const createNodeHandlers = (
 				setNodes((currentNodes) => {
 					// Use batch update for better performance with multiple containers
 					if (changedNodeIds.size > 1) {
-						return batchUpdateNodeRelationships(currentNodes, changedNodeIds, true);
+						const { updatedNodes, nodesWithChangedParents } = batchUpdateNodeRelationshipsWithTracking(currentNodes, changedNodeIds, true);
+						
+						// Trigger auto-configuration for nodes with changed parents
+						if (nodesWithChangedParents.size > 0 && architectureStore) {
+							setTimeout(() => {
+								for (const nodeId of nodesWithChangedParents) {
+									const nodeConfig = architectureStore.getNodeConfiguration(nodeId);
+									if (nodeConfig) {
+										const { updatedConfig } = autoConfigureNode(
+											nodeId,
+											nodeConfig,
+											updatedNodes,
+											architectureStore.nodeConfigurations
+										);
+										architectureStore.updateNodeConfiguration(nodeId, updatedConfig);
+									}
+								}
+							}, 0);
+						}
+						
+						return updatedNodes;
 					} else {
-						// Single node update with drag end flag
-						return updateNodeParentRelationships(currentNodes);
+						// Single node update with drag end flag - FIXED: pass isDragEnd: true
+						const { updatedNodes, nodesWithChangedParents } = updateNodeParentRelationshipsWithTracking(currentNodes, false, true);
+						
+						// Trigger auto-configuration for nodes with changed parents
+						if (nodesWithChangedParents.size > 0 && architectureStore) {
+							setTimeout(() => {
+								for (const nodeId of nodesWithChangedParents) {
+									const nodeConfig = architectureStore.getNodeConfiguration(nodeId);
+									if (nodeConfig) {
+										const { updatedConfig } = autoConfigureNode(
+											nodeId,
+											nodeConfig,
+											updatedNodes,
+											architectureStore.nodeConfigurations
+										);
+										architectureStore.updateNodeConfiguration(nodeId, updatedConfig);
+									}
+								}
+							}, 0);
+						}
+						
+						return updatedNodes;
 					}
 				});
 			}, 1000); // Reduced from 150ms to 100ms for better responsiveness
