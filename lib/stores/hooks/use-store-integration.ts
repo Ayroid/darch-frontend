@@ -30,9 +30,8 @@ export const useStoreIntegration = (
 		(newConfig: Record<string, unknown>) => {
 			if (!nodeId) return;
 
-			// Get the current configuration to determine resource type
-			const currentConfig = getNodeConfiguration(nodeId);
-			const resourceType = currentConfig?.resourceType || serviceId;
+			// Use serviceId as the resource type since we removed resourceType from configurations
+			const resourceType = serviceId;
 
 			// Filter the new configuration to only include valid fields for this resource type
 			const filteredConfig = filterValidFields(resourceType, newConfig);
@@ -54,7 +53,6 @@ export const useStoreIntegration = (
 		[
 			nodeId,
 			serviceId,
-			getNodeConfiguration,
 			updateNodeConfiguration,
 			setValidationErrors,
 			clearValidationErrors,

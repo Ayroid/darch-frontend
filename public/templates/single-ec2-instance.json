@@ -11,7 +11,7 @@
     {
       "id": "aws-region-1757007709382382",
       "nodeType": "awsContainer",
-      "serviceType": "aws-region",
+      "resourceType": "aws-region",
       "name": "AWS Region",
       "icon": "/aws_icons/architecture_group_icons/AWS-Cloud_32.svg",
       "position": {
@@ -24,8 +24,6 @@
       },
       "configuration": {
         "serviceName": "AWS Region",
-        "serviceId": "aws-region",
-        "resourceType": "aws-region",
         "region": "us-east-1",
         "regionName": "US East (N. Virginia)",
         "description": "",
@@ -38,7 +36,7 @@
     {
       "id": "aws-availability-zone-1757007715705705",
       "nodeType": "awsContainer",
-      "serviceType": "aws-availability-zone",
+      "resourceType": "aws-availability-zone",
       "name": "Availability Zone",
       "icon": "/aws_icons/architecture_group_icons/Region_32.svg",
       "position": {
@@ -51,8 +49,6 @@
       },
       "configuration": {
         "serviceName": "Availability Zone",
-        "serviceId": "aws-availability-zone",
-        "resourceType": "aws-availability-zone",
         "region": "us-east-1",
         "availabilityZone": "us-east-1a",
         "description": "",
@@ -66,7 +62,7 @@
     {
       "id": "aws-vpc-1757007724788788",
       "nodeType": "awsContainer",
-      "serviceType": "aws-vpc",
+      "resourceType": "aws-vpc",
       "name": "VPC",
       "icon": "/aws_icons/architecture_service_icons/Arch_Networking-Content-Delivery/32/Arch_Amazon-Virtual-Private-Cloud_32.svg",
       "position": {
@@ -79,8 +75,6 @@
       },
       "configuration": {
         "serviceName": "VPC",
-        "serviceId": "aws-vpc",
-        "resourceType": "aws-vpc",
         "cidrBlock": "10.0.0.0/16",
         "region": "us-east-1",
         "enableDnsSupport": true,
@@ -93,7 +87,7 @@
     {
       "id": "aws-public-subnet-1757007744794794",
       "nodeType": "awsContainer",
-      "serviceType": "aws-public-subnet",
+      "resourceType": "aws-public-subnet",
       "name": "Public Subnet",
       "icon": "/aws_icons/architecture_group_icons/Public-subnet_32.svg",
       "position": {
@@ -106,8 +100,6 @@
       },
       "configuration": {
         "serviceName": "Public Subnet",
-        "serviceId": "aws-public-subnet",
-        "resourceType": "aws-public-subnet",
         "cidrBlock": "10.0.0.0/24",
         "availabilityZone": "us-east-1a",
         "vpcId": "",
@@ -122,7 +114,7 @@
     {
       "id": "aws-ec2-1757007751858858",
       "nodeType": "awsService",
-      "serviceType": "aws-ec2",
+      "resourceType": "aws-ec2",
       "name": "EC2",
       "icon": "/aws_icons/architecture_service_icons/Arch_Compute/32/Arch_Amazon-EC2_32.svg",
       "position": {
@@ -131,8 +123,6 @@
       },
       "configuration": {
         "serviceName": "EC2",
-        "serviceId": "aws-ec2",
-        "resourceType": "aws-ec2",
         "instanceType": "t3.micro",
         "amiId": "ami-0c55b159cbfafe1d0",
         "keyPairName": "",

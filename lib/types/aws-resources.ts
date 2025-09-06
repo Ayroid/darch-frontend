@@ -6,8 +6,6 @@
 // Base interfaces
 export interface BaseAWSResource {
 	serviceName: string;
-	serviceId: string;
-	resourceType?: string; // The service ID (e.g., 'aws-vpc', 'aws-ec2')
 	description?: string;
 	tags?: Record<string, string>;
 }
@@ -20,8 +18,6 @@ export interface ConfigurationFormProps<T = Record<string, unknown>> {
 // VPC Configuration
 export interface VPCConfiguration {
 	serviceName: string;
-	serviceId: string;
-	resourceType?: string;
 	cidrBlock?: string;
 	region?: string;
 	description?: string;
@@ -34,8 +30,6 @@ export interface VPCConfiguration {
 export interface EC2Configuration {
 	// Basic Configuration
 	serviceName: string;
-	serviceId: string;
-	resourceType?: string;
 	instanceType?: string;
 	amiId?: string;
 	keyPairName?: string;
@@ -76,8 +70,6 @@ export interface EC2Configuration {
 // Subnet Configurations
 export interface PublicSubnetConfiguration {
 	serviceName: string;
-	serviceId: string;
-	resourceType: string;
 	cidrBlock: string;
 	vpcId: string;
 	region: string;
@@ -89,8 +81,6 @@ export interface PublicSubnetConfiguration {
 
 export interface PrivateSubnetConfiguration {
 	serviceName: string;
-	serviceId: string;
-	resourceType: string;
 	cidrBlock: string;
 	vpcId: string;
 	region: string;
@@ -104,8 +94,6 @@ export interface PrivateSubnetConfiguration {
 // AWS Region Configuration
 export interface AWSRegionConfiguration {
 	serviceName: string;
-	serviceId: string;
-	resourceType?: string;
 	region: string;
 	regionName: string;
 	description: string;
@@ -117,8 +105,6 @@ export interface AWSRegionConfiguration {
 // Availability Zone Configuration
 export interface AvailabilityZoneConfiguration {
 	serviceName: string;
-	serviceId: string;
-	resourceType?: string;
 	region: string;
 	availabilityZone: string;
 	description: string;
@@ -130,9 +116,7 @@ export interface AvailabilityZoneConfiguration {
 // Default/Generic Configuration for unknown resources
 export interface DefaultConfiguration {
 	serviceName?: string;
-	serviceId?: string;
 	description?: string;
-	resourceType?: string;
 	properties?: Record<string, unknown>;
 }
 
@@ -214,8 +198,6 @@ export type AWSServiceName = (typeof AWS_SERVICE_TYPE_MAP)[AWSServiceType];
 // Security Group Configuration
 export interface SecurityGroupConfiguration extends BaseAWSResource {
 	serviceName: string;
-	serviceId: string;
-	resourceType?: string;
 	groupId?: string;
 	vpcId: string;
 	description?: string;

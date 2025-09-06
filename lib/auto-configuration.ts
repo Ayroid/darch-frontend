@@ -162,8 +162,8 @@ export function findParentOfType(
   const hierarchy = getNodeContainerHierarchy(nodeId, nodes);
 
   return hierarchy.find((parent) => {
-    const config = parent.data?.configuration as { resourceType?: string } | undefined;
-    return config?.resourceType === targetParentType;
+    const serviceId = parent.data?.serviceId as string;
+    return serviceId === targetParentType;
   }) || null;
 }
 
@@ -178,8 +178,8 @@ export function findParentsOfTypes(
   const hierarchy = getNodeContainerHierarchy(nodeId, nodes);
 
   return hierarchy.filter((parent) => {
-    const config = parent.data?.configuration as { resourceType?: string } | undefined;
-    return config?.resourceType && targetParentTypes.includes(config.resourceType);
+    const serviceId = parent.data?.serviceId as string;
+    return serviceId && targetParentTypes.includes(serviceId);
   });
 }
 
@@ -221,17 +221,24 @@ export function autoConfigureNode(
   nodeId: string,
   currentConfig: AWSResourceConfiguration,
   nodes: Node[],
-  nodeConfigurations: Record<string, AWSResourceConfiguration>
+  nodeConfigurations: Record<string, AWSResourceConfiguration>,
+  resourceType?: string
 ): {
   updatedConfig: AWSResourceConfiguration;
   autoPopulatedFields: string[];
 } {
-  const resourceType = currentConfig.resourceType;
-  if (!resourceType) {
+  // Get resourceType from parameter or from node data
+  let nodeResourceType = resourceType;
+  if (!nodeResourceType) {
+    const node = nodes.find(n => n.id === nodeId);
+    nodeResourceType = node?.data?.serviceId as string;
+  }
+
+  if (!nodeResourceType) {
     return { updatedConfig: currentConfig, autoPopulatedFields: [] };
   }
 
-  const rules = AWS_RESOURCE_FIELD_RULES[resourceType];
+  const rules = AWS_RESOURCE_FIELD_RULES[nodeResourceType];
   if (!rules) {
     return { updatedConfig: currentConfig, autoPopulatedFields: [] };
   }
@@ -370,11 +377,16 @@ export function autoConfigureAffectedNodes(
     const config = nodeConfigurations[descendantId];
     if (!config) continue;
 
+    const descendantNode = nodes.find(n => n.id === descendantId);
+    const resourceType = descendantNode?.data?.serviceId as string;
+    if (!resourceType) continue;
+
     const { updatedConfig, autoPopulatedFields } = autoConfigureNode(
       descendantId,
       config,
       nodes,
-      nodeConfigurations
+      nodeConfigurations,
+      resourceType
     );
 
     // Only include if there were changes

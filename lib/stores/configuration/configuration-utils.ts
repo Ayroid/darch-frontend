@@ -8,7 +8,6 @@ import { AWSResourceConfiguration } from "@/lib/types/aws-resources";
 const RESOURCE_TYPE_FIELDS: Record<string, Set<string>> = {
 	"aws-vpc": new Set([
 		"serviceName",
-		"resourceType",
 		"cidrBlock",
 		"region",
 		"description",
@@ -18,7 +17,6 @@ const RESOURCE_TYPE_FIELDS: Record<string, Set<string>> = {
 	]),
 	"aws-ec2": new Set([
 		"serviceName",
-		"resourceType",
 		"instanceType",
 		"amiId",
 		"keyPairName",
@@ -43,7 +41,6 @@ const RESOURCE_TYPE_FIELDS: Record<string, Set<string>> = {
 	]),
 	"aws-region": new Set([
 		"serviceName",
-		"resourceType",
 		"region",
 		"regionName",
 		"description",
@@ -53,7 +50,6 @@ const RESOURCE_TYPE_FIELDS: Record<string, Set<string>> = {
 	]),
 	"aws-availability-zone": new Set([
 		"serviceName",
-		"resourceType",
 		"region",
 		"availabilityZone",
 		"description",
@@ -63,7 +59,6 @@ const RESOURCE_TYPE_FIELDS: Record<string, Set<string>> = {
 	]),
 	"aws-private-subnet": new Set([
 		"serviceName",
-		"resourceType",
 		"cidrBlock",
 		"vpcId",
 		"region",
@@ -75,7 +70,6 @@ const RESOURCE_TYPE_FIELDS: Record<string, Set<string>> = {
 	]),
 	"aws-public-subnet": new Set([
 		"serviceName",
-		"resourceType",
 		"cidrBlock",
 		"vpcId",
 		"region",
@@ -86,7 +80,6 @@ const RESOURCE_TYPE_FIELDS: Record<string, Set<string>> = {
 	]),
 	"aws-security-group": new Set([
 		"serviceName",
-		"resourceType",
 		"groupId",
 		"vpcId",
 		"description",
@@ -133,19 +126,13 @@ export function filterValidFields(
 /**
  * Validates that a configuration object only contains valid fields for its resource type
  * @param config - The configuration to validate
+ * @param resourceType - The resource type to validate against
  * @returns True if valid, false otherwise
  */
 export function validateConfigurationFields(
-	config: AWSResourceConfiguration
+	config: AWSResourceConfiguration,
+	resourceType: string
 ): boolean {
-	const resourceType = (config as Record<string, unknown>)
-		.resourceType as string;
-
-	if (!resourceType) {
-		console.warn("Configuration missing resourceType field");
-		return false;
-	}
-
 	const allowedFields = RESOURCE_TYPE_FIELDS[resourceType];
 
 	if (!allowedFields) {

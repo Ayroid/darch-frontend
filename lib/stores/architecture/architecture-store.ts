@@ -11,7 +11,6 @@ import {
 } from "@/lib/types/architecture";
 import { AWSResourceConfiguration } from "@/lib/types/aws-resources";
 import { getDefaultConfiguration } from "../configuration/default-configurations";
-import { filterValidFields } from "../configuration/configuration-utils";
 import {
 	autoConfigureNode,
 	autoConfigureAffectedNodes,
@@ -102,7 +101,7 @@ const convertReactFlowNodeToArchNode = (
 	return {
 		id: node.id,
 		nodeType: node.type as "awsService" | "awsContainer",
-		serviceType:
+		resourceType:
 			typeof data?.serviceId === "string"
 				? data.serviceId
 				: typeof data?.name === "string"
@@ -145,7 +144,7 @@ const convertArchNodeToReactFlowNode = (archNode: ArchitectureNode): Node => {
 		data: {
 			icon: archNode.icon,
 			name: archNode.name,
-			serviceId: archNode.serviceType,
+			serviceId: archNode.resourceType,
 			isContainer: archNode.isContainer,
 			configuration: archNode.configuration,
 		},
@@ -252,9 +251,9 @@ export const useArchitectureStore = create<
 							node.id = generateUniqueId();
 						}
 
-						// Get service type for configuration
+						// Get resource type for configuration
 						const data = node.data as Record<string, unknown>;
-						const serviceType = (data?.serviceId as string) || "unknown";
+						const resourceType = (data?.serviceId as string) || "unknown";
 
 						// Check if node already has configuration (e.g., from copy-paste)
 						let nodeConfig: AWSResourceConfiguration;
@@ -268,7 +267,7 @@ export const useArchitectureStore = create<
 							);
 						} else {
 							// Initialize with default configuration for new nodes
-							nodeConfig = getDefaultConfiguration(serviceType);
+							nodeConfig = getDefaultConfiguration(resourceType);
 							console.log(
 								"Initializing default configuration for new node:",
 								node.id,
@@ -294,7 +293,8 @@ export const useArchitectureStore = create<
 							node.id,
 							nodeConfig,
 							nodesWithNew,
-							state.nodeConfigurations
+							state.nodeConfigurations,
+							resourceType
 						);
 
 						// Apply auto-configuration if any fields were populated
@@ -396,10 +396,7 @@ export const useArchitectureStore = create<
 					set((state) => {
 						if (!state.nodeConfigurations[nodeId]) {
 							const defaultConfig = getDefaultConfiguration(serviceId);
-							state.nodeConfigurations[nodeId] = {
-								...defaultConfig,
-								resourceType: serviceId,
-							} as AWSResourceConfiguration;
+							state.nodeConfigurations[nodeId] = defaultConfig;
 
 							// Update architecture data
 							if (state.currentData) {
@@ -420,29 +417,14 @@ export const useArchitectureStore = create<
 				updateNodeConfiguration: (nodeId, updates) => {
 					set((state) => {
 						const existingConfig = state.nodeConfigurations[nodeId] || {};
-						const resourceType =
-							existingConfig.resourceType ||
-							((updates as Record<string, unknown>).resourceType as string);
 
-						if (!resourceType) {
-							console.warn(
-								`No resourceType found for node ${nodeId}. Updates will not be filtered.`
-							);
-							state.nodeConfigurations[nodeId] = {
-								...existingConfig,
-								...updates,
-							} as AWSResourceConfiguration;
-						} else {
-							// Filter updates to only include valid fields for this resource type
-							const filteredUpdates = filterValidFields(resourceType, updates);
-							const updatedConfig = {
-								...existingConfig,
-								...filteredUpdates,
-								resourceType, // Ensure resource type is preserved
-							} as AWSResourceConfiguration;
+						// Simply merge the updates without filtering since resourceType is no longer in config
+						const updatedConfig = {
+							...existingConfig,
+							...updates,
+						} as AWSResourceConfiguration;
 
-							state.nodeConfigurations[nodeId] = updatedConfig;
-						}
+						state.nodeConfigurations[nodeId] = updatedConfig;
 
 						// Update architecture data
 						if (state.currentData) {

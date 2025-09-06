@@ -656,12 +656,15 @@ export const createNodeHandlers = (
 							setTimeout(() => {
 								for (const nodeId of nodesWithChangedParents) {
 									const nodeConfig = architectureStore.getNodeConfiguration(nodeId);
-									if (nodeConfig) {
+									const node = updatedNodes.find(n => n.id === nodeId);
+									const resourceType = node?.data?.serviceId as string;
+									if (nodeConfig && resourceType) {
 										const { updatedConfig } = autoConfigureNode(
 											nodeId,
 											nodeConfig,
 											updatedNodes,
-											architectureStore.nodeConfigurations
+											architectureStore.nodeConfigurations,
+											resourceType
 										);
 										architectureStore.updateNodeConfiguration(nodeId, updatedConfig);
 									}
@@ -679,12 +682,15 @@ export const createNodeHandlers = (
 							setTimeout(() => {
 								for (const nodeId of nodesWithChangedParents) {
 									const nodeConfig = architectureStore.getNodeConfiguration(nodeId);
-									if (nodeConfig) {
+									const node = updatedNodes.find(n => n.id === nodeId);
+									const resourceType = node?.data?.serviceId as string;
+									if (nodeConfig && resourceType) {
 										const { updatedConfig } = autoConfigureNode(
 											nodeId,
 											nodeConfig,
 											updatedNodes,
-											architectureStore.nodeConfigurations
+											architectureStore.nodeConfigurations,
+											resourceType
 										);
 										architectureStore.updateNodeConfiguration(nodeId, updatedConfig);
 									}

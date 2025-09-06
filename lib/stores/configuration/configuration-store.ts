@@ -3,7 +3,6 @@ import { devtools } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 import { AWSResourceConfiguration } from "@/lib/types/aws-resources";
 import { getDefaultConfiguration } from "./default-configurations";
-import { filterValidFields } from "./configuration-utils";
 
 // Configuration state
 interface ConfigurationState {
@@ -73,10 +72,7 @@ export const useConfigurationStore = create<
 					// Only initialize if the node doesn't already have a configuration
 					if (!state.nodeConfigurations[nodeId]) {
 						const defaultConfig = getDefaultConfiguration(serviceId);
-						state.nodeConfigurations[nodeId] = {
-							...defaultConfig,
-							resourceType: serviceId,
-						} as AWSResourceConfiguration;
+						state.nodeConfigurations[nodeId] = defaultConfig;
 					}
 				}),
 
@@ -97,29 +93,11 @@ export const useConfigurationStore = create<
 					console.log("[updateNodeConfiguration]", { nodeId, updates });
 					const existingConfig = state.nodeConfigurations[nodeId] || {};
 
-					// Get the resource type from existing config or updates
-					const resourceType =
-						existingConfig.resourceType ||
-						((updates as Record<string, unknown>).resourceType as string);
-
-					if (!resourceType) {
-						console.warn(
-							`No resourceType found for node ${nodeId}. Updates will not be filtered.`
-						);
-						state.nodeConfigurations[nodeId] = {
-							...existingConfig,
-							...updates,
-						} as AWSResourceConfiguration;
-						return;
-					}
-
-					// Filter updates to only include valid fields for this resource type
-					const filteredUpdates = filterValidFields(resourceType, updates);
-
+					// We no longer need resourceType since it's not part of the configuration
+					// Just merge the updates with the existing configuration
 					const updatedConfig = {
 						...existingConfig,
-						...filteredUpdates,
-						resourceType, // Ensure resource type is preserved
+						...updates,
 					} as AWSResourceConfiguration;
 
 					state.nodeConfigurations[nodeId] = updatedConfig;
