@@ -40,7 +40,7 @@ export const useStoreIntegration = (
 			updateNodeConfiguration(nodeId, filteredConfig);
 
 			// Validate and set errors
-			const errors = validateConfiguration(serviceId, filteredConfig);
+			const errors = validateConfiguration(serviceId, filteredConfig as AWSResourceConfiguration);
 			if (errors.length > 0) {
 				setValidationErrors(nodeId, errors);
 			} else {

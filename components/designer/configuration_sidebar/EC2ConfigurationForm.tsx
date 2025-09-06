@@ -81,8 +81,8 @@ const EC2ConfigurationForm: React.FC<EC2ConfigurationFormProps> = ({
 					<Label htmlFor="ec2-name">Instance Name<span className="text-red-600">*</span></Label>
 					<Input
 						id="ec2-name"
-						value={config.resourceName || ""}
-						onChange={(e) => handleFieldChange("resourceName", e.target.value)}
+						value={config.awsEc2Id || ""}
+						onChange={(e) => handleFieldChange("awsEc2Id", e.target.value)}
 						placeholder="e.g., Web Server"
 					/>
 				</div>
@@ -151,12 +151,12 @@ const EC2ConfigurationForm: React.FC<EC2ConfigurationFormProps> = ({
 					</div>
 					<Input
 						id="availabilityZone"
-						value={config.availabilityZone || ""}
-						onChange={(e) => handleFieldChange("availabilityZone", e.target.value)}
+						value={config.awsAvailabilityZone || ""}
+						onChange={(e) => handleFieldChange("awsAvailabilityZone", e.target.value)}
 						placeholder="e.g., us-east-1a"
-						disabled={isFieldDisabled("availabilityZone")}
+						disabled={isFieldDisabled("awsAvailabilityZone")}
 					/>
-					{isFieldDisabled("availabilityZone") && (
+					{isFieldDisabled("awsAvailabilityZone") && (
 						<p className="text-xs text-muted-foreground">
 							This field is automatically configured based on the container hierarchy.
 						</p>

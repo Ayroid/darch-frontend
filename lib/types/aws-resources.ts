@@ -5,7 +5,7 @@
 
 // Base interfaces
 export interface BaseAWSResource {
-	resourceName: string;
+	awsResourceId: string;
 	description?: string;
 	tags?: Record<string, string>;
 }
@@ -17,7 +17,7 @@ export interface ConfigurationFormProps<T = Record<string, unknown>> {
 
 // VPC Configuration
 export interface VPCConfiguration {
-	resourceName: string;
+	awsVpcId: string;
 	cidrBlock?: string;
 	region?: string;
 	description?: string;
@@ -29,13 +29,13 @@ export interface VPCConfiguration {
 // EC2 Configuration
 export interface EC2Configuration {
 	// Basic Configuration
-	resourceName: string;
+	awsEc2Id: string;
 	instanceType?: string;
 	amiId?: string;
 	keyPairName?: string;
 
 	// Instance Details
-	availabilityZone?: string;
+	awsAvailabilityZone?: string;
 	subnetId?: string;
 	securityGroups?: string[];
 	iamInstanceProfile?: string;
@@ -69,22 +69,22 @@ export interface EC2Configuration {
 
 // Subnet Configurations
 export interface PublicSubnetConfiguration {
-	resourceName: string;
+	awsPublicSubnetId: string;
 	cidrBlock: string;
-	vpcId: string;
-	region: string;
-	availabilityZone: string;
+	awsVpcId: string;
+	awsRegionId: string;
+	awsAvailabilityZone: string;
 	description: string;
 	mapPublicIpOnLaunch: boolean;
 	tags?: string; // comma-separated key=value pairs for backward compatibility
 }
 
 export interface PrivateSubnetConfiguration {
-	resourceName: string;
+	awsPrivateSubnetId: string;
 	cidrBlock: string;
-	vpcId: string;
-	region: string;
-	availabilityZone: string;
+	awsVpcId: string;
+	awsRegionId: string;
+	awsAvailabilityZone: string;
 	description: string;
 	mapPublicIpOnLaunch: boolean;
 	enableNatGateway: boolean;
@@ -93,7 +93,7 @@ export interface PrivateSubnetConfiguration {
 
 // AWS Region Configuration
 export interface AWSRegionConfiguration {
-	resourceName: string;
+	awsRegionId: string;
 	region: string;
 	regionName: string;
 	description: string;
@@ -104,8 +104,8 @@ export interface AWSRegionConfiguration {
 
 // Availability Zone Configuration
 export interface AvailabilityZoneConfiguration {
-	resourceName: string;
-	region: string;
+	awsAvailabilityZoneId: string;
+	awsRegionId: string;
 	availabilityZone: string;
 	description: string;
 	isEnabled: boolean;
@@ -115,7 +115,7 @@ export interface AvailabilityZoneConfiguration {
 
 // Default/Generic Configuration for unknown resources
 export interface DefaultConfiguration {
-	resourceName?: string;
+	awsResourceId?: string;
 	description?: string;
 	properties?: Record<string, unknown>;
 }
@@ -196,8 +196,8 @@ export type AWSServiceName = (typeof AWS_SERVICE_TYPE_MAP)[AWSServiceType];
 // =============================================================================
 
 // Security Group Configuration
-export interface SecurityGroupConfiguration extends BaseAWSResource {
-	resourceName: string;
+export interface SecurityGroupConfiguration {
+	awsSecurityGroupId: string;
 	groupId?: string;
 	vpcId: string;
 	description?: string;

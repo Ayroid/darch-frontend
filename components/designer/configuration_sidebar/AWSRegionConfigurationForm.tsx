@@ -53,8 +53,8 @@ const AWSRegionConfigurationForm: React.FC<AWSRegionConfigurationFormProps> = ({
 				<Input
 					id="region-name"
 					placeholder="Enter Region name"
-					value={config.resourceName || ""}
-					onChange={(e) => handleFieldChange("resourceName", e.target.value)}
+					value={config.awsRegionId || ""}
+					onChange={(e) => handleFieldChange("awsRegionId", e.target.value)}
 				/>
 			</div>
 			<div className="space-y-2">

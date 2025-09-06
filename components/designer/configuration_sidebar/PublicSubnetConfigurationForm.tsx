@@ -38,8 +38,8 @@ const PublicSubnetConfigurationForm: React.FC<
 		onChange(updatedConfig);
 	};
 
-	const selectedRegion = config.region;
-	const availableAZs = AWS_REGIONS_WITH_AZS[config.region] || [];
+	const selectedRegion = config.awsRegionId;
+	const availableAZs = AWS_REGIONS_WITH_AZS[config.awsRegionId] || [];
 
 	return (
 		<TooltipProvider>
@@ -52,8 +52,8 @@ const PublicSubnetConfigurationForm: React.FC<
 					<Input
 						id="subnet-name"
 						placeholder="Enter public subnet name"
-						value={config.resourceName || ""}
-						onChange={(e) => handleFieldChange("resourceName", e.target.value)}
+						value={config.awsPublicSubnetId || ""}
+						onChange={(e) => handleFieldChange("awsPublicSubnetId", e.target.value)}
 					/>
 				</div>
 
@@ -68,9 +68,9 @@ const PublicSubnetConfigurationForm: React.FC<
 								<Input
 									id="vpc-id"
 									placeholder="vpc-xxxxxxxxx"
-									value={config.vpcId || ""}
-									onChange={(e) => handleFieldChange("vpcId", e.target.value)}
-									disabled={isFieldDisabled('vpcId')}
+									value={config.awsVpcId || ""}
+									onChange={(e) => handleFieldChange("awsVpcId", e.target.value)}
+									disabled={isFieldDisabled('awsVpcId')}
 								/>
 							</div>
 						</TooltipTrigger>
@@ -104,9 +104,9 @@ const PublicSubnetConfigurationForm: React.FC<
 						<TooltipTrigger asChild>
 							<div>
 								<Select
-									value={config.region}
-									onValueChange={(value) => handleFieldChange("region", value)}
-									disabled={isFieldDisabled('region')}
+									value={config.awsRegionId}
+									onValueChange={(value) => handleFieldChange("awsRegionId", value)}
+									disabled={isFieldDisabled('awsRegionId')}
 								>
 									<SelectTrigger className="w-full">
 										<SelectValue placeholder="Select AWS Region" />
@@ -138,11 +138,11 @@ const PublicSubnetConfigurationForm: React.FC<
 						<TooltipTrigger asChild>
 							<div>
 								<Select
-									value={(config.availabilityZone as string) || ""}
+									value={(config.awsAvailabilityZone as string) || ""}
 									onValueChange={(value) =>
-										handleFieldChange("availabilityZone", value)
+										handleFieldChange("awsAvailabilityZone", value)
 									}
-									disabled={!selectedRegion || isFieldDisabled('availabilityZone')}
+									disabled={!selectedRegion || isFieldDisabled('awsAvailabilityZone')}
 								>
 									<SelectTrigger className="w-full">
 										<SelectValue

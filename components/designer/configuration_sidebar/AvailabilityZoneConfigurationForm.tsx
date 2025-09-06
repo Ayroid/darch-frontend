@@ -38,7 +38,7 @@ const AvailabilityZoneConfigurationForm: React.FC<
 		onChange(updatedConfig);
 	};
 
-	const selectedRegion = config.region;
+	const selectedRegion = config.awsRegionId;
 	const availableAZs =
 		AWS_REGIONS_WITH_AZS[selectedRegion as keyof typeof AWS_REGIONS_WITH_AZS] ||
 		[];
@@ -53,8 +53,8 @@ const AvailabilityZoneConfigurationForm: React.FC<
 				<Input
 					id="az-name"
 					placeholder="Enter AZ name"
-					value={config.resourceName || ""}
-					onChange={(e) => handleFieldChange("resourceName", e.target.value)}
+					value={config.awsAvailabilityZoneId || ""}
+					onChange={(e) => handleFieldChange("awsAvailabilityZoneId", e.target.value)}
 				/>
 			</div>
 			<div className="space-y-2">
@@ -67,8 +67,8 @@ const AvailabilityZoneConfigurationForm: React.FC<
 					<Input
 						id="region"
 						placeholder="Enter AWS region"
-						value={config.region || ""}
-						onChange={(e) => handleFieldChange("region", e.target.value)}
+						value={config.awsRegionId || ""}
+						onChange={(e) => handleFieldChange("awsRegionId", e.target.value)}
 						disabled={isFieldDisabled("region")}
 					/>
 					{isFieldDisabled("region") && (

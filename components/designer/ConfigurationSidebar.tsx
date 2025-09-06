@@ -8,7 +8,7 @@ import { useArchitectureStore } from "@/lib/stores/architecture/architecture-sto
 import { ConfigurationProvider } from "@/lib/stores";
 import { TbCube } from "react-icons/tb";
 
-import { AWSResourceConfiguration } from "@/lib/types/aws-resources";
+import { AWSResourceConfiguration, DefaultConfiguration } from "@/lib/types/aws-resources";
 
 type ConfigurationFormComponent = React.ComponentType<{
 	config: AWSResourceConfiguration;
@@ -141,8 +141,8 @@ export default function ConfigurationSidebar({
 					onChange: handleConfigChange,
 			  })
 			: React.createElement(ConfigurationSidebarMap.DefaultConfigurationForm, {
-					config,
-					onChange: handleConfigChange,
+					config: config as DefaultConfiguration,
+					onChange: handleConfigChange as (config: DefaultConfiguration) => void,
 			  });
 
 		return (

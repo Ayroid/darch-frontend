@@ -38,8 +38,8 @@ const PrivateSubnetConfigurationForm: React.FC<
 		onChange(updatedConfig);
 	};
 
-	const selectedRegion = config.region;
-	const availableAZs = AWS_REGIONS_WITH_AZS[config.region] || [];
+	const selectedRegion = config.awsRegionId;
+	const availableAZs = AWS_REGIONS_WITH_AZS[config.awsRegionId] || [];
 	console.log("Available Zones: ", availableAZs);
 
 	return (
@@ -53,8 +53,8 @@ const PrivateSubnetConfigurationForm: React.FC<
 					<Input
 						id="subnet-name"
 						placeholder="Enter private subnet name"
-						value={config.resourceName || ""}
-						onChange={(e) => handleFieldChange("resourceName", e.target.value)}
+						value={config.awsPrivateSubnetId || ""}
+						onChange={(e) => handleFieldChange("awsPrivateSubnetId", e.target.value)}
 					/>
 				</div>
 
@@ -69,13 +69,13 @@ const PrivateSubnetConfigurationForm: React.FC<
 								<Input
 									id="vpc-id"
 									placeholder="vpc-xxxxxxxxx"
-									value={config.vpcId || ""}
-									onChange={(e) => handleFieldChange("vpcId", e.target.value)}
-									disabled={isFieldDisabled('vpcId')}
+									value={config.awsVpcId || ""}
+									onChange={(e) => handleFieldChange("awsVpcId", e.target.value)}
+									disabled={isFieldDisabled('awsVpcId')}
 								/>
 							</div>
 						</TooltipTrigger>
-						{isFieldDisabled('vpcId') && (
+						{isFieldDisabled('awsVpcId') && (
 							<TooltipContent>
 								<p>This field is auto-configured from the parent VPC container</p>
 							</TooltipContent>
@@ -105,9 +105,9 @@ const PrivateSubnetConfigurationForm: React.FC<
 						<TooltipTrigger asChild>
 							<div>
 								<Select
-									value={config.region}
-									onValueChange={(value) => handleFieldChange("region", value)}
-									disabled={isFieldDisabled('region')}
+									value={config.awsRegionId}
+									onValueChange={(value) => handleFieldChange("awsRegionId", value)}
+									disabled={isFieldDisabled('awsRegionId')}
 								>
 									<SelectTrigger className="w-full">
 										<SelectValue placeholder="Select AWS Region" />
@@ -139,11 +139,11 @@ const PrivateSubnetConfigurationForm: React.FC<
 						<TooltipTrigger asChild>
 							<div>
 								<Select
-									value={config.availabilityZone || ""}
+									value={config.awsAvailabilityZone || ""}
 									onValueChange={(value) =>
-										handleFieldChange("availabilityZone", value)
+										handleFieldChange("awsAvailabilityZone", value)
 									}
-									disabled={!selectedRegion || isFieldDisabled('availabilityZone')}
+									disabled={!selectedRegion || isFieldDisabled('awsAvailabilityZone')}
 								>
 									<SelectTrigger className="w-full">
 										<SelectValue
@@ -164,7 +164,7 @@ const PrivateSubnetConfigurationForm: React.FC<
 								</Select>
 							</div>
 						</TooltipTrigger>
-						{isFieldDisabled('availabilityZone') && (
+						{isFieldDisabled('awsAvailabilityZone') && (
 							<TooltipContent>
 								<p>This field is auto-configured from the parent Availability Zone container</p>
 							</TooltipContent>

@@ -31,8 +31,8 @@ export default function DefaultConfigurationForm({
 				<Input
 					id="service-name"
 					placeholder="Enter service name"
-					value={(config.resourceName as string) || ""}
-					onChange={(e) => handleFieldChange("resourceName", e.target.value)}
+					value={(config.awsResourceId as string) || ""}
+					onChange={(e) => handleFieldChange("awsResourceId", e.target.value)}
 				/>
 			</div>
 			<div className="space-y-2">
