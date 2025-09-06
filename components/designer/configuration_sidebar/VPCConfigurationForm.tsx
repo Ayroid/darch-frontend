@@ -63,11 +63,11 @@ const VPCConfigurationForm: React.FC<VPCConfigurationFormProps> = ({
 					<Input
 						id="region"
 						placeholder="Enter AWS region"
-						value={config.region || ""}
-						onChange={(e) => handleFieldChange("region", e.target.value)}
-						disabled={isFieldDisabled("region")}
+						value={config.awsRegionId || ""}
+						onChange={(e) => handleFieldChange("awsRegionId", e.target.value)}
+						disabled={isFieldDisabled("awsRegionId")}
 					/>
-					{isFieldDisabled("region") && (
+					{isFieldDisabled("awsRegionId") && (
 						<div className="absolute top-1/2 right-2 transform -translate-y-1/2">
 							<AutoConfigurationTooltip parentContainer="Region" />
 						</div>

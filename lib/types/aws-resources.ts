@@ -19,7 +19,7 @@ export interface ConfigurationFormProps<T = Record<string, unknown>> {
 export interface VPCConfiguration {
 	awsVpcId: string;
 	cidrBlock?: string;
-	region?: string;
+	awsRegionId?: string;
 	description?: string;
 	enableDnsSupport?: boolean;
 	enableDnsHostnames?: boolean;
@@ -35,6 +35,7 @@ export interface EC2Configuration {
 	keyPairName?: string;
 
 	// Instance Details
+	awsRegionId?: string;
 	awsAvailabilityZone?: string;
 	subnetId?: string;
 	securityGroups?: string[];

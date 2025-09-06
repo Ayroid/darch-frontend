@@ -8,6 +8,7 @@ import {
   AWSResourceConfiguration,
   AWSRegionConfiguration,
   AvailabilityZoneConfiguration,
+  VPCConfiguration
 } from "@/lib/types/aws-resources";
 import { buildParentChildMap } from "./parent-child-logic";
 
@@ -29,34 +30,34 @@ export interface ResourceFieldRules {
 export const AWS_RESOURCE_FIELD_RULES: ResourceFieldRules = {
   "aws-availability-zone": {
     autoFields: {
-      awsRegion: {
+      awsRegionId: {
         sourceParentType: "aws-region",
-        sourceField: "awsRegion",
+        sourceField: "region",
         defaultValue: "us-east-1",
       },
     },
-    disabledFields: ["awsRegion"],
+    disabledFields: ["awsRegionId"],
   },
   "aws-vpc": {
     autoFields: {
-      awsRegion: {
+      awsRegionId: {
         sourceParentType: "aws-region",
-        sourceField: "awsRegion",
+        sourceField: "region",
         defaultValue: "us-east-1",
       },
     },
-    disabledFields: ["awsRegion"],
+    disabledFields: ["awsRegionId"],
   },
   "aws-private-subnet": {
     autoFields: {
-      awsRegion: {
+      awsRegionId: {
         sourceParentType: "aws-region",
-        sourceField: "awsRegion",
+        sourceField: "region",
         defaultValue: "us-east-1",
       },
       awsAvailabilityZone: {
         sourceParentType: "aws-availability-zone",
-        sourceField: "awsAvailabilityZone",
+        sourceField: "availabilityZone",
         defaultValue: "us-east-1a",
       },
       awsVpcId: {
@@ -65,18 +66,18 @@ export const AWS_RESOURCE_FIELD_RULES: ResourceFieldRules = {
         defaultValue: "",
       },
     },
-    disabledFields: ["awsRegion", "awsAvailabilityZone", "awsVpcId"],
+    disabledFields: ["awsRegionId", "awsAvailabilityZone", "awsVpcId"],
   },
   "aws-public-subnet": {
     autoFields: {
-      awsRegion: {
+      awsRegionId: {
         sourceParentType: "aws-region",
-        sourceField: "awsRegion",
+        sourceField: "region",
         defaultValue: "us-east-1",
       },
       awsAvailabilityZone: {
         sourceParentType: "aws-availability-zone",
-        sourceField: "awsAvailabilityZone",
+        sourceField: "availabilityZone",
         defaultValue: "us-east-1a",
       },
       awsVpcId: {
@@ -85,13 +86,13 @@ export const AWS_RESOURCE_FIELD_RULES: ResourceFieldRules = {
         defaultValue: "",
       },
     },
-    disabledFields: ["awsRegion", "awsAvailabilityZone", "awsVpcId"],
+    disabledFields: ["awsRegionId", "awsAvailabilityZone", "awsVpcId"],
   },
   "aws-security-group": {
     autoFields: {
       awsVpcId: {
         sourceParentType: "aws-vpc",
-        sourceField: "id",
+        sourceField: "awsVpcId",
         defaultValue: "",
       },
     },
@@ -99,14 +100,14 @@ export const AWS_RESOURCE_FIELD_RULES: ResourceFieldRules = {
   },
   "aws-ec2": {
     autoFields: {
-      awsRegion: {
+      awsRegionId: {
         sourceParentType: "aws-region",
-        sourceField: "awsRegion",
+        sourceField: "region",
         defaultValue: "us-east-1",
       },
       awsAvailabilityZone: {
         sourceParentType: "aws-availability-zone",
-        sourceField: "awsAvailabilityZone",
+        sourceField: "availabilityZone",
         defaultValue: "us-east-1a",
       },
       subnetId: {
@@ -120,7 +121,7 @@ export const AWS_RESOURCE_FIELD_RULES: ResourceFieldRules = {
         defaultValue: [],
       },
     },
-    disabledFields: ["awsRegion", "awsAvailabilityZone", "subnetId"],
+    disabledFields: ["awsRegionId", "awsAvailabilityZone", "subnetId"],
     // Note: securityGroups is not disabled as it's an array and user might want to add multiple
   },
 };
@@ -192,25 +193,39 @@ export function getParentConfigurationValue(
   nodeConfigurations: Record<string, AWSResourceConfiguration>
 ): unknown {
   const parentConfig = nodeConfigurations[parentNode.id];
-  if (!parentConfig) return undefined;
+  if (!parentConfig) {
+    console.log(`[getParentConfigurationValue] No config found for parent ${parentNode.id}`);
+    return undefined;
+  }
+
+  console.log(`[getParentConfigurationValue] Getting field ${fieldName} from parent ${parentNode.id}`, {
+    parentConfig,
+    serviceId: parentNode.data?.serviceId
+  });
 
   // Special handling for different field mappings
   switch (fieldName) {
     case "id":
       // For cases where we need the node/service ID itself (like VPC ID, Subnet ID)
       return parentNode.id;
-    case "vpcId":
+    case "awsVpcId":
       // For VPC, we might need to use a generated ID or the node ID itself
-      return parentNode.id; // Use node ID as VPC ID for now
+      return (parentConfig as VPCConfiguration).awsVpcId; // Use node ID as VPC ID for now
     case "subnetId":
       // For subnets, use the node ID as subnet ID
       return parentNode.id;
     case "region":
-      return (parentConfig as AWSRegionConfiguration).region;
+      const regionValue = (parentConfig as AWSRegionConfiguration).region;
+      console.log(`[getParentConfigurationValue] Region field value:`, regionValue);
+      return regionValue;
     case "availabilityZone":
-      return (parentConfig as AvailabilityZoneConfiguration).availabilityZone;
+      const azValue = (parentConfig as AvailabilityZoneConfiguration).availabilityZone;
+      console.log(`[getParentConfigurationValue] AvailabilityZone field value:`, azValue);
+      return azValue;
     default:
-      return (parentConfig as Record<string, unknown>)[fieldName];
+      const defaultValue = (parentConfig as Record<string, unknown>)[fieldName];
+      console.log(`[getParentConfigurationValue] Default field ${fieldName} value:`, defaultValue);
+      return defaultValue;
   }
 }
 
@@ -235,19 +250,28 @@ export function autoConfigureNode(
   }
 
   if (!nodeResourceType) {
+    console.log(`[autoConfigureNode] No resource type found for node ${nodeId}`);
     return { updatedConfig: currentConfig, autoPopulatedFields: [] };
   }
 
   const rules = AWS_RESOURCE_FIELD_RULES[nodeResourceType];
   if (!rules) {
+    console.log(`[autoConfigureNode] No rules found for resource type ${nodeResourceType}`);
     return { updatedConfig: currentConfig, autoPopulatedFields: [] };
   }
+
+  console.log(`[autoConfigureNode] Processing node ${nodeId} of type ${nodeResourceType}`, {
+    rules: rules.autoFields,
+    currentConfig
+  });
 
   const updatedConfig = { ...currentConfig };
   const autoPopulatedFields: string[] = [];
 
   // Process each auto field rule
   for (const [fieldName, rule] of Object.entries(rules.autoFields)) {
+    console.log(`[autoConfigureNode] Processing field ${fieldName}`, { rule });
+    
     const parentTypes = rule.sourceParentType.split(',').map(type => type.trim());
 
     // Handle array fields (like security groups)
@@ -261,6 +285,7 @@ export function autoConfigureNode(
         if (securityGroupIds.length > 0) {
           (updatedConfig as Record<string, unknown>)[fieldName] = securityGroupIds;
           autoPopulatedFields.push(fieldName);
+          console.log(`[autoConfigureNode] Auto-populated ${fieldName} with security groups:`, securityGroupIds);
         }
       }
       continue;
@@ -277,6 +302,7 @@ export function autoConfigureNode(
             (updatedConfig as Record<string, unknown>)[fieldName] = value;
             autoPopulatedFields.push(fieldName);
             foundValue = true;
+            console.log(`[autoConfigureNode] Auto-populated ${fieldName} from ${parentType} parent:`, value);
             break; // Use the first valid parent found
           }
         }
@@ -285,11 +311,16 @@ export function autoConfigureNode(
     } else {
       // Standard single parent type auto-configuration
       const parentNode = findParentOfType(nodeId, parentTypes[0], nodes);
+      console.log(`[autoConfigureNode] Looking for parent of type ${parentTypes[0]} for field ${fieldName}`, { parentNode: parentNode?.id });
+      
       if (parentNode) {
         const value = getParentConfigurationValue(parentNode, rule.sourceField, nodeConfigurations);
+        console.log(`[autoConfigureNode] Got value from parent ${parentNode.id}:`, { sourceField: rule.sourceField, value });
+        
         if (value !== undefined && value !== "") {
           (updatedConfig as Record<string, unknown>)[fieldName] = value;
           autoPopulatedFields.push(fieldName);
+          console.log(`[autoConfigureNode] Auto-populated ${fieldName} from ${parentTypes[0]} parent:`, value);
           continue;
         }
       }
@@ -299,8 +330,14 @@ export function autoConfigureNode(
     if (rule.defaultValue !== undefined) {
       (updatedConfig as Record<string, unknown>)[fieldName] = rule.defaultValue;
       autoPopulatedFields.push(fieldName);
+      console.log(`[autoConfigureNode] Used default value for ${fieldName}:`, rule.defaultValue);
     }
   }
+
+  console.log(`[autoConfigureNode] Final result for ${nodeId}:`, {
+    autoPopulatedFields,
+    updatedConfig
+  });
 
   return { updatedConfig, autoPopulatedFields };
 }

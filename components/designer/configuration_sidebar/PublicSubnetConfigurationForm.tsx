@@ -94,9 +94,9 @@ const PublicSubnetConfigurationForm: React.FC<
 						placeholder="Enter AWS region"
 						value={config.awsRegionId || ""}
 						onChange={(e) => handleFieldChange("awsRegionId", e.target.value)}
-						disabled={isFieldDisabled("awsRegion")}
+						disabled={isFieldDisabled("awsRegionId")}
 					/>
-					{isFieldDisabled("awsRegion") && (
+					{isFieldDisabled("awsRegionId") && (
 						<div className="absolute top-1/2 right-2 transform -translate-y-1/2">
 							<AutoConfigurationTooltip parentContainer="Region" />
 						</div>

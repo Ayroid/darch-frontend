@@ -42,7 +42,8 @@ const EC2ConfigurationForm: React.FC<EC2ConfigurationFormProps> = ({
 	};
 
 	// Get auto-configuration info for fields
-	const availabilityZoneInfo = getFieldInfo("availabilityZone");
+	const regionInfo = getFieldInfo("awsRegionId");
+	const availabilityZoneInfo = getFieldInfo("awsAvailabilityZone");
 	const subnetIdInfo = getFieldInfo("subnetId");
 
 	// const handleTagChange = (key: string, value: string) => {
@@ -132,6 +133,36 @@ const EC2ConfigurationForm: React.FC<EC2ConfigurationFormProps> = ({
 				<h3 className="text-sm font-semibold text-gray-700 border-b pb-2">
 					Instance Details
 				</h3>
+
+				<div className="space-y-2">
+					<div className="flex items-center gap-2">
+						<Label htmlFor="region">AWS Region<span className="text-red-600">*</span></Label>
+						{regionInfo?.isAutoConfigured && (
+							<Tooltip>
+								<TooltipTrigger>
+									<Badge variant="secondary" className="text-xs">
+										Auto
+									</Badge>
+								</TooltipTrigger>
+								<TooltipContent>
+									<p>Auto-configured from {regionInfo.sourceName} ({regionInfo.sourceType})</p>
+								</TooltipContent>
+							</Tooltip>
+						)}
+					</div>
+					<Input
+						id="region"
+						value={config.awsRegionId || ""}
+						onChange={(e) => handleFieldChange("awsRegionId", e.target.value)}
+						placeholder="e.g., us-east-1"
+						disabled={isFieldDisabled("awsRegionId")}
+					/>
+					{isFieldDisabled("awsRegionId") && (
+						<p className="text-xs text-muted-foreground">
+							This field is automatically configured based on the container hierarchy.
+						</p>
+					)}
+				</div>
 
 				<div className="space-y-2">
 					<div className="flex items-center gap-2">

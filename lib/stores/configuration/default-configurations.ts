@@ -14,7 +14,7 @@ export const defaultConfigurations: Record<string, AWSResourceConfiguration> = {
 	"aws-vpc": {
 		awsVpcId: "VPC",
 		cidrBlock: "10.0.0.0/16",
-		region: "us-east-1",
+		awsRegionId: "us-east-1",
 		enableDnsSupport: true,
 		enableDnsHostnames: true,
 		tags: "Environment=Development",
@@ -24,7 +24,8 @@ export const defaultConfigurations: Record<string, AWSResourceConfiguration> = {
 		instanceType: "t3.micro",
 		amiId: "ami-0c55b159cbfafe1d0",
 		keyPairName: "",
-		availabilityZone: "us-east-1a",
+		awsRegionId: "us-east-1",
+		awsAvailabilityZone: "us-east-1a",
 		subnetId: "",
 		securityGroups: [],
 		rootVolumeSize: 8,
