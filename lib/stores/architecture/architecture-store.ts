@@ -1,29 +1,23 @@
-import { create } from 'zustand';
-import { devtools } from 'zustand/middleware';
-import { immer } from 'zustand/middleware/immer';
-import { persist } from 'zustand/middleware';
-import { Node, Edge } from '@xyflow/react';
+import { create } from "zustand";
+import { devtools } from "zustand/middleware";
+import { immer } from "zustand/middleware/immer";
+import { persist } from "zustand/middleware";
+import { Node, Edge } from "@xyflow/react";
 import {
 	ArchitectureData,
 	ArchitectureNode,
 	NodeConnection,
 	ArchitectureMetadata,
-} from '@/lib/types/architecture';
+} from "@/lib/types/architecture";
+import { AWSResourceConfiguration } from "@/lib/types/aws-resources";
+import { getDefaultConfiguration } from "../configuration/default-configurations";
+import { filterValidFields } from "../configuration/configuration-utils";
 import {
-	AWSResourceConfiguration,
-	VPCConfiguration,
-	EC2Configuration,
-	AWSRegionConfiguration,
-	AvailabilityZoneConfiguration,
-	PrivateSubnetConfiguration,
-	PublicSubnetConfiguration,
-	SecurityGroupConfiguration,
-} from '@/lib/types/aws-resources';
-import { getDefaultConfiguration } from '../configuration/default-configurations';
-import { filterValidFields } from '../configuration/configuration-utils';
-import { autoConfigureNode, autoConfigureAffectedNodes } from '../../auto-configuration';
+	autoConfigureNode,
+	autoConfigureAffectedNodes,
+} from "../../auto-configuration";
 
-const DEFAULT_FILE_NAME = 'architecture.json';
+const DEFAULT_FILE_NAME = "architecture.json";
 const AUTO_SAVE_DELAY = 1000; // 1 second debounce for auto-save
 
 // Unified Architecture State
@@ -56,7 +50,10 @@ interface ArchitectureActions {
 	// Node management
 	addNode: (node: Node) => string;
 	removeNode: (nodeId: string) => void;
-	updateNodePosition: (nodeId: string, position: { x: number; y: number }) => void;
+	updateNodePosition: (
+		nodeId: string,
+		position: { x: number; y: number }
+	) => void;
 	updateFromReactFlow: (nodes: Node[], edges: Edge[]) => void;
 
 	// Configuration management
@@ -74,7 +71,10 @@ interface ArchitectureActions {
 	removeConnection: (connectionId: string) => void;
 
 	// Import/Export
-	loadFromJSON: (jsonData: ArchitectureData) => { nodes: Node[]; edges: Edge[] };
+	loadFromJSON: (jsonData: ArchitectureData) => {
+		nodes: Node[];
+		edges: Edge[];
+	};
 	exportToJSON: () => ArchitectureData | null;
 	importFromFile: (file: File) => Promise<{ nodes: Node[]; edges: Edge[] }>;
 	exportToFile: (filename?: string) => void;
@@ -93,120 +93,31 @@ const generateUniqueId = (): string => {
 	return `node_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 };
 
-const getDefaultConfigurationForService = (serviceType: string): AWSResourceConfiguration => {
-	const defaultConfigurations: Record<string, AWSResourceConfiguration> = {
-		'aws-vpc': {
-			serviceName: 'VPC',
-			serviceId: 'aws-vpc',
-			resourceType: 'aws-vpc',
-			cidrBlock: '10.0.0.0/16',
-			region: 'us-east-1',
-			enableDnsSupport: true,
-			enableDnsHostnames: true,
-			tags: 'Environment=Development',
-		} as VPCConfiguration,
-		'aws-ec2': {
-			serviceName: 'EC2',
-			serviceId: 'aws-ec2',
-			resourceType: 'aws-ec2',
-			instanceType: 't3.micro',
-			amiId: 'ami-0c55b159cbfafe1d0',
-			keyPairName: '',
-			availabilityZone: 'us-east-1a',
-			subnetId: '',
-			securityGroups: [],
-			rootVolumeSize: 8,
-			rootVolumeType: 'gp3',
-			deleteOnTermination: true,
-			encrypted: false,
-			detailedMonitoring: false,
-			terminationProtection: false,
-			autoRecovery: true,
-			associatePublicIpAddress: false,
-			tenancy: 'default',
-			tags: {},
-		} as EC2Configuration,
-		'aws-region': {
-			serviceName: 'AWS Region',
-			serviceId: 'aws-region',
-			resourceType: 'aws-region',
-			region: 'us-east-1',
-			regionName: 'US East (N. Virginia)',
-			description: '',
-			isEnabled: true,
-			isDefault: true,
-			tags: 'Type=Region',
-		} as AWSRegionConfiguration,
-		'aws-availability-zone': {
-			serviceName: 'Availability Zone',
-			serviceId: 'aws-availability-zone',
-			resourceType: 'aws-availability-zone',
-			region: 'us-east-1',
-			availabilityZone: 'us-east-1a',
-			description: '',
-			isEnabled: true,
-			isPreferred: false,
-			tags: 'Type=AvailabilityZone',
-		} as AvailabilityZoneConfiguration,
-		'aws-private-subnet': {
-			serviceName: 'Private Subnet',
-			serviceId: 'aws-private-subnet',
-			resourceType: 'aws-private-subnet',
-			cidrBlock: '10.0.1.0/24',
-			availabilityZone: 'us-east-1a',
-			vpcId: '',
-			region: 'us-east-1',
-			description: '',
-			mapPublicIpOnLaunch: false,
-			enableNatGateway: false,
-			tags: 'Type=Private',
-		} as PrivateSubnetConfiguration,
-		'aws-public-subnet': {
-			serviceName: 'Public Subnet',
-			serviceId: 'aws-public-subnet',
-			resourceType: 'aws-public-subnet',
-			cidrBlock: '10.0.0.0/24',
-			availabilityZone: 'us-east-1a',
-			vpcId: '',
-			region: 'us-east-1',
-			description: '',
-			mapPublicIpOnLaunch: true,
-			tags: 'Type=Public',
-		} as PublicSubnetConfiguration,
-		'aws-security-group': {
-			serviceName: 'Security Group',
-			serviceId: 'aws-security-group',
-			resourceType: 'aws-security-group',
-			vpcId: '',
-			description: '',
-			ingressRules: [],
-			egressRules: [{ protocol: 'all', port: 'all', destination: '0.0.0.0/0', description: 'All outbound' }],
-			tags: {},
-		} as SecurityGroupConfiguration,
-	};
-
-	return defaultConfigurations[serviceType] || {
-		serviceName: 'Unknown Service',
-		serviceId: serviceType,
-		resourceType: serviceType
-	} as AWSResourceConfiguration;
-};
-
 // Convert ReactFlow nodes to ArchitectureNode format
-const convertReactFlowNodeToArchNode = (node: Node, nodeConfig?: AWSResourceConfiguration): ArchitectureNode => {
+const convertReactFlowNodeToArchNode = (
+	node: Node,
+	nodeConfig?: AWSResourceConfiguration
+): ArchitectureNode => {
 	const data = node.data as Record<string, unknown>;
 	return {
 		id: node.id,
 		nodeType: node.type as "awsService" | "awsContainer",
-		serviceType: (typeof data?.serviceId === 'string' ? data.serviceId :
-					 typeof data?.name === 'string' ? data.name.toLowerCase() : "unknown"),
-		name: (typeof data?.name === 'string' ? data.name : "Unnamed Service"),
-		icon: (typeof data?.icon === 'string' ? data.icon : ""),
+		serviceType:
+			typeof data?.serviceId === "string"
+				? data.serviceId
+				: typeof data?.name === "string"
+				? data.name.toLowerCase()
+				: "unknown",
+		name: typeof data?.name === "string" ? data.name : "Unnamed Service",
+		icon: typeof data?.icon === "string" ? data.icon : "",
 		position: node.position,
-		dimensions: node.style ? {
-			width: typeof node.style.width === "number" ? node.style.width : 80,
-			height: typeof node.style.height === "number" ? node.style.height : 80,
-		} : undefined,
+		dimensions: node.style
+			? {
+					width: typeof node.style.width === "number" ? node.style.width : 80,
+					height:
+						typeof node.style.height === "number" ? node.style.height : 80,
+			  }
+			: undefined,
 		configuration: nodeConfig || {},
 		isContainer: Boolean(data?.isContainer),
 		parentId: node.parentId,
@@ -238,10 +149,12 @@ const convertArchNodeToReactFlowNode = (archNode: ArchitectureNode): Node => {
 			isContainer: archNode.isContainer,
 			configuration: archNode.configuration,
 		},
-		style: archNode.dimensions ? {
-			width: archNode.dimensions.width,
-			height: archNode.dimensions.height,
-		} : undefined,
+		style: archNode.dimensions
+			? {
+					width: archNode.dimensions.width,
+					height: archNode.dimensions.height,
+			  }
+			: undefined,
 		parentId: archNode.parentId,
 	};
 };
@@ -259,7 +172,9 @@ const convertConnectionToReactFlowEdge = (connection: NodeConnection): Edge => {
 };
 
 // Create the unified architecture store
-export const useArchitectureStore = create<ArchitectureState & ArchitectureActions>()(
+export const useArchitectureStore = create<
+	ArchitectureState & ArchitectureActions
+>()(
 	devtools(
 		persist(
 			immer((set, get) => ({
@@ -330,7 +245,10 @@ export const useArchitectureStore = create<ArchitectureState & ArchitectureActio
 						}
 
 						// Ensure unique ID
-						if (!node.id || state.currentData!.nodes.some((n) => n.id === node.id)) {
+						if (
+							!node.id ||
+							state.currentData!.nodes.some((n) => n.id === node.id)
+						) {
 							node.id = generateUniqueId();
 						}
 
@@ -340,14 +258,22 @@ export const useArchitectureStore = create<ArchitectureState & ArchitectureActio
 
 						// Check if node already has configuration (e.g., from copy-paste)
 						let nodeConfig: AWSResourceConfiguration;
-						if (data?.configuration && typeof data.configuration === 'object') {
+						if (data?.configuration && typeof data.configuration === "object") {
 							// Use existing configuration from copied node
 							nodeConfig = data.configuration as AWSResourceConfiguration;
-							console.log("Using existing configuration for copied node:", node.id, nodeConfig);
+							console.log(
+								"Using existing configuration for copied node:",
+								node.id,
+								nodeConfig
+							);
 						} else {
 							// Initialize with default configuration for new nodes
-							nodeConfig = getDefaultConfigurationForService(serviceType);
-							console.log("Initializing default configuration for new node:", node.id, nodeConfig);
+							nodeConfig = getDefaultConfiguration(serviceType);
+							console.log(
+								"Initializing default configuration for new node:",
+								node.id,
+								nodeConfig
+							);
 						}
 
 						// Store configuration in the unified store
@@ -376,7 +302,10 @@ export const useArchitectureStore = create<ArchitectureState & ArchitectureActio
 							state.nodeConfigurations[node.id] = updatedConfig;
 							archNode.configuration = updatedConfig;
 
-							console.log(`Auto-configured new node ${node.id} with fields:`, autoPopulatedFields);
+							console.log(
+								`Auto-configured new node ${node.id} with fields:`,
+								autoPopulatedFields
+							);
 						}
 					});
 
@@ -390,10 +319,12 @@ export const useArchitectureStore = create<ArchitectureState & ArchitectureActio
 							state.currentData.nodes = state.currentData.nodes.filter(
 								(node) => node.id !== nodeId
 							);
-							state.currentData.connections = state.currentData.connections.filter(
-								(conn) => conn.source !== nodeId && conn.target !== nodeId
-							);
-							state.currentData.metadata.lastModified = new Date().toISOString();
+							state.currentData.connections =
+								state.currentData.connections.filter(
+									(conn) => conn.source !== nodeId && conn.target !== nodeId
+								);
+							state.currentData.metadata.lastModified =
+								new Date().toISOString();
 
 							// Remove configuration
 							delete state.nodeConfigurations[nodeId];
@@ -416,7 +347,8 @@ export const useArchitectureStore = create<ArchitectureState & ArchitectureActio
 							const node = state.currentData.nodes.find((n) => n.id === nodeId);
 							if (node) {
 								node.position = position;
-								state.currentData.metadata.lastModified = new Date().toISOString();
+								state.currentData.metadata.lastModified =
+									new Date().toISOString();
 								state.hasUnsavedChanges = true;
 							}
 						}
@@ -471,10 +403,13 @@ export const useArchitectureStore = create<ArchitectureState & ArchitectureActio
 
 							// Update architecture data
 							if (state.currentData) {
-								const node = state.currentData.nodes.find((n) => n.id === nodeId);
+								const node = state.currentData.nodes.find(
+									(n) => n.id === nodeId
+								);
 								if (node) {
 									node.configuration = state.nodeConfigurations[nodeId];
-									state.currentData.metadata.lastModified = new Date().toISOString();
+									state.currentData.metadata.lastModified =
+										new Date().toISOString();
 									state.hasUnsavedChanges = true;
 								}
 							}
@@ -485,11 +420,14 @@ export const useArchitectureStore = create<ArchitectureState & ArchitectureActio
 				updateNodeConfiguration: (nodeId, updates) => {
 					set((state) => {
 						const existingConfig = state.nodeConfigurations[nodeId] || {};
-						const resourceType = existingConfig.resourceType ||
+						const resourceType =
+							existingConfig.resourceType ||
 							((updates as Record<string, unknown>).resourceType as string);
 
 						if (!resourceType) {
-							console.warn(`No resourceType found for node ${nodeId}. Updates will not be filtered.`);
+							console.warn(
+								`No resourceType found for node ${nodeId}. Updates will not be filtered.`
+							);
 							state.nodeConfigurations[nodeId] = {
 								...existingConfig,
 								...updates,
@@ -511,7 +449,8 @@ export const useArchitectureStore = create<ArchitectureState & ArchitectureActio
 							const node = state.currentData.nodes.find((n) => n.id === nodeId);
 							if (node) {
 								node.configuration = state.nodeConfigurations[nodeId];
-								state.currentData.metadata.lastModified = new Date().toISOString();
+								state.currentData.metadata.lastModified =
+									new Date().toISOString();
 								state.hasUnsavedChanges = true;
 							}
 
@@ -524,11 +463,16 @@ export const useArchitectureStore = create<ArchitectureState & ArchitectureActio
 							);
 
 							// Apply auto-configuration updates
-							for (const { nodeId: affectedNodeId, updatedConfig } of affectedUpdates) {
+							for (const {
+								nodeId: affectedNodeId,
+								updatedConfig,
+							} of affectedUpdates) {
 								state.nodeConfigurations[affectedNodeId] = updatedConfig;
 
 								// Update the corresponding node in architecture data
-								const affectedNode = state.currentData.nodes.find((n) => n.id === affectedNodeId);
+								const affectedNode = state.currentData.nodes.find(
+									(n) => n.id === affectedNodeId
+								);
 								if (affectedNode) {
 									affectedNode.configuration = updatedConfig;
 								}
@@ -536,8 +480,13 @@ export const useArchitectureStore = create<ArchitectureState & ArchitectureActio
 
 							// Log auto-configuration results
 							if (affectedUpdates.length > 0) {
-								console.log(`Auto-configured ${affectedUpdates.length} nodes after updating ${nodeId}:`,
-									affectedUpdates.map(u => ({ nodeId: u.nodeId, fields: u.autoPopulatedFields })));
+								console.log(
+									`Auto-configured ${affectedUpdates.length} nodes after updating ${nodeId}:`,
+									affectedUpdates.map((u) => ({
+										nodeId: u.nodeId,
+										fields: u.autoPopulatedFields,
+									}))
+								);
 							}
 						}
 					});
@@ -559,7 +508,8 @@ export const useArchitectureStore = create<ArchitectureState & ArchitectureActio
 							const node = state.currentData.nodes.find((n) => n.id === nodeId);
 							if (node) {
 								node.configuration = {};
-								state.currentData.metadata.lastModified = new Date().toISOString();
+								state.currentData.metadata.lastModified =
+									new Date().toISOString();
 								state.hasUnsavedChanges = true;
 							}
 						}
@@ -591,10 +541,12 @@ export const useArchitectureStore = create<ArchitectureState & ArchitectureActio
 				removeConnection: (connectionId) => {
 					set((state) => {
 						if (state.currentData) {
-							state.currentData.connections = state.currentData.connections.filter(
-								(conn) => conn.id !== connectionId
-							);
-							state.currentData.metadata.lastModified = new Date().toISOString();
+							state.currentData.connections =
+								state.currentData.connections.filter(
+									(conn) => conn.id !== connectionId
+								);
+							state.currentData.metadata.lastModified =
+								new Date().toISOString();
 							state.hasUnsavedChanges = true;
 						}
 					});
@@ -616,8 +568,12 @@ export const useArchitectureStore = create<ArchitectureState & ArchitectureActio
 						// Import configurations from nodes
 						const configs: Record<string, AWSResourceConfiguration> = {};
 						jsonData.nodes.forEach((node) => {
-							if (node.configuration && typeof node.configuration === 'object') {
-								configs[node.id] = node.configuration as AWSResourceConfiguration;
+							if (
+								node.configuration &&
+								typeof node.configuration === "object"
+							) {
+								configs[node.id] =
+									node.configuration as AWSResourceConfiguration;
 							}
 						});
 						state.nodeConfigurations = configs;
@@ -625,8 +581,12 @@ export const useArchitectureStore = create<ArchitectureState & ArchitectureActio
 					});
 
 					const currentData = get().currentData!;
-					const nodes = currentData.nodes.map((node) => convertArchNodeToReactFlowNode(node));
-					const edges = currentData.connections.map((conn) => convertConnectionToReactFlowEdge(conn));
+					const nodes = currentData.nodes.map((node) =>
+						convertArchNodeToReactFlowNode(node)
+					);
+					const edges = currentData.connections.map((conn) =>
+						convertConnectionToReactFlowEdge(conn)
+					);
 
 					get().forceSave();
 					return { nodes, edges };
@@ -676,7 +636,9 @@ export const useArchitectureStore = create<ArchitectureState & ArchitectureActio
 
 					const link = document.createElement("a");
 					link.href = url;
-					link.download = filename || `${state.currentData.metadata.name.replace(/\s+/g, "_")}.json`;
+					link.download =
+						filename ||
+						`${state.currentData.metadata.name.replace(/\s+/g, "_")}.json`;
 					document.body.appendChild(link);
 					link.click();
 					document.body.removeChild(link);
@@ -703,15 +665,19 @@ export const useArchitectureStore = create<ArchitectureState & ArchitectureActio
 						return { nodes: [], edges: [] };
 					}
 
-					const nodes = state.currentData.nodes.map((node) => convertArchNodeToReactFlowNode(node));
-					const edges = state.currentData.connections.map((conn) => convertConnectionToReactFlowEdge(conn));
+					const nodes = state.currentData.nodes.map((node) =>
+						convertArchNodeToReactFlowNode(node)
+					);
+					const edges = state.currentData.connections.map((conn) =>
+						convertConnectionToReactFlowEdge(conn)
+					);
 
 					return { nodes, edges };
 				},
 
 				forceSave: () => {
 					// Auto-save logic (in a real app, this might save to backend)
-					console.log('Architecture data auto-saved');
+					console.log("Architecture data auto-saved");
 
 					set((state) => {
 						if (state.autoSaveTimeout) {
@@ -734,7 +700,7 @@ export const useArchitectureStore = create<ArchitectureState & ArchitectureActio
 				},
 			})),
 			{
-				name: 'architecture-data',
+				name: "architecture-data",
 				// Only persist essential data
 				partialize: (state) => ({
 					currentData: state.currentData,
@@ -744,7 +710,7 @@ export const useArchitectureStore = create<ArchitectureState & ArchitectureActio
 			}
 		),
 		{
-			name: 'architecture-store',
+			name: "architecture-store",
 		}
 	)
 );
