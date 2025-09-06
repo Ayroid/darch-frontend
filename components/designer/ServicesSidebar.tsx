@@ -54,6 +54,14 @@ const awsServices: AWSService[] = [
 		status: "ready",
 	},
 	{
+		id: "aws-security-group",
+		name: "Security Group",
+		icon: "/aws_icons/architecture_group_icons/EC2-instance-contents_32.svg",
+		category: "Compute",
+		isContainer: true,
+		status: "ready",
+	},
+	{
 		id: "aws-lambda",
 		name: "Lambda",
 		icon: "/aws_icons/architecture_service_icons/Arch_Compute/32/Arch_AWS-Lambda_32.svg",
@@ -97,20 +105,28 @@ const awsServices: AWSService[] = [
 		category: "Compute",
 		status: "in-development",
 	},
-	{
-		id: "aws-security-group",
-		name: "Security Group",
-		icon: "/aws_icons/architecture_group_icons/EC2-instance-contents_32.svg",
-		category: "Compute",
-		isContainer: true,
-		status: "ready",
-	},
 
 	// Networking Services
 	{
 		id: "aws-vpc",
 		name: "VPC",
 		icon: "/aws_icons/architecture_service_icons/Arch_Networking-Content-Delivery/32/Arch_Amazon-Virtual-Private-Cloud_32.svg",
+		category: "Network",
+		isContainer: true,
+		status: "ready",
+	},
+		{
+		id: "aws-private-subnet",
+		name: "Private Subnet",
+		icon: "/aws_icons/architecture_group_icons/Private-subnet_32.svg",
+		category: "Network",
+		isContainer: true,
+		status: "ready",
+	},
+	{
+		id: "aws-public-subnet",
+		name: "Public Subnet",
+		icon: "/aws_icons/architecture_group_icons/Public-subnet_32.svg",
 		category: "Network",
 		isContainer: true,
 		status: "ready",
@@ -165,22 +181,7 @@ const awsServices: AWSService[] = [
 		category: "Network",
 		status: "in-development",
 	},
-	{
-		id: "aws-private-subnet",
-		name: "Private Subnet",
-		icon: "/aws_icons/architecture_group_icons/Private-subnet_32.svg",
-		category: "Network",
-		isContainer: true,
-		status: "ready",
-	},
-	{
-		id: "aws-public-subnet",
-		name: "Public Subnet",
-		icon: "/aws_icons/architecture_group_icons/Public-subnet_32.svg",
-		category: "Network",
-		isContainer: true,
-		status: "ready",
-	},
+
 
 	// Database Services
 	{
