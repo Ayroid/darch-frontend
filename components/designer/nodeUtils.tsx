@@ -701,7 +701,10 @@ export const createNodeHandlers = (
 					setTimeout(() => {
 						setNodes((currentNodes) => {
 							setEdges((currentEdges) => {
-								undoRedoHook.saveAfterNodeOperation(currentNodes, currentEdges, 'move');
+								// Save undo state after both nodes and edges are updated
+								setTimeout(() => {
+									undoRedoHook.saveAfterNodeOperation(currentNodes, currentEdges, 'move');
+								}, 0);
 								return currentEdges;
 							});
 							return currentNodes;
@@ -858,7 +861,10 @@ export const createNodeHandlers = (
 			if (undoRedoHook) {
 				setNodes((currentNodes) => {
 					setEdges((currentEdges) => {
-						undoRedoHook.saveAfterNodeOperation(currentNodes, currentEdges, 'delete');
+						// Save undo state after both nodes and edges are updated
+						setTimeout(() => {
+							undoRedoHook.saveAfterNodeOperation(currentNodes, currentEdges, 'delete');
+						}, 0);
 						return currentEdges;
 					});
 					return currentNodes;

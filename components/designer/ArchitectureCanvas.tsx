@@ -198,7 +198,10 @@ export default function ArchitectureCanvas({
 			setTimeout(() => {
 				setNodes((currentNodes) => {
 					setEdges((currentEdges) => {
-						undoRedoHook.saveAfterEdgeOperation(currentNodes, currentEdges, 'delete');
+						// Save undo state after both nodes and edges are updated
+						setTimeout(() => {
+							undoRedoHook.saveAfterEdgeOperation(currentNodes, currentEdges, 'delete');
+						}, 0);
 						return currentEdges;
 					});
 					return currentNodes;
@@ -306,7 +309,10 @@ export default function ArchitectureCanvas({
 			setTimeout(() => {
 				setNodes((currentNodes) => {
 					setEdges((currentEdges) => {
-						undoRedoHook.saveAfterEdgeOperation(currentNodes, currentEdges, 'add');
+						// Save undo state after both nodes and edges are updated
+						setTimeout(() => {
+							undoRedoHook.saveAfterEdgeOperation(currentNodes, currentEdges, 'add');
+						}, 0);
 						return currentEdges;
 					});
 					return currentNodes;
@@ -375,7 +381,10 @@ export default function ArchitectureCanvas({
 				setTimeout(() => {
 					setNodes((currentNodes) => {
 						setEdges((currentEdges) => {
-							undoRedoHook.saveAfterNodeOperation(currentNodes, currentEdges, 'add');
+							// Save undo state after both nodes and edges are updated
+							setTimeout(() => {
+								undoRedoHook.saveAfterNodeOperation(currentNodes, currentEdges, 'add');
+							}, 0);
 							return currentEdges;
 						});
 						return currentNodes;

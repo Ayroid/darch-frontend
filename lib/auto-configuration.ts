@@ -61,7 +61,7 @@ export const AWS_RESOURCE_FIELD_RULES: ResourceFieldRules = {
       },
       vpcId: {
         sourceParentType: "aws-vpc",
-        sourceField: "serviceId",
+        sourceField: "id",
         defaultValue: "",
       },
     },
@@ -81,7 +81,7 @@ export const AWS_RESOURCE_FIELD_RULES: ResourceFieldRules = {
       },
       vpcId: {
         sourceParentType: "aws-vpc",
-        sourceField: "serviceId",
+        sourceField: "id",
         defaultValue: "",
       },
     },
@@ -91,7 +91,7 @@ export const AWS_RESOURCE_FIELD_RULES: ResourceFieldRules = {
     autoFields: {
       vpcId: {
         sourceParentType: "aws-vpc",
-        sourceField: "serviceId",
+        sourceField: "id",
         defaultValue: "",
       },
     },
@@ -111,12 +111,12 @@ export const AWS_RESOURCE_FIELD_RULES: ResourceFieldRules = {
       },
       subnetId: {
         sourceParentType: "aws-private-subnet,aws-public-subnet",
-        sourceField: "serviceId",
+        sourceField: "id",
         defaultValue: "",
       },
       securityGroups: {
         sourceParentType: "aws-security-group",
-        sourceField: "serviceId",
+        sourceField: "id",
         defaultValue: [],
       },
     },
@@ -162,8 +162,8 @@ export function findParentOfType(
   const hierarchy = getNodeContainerHierarchy(nodeId, nodes);
 
   return hierarchy.find((parent) => {
-    const serviceId = parent.data?.serviceId as string;
-    return serviceId === targetParentType;
+    const config = parent.data?.configuration as { resourceType?: string } | undefined;
+    return config?.resourceType === targetParentType;
   }) || null;
 }
 
@@ -178,8 +178,8 @@ export function findParentsOfTypes(
   const hierarchy = getNodeContainerHierarchy(nodeId, nodes);
 
   return hierarchy.filter((parent) => {
-    const serviceId = parent.data?.serviceId as string;
-    return targetParentTypes.includes(serviceId);
+    const config = parent.data?.configuration as { resourceType?: string } | undefined;
+    return config?.resourceType && targetParentTypes.includes(config.resourceType);
   });
 }
 
@@ -196,7 +196,7 @@ export function getParentConfigurationValue(
 
   // Special handling for different field mappings
   switch (fieldName) {
-    case "serviceId":
+    case "id":
       // For cases where we need the node/service ID itself (like VPC ID, Subnet ID)
       return parentNode.id;
     case "vpcId":
@@ -300,46 +300,35 @@ export function autoConfigureNode(
 
 /**
  * Gets the list of fields that should be disabled for a resource type
+ * These fields are always disabled as they are managed automatically
  */
 export function getDisabledFields(
-  resourceType: string,
-  autoPopulatedFields: string[]
+  resourceType: string
 ): string[] {
   const rules = AWS_RESOURCE_FIELD_RULES[resourceType];
   if (!rules) return [];
 
-  // Only disable fields that were actually auto-populated
-  return rules.disabledFields.filter((field) => autoPopulatedFields.includes(field));
+  // All fields in disabledFields should always be disabled
+  return rules.disabledFields;
 }
 
 /**
  * Checks if a field should be disabled for a specific node
+ * These fields should always be disabled as they are managed automatically based on parent-child relationships
  */
 export function isFieldDisabled(
   nodeId: string,
   fieldName: string,
-  resourceType: string,
-  nodes: Node[]
+  resourceType: string
 ): boolean {
   const rules = AWS_RESOURCE_FIELD_RULES[resourceType];
   if (!rules || !rules.disabledFields.includes(fieldName)) {
     return false;
   }
 
-  // Check if the field would be auto-populated
-  const fieldRule = rules.autoFields[fieldName];
-  if (!fieldRule) return false;
-
-  // Special handling for EC2 subnetId
-  if (resourceType === "aws-ec2" && fieldName === "subnetId") {
-    const privateSubnet = findParentOfType(nodeId, "aws-private-subnet", nodes);
-    const publicSubnet = findParentOfType(nodeId, "aws-public-subnet", nodes);
-    return !!(privateSubnet || publicSubnet);
-  }
-
-  // Standard check
-  const parentNode = findParentOfType(nodeId, fieldRule.sourceParentType, nodes);
-  return !!parentNode;
+  // These fields should always be disabled - they are managed automatically
+  // based on parent-child relationships and should never be user-editable
+  return true;
 }
 
 /**

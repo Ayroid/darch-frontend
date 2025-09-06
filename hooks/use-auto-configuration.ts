@@ -31,7 +31,7 @@ export function useAutoConfiguration({ nodeId, resourceType }: UseAutoConfigurat
 
     // Get all possible fields from auto-configuration rules
     for (const [fieldName, info] of Object.entries(autoConfigInfo)) {
-      const disabled = isFieldDisabled(nodeId, fieldName, resourceType, nodes);
+      const disabled = isFieldDisabled(nodeId, fieldName, resourceType);
 
       result[fieldName] = {
         isDisabled: disabled,
