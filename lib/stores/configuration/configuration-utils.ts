@@ -7,7 +7,7 @@ import { AWSResourceConfiguration } from "@/lib/types/aws-resources";
 // Define allowed fields for each resource type
 const RESOURCE_TYPE_FIELDS: Record<string, Set<string>> = {
 	"aws-vpc": new Set([
-		"serviceName",
+		"resourceName",
 		"cidrBlock",
 		"region",
 		"description",
@@ -16,7 +16,7 @@ const RESOURCE_TYPE_FIELDS: Record<string, Set<string>> = {
 		"tags",
 	]),
 	"aws-ec2": new Set([
-		"serviceName",
+		"resourceName",
 		"instanceType",
 		"amiId",
 		"keyPairName",
@@ -40,7 +40,7 @@ const RESOURCE_TYPE_FIELDS: Record<string, Set<string>> = {
 		"tags",
 	]),
 	"aws-region": new Set([
-		"serviceName",
+		"resourceName",
 		"region",
 		"regionName",
 		"description",
@@ -49,7 +49,7 @@ const RESOURCE_TYPE_FIELDS: Record<string, Set<string>> = {
 		"tags",
 	]),
 	"aws-availability-zone": new Set([
-		"serviceName",
+		"resourceName",
 		"region",
 		"availabilityZone",
 		"description",
@@ -58,7 +58,7 @@ const RESOURCE_TYPE_FIELDS: Record<string, Set<string>> = {
 		"tags",
 	]),
 	"aws-private-subnet": new Set([
-		"serviceName",
+		"resourceName",
 		"cidrBlock",
 		"vpcId",
 		"region",
@@ -69,7 +69,7 @@ const RESOURCE_TYPE_FIELDS: Record<string, Set<string>> = {
 		"tags",
 	]),
 	"aws-public-subnet": new Set([
-		"serviceName",
+		"resourceName",
 		"cidrBlock",
 		"vpcId",
 		"region",
@@ -79,7 +79,7 @@ const RESOURCE_TYPE_FIELDS: Record<string, Set<string>> = {
 		"tags",
 	]),
 	"aws-security-group": new Set([
-		"serviceName",
+		"resourceName",
 		"groupId",
 		"vpcId",
 		"description",

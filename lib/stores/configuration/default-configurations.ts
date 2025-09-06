@@ -12,7 +12,7 @@ import type {
 // Default configuration values for different service types
 export const defaultConfigurations: Record<string, AWSResourceConfiguration> = {
 	"aws-vpc": {
-		serviceName: "VPC",
+		resourceName: "VPC",
 		cidrBlock: "10.0.0.0/16",
 		region: "us-east-1",
 		enableDnsSupport: true,
@@ -20,7 +20,7 @@ export const defaultConfigurations: Record<string, AWSResourceConfiguration> = {
 		tags: "Environment=Development",
 	} as VPCConfiguration,
 	"aws-ec2": {
-		serviceName: "EC2",
+		resourceName: "EC2",
 		instanceType: "t3.micro",
 		amiId: "ami-0c55b159cbfafe1d0",
 		keyPairName: "",
@@ -39,7 +39,7 @@ export const defaultConfigurations: Record<string, AWSResourceConfiguration> = {
 		tags: {},
 	} as EC2Configuration,
 	"aws-region": {
-		serviceName: "AWS Region",
+		resourceName: "AWS Region",
 		region: "us-east-1",
 		regionName: "US East (N. Virginia)",
 		description: "",
@@ -48,7 +48,7 @@ export const defaultConfigurations: Record<string, AWSResourceConfiguration> = {
 		tags: "Type=Region",
 	} as AWSRegionConfiguration,
 	"aws-availability-zone": {
-		serviceName: "Availability Zone",
+		resourceName: "Availability Zone",
 		region: "us-east-1",
 		availabilityZone: "us-east-1a",
 		description: "",
@@ -57,7 +57,7 @@ export const defaultConfigurations: Record<string, AWSResourceConfiguration> = {
 		tags: "Type=AvailabilityZone",
 	} as AvailabilityZoneConfiguration,
 	"aws-private-subnet": {
-		serviceName: "Private Subnet",
+		resourceName: "Private Subnet",
 		cidrBlock: "10.0.1.0/24",
 		availabilityZone: "us-east-1a",
 		vpcId: "",
@@ -68,7 +68,7 @@ export const defaultConfigurations: Record<string, AWSResourceConfiguration> = {
 		tags: "Type=Private",
 	} as PrivateSubnetConfiguration,
 	"aws-public-subnet": {
-		serviceName: "Public Subnet",
+		resourceName: "Public Subnet",
 		cidrBlock: "10.0.0.0/24",
 		availabilityZone: "us-east-1a",
 		vpcId: "",
@@ -78,7 +78,7 @@ export const defaultConfigurations: Record<string, AWSResourceConfiguration> = {
 		tags: "Type=Public",
 	} as PublicSubnetConfiguration,
 	"aws-security-group": {
-		serviceName: "Security Group",
+		resourceName: "Security Group",
 		vpcId: "",
 		description: "",
 		ingressRules: [],
@@ -99,6 +99,6 @@ export const getDefaultConfiguration = (
 	resourceType: string
 ): AWSResourceConfiguration => {
 		return defaultConfigurations[resourceType] || {
-		serviceName: 'Unknown Service',
+		resourceName: 'Unknown Service',
 	} as AWSResourceConfiguration;
 };

@@ -5,7 +5,7 @@
 
 // Base interfaces
 export interface BaseAWSResource {
-	serviceName: string;
+	resourceName: string;
 	description?: string;
 	tags?: Record<string, string>;
 }
@@ -17,7 +17,7 @@ export interface ConfigurationFormProps<T = Record<string, unknown>> {
 
 // VPC Configuration
 export interface VPCConfiguration {
-	serviceName: string;
+	resourceName: string;
 	cidrBlock?: string;
 	region?: string;
 	description?: string;
@@ -29,7 +29,7 @@ export interface VPCConfiguration {
 // EC2 Configuration
 export interface EC2Configuration {
 	// Basic Configuration
-	serviceName: string;
+	resourceName: string;
 	instanceType?: string;
 	amiId?: string;
 	keyPairName?: string;
@@ -69,7 +69,7 @@ export interface EC2Configuration {
 
 // Subnet Configurations
 export interface PublicSubnetConfiguration {
-	serviceName: string;
+	resourceName: string;
 	cidrBlock: string;
 	vpcId: string;
 	region: string;
@@ -80,7 +80,7 @@ export interface PublicSubnetConfiguration {
 }
 
 export interface PrivateSubnetConfiguration {
-	serviceName: string;
+	resourceName: string;
 	cidrBlock: string;
 	vpcId: string;
 	region: string;
@@ -93,7 +93,7 @@ export interface PrivateSubnetConfiguration {
 
 // AWS Region Configuration
 export interface AWSRegionConfiguration {
-	serviceName: string;
+	resourceName: string;
 	region: string;
 	regionName: string;
 	description: string;
@@ -104,7 +104,7 @@ export interface AWSRegionConfiguration {
 
 // Availability Zone Configuration
 export interface AvailabilityZoneConfiguration {
-	serviceName: string;
+	resourceName: string;
 	region: string;
 	availabilityZone: string;
 	description: string;
@@ -115,7 +115,7 @@ export interface AvailabilityZoneConfiguration {
 
 // Default/Generic Configuration for unknown resources
 export interface DefaultConfiguration {
-	serviceName?: string;
+	resourceName?: string;
 	description?: string;
 	properties?: Record<string, unknown>;
 }
@@ -197,7 +197,7 @@ export type AWSServiceName = (typeof AWS_SERVICE_TYPE_MAP)[AWSServiceType];
 
 // Security Group Configuration
 export interface SecurityGroupConfiguration extends BaseAWSResource {
-	serviceName: string;
+	resourceName: string;
 	groupId?: string;
 	vpcId: string;
 	description?: string;

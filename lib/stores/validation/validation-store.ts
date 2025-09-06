@@ -49,7 +49,7 @@ const validateTags = (tags: string): string | null => {
 	return null;
 };
 
-const validateServiceName = (name: string, resourceType: string): string | null => {
+const validateResourceName = (name: string, resourceType: string): string | null => {
 	if (!name) return `${resourceType} name is required`;
 	if (name.length > 255) return `${resourceType} name must be less than 255 characters`;
 	if (name.length < 1) return `${resourceType} name cannot be empty`;
@@ -242,12 +242,12 @@ export const useValidationStore = create<ValidationState & ValidationActions>()(
 				// Enhanced validation for all AWS resources
 				switch (serviceId) {
 					case "aws-vpc": {
-						const serviceName = getConfigProperty("serviceName") || "";
+						const resourceName = getConfigProperty("resourceName") || "";
 						const cidrBlock = getConfigProperty("cidrBlock") || "";
 						const region = getConfigProperty("region") || "";
 						const tags = getConfigProperty("tags") || "";
 
-						const nameError = validateServiceName(serviceName, "VPC");
+						const nameError = validateResourceName(resourceName, "VPC");
 						if (nameError) errors.push(nameError);
 
 						const cidrError = validateCIDRBlock(cidrBlock, "vpc");
@@ -262,9 +262,9 @@ export const useValidationStore = create<ValidationState & ValidationActions>()(
 					}
 
 					case "aws-security-group": {
-						const serviceName = getConfigProperty("serviceName") || "";
+						const resourceName = getConfigProperty("resourceName") || "";
 						const vpcId = getConfigProperty("vpcId") || "";
-						const nameError = validateServiceName(serviceName, "Security Group");
+						const nameError = validateResourceName(resourceName, "Security Group");
 						if (nameError) errors.push(nameError);
 						if (!vpcId || !/^vpc-[a-z0-9]{8,}$/.test(vpcId)) {
 							errors.push("Valid VPC ID is required (e.g., vpc-0abc1234)");
@@ -314,12 +314,12 @@ export const useValidationStore = create<ValidationState & ValidationActions>()(
 					}
 
 					case "aws-ec2": {
-						const serviceName = getConfigProperty("serviceName") || "";
+						const resourceName = getConfigProperty("resourceName") || "";
 						const instanceType = getConfigProperty("instanceType") || "";
 						const amiId = getConfigProperty("amiId") || "";
 						const availabilityZone = getConfigProperty("availabilityZone") || "";
 
-						const nameError = validateServiceName(serviceName, "EC2 Instance");
+						const nameError = validateResourceName(resourceName, "EC2 Instance");
 						if (nameError) errors.push(nameError);
 
 						const instanceTypeError = validateInstanceType(instanceType);
@@ -337,14 +337,14 @@ export const useValidationStore = create<ValidationState & ValidationActions>()(
 
 					case "aws-private-subnet":
 					case "aws-public-subnet": {
-						const serviceName = getConfigProperty("serviceName") || "";
+						const resourceName = getConfigProperty("resourceName") || "";
 						const cidrBlock = getConfigProperty("cidrBlock") || "";
 						const availabilityZone = getConfigProperty("availabilityZone") || "";
 						const tags = getConfigProperty("tags") || "";
 
 						const resourceType = serviceId === "aws-private-subnet" ? "Private Subnet" : "Public Subnet";
 
-						const nameError = validateServiceName(serviceName, resourceType);
+						const nameError = validateResourceName(resourceName, resourceType);
 						if (nameError) errors.push(nameError);
 
 						const cidrError = validateCIDRBlock(cidrBlock, "subnet");
@@ -359,11 +359,11 @@ export const useValidationStore = create<ValidationState & ValidationActions>()(
 					}
 
 					case "aws-region": {
-						const serviceName = getConfigProperty("serviceName") || "";
+						const resourceName = getConfigProperty("resourceName") || "";
 						const region = getConfigProperty("region") || "";
 						const regionName = getConfigProperty("regionName") || "";
 
-						const nameError = validateServiceName(serviceName, "Region");
+						const nameError = validateResourceName(resourceName, "Region");
 						if (nameError) errors.push(nameError);
 
 						const regionError = validateRegion(region);
@@ -374,11 +374,11 @@ export const useValidationStore = create<ValidationState & ValidationActions>()(
 					}
 
 					case "aws-availability-zone": {
-						const serviceName = getConfigProperty("serviceName") || "";
+						const resourceName = getConfigProperty("resourceName") || "";
 						const region = getConfigProperty("region") || "";
 						const availabilityZone = getConfigProperty("availabilityZone") || "";
 
-						const nameError = validateServiceName(serviceName, "Availability Zone");
+						const nameError = validateResourceName(resourceName, "Availability Zone");
 						if (nameError) errors.push(nameError);
 
 						const regionError = validateRegion(region);
@@ -391,8 +391,8 @@ export const useValidationStore = create<ValidationState & ValidationActions>()(
 
 					default:
 						// Generic validation for unknown resource types
-						const serviceName = getConfigProperty("serviceName") || "";
-						if (!serviceName.trim()) errors.push("Service name is required");
+						const resourceName = getConfigProperty("resourceName") || "";
+						if (!resourceName.trim()) errors.push("Resource name is required");
 						break;
 				}
 
@@ -467,8 +467,8 @@ export const useValidationStore = create<ValidationState & ValidationActions>()(
 				const stringValue = value as string || "";
 
 				switch (field) {
-					case "serviceName":
-						return validateServiceName(stringValue, getResourceTypeName(serviceId));
+					case "resourceName":
+						return validateResourceName(stringValue, getResourceTypeName(serviceId));
 					case "cidrBlock":
 						const context = serviceId === "aws-vpc" ? "vpc" : "subnet";
 						return validateCIDRBlock(stringValue, context);
