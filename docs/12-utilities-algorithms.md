@@ -13,7 +13,8 @@ The utility system provides reusable functions and algorithms that handle comple
 - **Enhanced container logic** (`lib/container-logic.ts`) - Free movement and snapping
 - **Revolutionary parent-child logic** (`lib/parent-child-logic.ts`) - Boundary constraint removal
 - Z-index management (`lib/z-index-logic.ts`)
-- Auto-configuration algorithms (`lib/auto-configuration.ts`)
+- **Auto-configuration algorithms** (`lib/auto-configuration.ts`) - Field-based hierarchical configuration
+- Keyboard shortcuts (`lib/keyboard-shortcuts.ts`)
 
 ## Recent Major Enhancements
 
@@ -25,6 +26,16 @@ The utility system provides reusable functions and algorithms that handle comple
 - **Smart Overlap Detection**: 75% threshold for intelligent container assignment
 - **Easy Breakout Logic**: 60% threshold for escaping containers during drag
 - **Performance Optimized**: Light updates during drag, heavy calculations on drag end
+
+### 🔧 Auto-Configuration System
+**Field-Based Auto-Population**: Intelligent form field management with parent-child relationships
+
+**Key Features**:
+- **Hierarchical Value Inheritance**: AWS region IDs, availability zones auto-populate from parent containers
+- **Smart Field Rules**: `AWS_RESOURCE_FIELD_RULES` define which fields inherit from which parent types
+- **Form Integration**: `useAutoConfiguration` hook provides `isFieldDisabled` checks for seamless UX
+- **Parent Chain Navigation**: Traverses container hierarchy to find configuration values
+- **Debugging Support**: Comprehensive logging for troubleshooting auto-configuration flows
 
 ## Core Utilities
 

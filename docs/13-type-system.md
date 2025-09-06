@@ -322,6 +322,9 @@ export interface AWSRegionConfiguration extends AWSResourceConfiguration {
 export interface VPCConfiguration extends AWSResourceConfiguration {
   resourceType: 'aws-vpc';
 
+  /** AWS region ID for auto-configuration */
+  awsRegionId: string;
+
   /** VPC CIDR block */
   cidrBlock: string;
 
@@ -377,6 +380,9 @@ export interface SubnetConfiguration extends AWSResourceConfiguration {
  */
 export interface EC2Configuration extends AWSResourceConfiguration {
   resourceType: 'aws-ec2';
+
+  /** AWS region ID for auto-configuration */
+  awsRegionId: string;
 
   /** Instance type */
   instanceType: EC2InstanceType;

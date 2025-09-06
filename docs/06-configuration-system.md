@@ -10,6 +10,7 @@ The configuration system provides a robust interface for managing AWS resource c
 - `components/designer/ConfigurationSidebar.tsx` - Main configuration panel
 - `components/designer/configuration_sidebar/` - Individual configuration forms
 - `lib/stores/configuration/` - Configuration state management
+- `hooks/use-auto-configuration.ts` - Auto-configuration hook
 
 ## Configuration Sidebar
 
@@ -39,10 +40,15 @@ export default function ConfigurationSidebar({
       {/* Content */}
       <div className="flex-1 overflow-y-auto p-4">
         {selectedNode ? (
-          <ConfigurationForm
-            node={selectedNode}
-            onUpdate={onNodeUpdate}
-          />
+          <ConfigurationProvider
+            nodeId={selectedNode.id}
+            serviceId={selectedNode.data?.serviceId}
+          >
+            <ConfigurationForm
+              node={selectedNode}
+              onUpdate={onNodeUpdate}
+            />
+          </ConfigurationProvider>
         ) : (
           <EmptyState />
         )}
@@ -51,25 +57,6 @@ export default function ConfigurationSidebar({
   );
 }
 ```
-
-### Panel States
-
-#### Empty State
-```typescript
-function EmptyState() {
-  return (
-    <div className="flex flex-col items-center justify-center h-64 text-gray-500">
-      <Settings className="w-12 h-12 mb-4" />
-      <p className="text-center">
-        Select a node to configure its properties
-      </p>
-    </div>
-  );
-}
-```
-
-#### Configuration Form State
-Dynamic form based on selected node type and service ID.
 
 ## Configuration Forms
 
@@ -106,6 +93,35 @@ const getConfigurationForm = (serviceId: string) => {
 };
 ```
 
+## Auto-Configuration Integration
+
+### useAutoConfiguration Hook
+
+All forms integrate with the auto-configuration system using the `useAutoConfiguration` hook:
+
+```typescript
+const { isFieldDisabled, getFieldInfo } = useAutoConfiguration({
+  nodeId: nodeId || "",
+  resourceType: "aws-ec2",
+});
+
+// Get auto-configuration info for fields
+const regionInfo = getFieldInfo("awsRegionId");
+const availabilityZoneInfo = getFieldInfo("awsAvailabilityZone");
+const subnetIdInfo = getFieldInfo("subnetId");
+```
+
+### Field Information Structure
+
+```typescript
+export interface FieldInfo {
+  isDisabled: boolean;
+  isAutoConfigured: boolean;
+  sourceType?: string;
+  sourceName?: string;
+}
+```
+
 ## Individual Configuration Forms
 
 ### EC2 Configuration Form
@@ -113,134 +129,169 @@ const getConfigurationForm = (serviceId: string) => {
 **File**: `components/designer/configuration_sidebar/EC2ConfigurationForm.tsx`
 
 ```typescript
-export default function EC2ConfigurationForm({
-  node,
-  onUpdate
-}: ConfigurationFormProps) {
-  const { getNodeConfiguration, updateNodeConfiguration } = useArchitectureStore();
-  const configuration = getNodeConfiguration(node.id) as EC2Configuration | null;
-
-  const {
-    register,
-    handleSubmit,
-    watch,
-    setValue,
-    formState: { errors, isDirty }
-  } = useForm<EC2Configuration>({
-    defaultValues: configuration || defaultEC2Configuration,
-    resolver: zodResolver(ec2ConfigurationSchema)
+const EC2ConfigurationForm: React.FC<EC2ConfigurationFormProps> = ({
+  config,
+  onChange,
+}) => {
+  const { nodeId } = useConfigurationContext();
+  const { isFieldDisabled, getFieldInfo } = useAutoConfiguration({
+    nodeId: nodeId || "",
+    resourceType: "aws-ec2",
   });
 
+  // Get auto-configuration info for fields
+  const regionInfo = getFieldInfo("awsRegionId");
+  const availabilityZoneInfo = getFieldInfo("awsAvailabilityZone");
+  const subnetIdInfo = getFieldInfo("subnetId");
+
+  const handleFieldChange = (field: string, value: unknown) => {
+    const updatedConfig = {
+      ...config,
+      [field]: value,
+    };
+    onChange(updatedConfig);
+  };
+
   return (
-    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
+    <div className="space-y-4">
       {/* Basic Configuration */}
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Basic Configuration</h3>
+        <h3 className="text-sm font-semibold text-gray-700 border-b pb-2">
+          Basic Configuration
+        </h3>
 
-        <FormField
-          label="Instance Type"
-          name="instanceType"
-          register={register}
-          error={errors.instanceType?.message}
-          options={[
-            { value: 't3.nano', label: 't3.nano' },
-            { value: 't3.micro', label: 't3.micro' },
-            { value: 't3.small', label: 't3.small' },
-            // ... more instance types
-          ]}
-        />
+        <div className="space-y-2">
+          <Label htmlFor="ec2-name">Instance Name<span className="text-red-600">*</span></Label>
+          <Input
+            id="ec2-name"
+            value={config.awsEc2Id || ""}
+            onChange={(e) => handleFieldChange("awsEc2Id", e.target.value)}
+            placeholder="Enter EC2 instance name"
+          />
+        </div>
 
-        <FormField
-          label="AMI ID"
-          name="amiId"
-          register={register}
-          error={errors.amiId?.message}
-          placeholder="ami-0c55b159cbfafe1d0"
-        />
-
-        <FormField
-          label="Key Pair Name"
-          name="keyPairName"
-          register={register}
-          error={errors.keyPairName?.message}
-          placeholder="my-key-pair"
-        />
+        <div className="space-y-2">
+          <Label htmlFor="instanceType">Instance Type<span className="text-red-600">*</span></Label>
+          <Select
+            value={config.instanceType || ""}
+            onValueChange={(value) => handleFieldChange("instanceType", value)}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select instance type" />
+            </SelectTrigger>
+            <SelectContent>
+              {ec2InstanceTypes.map((type) => (
+                <SelectItem key={type} value={type}>
+                  {type}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
-      {/* Network Configuration */}
+      {/* Instance Details */}
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Network Configuration</h3>
+        <h3 className="text-sm font-semibold text-gray-700 border-b pb-2">
+          Instance Details
+        </h3>
 
-        <FormField
-          label="Availability Zone"
-          name="availabilityZone"
-          register={register}
-          error={errors.availabilityZone?.message}
-          disabled={isFieldDisabled('availabilityZone')}
-          autoConfigured={isAutoConfigured('availabilityZone')}
-        />
+        {/* AWS Region Field with Auto-Configuration */}
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <Label htmlFor="region">AWS Region<span className="text-red-600">*</span></Label>
+            {regionInfo?.isAutoConfigured && (
+              <Tooltip>
+                <TooltipTrigger>
+                  <Badge variant="secondary" className="text-xs">
+                    Auto
+                  </Badge>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Auto-configured from {regionInfo.sourceName} ({regionInfo.sourceType})</p>
+                </TooltipContent>
+              </Tooltip>
+            )}
+          </div>
+          <Input
+            id="region"
+            value={config.awsRegionId || ""}
+            onChange={(e) => handleFieldChange("awsRegionId", e.target.value)}
+            placeholder="e.g., us-east-1"
+            disabled={isFieldDisabled("awsRegionId")}
+          />
+          {isFieldDisabled("awsRegionId") && (
+            <p className="text-xs text-muted-foreground">
+              This field is automatically configured based on the container hierarchy.
+            </p>
+          )}
+        </div>
 
-        <FormField
-          label="Subnet ID"
-          name="subnetId"
-          register={register}
-          error={errors.subnetId?.message}
-          disabled={isFieldDisabled('subnetId')}
-          autoConfigured={isAutoConfigured('subnetId')}
-        />
+        {/* Availability Zone Field with Auto-Configuration */}
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <Label htmlFor="availabilityZone">Availability Zone<span className="text-red-600">*</span></Label>
+            {availabilityZoneInfo?.isAutoConfigured && (
+              <Tooltip>
+                <TooltipTrigger>
+                  <Badge variant="secondary" className="text-xs">
+                    Auto
+                  </Badge>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Auto-configured from {availabilityZoneInfo.sourceName} ({availabilityZoneInfo.sourceType})</p>
+                </TooltipContent>
+              </Tooltip>
+            )}
+          </div>
+          <Input
+            id="availabilityZone"
+            value={config.awsAvailabilityZone || ""}
+            onChange={(e) => handleFieldChange("awsAvailabilityZone", e.target.value)}
+            placeholder="e.g., us-east-1a"
+            disabled={isFieldDisabled("awsAvailabilityZone")}
+          />
+          {isFieldDisabled("awsAvailabilityZone") && (
+            <p className="text-xs text-muted-foreground">
+              This field is automatically configured based on the container hierarchy.
+            </p>
+          )}
+        </div>
+
+        {/* Subnet ID Field with Auto-Configuration */}
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <Label htmlFor="subnetId">Subnet ID<span className="text-red-600">*</span></Label>
+            {subnetIdInfo?.isAutoConfigured && (
+              <Tooltip>
+                <TooltipTrigger>
+                  <Badge variant="secondary" className="text-xs">
+                    Auto
+                  </Badge>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Auto-configured from {subnetIdInfo.sourceName} ({subnetIdInfo.sourceType})</p>
+                </TooltipContent>
+              </Tooltip>
+            )}
+          </div>
+          <Input
+            id="subnetId"
+            value={config.subnetId || ""}
+            onChange={(e) => handleFieldChange("subnetId", e.target.value)}
+            placeholder="subnet-xxxxxxxxx"
+            disabled={isFieldDisabled("subnetId")}
+          />
+          {isFieldDisabled("subnetId") && (
+            <p className="text-xs text-muted-foreground">
+              This field is automatically configured based on the container hierarchy.
+            </p>
+          )}
+        </div>
       </div>
-
-      {/* Storage Configuration */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Storage Configuration</h3>
-
-        <FormField
-          label="Root Volume Size (GB)"
-          name="rootVolumeSize"
-          type="number"
-          register={register}
-          error={errors.rootVolumeSize?.message}
-        />
-
-        <FormField
-          label="Root Volume Type"
-          name="rootVolumeType"
-          register={register}
-          error={errors.rootVolumeType?.message}
-          options={[
-            { value: 'gp3', label: 'gp3 (General Purpose SSD)' },
-            { value: 'gp2', label: 'gp2 (General Purpose SSD)' },
-            { value: 'io2', label: 'io2 (Provisioned IOPS SSD)' },
-          ]}
-        />
-      </div>
-
-      {/* Security Configuration */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Security Configuration</h3>
-
-        <FormField
-          label="Security Groups"
-          name="securityGroups"
-          register={register}
-          error={errors.securityGroups?.message}
-          multiple
-          autoConfigured={isAutoConfigured('securityGroups')}
-        />
-      </div>
-
-      {/* Actions */}
-      <div className="flex justify-between">
-        <Button type="button" variant="outline" onClick={handleReset}>
-          Reset
-        </Button>
-        <Button type="submit" disabled={!isDirty}>
-          Save Changes
-        </Button>
-      </div>
-    </form>
+    </div>
   );
-}
+};
 ```
 
 ### VPC Configuration Form
@@ -248,70 +299,207 @@ export default function EC2ConfigurationForm({
 **File**: `components/designer/configuration_sidebar/VPCConfigurationForm.tsx`
 
 ```typescript
-export default function VPCConfigurationForm({
-  node,
-  onUpdate
-}: ConfigurationFormProps) {
+const VPCConfigurationForm: React.FC<VPCConfigurationFormProps> = ({
+  config,
+  onChange,
+}) => {
+  const { nodeId } = useConfigurationContext();
+  const { isFieldDisabled } = useAutoConfiguration({
+    nodeId: nodeId || "",
+    resourceType: "aws-vpc",
+  });
+
+  const handleFieldChange = (field: string, value: unknown) => {
+    const updatedConfig = {
+      ...config,
+      [field]: value,
+    };
+    onChange(updatedConfig);
+  };
+
   return (
-    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
-      {/* Basic Configuration */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold">VPC Configuration</h3>
+    <div className="space-y-4">
+      <div className="space-y-2">
+        <Label htmlFor="vpc-name">
+          VPC Name <span className="text-red-600">*</span>
+        </Label>
+        <Input
+          id="vpc-name"
+          placeholder="Enter VPC name"
+          value={config.awsVpcId || ""}
+          onChange={(e) => handleFieldChange("awsVpcId", e.target.value)}
+        />
+      </div>
 
-        <FormField
-          label="CIDR Block"
-          name="cidrBlock"
-          register={register}
-          error={errors.cidrBlock?.message}
+      <div className="space-y-2">
+        <div className="flex items-center gap-2">
+          <Label htmlFor="region">
+            AWS Region <span className="text-red-600">*</span>
+          </Label>
+        </div>
+        <div className="relative">
+          <Input
+            id="region"
+            placeholder="Enter AWS region"
+            value={config.awsRegionId || ""}
+            onChange={(e) => handleFieldChange("awsRegionId", e.target.value)}
+            disabled={isFieldDisabled("awsRegionId")}
+          />
+          {isFieldDisabled("awsRegionId") && (
+            <div className="absolute top-1/2 right-2 transform -translate-y-1/2">
+              <AutoConfigurationTooltip parentContainer="Region" />
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="cidr-block">
+          CIDR Block <span className="text-red-600">*</span>
+        </Label>
+        <Input
+          id="cidr-block"
           placeholder="10.0.0.0/16"
-        />
-
-        <FormField
-          label="Region"
-          name="region"
-          register={register}
-          error={errors.region?.message}
-          disabled={isFieldDisabled('region')}
-          autoConfigured={isAutoConfigured('region')}
-          options={AWS_REGIONS}
+          value={config.cidrBlock || ""}
+          onChange={(e) => handleFieldChange("cidrBlock", e.target.value)}
         />
       </div>
-
-      {/* DNS Configuration */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold">DNS Configuration</h3>
-
-        <FormField
-          label="Enable DNS Support"
-          name="enableDnsSupport"
-          type="checkbox"
-          register={register}
-        />
-
-        <FormField
-          label="Enable DNS Hostnames"
-          name="enableDnsHostnames"
-          type="checkbox"
-          register={register}
-        />
-      </div>
-
-      {/* Tags */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Tags</h3>
-
-        <FormField
-          label="Tags"
-          name="tags"
-          register={register}
-          error={errors.tags?.message}
-          placeholder="Environment=Development,Project=MyApp"
-          helpText="Enter tags as key=value pairs, separated by commas"
-        />
-      </div>
-    </form>
+    </div>
   );
+};
+```
+
+## Configuration State Management
+
+### Configuration Store
+
+**File**: `lib/stores/configuration/configuration-store.ts`
+
+```typescript
+interface ConfigurationState {
+  // Current node being configured
+  selectedNodeId: string | null;
+
+  // Configuration data for each node (nodeId -> config)
+  nodeConfigurations: Record<string, AWSResourceConfiguration>;
+
+  // Temporary/draft state for forms
+  draftConfiguration: AWSResourceConfiguration | null;
 }
+
+interface ConfigurationActions {
+  // Node selection
+  setSelectedNode: (nodeId: string | null) => void;
+
+  // Configuration management
+  initializeNodeConfiguration: (nodeId: string, serviceId: string) => void;
+  setNodeConfiguration: (nodeId: string, config: AWSResourceConfiguration) => void;
+  getNodeConfiguration: (nodeId: string) => AWSResourceConfiguration | undefined;
+  updateNodeConfiguration: (nodeId: string, updates: Partial<AWSResourceConfiguration>) => void;
+  deleteNodeConfiguration: (nodeId: string) => void;
+
+  // Draft state for form editing
+  setDraftConfiguration: (config: AWSResourceConfiguration) => void;
+  clearDraftConfiguration: () => void;
+  commitDraftConfiguration: (nodeId: string) => void;
+
+  // Bulk operations
+  clearAllConfigurations: () => void;
+  importConfigurations: (configurations: Record<string, AWSResourceConfiguration>) => void;
+  exportConfigurations: () => Record<string, AWSResourceConfiguration>;
+}
+```
+
+### Configuration Context
+
+**File**: `lib/stores/configuration-context.tsx`
+
+```typescript
+interface ConfigurationContextValue {
+  nodeId: string | null;
+  serviceId: string | null;
+}
+
+const ConfigurationContext = createContext<ConfigurationContextValue>({
+  nodeId: null,
+  serviceId: null,
+});
+
+export const useConfigurationContext = () => {
+  return useContext(ConfigurationContext);
+};
+
+export const ConfigurationProvider: React.FC<ConfigurationProviderProps> = ({
+  nodeId,
+  serviceId,
+  children,
+}) => {
+  return (
+    <ConfigurationContext.Provider value={{ nodeId, serviceId }}>
+      {children}
+    </ConfigurationContext.Provider>
+  );
+};
+```
+
+## Default Configurations
+
+**File**: `lib/stores/configuration/default-configurations.ts`
+
+```typescript
+export const defaultConfigurations: Record<string, AWSResourceConfiguration> = {
+  "aws-vpc": {
+    awsVpcId: "VPC",
+    cidrBlock: "10.0.0.0/16",
+    awsRegionId: "us-east-1",
+    enableDnsSupport: true,
+    enableDnsHostnames: true,
+    tags: "Environment=Development",
+  } as VPCConfiguration,
+  
+  "aws-ec2": {
+    awsEc2Id: "EC2",
+    instanceType: "t3.micro",
+    amiId: "ami-0c55b159cbfafe1d0",
+    keyPairName: "",
+    awsRegionId: "us-east-1",
+    awsAvailabilityZone: "us-east-1a",
+    subnetId: "",
+    securityGroups: [],
+    rootVolumeSize: 8,
+    rootVolumeType: "gp3",
+    deleteOnTermination: true,
+    encrypted: false,
+    detailedMonitoring: false,
+    terminationProtection: false,
+    autoRecovery: true,
+    associatePublicIpAddress: false,
+    tenancy: "default",
+    tags: {},
+  } as EC2Configuration,
+
+  "aws-region": {
+    awsRegionId: "AWS Region",
+    region: "us-east-1",
+    regionName: "US East (N. Virginia)",
+    description: "",
+    isEnabled: true,
+    isDefault: true,
+    tags: "Type=Region",
+  } as AWSRegionConfiguration,
+
+  "aws-availability-zone": {
+    awsAvailabilityZoneId: "Availability Zone",
+    awsRegionId: "us-east-1",
+    availabilityZone: "us-east-1a",
+    description: "",
+    isEnabled: true,
+    isPreferred: false,
+    tags: "Type=AvailabilityZone",
+  } as AvailabilityZoneConfiguration,
+
+  // ... more default configurations
+};
 ```
 
 ## Auto-Configuration System
