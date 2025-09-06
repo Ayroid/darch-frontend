@@ -10,14 +10,11 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-// import { Textarea } from "@/components/ui/textarea";
-// import { Checkbox } from "@/components/ui/checkbox";
 import { AvailabilityZoneConfiguration } from "@/lib/types/aws-resources";
 import { AWS_REGIONS_WITH_AZS } from "@/lib/data/aws_regions";
 import { useConfigurationContext } from "@/lib/stores";
 import { useAutoConfiguration } from "@/hooks/use-auto-configuration";
+import AutoConfigurationTooltip from "@/components/utilities/AutoConfigurationTooltip";
 
 interface AvailabilityZoneConfigurationFormProps {
 	config: AvailabilityZoneConfiguration;
@@ -28,7 +25,7 @@ const AvailabilityZoneConfigurationForm: React.FC<
 	AvailabilityZoneConfigurationFormProps
 > = ({ config, onChange }) => {
 	const { nodeId } = useConfigurationContext();
-	const { isFieldDisabled, getFieldInfo } = useAutoConfiguration({
+	const { isFieldDisabled } = useAutoConfiguration({
 		nodeId: nodeId || "",
 		resourceType: "aws-availability-zone",
 	});
@@ -46,97 +43,73 @@ const AvailabilityZoneConfigurationForm: React.FC<
 		AWS_REGIONS_WITH_AZS[selectedRegion as keyof typeof AWS_REGIONS_WITH_AZS] ||
 		[];
 
-	// Get auto-configuration info for fields
-	const regionInfo = getFieldInfo("region");
-
 	return (
-		<TooltipProvider>
-			<div className="space-y-4">
-				<div className="space-y-2">
-					<Label htmlFor="az-name">
-						AZ Name
-						<span className="text-red-600">*</span>
+		<div className="space-y-4">
+			<div className="space-y-2">
+				<Label htmlFor="az-name">
+					AZ Name
+					<span className="text-red-600">*</span>
+				</Label>
+				<Input
+					id="az-name"
+					placeholder="Enter AZ name"
+					value={config.serviceName || ""}
+					onChange={(e) => handleFieldChange("serviceName", e.target.value)}
+				/>
+			</div>
+			<div className="space-y-2">
+				<div className="flex items-center gap-2">
+					<Label htmlFor="region">
+						AWS Region <span className="text-red-600">*</span>
 					</Label>
-					<Input
-						id="az-name"
-						placeholder="Enter AZ name"
-						value={config.serviceName || ""}
-						onChange={(e) => handleFieldChange("serviceName", e.target.value)}
-					/>
 				</div>
-
-				<div className="space-y-2">
-					<div className="flex items-center gap-2">
-						<Label htmlFor="region">
-							AWS Region <span className="text-red-600">*</span>
-						</Label>
-						{regionInfo?.isAutoConfigured && (
-							<Tooltip>
-								<TooltipTrigger>
-									<Badge variant="secondary" className="text-xs">
-										Auto
-									</Badge>
-								</TooltipTrigger>
-								<TooltipContent>
-									<p>Auto-configured from {regionInfo.sourceName} ({regionInfo.sourceType})</p>
-								</TooltipContent>
-							</Tooltip>
-						)}
-					</div>
-					<Select
-						value={config.region}
-						onValueChange={(value) => handleFieldChange("region", value)}
+				<div className="relative">
+					<Input
+						id="region"
+						placeholder="Enter AWS region"
+						value={config.region || ""}
+						onChange={(e) => handleFieldChange("region", e.target.value)}
 						disabled={isFieldDisabled("region")}
-					>
-						<SelectTrigger className="w-full">
-							<SelectValue placeholder="Select AWS Region" />
-						</SelectTrigger>
-						<SelectContent>
-							{Object.keys(AWS_REGIONS_WITH_AZS).map((region) => (
-								<SelectItem key={region} value={region}>
-									{region}
-								</SelectItem>
-							))}
-						</SelectContent>
-					</Select>
+					/>
 					{isFieldDisabled("region") && (
-						<p className="text-xs text-muted-foreground">
-							This field is automatically configured based on the container hierarchy.
-						</p>
+						<div className="absolute top-1/2 right-2 transform -translate-y-1/2">
+							<AutoConfigurationTooltip parentContainer="Region" />
+						</div>
 					)}
 				</div>
+			</div>
 
-				<div className="space-y-2">
-					<Label htmlFor="availability-zone">
-						Availability Zone <span className="text-red-600">*</span>
-					</Label>
-					<Select
-						value={config.availabilityZone || ""}
-						onValueChange={(value) =>
-							handleFieldChange("availabilityZone", value)
-						}
-						disabled={!selectedRegion}
-					>
-						<SelectTrigger className="w-full">
-							<SelectValue
-								placeholder={
-									selectedRegion
-										? "Select availability zone"
-										: "Select region first"
-								}
-							/>
-						</SelectTrigger>
-						<SelectContent>
-							{availableAZs.map((az) => (
-								<SelectItem key={az} value={az}>
-									{az}
-								</SelectItem>
-							))}
-						</SelectContent>
-					</Select>
-				</div>
+			<div className="space-y-2">
+				<Label htmlFor="availability-zone">
+					Availability Zone <span className="text-red-600">*</span>
+				</Label>
+				<Select
+					value={config.availabilityZone || ""}
+					onValueChange={(value) =>
+						handleFieldChange("availabilityZone", value)
+					}
+					disabled={!selectedRegion}
+				>
+					<SelectTrigger className="w-full">
+						<SelectValue
+							placeholder={
+								selectedRegion
+									? "Select availability zone"
+									: "Select region first"
+							}
+						/>
+					</SelectTrigger>
+					<SelectContent>
+						{availableAZs.map((az) => (
+							<SelectItem key={az} value={az}>
+								{az}
+							</SelectItem>
+						))}
+					</SelectContent>
+				</Select>
+			</div>
 
-				{/* <div className="space-y-2">
+			{/* <div className="space-y-2">
 					<Label htmlFor="description">Description</Label>
 					<Textarea
 						id="description"
@@ -173,8 +146,7 @@ const AvailabilityZoneConfigurationForm: React.FC<
 						onChange={(e) => updateConfig("tags", e.target.value)}
 					/>
 				</div> */}
-			</div>
-		</TooltipProvider>
+		</div>
 	);
 };
 
