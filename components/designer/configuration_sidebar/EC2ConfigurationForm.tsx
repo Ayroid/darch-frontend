@@ -81,8 +81,8 @@ const EC2ConfigurationForm: React.FC<EC2ConfigurationFormProps> = ({
 					<Label htmlFor="ec2-name">Instance Name<span className="text-red-600">*</span></Label>
 					<Input
 						id="ec2-name"
-						value={config.serviceName || ""}
-						onChange={(e) => handleFieldChange("serviceName", e.target.value)}
+						value={config.resourceName || ""}
+						onChange={(e) => handleFieldChange("resourceName", e.target.value)}
 						placeholder="e.g., Web Server"
 					/>
 				</div>

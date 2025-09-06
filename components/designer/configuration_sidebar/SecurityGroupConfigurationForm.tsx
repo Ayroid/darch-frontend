@@ -104,8 +104,8 @@ const SecurityGroupConfigurationForm: React.FC<SecurityGroupConfigurationFormPro
             <Label htmlFor="sg-name">Security Group Name<span className="text-red-600">*</span></Label>
             <Input
               id="sg-name"
-              value={config.serviceName || ""}
-              onChange={(e) => handleFieldChange("serviceName", e.target.value)}
+              value={config.resourceName || ""}
+              onChange={(e) => handleFieldChange("resourceName", e.target.value)}
               placeholder="e.g., WebSecurityGroup"
             />
           </div>

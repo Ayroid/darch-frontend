@@ -53,8 +53,8 @@ const PrivateSubnetConfigurationForm: React.FC<
 					<Input
 						id="subnet-name"
 						placeholder="Enter private subnet name"
-						value={config.serviceName || ""}
-						onChange={(e) => handleFieldChange("serviceName", e.target.value)}
+						value={config.resourceName || ""}
+						onChange={(e) => handleFieldChange("resourceName", e.target.value)}
 					/>
 				</div>
 

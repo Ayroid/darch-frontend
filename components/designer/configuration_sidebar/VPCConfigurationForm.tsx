@@ -48,8 +48,8 @@ const VPCConfigurationForm: React.FC<VPCConfigurationFormProps> = ({
 				<Input
 					id="vpc-name"
 					placeholder="Enter VPC name"
-					value={config.serviceName || ""}
-					onChange={(e) => handleFieldChange("serviceName", e.target.value)}
+					value={config.resourceName || ""}
+					onChange={(e) => handleFieldChange("resourceName", e.target.value)}
 				/>
 			</div>
 

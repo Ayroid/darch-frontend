@@ -53,8 +53,8 @@ const AvailabilityZoneConfigurationForm: React.FC<
 				<Input
 					id="az-name"
 					placeholder="Enter AZ name"
-					value={config.serviceName || ""}
-					onChange={(e) => handleFieldChange("serviceName", e.target.value)}
+					value={config.resourceName || ""}
+					onChange={(e) => handleFieldChange("resourceName", e.target.value)}
 				/>
 			</div>
 			<div className="space-y-2">
