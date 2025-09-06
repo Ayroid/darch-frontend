@@ -29,84 +29,84 @@ export interface ResourceFieldRules {
 export const AWS_RESOURCE_FIELD_RULES: ResourceFieldRules = {
   "aws-availability-zone": {
     autoFields: {
-      region: {
+      awsRegion: {
         sourceParentType: "aws-region",
-        sourceField: "region",
+        sourceField: "awsRegion",
         defaultValue: "us-east-1",
       },
     },
-    disabledFields: ["region"],
+    disabledFields: ["awsRegion"],
   },
   "aws-vpc": {
     autoFields: {
-      region: {
+      awsRegion: {
         sourceParentType: "aws-region",
-        sourceField: "region",
+        sourceField: "awsRegion",
         defaultValue: "us-east-1",
       },
     },
-    disabledFields: ["region"],
+    disabledFields: ["awsRegion"],
   },
   "aws-private-subnet": {
     autoFields: {
-      region: {
+      awsRegion: {
         sourceParentType: "aws-region",
-        sourceField: "region",
+        sourceField: "awsRegion",
         defaultValue: "us-east-1",
       },
-      availabilityZone: {
+      awsAvailabilityZone: {
         sourceParentType: "aws-availability-zone",
-        sourceField: "availabilityZone",
+        sourceField: "awsAvailabilityZone",
         defaultValue: "us-east-1a",
       },
-      vpcId: {
+      awsVpcId: {
         sourceParentType: "aws-vpc",
-        sourceField: "id",
+        sourceField: "awsVpcId",
         defaultValue: "",
       },
     },
-    disabledFields: ["region", "availabilityZone", "vpcId"],
+    disabledFields: ["awsRegion", "awsAvailabilityZone", "awsVpcId"],
   },
   "aws-public-subnet": {
     autoFields: {
-      region: {
+      awsRegion: {
         sourceParentType: "aws-region",
-        sourceField: "region",
+        sourceField: "awsRegion",
         defaultValue: "us-east-1",
       },
-      availabilityZone: {
+      awsAvailabilityZone: {
         sourceParentType: "aws-availability-zone",
-        sourceField: "availabilityZone",
+        sourceField: "awsAvailabilityZone",
         defaultValue: "us-east-1a",
       },
-      vpcId: {
+      awsVpcId: {
         sourceParentType: "aws-vpc",
-        sourceField: "id",
+        sourceField: "awsVpcId",
         defaultValue: "",
       },
     },
-    disabledFields: ["region", "availabilityZone", "vpcId"],
+    disabledFields: ["awsRegion", "awsAvailabilityZone", "awsVpcId"],
   },
   "aws-security-group": {
     autoFields: {
-      vpcId: {
+      awsVpcId: {
         sourceParentType: "aws-vpc",
         sourceField: "id",
         defaultValue: "",
       },
     },
-    disabledFields: ["vpcId"],
+    disabledFields: ["awsVpcId"],
   },
   "aws-ec2": {
     autoFields: {
-      region: {
+      awsRegion: {
         sourceParentType: "aws-region",
-        sourceField: "region",
+        sourceField: "awsRegion",
         defaultValue: "us-east-1",
       },
-      availabilityZone: {
+      awsAvailabilityZone: {
         sourceParentType: "aws-availability-zone",
-        sourceField: "availabilityZone",
+        sourceField: "awsAvailabilityZone",
         defaultValue: "us-east-1a",
       },
       subnetId: {
@@ -120,7 +120,7 @@ export const AWS_RESOURCE_FIELD_RULES: ResourceFieldRules = {
         defaultValue: [],
       },
     },
-    disabledFields: ["region", "availabilityZone", "subnetId"],
+    disabledFields: ["awsRegion", "awsAvailabilityZone", "subnetId"],
     // Note: securityGroups is not disabled as it's an array and user might want to add multiple
   },
 };

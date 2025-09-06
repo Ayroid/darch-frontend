@@ -3,18 +3,10 @@
 import React from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select";
 import { PublicSubnetConfiguration } from "@/lib/types/aws-resources";
-import { AWS_REGIONS_WITH_AZS } from "@/lib/data/aws_regions";
 import { useConfigurationContext } from "@/lib/stores";
 import { useAutoConfiguration } from "@/hooks/use-auto-configuration";
-import { TooltipProvider, Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import AutoConfigurationTooltip from "@/components/utilities/AutoConfigurationTooltip";
 
 interface PublicSubnetConfigurationFormProps {
 	config: PublicSubnetConfiguration;
@@ -26,8 +18,8 @@ const PublicSubnetConfigurationForm: React.FC<
 > = ({ config, onChange }) => {
 	const { nodeId } = useConfigurationContext();
 	const { isFieldDisabled } = useAutoConfiguration({
-		nodeId: nodeId || '',
-		resourceType: 'aws-public-subnet'
+		nodeId: nodeId || "",
+		resourceType: "aws-public-subnet",
 	});
 
 	const handleFieldChange = (field: string, value: unknown) => {
@@ -38,49 +30,43 @@ const PublicSubnetConfigurationForm: React.FC<
 		onChange(updatedConfig);
 	};
 
-	const selectedRegion = config.awsRegionId;
-	const availableAZs = AWS_REGIONS_WITH_AZS[config.awsRegionId] || [];
-
 	return (
-		<TooltipProvider>
-			<div className="space-y-4">
-				{/* Subnet Name */}
-				<div className="space-y-2">
-					<Label htmlFor="subnet-name">
-						Subnet Name <span className="text-red-600">*</span>
-					</Label>
-					<Input
-						id="subnet-name"
-						placeholder="Enter public subnet name"
-						value={config.awsPublicSubnetId || ""}
-						onChange={(e) => handleFieldChange("awsPublicSubnetId", e.target.value)}
-					/>
-				</div>
+		<div className="space-y-4">
+			{/* Subnet Name */}
+			<div className="space-y-2">
+				<Label htmlFor="subnet-name">
+					Subnet Name <span className="text-red-600">*</span>
+				</Label>
+				<Input
+					id="subnet-name"
+					placeholder="Enter public subnet name"
+					value={config.awsPublicSubnetId || ""}
+					onChange={(e) =>
+						handleFieldChange("awsPublicSubnetId", e.target.value)
+					}
+				/>
+			</div>
 
-				{/* VPC ID */}
-				<div className="space-y-2">
-					<Label htmlFor="vpc-id">
-						VPC ID <span className="text-red-600">*</span>
-					</Label>
-					<Tooltip>
-						<TooltipTrigger asChild>
-							<div>
-								<Input
-									id="vpc-id"
-									placeholder="vpc-xxxxxxxxx"
-									value={config.awsVpcId || ""}
-									onChange={(e) => handleFieldChange("awsVpcId", e.target.value)}
-									disabled={isFieldDisabled('awsVpcId')}
-								/>
-							</div>
-						</TooltipTrigger>
-						{isFieldDisabled('vpcId') && (
-							<TooltipContent>
-								<p>This field is auto-configured from the parent VPC container</p>
-							</TooltipContent>
-						)}
-					</Tooltip>
+			{/* VPC ID */}
+			<div className="space-y-2">
+				<Label htmlFor="vpc-id">
+					VPC ID <span className="text-red-600">*</span>
+				</Label>
+				<div className="relative">
+					<Input
+						id="vpc-id"
+						placeholder="vpc-xxxxxxxxx"
+						value={config.awsVpcId || ""}
+						onChange={(e) => handleFieldChange("awsVpcId", e.target.value)}
+						disabled={isFieldDisabled("awsVpcId")}
+					/>
+					{isFieldDisabled("awsVpcId") && (
+						<div className="absolute top-1/2 right-2 transform -translate-y-1/2">
+							<AutoConfigurationTooltip parentContainer="VPC" />
+						</div>
+					)}
 				</div>
+			</div>
 
 			{/* CIDR Block */}
 			<div className="space-y-2">
@@ -95,81 +81,53 @@ const PublicSubnetConfigurationForm: React.FC<
 				/>
 			</div>
 
-				{/* Region */}
-				<div className="space-y-2">
+			{/* Region */}
+			<div className="space-y-2">
+				<div className="flex items-center gap-2">
 					<Label htmlFor="region">
 						AWS Region <span className="text-red-600">*</span>
 					</Label>
-					<Tooltip>
-						<TooltipTrigger asChild>
-							<div>
-								<Select
-									value={config.awsRegionId}
-									onValueChange={(value) => handleFieldChange("awsRegionId", value)}
-									disabled={isFieldDisabled('awsRegionId')}
-								>
-									<SelectTrigger className="w-full">
-										<SelectValue placeholder="Select AWS Region" />
-									</SelectTrigger>
-									<SelectContent>
-										{Object.keys(AWS_REGIONS_WITH_AZS).map((region) => (
-											<SelectItem key={region} value={region}>
-												{region}
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
-							</div>
-						</TooltipTrigger>
-						{isFieldDisabled('region') && (
-							<TooltipContent>
-								<p>This field is auto-configured from the parent Region container</p>
-							</TooltipContent>
-						)}
-					</Tooltip>
 				</div>
+				<div className="relative">
+					<Input
+						id="region"
+						placeholder="Enter AWS region"
+						value={config.awsRegionId || ""}
+						onChange={(e) => handleFieldChange("awsRegionId", e.target.value)}
+						disabled={isFieldDisabled("awsRegion")}
+					/>
+					{isFieldDisabled("awsRegion") && (
+						<div className="absolute top-1/2 right-2 transform -translate-y-1/2">
+							<AutoConfigurationTooltip parentContainer="Region" />
+						</div>
+					)}
+				</div>
+			</div>
 
-				{/* Availability Zone */}
-				<div className="space-y-2">
+			{/* Availability Zone */}
+			<div className="space-y-2">
+				<div className="flex items-center gap-2">
 					<Label htmlFor="availability-zone">
-						Availability Zone <span className="text-red-600">*</span>
+						AWS Availability Zone <span className="text-red-600">*</span>
 					</Label>
-					<Tooltip>
-						<TooltipTrigger asChild>
-							<div>
-								<Select
-									value={(config.awsAvailabilityZone as string) || ""}
-									onValueChange={(value) =>
-										handleFieldChange("awsAvailabilityZone", value)
-									}
-									disabled={!selectedRegion || isFieldDisabled('awsAvailabilityZone')}
-								>
-									<SelectTrigger className="w-full">
-										<SelectValue
-											placeholder={
-												selectedRegion
-													? "Select availability zone"
-													: "Select region first"
-											}
-										/>
-									</SelectTrigger>
-									<SelectContent>
-										{availableAZs.map((az) => (
-											<SelectItem key={az} value={az}>
-												{az}
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
-							</div>
-						</TooltipTrigger>
-						{isFieldDisabled('availabilityZone') && (
-							<TooltipContent>
-								<p>This field is auto-configured from the parent Availability Zone container</p>
-							</TooltipContent>
-						)}
-					</Tooltip>
 				</div>
+				<div className="relative">
+					<Input
+						id="availability-zone"
+						placeholder="Enter AWS availability zone"
+						value={config.awsAvailabilityZone || ""}
+						onChange={(e) =>
+							handleFieldChange("awsAvailabilityZone", e.target.value)
+						}
+						disabled={isFieldDisabled("awsAvailabilityZone")}
+					/>
+					{isFieldDisabled("awsAvailabilityZone") && (
+						<div className="absolute top-1/2 right-2 transform -translate-y-1/2">
+							<AutoConfigurationTooltip parentContainer="Availability Zone" />
+						</div>
+					)}
+				</div>
+			</div>
 
 			{/* Description */}
 			{/* <div className="space-y-2">
@@ -204,8 +162,7 @@ const PublicSubnetConfigurationForm: React.FC<
 					onChange={(e) => handleFieldChange("tags", e.target.value)}
 				/>
 			</div> */}
-			</div>
-		</TooltipProvider>
+		</div>
 	);
 };
 

@@ -69,9 +69,9 @@ const AvailabilityZoneConfigurationForm: React.FC<
 						placeholder="Enter AWS region"
 						value={config.awsRegionId || ""}
 						onChange={(e) => handleFieldChange("awsRegionId", e.target.value)}
-						disabled={isFieldDisabled("region")}
+						disabled={isFieldDisabled("awsRegion")}
 					/>
-					{isFieldDisabled("region") && (
+					{isFieldDisabled("awsRegion") && (
 						<div className="absolute top-1/2 right-2 transform -translate-y-1/2">
 							<AutoConfigurationTooltip parentContainer="Region" />
 						</div>
