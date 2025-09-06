@@ -118,7 +118,6 @@ const convertReactFlowNodeToArchNode = (
 			  }
 			: undefined,
 		configuration: nodeConfig || {},
-		isContainer: Boolean(data?.isContainer),
 		parentId: node.parentId,
 	};
 };
@@ -145,7 +144,6 @@ const convertArchNodeToReactFlowNode = (archNode: ArchitectureNode): Node => {
 			icon: archNode.icon,
 			name: archNode.name,
 			serviceId: archNode.resourceType,
-			isContainer: archNode.isContainer,
 			configuration: archNode.configuration,
 		},
 		style: archNode.dimensions

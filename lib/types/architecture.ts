@@ -32,7 +32,6 @@ export interface ArchitectureNode {
   position: Position;
   dimensions?: Dimensions;
   configuration: AWSResourceConfiguration;
-  isContainer?: boolean;
   parentId?: string; // For nodes inside containers
 }
 
