@@ -19,13 +19,9 @@ import type {
 import { useConfigurationContext } from "@/lib/stores";
 import { useFormValidation } from "@/lib/stores/hooks/use-form-validation";
 import { useAutoConfiguration } from "@/hooks/use-auto-configuration";
-import {
-	TooltipProvider,
-	Tooltip,
-	TooltipContent,
-	TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { CollapsibleSection } from "@/components/shared/CollapsibleSection";
+import AutoConfigurationTooltip from "@/components/utilities/AutoConfigurationTooltip";
 
 interface SecurityGroupConfigurationFormProps {
 	config: SecurityGroupConfiguration;
@@ -110,46 +106,37 @@ const SecurityGroupConfigurationForm: React.FC<
 		<TooltipProvider>
 			<div className="space-y-6">
 				{/* Auto-configured fields section */}
-				{isFieldDisabled("vpcId") && (
-					<CollapsibleSection
-						title="Auto-configured Fields"
-						defaultOpen={false}
-					>
+				{isFieldDisabled("awsVpcId") && (
+					<CollapsibleSection title="Auto Configured Fields" defaultOpen={true}>
+						{/* VPC ID - auto-configured */}
 						<div className="space-y-2">
-							<Label htmlFor="vpcId">
+							<Label htmlFor="vpc-id">
 								VPC ID<span className="text-red-600">*</span>
 							</Label>
-							<Tooltip>
-								<TooltipTrigger asChild>
-									<div>
-										<Input
-											id="vpcId"
-											value={config.vpcId || ""}
-											onChange={(e) =>
-												handleFieldChange("vpcId", e.target.value)
-											}
-											placeholder="e.g., vpc-0abc123def456"
-											disabled={isFieldDisabled("vpcId")}
-										/>
+							<div className="relative">
+								<Input
+									id="vpc-id"
+									value={config.awsVpcId || ""}
+									onChange={(e) =>
+										handleFieldChange("awsVpcId", e.target.value)
+									}
+									placeholder="e.g., vpc-0abc123def456"
+									disabled={isFieldDisabled("awsVpcId")}
+								/>
+								{isFieldDisabled("awsVpcId") && (
+									<div className="absolute top-1/2 right-2 transform -translate-y-1/2">
+										<AutoConfigurationTooltip parentContainer="VPC" />
 									</div>
-								</TooltipTrigger>
-								{isFieldDisabled("vpcId") && (
-									<TooltipContent>
-										<p>
-											This field is auto-configured from the parent VPC
-											container
-										</p>
-									</TooltipContent>
 								)}
-							</Tooltip>
+							</div>
 						</div>
 					</CollapsibleSection>
 				)}
 
-				{/* Basic */}
+				{/* Basic Configuration */}
 				<div className="space-y-4">
 					<h3 className="text-sm font-semibold text-gray-700 border-b pb-2">
-						Basic
+						Basic Configuration
 					</h3>
 
 					<div className="space-y-2">
@@ -165,38 +152,6 @@ const SecurityGroupConfigurationForm: React.FC<
 							placeholder="e.g., WebSecurityGroup"
 						/>
 					</div>
-
-					{/* VPC ID - only show if not auto-configured */}
-					{!isFieldDisabled("vpcId") && (
-						<div className="space-y-2">
-							<Label htmlFor="vpcId">
-								VPC ID<span className="text-red-600">*</span>
-							</Label>
-							<Tooltip>
-								<TooltipTrigger asChild>
-									<div>
-										<Input
-											id="vpcId"
-											value={config.vpcId || ""}
-											onChange={(e) =>
-												handleFieldChange("vpcId", e.target.value)
-											}
-											placeholder="e.g., vpc-0abc123def456"
-											disabled={isFieldDisabled("vpcId")}
-										/>
-									</div>
-								</TooltipTrigger>
-								{isFieldDisabled("vpcId") && (
-									<TooltipContent>
-										<p>
-											This field is auto-configured from the parent VPC
-											container
-										</p>
-									</TooltipContent>
-								)}
-							</Tooltip>
-						</div>
-					)}
 
 					<div className="space-y-2">
 						<Label htmlFor="description">Description</Label>

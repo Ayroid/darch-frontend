@@ -47,7 +47,7 @@ const PublicSubnetConfigurationForm: React.FC<
 							<div className="relative">
 								<Input
 									id="vpc-id"
-									placeholder="vpc-xxxxxxxxx"
+									placeholder="e.g., vpc-0abc123def456"
 									value={config.awsVpcId || ""}
 									onChange={(e) =>
 										handleFieldChange("awsVpcId", e.target.value)
@@ -149,7 +149,7 @@ const PublicSubnetConfigurationForm: React.FC<
 						<div className="relative">
 							<Input
 								id="vpc-id"
-								placeholder="vpc-xxxxxxxxx"
+								placeholder="e.g., vpc-0abc123def456"
 								value={config.awsVpcId || ""}
 								onChange={(e) => handleFieldChange("awsVpcId", e.target.value)}
 								disabled={isFieldDisabled("awsVpcId")}

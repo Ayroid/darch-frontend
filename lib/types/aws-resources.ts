@@ -114,6 +114,25 @@ export interface AvailabilityZoneConfiguration {
 	tags: string; // comma-separated for backward compatibility
 }
 
+// Security Group Configuration
+export interface SecurityGroupConfiguration {
+	awsSecurityGroupId: string;
+	groupId?: string;
+	awsVpcId: string;
+	description?: string;
+	ingressRules: SecurityGroupRule[];
+	egressRules: SecurityGroupRule[];
+	tags?: Record<string, string>;
+}
+
+export interface SecurityGroupRule {
+	protocol: "tcp" | "udp" | "icmp" | "all";
+	port: number | string; // can be port number or 'all'
+	source?: string; // CIDR or security group ID for ingress
+	destination?: string; // CIDR or security group ID for egress
+	description?: string;
+}
+
 // Default/Generic Configuration for unknown resources
 export interface DefaultConfiguration {
 	awsResourceId?: string;
@@ -192,28 +211,6 @@ export type AWSResourceConfiguration =
 export type AWSServiceType = keyof typeof AWS_SERVICE_TYPE_MAP;
 export type AWSServiceName = (typeof AWS_SERVICE_TYPE_MAP)[AWSServiceType];
 
-// =============================================================================
-// SECURITY GROUP CONFIGURATION - NOW IMPLEMENTED
-// =============================================================================
-
-// Security Group Configuration
-export interface SecurityGroupConfiguration {
-	awsSecurityGroupId: string;
-	groupId?: string;
-	vpcId: string;
-	description?: string;
-	ingressRules: SecurityGroupRule[];
-	egressRules: SecurityGroupRule[];
-	tags?: Record<string, string>;
-}
-
-export interface SecurityGroupRule {
-	protocol: 'tcp' | 'udp' | 'icmp' | 'all';
-	port: number | string; // can be port number or 'all'
-	source?: string; // CIDR or security group ID for ingress
-	destination?: string; // CIDR or security group ID for egress
-	description?: string;
-}
 
 // =============================================================================
 // COMMENTED OUT RESOURCES - NO CONFIGURATION FORMS AVAILABLE
