@@ -80,7 +80,7 @@ export const defaultConfigurations: Record<string, AWSResourceConfiguration> = {
 	} as PublicSubnetConfiguration,
 	"aws-security-group": {
 		awsSecurityGroupId: "AWS Security Group",
-		vpcId: "",
+		awsVpcId: "",
 		description: "",
 		ingressRules: [],
 		egressRules: [

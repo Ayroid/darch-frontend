@@ -174,9 +174,6 @@ export default function ConfigurationSidebar({
 					onChange: handleConfigChange as (
 						config: DefaultConfiguration
 					) => void,
-					onChange: handleConfigChange as (
-						config: DefaultConfiguration
-					) => void,
 			  });
 
 		return (
