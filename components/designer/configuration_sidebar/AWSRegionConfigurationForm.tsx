@@ -79,7 +79,7 @@ const AWSRegionConfigurationForm: React.FC<AWSRegionConfigurationFormProps> = ({
 				</Select>
 			</div>
 			{/* Region Name */}
-			<div className="relative">
+			<div className="relative space-y-2">
 				<Label htmlFor="region-name">Name</Label>
 				<Input
 					id="region-name"

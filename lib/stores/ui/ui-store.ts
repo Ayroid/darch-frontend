@@ -1,6 +1,10 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
+import { enableMapSet } from "immer";
+
+// Enable MapSet plugin for Immer to support Set and Map data structures
+enableMapSet();
 
 // UI state for sidebars and panels
 interface UIState {
