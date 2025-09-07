@@ -100,7 +100,7 @@ export const AWS_RESOURCE_FIELD_RULES: ResourceFieldRules = {
       awsVpcId: {
         sourceParentType: "aws-vpc",
         sourceField: "awsVpcId",
-        defaultValue: "",
+        defaultValue: "default-vpc",
       },
     },
     disabledFields: ["awsRegionId", "awsAvailabilityZone", "awsVpcId"],
@@ -121,7 +121,7 @@ export const AWS_RESOURCE_FIELD_RULES: ResourceFieldRules = {
       awsVpcId: {
         sourceParentType: "aws-vpc",
         sourceField: "awsVpcId",
-        defaultValue: "",
+        defaultValue: "default-vpc",
       },
     },
     disabledFields: ["awsRegionId", "awsAvailabilityZone", "awsVpcId"],
@@ -132,7 +132,7 @@ export const AWS_RESOURCE_FIELD_RULES: ResourceFieldRules = {
       awsVpcId: {
         sourceParentType: "aws-vpc",
         sourceField: "awsVpcId",
-        defaultValue: "",
+        defaultValue: "default-vpc",
       },
     },
     disabledFields: ["awsVpcId"],
@@ -153,7 +153,7 @@ export const AWS_RESOURCE_FIELD_RULES: ResourceFieldRules = {
       subnetId: {
         sourceParentType: "aws-private-subnet,aws-public-subnet",
         sourceField: "id",
-        defaultValue: "",
+        defaultValue: "default-subnet",
       },
       securityGroups: {
         sourceParentType: "aws-security-group",

@@ -88,9 +88,7 @@ interface ArchitectureActions {
 }
 
 // Helper functions
-const generateUniqueId = (): string => {
-	return `node_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-};
+// Note: ID generation is handled by getNodeId() in nodeUtils.tsx
 
 // Convert ReactFlow nodes to ArchitectureNode format
 const convertReactFlowNodeToArchNode = (
@@ -241,12 +239,11 @@ export const useArchitectureStore = create<
 							state.currentData = get().createNew();
 						}
 
-						// Ensure unique ID
-						if (
-							!node.id ||
-							state.currentData!.nodes.some((n) => n.id === node.id)
-						) {
-							node.id = generateUniqueId();
+						// Note: Node ID should be generated before calling addNode
+						// ID generation is handled by getNodeId() in nodeUtils.tsx
+						if (!node.id) {
+							console.warn("Node ID not provided to addNode - this should be generated beforehand");
+							return node.id || "";
 						}
 
 						// Get resource type for configuration

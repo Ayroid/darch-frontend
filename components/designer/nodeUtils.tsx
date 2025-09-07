@@ -12,14 +12,22 @@ import {
 	NodeChange,
 	NodeProps,
 } from "@xyflow/react";
-import { updateNodeParentRelationships, clearContainerCaches, updateNodeParentRelationshipsWithTracking, batchUpdateNodeRelationshipsWithTracking } from "@/lib/container-logic";
+import {
+	updateNodeParentRelationships,
+	clearContainerCaches,
+	updateNodeParentRelationshipsWithTracking,
+	batchUpdateNodeRelationshipsWithTracking,
+} from "@/lib/container-logic";
 import { autoConfigureNode } from "@/lib/auto-configuration";
 import { AWSResourceConfiguration } from "@/lib/types/aws-resources";
 
 // Type for architecture store - we'll use specific methods
 type ArchitectureStore = {
 	getNodeConfiguration: (nodeId: string) => AWSResourceConfiguration | null;
-	updateNodeConfiguration: (nodeId: string, config: Partial<AWSResourceConfiguration>) => void;
+	updateNodeConfiguration: (
+		nodeId: string,
+		config: Partial<AWSResourceConfiguration>
+	) => void;
 	nodeConfigurations: Record<string, AWSResourceConfiguration>;
 };
 
@@ -59,9 +67,11 @@ export const isHandleConnected = (
 	return edges.some(
 		(edge) =>
 			// Check for source connections from this position
-			(edge.source === nodeId && edge.sourceHandle === `${handlePosition}-source`) ||
+			(edge.source === nodeId &&
+				edge.sourceHandle === `${handlePosition}-source`) ||
 			// Check for target connections to this position
-			(edge.target === nodeId && edge.targetHandle === `${handlePosition}-target`) ||
+			(edge.target === nodeId &&
+				edge.targetHandle === `${handlePosition}-target`) ||
 			// Legacy support for old handle IDs
 			(edge.source === nodeId && edge.sourceHandle === handlePosition) ||
 			(edge.target === nodeId && edge.targetHandle === handlePosition)
@@ -107,10 +117,10 @@ export function AWSServiceNode({ id, data }: AWSServiceNodeProps) {
 				className={`handle-top ${isTopConnected ? "connected" : ""}`}
 				style={{
 					...handleStyle.top,
-					background: '#555',
-					width: '12px',
-					height: '12px',
-					border: 'none'
+					background: "#555",
+					width: "12px",
+					height: "12px",
+					border: "none",
 				}}
 			/>
 			<Handle
@@ -120,10 +130,10 @@ export function AWSServiceNode({ id, data }: AWSServiceNodeProps) {
 				className={`handle-top ${isTopConnected ? "connected" : ""}`}
 				style={{
 					...handleStyle.top,
-					background: 'transparent',
-					border: '2px solid #555',
-					width: '12px',
-					height: '12px'
+					background: "transparent",
+					border: "2px solid #555",
+					width: "12px",
+					height: "12px",
 				}}
 			/>
 
@@ -135,10 +145,10 @@ export function AWSServiceNode({ id, data }: AWSServiceNodeProps) {
 				className={`handle-right ${isRightConnected ? "connected" : ""}`}
 				style={{
 					...handleStyle.right,
-					background: '#555',
-					width: '12px',
-					height: '12px',
-					border: 'none'
+					background: "#555",
+					width: "12px",
+					height: "12px",
+					border: "none",
 				}}
 			/>
 			<Handle
@@ -148,10 +158,10 @@ export function AWSServiceNode({ id, data }: AWSServiceNodeProps) {
 				className={`handle-right ${isRightConnected ? "connected" : ""}`}
 				style={{
 					...handleStyle.right,
-					background: 'transparent',
-					border: '2px solid #555',
-					width: '12px',
-					height: '12px'
+					background: "transparent",
+					border: "2px solid #555",
+					width: "12px",
+					height: "12px",
 				}}
 			/>
 
@@ -163,10 +173,10 @@ export function AWSServiceNode({ id, data }: AWSServiceNodeProps) {
 				className={`handle-bottom ${isBottomConnected ? "connected" : ""}`}
 				style={{
 					...handleStyle.bottom,
-					background: '#555',
-					width: '12px',
-					height: '12px',
-					border: 'none'
+					background: "#555",
+					width: "12px",
+					height: "12px",
+					border: "none",
 				}}
 			/>
 			<Handle
@@ -176,10 +186,10 @@ export function AWSServiceNode({ id, data }: AWSServiceNodeProps) {
 				className={`handle-bottom ${isBottomConnected ? "connected" : ""}`}
 				style={{
 					...handleStyle.bottom,
-					background: 'transparent',
-					border: '2px solid #555',
-					width: '12px',
-					height: '12px'
+					background: "transparent",
+					border: "2px solid #555",
+					width: "12px",
+					height: "12px",
 				}}
 			/>
 
@@ -191,10 +201,10 @@ export function AWSServiceNode({ id, data }: AWSServiceNodeProps) {
 				className={`handle-left ${isLeftConnected ? "connected" : ""}`}
 				style={{
 					...handleStyle.left,
-					background: '#555',
-					width: '12px',
-					height: '12px',
-					border: 'none'
+					background: "#555",
+					width: "12px",
+					height: "12px",
+					border: "none",
 				}}
 			/>
 			<Handle
@@ -204,10 +214,10 @@ export function AWSServiceNode({ id, data }: AWSServiceNodeProps) {
 				className={`handle-left ${isLeftConnected ? "connected" : ""}`}
 				style={{
 					...handleStyle.left,
-					background: 'transparent',
-					border: '2px solid #555',
-					width: '12px',
-					height: '12px'
+					background: "transparent",
+					border: "2px solid #555",
+					width: "12px",
+					height: "12px",
 				}}
 			/>
 
@@ -353,8 +363,11 @@ export function AWSContainerNode({
 				height: nodeSize.height,
 				minWidth: 250,
 				minHeight: 200,
-				border: `1px ${serviceId === "aws-region" ? "dashed" : "solid"} ${borderColor}`,
-				background: serviceId === "aws-region" ? "transparent" : `${borderColor}0D`, // 1A = 10% alpha in hex
+				border: `1px ${
+					serviceId === "aws-region" ? "dashed" : "solid"
+				} ${borderColor}`,
+				background:
+					serviceId === "aws-region" ? "transparent" : `${borderColor}0D`, // 1A = 10% alpha in hex
 			}}
 		>
 			{/* Top Handles - Bidirectional */}
@@ -365,10 +378,10 @@ export function AWSContainerNode({
 				className={`handle-top ${isTopConnected ? "connected" : ""}`}
 				style={{
 					...handleStyle.top,
-					background: '#555',
-					width: '12px',
-					height: '12px',
-					border: 'none'
+					background: "#555",
+					width: "12px",
+					height: "12px",
+					border: "none",
 				}}
 			/>
 			<Handle
@@ -378,10 +391,10 @@ export function AWSContainerNode({
 				className={`handle-top ${isTopConnected ? "connected" : ""}`}
 				style={{
 					...handleStyle.top,
-					background: 'transparent',
-					border: '2px solid #555',
-					width: '12px',
-					height: '12px'
+					background: "transparent",
+					border: "2px solid #555",
+					width: "12px",
+					height: "12px",
 				}}
 			/>
 
@@ -393,10 +406,10 @@ export function AWSContainerNode({
 				className={`handle-right ${isRightConnected ? "connected" : ""}`}
 				style={{
 					...handleStyle.right,
-					background: '#555',
-					width: '12px',
-					height: '12px',
-					border: 'none'
+					background: "#555",
+					width: "12px",
+					height: "12px",
+					border: "none",
 				}}
 			/>
 			<Handle
@@ -406,10 +419,10 @@ export function AWSContainerNode({
 				className={`handle-right ${isRightConnected ? "connected" : ""}`}
 				style={{
 					...handleStyle.right,
-					background: 'transparent',
-					border: '2px solid #555',
-					width: '12px',
-					height: '12px'
+					background: "transparent",
+					border: "2px solid #555",
+					width: "12px",
+					height: "12px",
 				}}
 			/>
 
@@ -421,10 +434,10 @@ export function AWSContainerNode({
 				className={`handle-bottom ${isBottomConnected ? "connected" : ""}`}
 				style={{
 					...handleStyle.bottom,
-					background: '#555',
-					width: '12px',
-					height: '12px',
-					border: 'none'
+					background: "#555",
+					width: "12px",
+					height: "12px",
+					border: "none",
 				}}
 			/>
 			<Handle
@@ -434,10 +447,10 @@ export function AWSContainerNode({
 				className={`handle-bottom ${isBottomConnected ? "connected" : ""}`}
 				style={{
 					...handleStyle.bottom,
-					background: 'transparent',
-					border: '2px solid #555',
-					width: '12px',
-					height: '12px'
+					background: "transparent",
+					border: "2px solid #555",
+					width: "12px",
+					height: "12px",
 				}}
 			/>
 
@@ -449,10 +462,10 @@ export function AWSContainerNode({
 				className={`handle-left ${isLeftConnected ? "connected" : ""}`}
 				style={{
 					...handleStyle.left,
-					background: '#555',
-					width: '12px',
-					height: '12px',
-					border: 'none'
+					background: "#555",
+					width: "12px",
+					height: "12px",
+					border: "none",
 				}}
 			/>
 			<Handle
@@ -462,10 +475,10 @@ export function AWSContainerNode({
 				className={`handle-left ${isLeftConnected ? "connected" : ""}`}
 				style={{
 					...handleStyle.left,
-					background: 'transparent',
-					border: '2px solid #555',
-					width: '12px',
-					height: '12px'
+					background: "transparent",
+					border: "2px solid #555",
+					width: "12px",
+					height: "12px",
 				}}
 			/>
 
@@ -513,17 +526,15 @@ export function AWSContainerNode({
 }
 
 export const getNodeId = (serviceId: string) => {
-	const now = new Date();
-	const timestamp = now.getTime();
-	const ms = now.getMilliseconds();
-	return `${serviceId || "dndnode"}-${timestamp}${ms}`;
+	// Generate 6-character alphanumeric ID
+	const randomId = Math.random().toString(36).slice(2, 8);
+	return `${serviceId || "dndnode"}-${randomId}`;
 };
 
 export const getEdgeId = () => {
-	const now = new Date();
-	const timestamp = now.getTime();
-	const ms = now.getMilliseconds();
-	return `edge-${timestamp}${ms}`;
+	// Generate 6-character alphanumeric ID
+	const randomId = Math.random().toString(36).slice(2, 8);
+	return `edge-${randomId}`;
 };
 
 // Node operation handlers factory
@@ -536,9 +547,21 @@ export const createNodeHandlers = (
 	getNodeConfiguration?: (nodeId: string) => unknown,
 	architectureStore?: ArchitectureStore,
 	undoRedoHook?: {
-		saveAfterNodeOperation: (nodes: Node[], edges: Edge[], operation: 'add' | 'delete' | 'move' | 'resize' | 'configure') => void;
-		saveAfterEdgeOperation: (nodes: Node[], edges: Edge[], operation: 'add' | 'delete') => void;
-		saveAfterBulkOperation: (nodes: Node[], edges: Edge[], operation: 'paste' | 'duplicate' | 'import' | 'bulk') => void;
+		saveAfterNodeOperation: (
+			nodes: Node[],
+			edges: Edge[],
+			operation: "add" | "delete" | "move" | "resize" | "configure"
+		) => void;
+		saveAfterEdgeOperation: (
+			nodes: Node[],
+			edges: Edge[],
+			operation: "add" | "delete"
+		) => void;
+		saveAfterBulkOperation: (
+			nodes: Node[],
+			edges: Edge[],
+			operation: "paste" | "duplicate" | "import" | "bulk"
+		) => void;
 	}
 ) => {
 	// Debounce timer for parent relationship updates
@@ -577,15 +600,13 @@ export const createNodeHandlers = (
 		onNodesChange(changes);
 
 		// Check for position changes that indicate a drag end (not during drag)
-		const dragEndChanges = changes.filter(change =>
-			change.type === 'position' &&
-			change.dragging === false
+		const dragEndChanges = changes.filter(
+			(change) => change.type === "position" && change.dragging === false
 		);
 
 		// Check for nodes being moved (position changes during dragging)
-		const dragMoveChanges = changes.filter(change =>
-			change.type === 'position' &&
-			change.dragging === true
+		const dragMoveChanges = changes.filter(
+			(change) => change.type === "position" && change.dragging === true
 		);
 
 		// Check if any nodes were removed
@@ -617,8 +638,8 @@ export const createNodeHandlers = (
 			}
 
 			// Invalidate cache for moved nodes to ensure fresh calculations on drag end
-			dragMoveChanges.forEach(change => {
-				if (change.type === 'position') {
+			dragMoveChanges.forEach((change) => {
+				if (change.type === "position") {
 					// invalidateNodeCache((change as { id: string }).id); // COMMENTED OUT: Parent-child logic disabled
 				}
 			});
@@ -640,8 +661,8 @@ export const createNodeHandlers = (
 			// Get IDs of nodes that changed position
 			const changedNodeIds = new Set(
 				dragEndChanges
-					.filter(change => change.type === 'position')
-					.map(change => (change as { id: string }).id)
+					.filter((change) => change.type === "position")
+					.map((change) => (change as { id: string }).id)
 			);
 
 			// Reduced debounce for more responsive feel, but still stable
@@ -649,14 +670,20 @@ export const createNodeHandlers = (
 				setNodes((currentNodes) => {
 					// Use batch update for better performance with multiple containers
 					if (changedNodeIds.size > 1) {
-						const { updatedNodes, nodesWithChangedParents } = batchUpdateNodeRelationshipsWithTracking(currentNodes, changedNodeIds, true);
+						const { updatedNodes, nodesWithChangedParents } =
+							batchUpdateNodeRelationshipsWithTracking(
+								currentNodes,
+								changedNodeIds,
+								true
+							);
 
 						// Trigger auto-configuration for nodes with changed parents
 						if (nodesWithChangedParents.size > 0 && architectureStore) {
 							setTimeout(() => {
 								for (const nodeId of nodesWithChangedParents) {
-									const nodeConfig = architectureStore.getNodeConfiguration(nodeId);
-									const node = updatedNodes.find(n => n.id === nodeId);
+									const nodeConfig =
+										architectureStore.getNodeConfiguration(nodeId);
+									const node = updatedNodes.find((n) => n.id === nodeId);
 									const resourceType = node?.data?.serviceId as string;
 									if (nodeConfig && resourceType) {
 										const { updatedConfig } = autoConfigureNode(
@@ -666,7 +693,10 @@ export const createNodeHandlers = (
 											architectureStore.nodeConfigurations,
 											resourceType
 										);
-										architectureStore.updateNodeConfiguration(nodeId, updatedConfig);
+										architectureStore.updateNodeConfiguration(
+											nodeId,
+											updatedConfig
+										);
 									}
 								}
 							}, 0);
@@ -675,14 +705,20 @@ export const createNodeHandlers = (
 						return updatedNodes;
 					} else {
 						// Single node update with drag end flag - FIXED: pass isDragEnd: true
-						const { updatedNodes, nodesWithChangedParents } = updateNodeParentRelationshipsWithTracking(currentNodes, false, true);
+						const { updatedNodes, nodesWithChangedParents } =
+							updateNodeParentRelationshipsWithTracking(
+								currentNodes,
+								false,
+								true
+							);
 
 						// Trigger auto-configuration for nodes with changed parents
 						if (nodesWithChangedParents.size > 0 && architectureStore) {
 							setTimeout(() => {
 								for (const nodeId of nodesWithChangedParents) {
-									const nodeConfig = architectureStore.getNodeConfiguration(nodeId);
-									const node = updatedNodes.find(n => n.id === nodeId);
+									const nodeConfig =
+										architectureStore.getNodeConfiguration(nodeId);
+									const node = updatedNodes.find((n) => n.id === nodeId);
 									const resourceType = node?.data?.serviceId as string;
 									if (nodeConfig && resourceType) {
 										const { updatedConfig } = autoConfigureNode(
@@ -692,7 +728,10 @@ export const createNodeHandlers = (
 											architectureStore.nodeConfigurations,
 											resourceType
 										);
-										architectureStore.updateNodeConfiguration(nodeId, updatedConfig);
+										architectureStore.updateNodeConfiguration(
+											nodeId,
+											updatedConfig
+										);
 									}
 								}
 							}, 0);
@@ -709,7 +748,11 @@ export const createNodeHandlers = (
 							setEdges((currentEdges) => {
 								// Save undo state after both nodes and edges are updated
 								setTimeout(() => {
-									undoRedoHook.saveAfterNodeOperation(currentNodes, currentEdges, 'move');
+									undoRedoHook.saveAfterNodeOperation(
+										currentNodes,
+										currentEdges,
+										"move"
+									);
 								}, 0);
 								return currentEdges;
 							});
@@ -772,7 +815,11 @@ export const createNodeHandlers = (
 			if (undoRedoHook) {
 				setNodes((currentNodes) => {
 					setEdges((currentEdges) => {
-						undoRedoHook.saveAfterBulkOperation(currentNodes, currentEdges, 'paste');
+						undoRedoHook.saveAfterBulkOperation(
+							currentNodes,
+							currentEdges,
+							"paste"
+						);
 						return currentEdges;
 					});
 					return currentNodes;
@@ -822,7 +869,11 @@ export const createNodeHandlers = (
 			if (undoRedoHook) {
 				setNodes((currentNodes) => {
 					setEdges((currentEdges) => {
-						undoRedoHook.saveAfterBulkOperation(currentNodes, currentEdges, 'duplicate');
+						undoRedoHook.saveAfterBulkOperation(
+							currentNodes,
+							currentEdges,
+							"duplicate"
+						);
 						return currentEdges;
 					});
 					return currentNodes;
@@ -869,7 +920,11 @@ export const createNodeHandlers = (
 					setEdges((currentEdges) => {
 						// Save undo state after both nodes and edges are updated
 						setTimeout(() => {
-							undoRedoHook.saveAfterNodeOperation(currentNodes, currentEdges, 'delete');
+							undoRedoHook.saveAfterNodeOperation(
+								currentNodes,
+								currentEdges,
+								"delete"
+							);
 						}, 0);
 						return currentEdges;
 					});
