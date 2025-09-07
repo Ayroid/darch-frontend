@@ -8,7 +8,17 @@ import { useArchitectureStore } from "@/lib/stores/architecture/architecture-sto
 import { ConfigurationProvider } from "@/lib/stores";
 import { TbCube } from "react-icons/tb";
 
-import { AWSResourceConfiguration, DefaultConfiguration } from "@/lib/types/aws-resources";
+import {
+	AWSResourceConfiguration,
+	DefaultConfiguration,
+} from "@/lib/types/aws-resources";
+import { Badge } from "@/components/ui/badge";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipProvider,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 type ConfigurationFormComponent = React.ComponentType<{
 	config: AWSResourceConfiguration;
@@ -49,7 +59,7 @@ export default function ConfigurationSidebar({
 	const {
 		getNodeConfiguration,
 		updateNodeConfiguration,
-		initializeNodeConfiguration
+		initializeNodeConfiguration,
 	} = useArchitectureStore();
 
 	// Initialize configuration when node is selected
@@ -86,13 +96,18 @@ export default function ConfigurationSidebar({
 
 		if (selectedNode.type === "awsService") {
 			const name = (selectedNode.data.name as string) || "AWS Service";
-			return name;
+			return "AWS " + name;
 		}
 		if (selectedNode.type === "awsContainer") {
 			const name = (selectedNode.data.name as string) || "AWS Container";
-			return name;
+			return "AWS " + name;
 		}
 		return "Configuration";
+	};
+
+	const getServiceId = (): string => {
+		if (!selectedNode) return "";
+		return selectedNode.id;
 	};
 
 	const renderConfigurationForm = () => {
@@ -142,7 +157,9 @@ export default function ConfigurationSidebar({
 			  })
 			: React.createElement(ConfigurationSidebarMap.DefaultConfigurationForm, {
 					config: config as DefaultConfiguration,
-					onChange: handleConfigChange as (config: DefaultConfiguration) => void,
+					onChange: handleConfigChange as (
+						config: DefaultConfiguration
+					) => void,
 			  });
 
 		return (
@@ -153,62 +170,76 @@ export default function ConfigurationSidebar({
 	};
 
 	return (
-		<div className="relative">
-			{/* Sidebar */}
-			<div
-				className={`fixed top-16 right-0 bg-white border-l border-gray-200 shadow-lg transform transition-transform duration-300 ease-in-out z-40 overflow-hidden flex flex-col ${
-					isOpen ? "translate-x-0" : "translate-x-full"
-				}`}
-				style={{ width: "384px", height: "calc(100vh - 4rem)" }}
-			>
-				{/* Header */}
-				<div className="flex items-center justify-between p-4 border-b border-gray-200">
-					<div className="flex items-center gap-2">
-						<h2 className="text-lg font-semibold text-gray-900">
-							{selectedNode ? getServiceName() : "Configuration Sidebar"}
-						</h2>
+		<TooltipProvider>
+			<div className="relative">
+				{/* Sidebar */}
+				<div
+					className={`fixed top-16 right-0 bg-white border-l border-gray-200 shadow-lg transform transition-transform duration-300 ease-in-out z-40 overflow-hidden flex flex-col ${
+						isOpen ? "translate-x-0" : "translate-x-full"
+					}`}
+					style={{ width: "384px", height: "calc(100vh - 4rem)" }}
+				>
+					{/* Header */}
+					<div className="flex items-center justify-between p-4 border-b border-gray-200">
+						<div className="flex flex-col gap-2">
+							<h2 className="text-lg font-semibold text-gray-900">
+								{selectedNode ? getServiceName() : "Configuration Sidebar"}
+							</h2>
+							{selectedNode && (
+								<Tooltip>
+									<TooltipTrigger asChild>
+										<Badge variant={"secondary"} className="rounded-full">
+											{getServiceId()}
+										</Badge>
+									</TooltipTrigger>
+									<TooltipContent>
+										<p>Resource ID</p>
+									</TooltipContent>
+								</Tooltip>
+							)}
+						</div>
+					</div>
+
+					{/* Content */}
+					<div className="flex-1 overflow-y-auto p-4">
+						{renderConfigurationForm()}
 					</div>
 				</div>
 
-				{/* Content */}
-				<div className="flex-1 overflow-y-auto p-4">
-					{renderConfigurationForm()}
-				</div>
-			</div>
-
-			{/* Toggle Button - Attached to sidebar edge */}
-			<button
-				onClick={onToggle}
-				className={`fixed z-50 bg-white border border-gray-200 shadow-lg hover:bg-gray-50 transition-all duration-300 ease-in-out ${
-					isOpen
-						? "right-[384px] rounded-l-lg border-r-0"
-						: "right-0 rounded-l-lg"
-				}`}
-				style={{
-					top: "calc(50vh + 2rem)",
-					transform: "translateY(-50%)",
-					padding: "12px 4px",
-					borderTopRightRadius: isOpen ? "0" : "0.5rem",
-					borderBottomRightRadius: isOpen ? "0" : "0.5rem",
-				}}
-				aria-label="Toggle Configuration Sidebar"
-			>
-				<svg
-					className={`w-5 h-5 transition-transform duration-300 ${
-						isOpen ? "rotate-180" : ""
+				{/* Toggle Button - Attached to sidebar edge */}
+				<button
+					onClick={onToggle}
+					className={`fixed z-50 bg-white border border-gray-200 shadow-lg hover:bg-gray-50 transition-all duration-300 ease-in-out ${
+						isOpen
+							? "right-[384px] rounded-l-lg border-r-0"
+							: "right-0 rounded-l-lg"
 					}`}
-					fill="none"
-					stroke="gray"
-					viewBox="0 0 24 24"
+					style={{
+						top: "calc(50vh + 2rem)",
+						transform: "translateY(-50%)",
+						padding: "12px 4px",
+						borderTopRightRadius: isOpen ? "0" : "0.5rem",
+						borderBottomRightRadius: isOpen ? "0" : "0.5rem",
+					}}
+					aria-label="Toggle Configuration Sidebar"
 				>
-					<path
-						strokeLinecap="round"
-						strokeLinejoin="round"
-						strokeWidth={2}
-						d="M15 19l-7-7 7-7"
-					/>
-				</svg>
-			</button>
-		</div>
+					<svg
+						className={`w-5 h-5 transition-transform duration-300 ${
+							isOpen ? "rotate-180" : ""
+						}`}
+						fill="none"
+						stroke="gray"
+						viewBox="0 0 24 24"
+					>
+						<path
+							strokeLinecap="round"
+							strokeLinejoin="round"
+							strokeWidth={2}
+							d="M15 19l-7-7 7-7"
+						/>
+					</svg>
+				</button>
+			</div>
+		</TooltipProvider>
 	);
 }

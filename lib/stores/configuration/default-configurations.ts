@@ -12,7 +12,7 @@ import type {
 // Default configuration values for different service types
 export const defaultConfigurations: Record<string, AWSResourceConfiguration> = {
 	"aws-vpc": {
-		awsVpcId: "VPC",
+		awsVpcId: "AWS VPC",
 		cidrBlock: "10.0.0.0/16",
 		awsRegionId: "us-east-1",
 		enableDnsSupport: true,
@@ -20,7 +20,7 @@ export const defaultConfigurations: Record<string, AWSResourceConfiguration> = {
 		tags: "Environment=Development",
 	} as VPCConfiguration,
 	"aws-ec2": {
-		awsEc2Id: "EC2",
+		awsEc2Id: "AWS EC2",
 		instanceType: "t3.micro",
 		amiId: "ami-0c55b159cbfafe1d0",
 		keyPairName: "",
@@ -49,7 +49,7 @@ export const defaultConfigurations: Record<string, AWSResourceConfiguration> = {
 		tags: "Type=Region",
 	} as AWSRegionConfiguration,
 	"aws-availability-zone": {
-		awsAvailabilityZoneId: "Availability Zone",
+		awsAvailabilityZoneId: "AWS Availability Zone",
 		awsRegionId: "us-east-1",
 		availabilityZone: "us-east-1a",
 		description: "",
@@ -58,7 +58,7 @@ export const defaultConfigurations: Record<string, AWSResourceConfiguration> = {
 		tags: "Type=AvailabilityZone",
 	} as AvailabilityZoneConfiguration,
 	"aws-private-subnet": {
-		awsPrivateSubnetId: "Private Subnet",
+		awsPrivateSubnetId: "AWS Private Subnet",
 		cidrBlock: "10.0.1.0/24",
 		awsAvailabilityZone: "us-east-1a",
 		awsVpcId: "",
@@ -69,7 +69,7 @@ export const defaultConfigurations: Record<string, AWSResourceConfiguration> = {
 		tags: "Type=Private",
 	} as PrivateSubnetConfiguration,
 	"aws-public-subnet": {
-		awsPublicSubnetId: "Public Subnet",
+		awsPublicSubnetId: "AWS Public Subnet",
 		cidrBlock: "10.0.0.0/24",
 		awsAvailabilityZone: "us-east-1a",
 		awsVpcId: "",
@@ -79,7 +79,7 @@ export const defaultConfigurations: Record<string, AWSResourceConfiguration> = {
 		tags: "Type=Public",
 	} as PublicSubnetConfiguration,
 	"aws-security-group": {
-		awsSecurityGroupId: "Security Group",
+		awsSecurityGroupId: "AWS Security Group",
 		vpcId: "",
 		description: "",
 		ingressRules: [],

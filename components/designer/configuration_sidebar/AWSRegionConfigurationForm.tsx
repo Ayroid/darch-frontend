@@ -12,6 +12,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { AWSRegionConfiguration } from "@/lib/types/aws-resources";
 import { AWS_REGIONS_WITH_NAMES } from "@/lib/data/aws_regions";
+import AutoConfigurationTooltip from "@/components/utilities/AutoConfigurationTooltip";
 
 interface AWSRegionConfigurationFormProps {
 	config: AWSRegionConfiguration;
@@ -78,7 +79,7 @@ const AWSRegionConfigurationForm: React.FC<AWSRegionConfigurationFormProps> = ({
 				</Select>
 			</div>
 			{/* Region Name */}
-			<div className="space-y-2">
+			<div className="relative">
 				<Label htmlFor="region-name">Name</Label>
 				<Input
 					id="region-name"
@@ -87,6 +88,9 @@ const AWSRegionConfigurationForm: React.FC<AWSRegionConfigurationFormProps> = ({
 					disabled
 					onChange={(e) => handleFieldChange("regionName", e.target.value)}
 				/>
+				<div className="absolute top-1/2 right-2">
+					<AutoConfigurationTooltip parentContainer="Region" />
+				</div>
 			</div>
 			{/* Region Description */}
 			{/* <div className="space-y-2">
