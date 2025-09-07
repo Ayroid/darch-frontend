@@ -15,6 +15,7 @@ import {
 } from "react-icons/fi";
 import { BsBuilding } from "react-icons/bs";
 import { useUIStore } from "@/lib/stores";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface AWSService {
 	id: string;
@@ -30,7 +31,7 @@ const awsServices: AWSService[] = [
 	// Infrastructure Components
 	{
 		id: "aws-region",
-		name: "AWS Region",
+		name: "Region",
 		icon: "/aws_icons/architecture_group_icons/AWS-Cloud_32.svg",
 		category: "Infrastructure",
 		isContainer: true,
@@ -38,7 +39,7 @@ const awsServices: AWSService[] = [
 	},
 	{
 		id: "aws-availability-zone",
-		name: "Availability Zone",
+		name: "AvailabilityZone",
 		icon: "/aws_icons/architecture_group_icons/Region_32.svg",
 		category: "Infrastructure",
 		isContainer: true,
@@ -55,7 +56,7 @@ const awsServices: AWSService[] = [
 	},
 	{
 		id: "aws-security-group",
-		name: "Security Group",
+		name: "SecurityGroup",
 		icon: "/aws_icons/architecture_group_icons/EC2-instance-contents_32.svg",
 		category: "Compute",
 		isContainer: true,
@@ -70,7 +71,7 @@ const awsServices: AWSService[] = [
 	},
 	{
 		id: "aws-auto-scaling",
-		name: "Auto Scaling",
+		name: "AutoScaling",
 		icon: "/aws_icons/architecture_service_icons/Arch_Compute/32/Arch_Amazon-EC2-Auto-Scaling_32.svg",
 		category: "Compute",
 		isContainer: true,
@@ -78,7 +79,7 @@ const awsServices: AWSService[] = [
 	},
 	{
 		id: "aws-elastic-beanstalk",
-		name: "Elastic Beanstalk",
+		name: "ElasticBeanstalk",
 		icon: "/aws_icons/architecture_service_icons/Arch_Compute/32/Arch_AWS-Elastic-Beanstalk_32.svg",
 		category: "Compute",
 		isContainer: true,
@@ -100,7 +101,7 @@ const awsServices: AWSService[] = [
 	},
 	{
 		id: "aws-app-runner",
-		name: "App Runner",
+		name: "AppRunner",
 		icon: "/aws_icons/architecture_service_icons/Arch_Compute/32/Arch_AWS-App-Runner_32.svg",
 		category: "Compute",
 		status: "in-development",
@@ -115,9 +116,9 @@ const awsServices: AWSService[] = [
 		isContainer: true,
 		status: "ready",
 	},
-		{
+	{
 		id: "aws-private-subnet",
-		name: "Private Subnet",
+		name: "PrivateSubnet",
 		icon: "/aws_icons/architecture_group_icons/Private-subnet_32.svg",
 		category: "Network",
 		isContainer: true,
@@ -125,7 +126,7 @@ const awsServices: AWSService[] = [
 	},
 	{
 		id: "aws-public-subnet",
-		name: "Public Subnet",
+		name: "PublicSubnet",
 		icon: "/aws_icons/architecture_group_icons/Public-subnet_32.svg",
 		category: "Network",
 		isContainer: true,
@@ -140,7 +141,7 @@ const awsServices: AWSService[] = [
 	},
 	{
 		id: "aws-route53",
-		name: "Route 53",
+		name: "Route53",
 		icon: "/aws_icons/architecture_service_icons/Arch_Networking-Content-Delivery/32/Arch_Amazon-Route-53_32.svg",
 		category: "Network",
 		isContainer: true,
@@ -148,40 +149,39 @@ const awsServices: AWSService[] = [
 	},
 	{
 		id: "aws-api-gateway",
-		name: "API Gateway",
+		name: "APIGateway",
 		icon: "/aws_icons/architecture_service_icons/Arch_Networking-Content-Delivery/32/Arch_Amazon-API-Gateway_32.svg",
 		category: "Network",
 		status: "in-development",
 	},
 	{
 		id: "aws-elb",
-		name: "Load Balancer",
+		name: "LoadBalancer",
 		icon: "/aws_icons/architecture_service_icons/Arch_Networking-Content-Delivery/32/Arch_Elastic-Load-Balancing_32.svg",
 		category: "Network",
 		status: "in-development",
 	},
 	{
 		id: "aws-direct-connect",
-		name: "Direct Connect",
+		name: "DirectConnect",
 		icon: "/aws_icons/architecture_service_icons/Arch_Networking-Content-Delivery/32/Arch_AWS-Direct-Connect_32.svg",
 		category: "Network",
 		status: "in-development",
 	},
 	{
 		id: "aws-global-accelerator",
-		name: "Global Accelerator",
+		name: "GlobalAccelerator",
 		icon: "/aws_icons/architecture_service_icons/Arch_Networking-Content-Delivery/32/Arch_AWS-Global-Accelerator_32.svg",
 		category: "Network",
 		status: "in-development",
 	},
 	{
 		id: "aws-transit-gateway",
-		name: "Transit Gateway",
+		name: "TransitGateway",
 		icon: "/aws_icons/architecture_service_icons/Arch_Networking-Content-Delivery/32/Arch_AWS-Transit-Gateway_32.svg",
 		category: "Network",
 		status: "in-development",
 	},
-
 
 	// Database Services
 	{
@@ -258,7 +258,7 @@ const awsServices: AWSService[] = [
 	},
 	{
 		id: "aws-s3-glacier",
-		name: "S3 Glacier",
+		name: "S3Glacier",
 		icon: "/aws_icons/architecture_service_icons/Arch_Storage/32/Arch_Amazon-Simple-Storage-Service-Glacier_32.svg",
 		category: "Storage",
 		status: "in-development",
@@ -272,7 +272,7 @@ const awsServices: AWSService[] = [
 	},
 	{
 		id: "aws-storage-gateway",
-		name: "Storage Gateway",
+		name: "StorageGateway",
 		icon: "/aws_icons/architecture_service_icons/Arch_Storage/32/Arch_AWS-Storage-Gateway_32.svg",
 		category: "Storage",
 		status: "in-development",
@@ -309,7 +309,7 @@ const awsServices: AWSService[] = [
 	},
 	{
 		id: "aws-secrets-manager",
-		name: "Secrets Manager",
+		name: "SecretsManager",
 		icon: "/aws_icons/architecture_service_icons/Arch_Security-Identity-Compliance/32/Arch_AWS-Secrets-Manager_32.svg",
 		category: "Security",
 		status: "in-development",
@@ -337,7 +337,7 @@ const awsServices: AWSService[] = [
 	},
 	{
 		id: "aws-security-hub",
-		name: "Security Hub",
+		name: "SecurityHub",
 		icon: "/aws_icons/architecture_service_icons/Arch_Security-Identity-Compliance/32/Arch_AWS-Security-Hub_32.svg",
 		category: "Security",
 		status: "in-development",
@@ -375,14 +375,14 @@ const awsServices: AWSService[] = [
 	},
 	{
 		id: "aws-systems-manager",
-		name: "Systems Manager",
+		name: "SystemsManager",
 		icon: "/aws_icons/architecture_service_icons/Arch_Management-Governance/32/Arch_AWS-Systems-Manager_32.svg",
 		category: "Management",
 		status: "in-development",
 	},
 	{
 		id: "aws-trusted-advisor",
-		name: "Trusted Advisor",
+		name: "TrustedAdvisor",
 		icon: "/aws_icons/architecture_service_icons/Arch_Management-Governance/32/Arch_AWS-Trusted-Advisor_32.svg",
 		category: "Management",
 		status: "in-development",
@@ -397,7 +397,7 @@ const awsServices: AWSService[] = [
 	},
 	{
 		id: "aws-control-tower",
-		name: "Control Tower",
+		name: "ControlTower",
 		icon: "/aws_icons/architecture_service_icons/Arch_Management-Governance/32/Arch_AWS-Control-Tower_32.svg",
 		category: "Management",
 		isContainer: true,
@@ -561,39 +561,48 @@ export default function ServicesSidebar({
 		<div className="relative">
 			{/* Sidebar */}
 			<div
-				className={`fixed top-16 left-0 bg-white border-r border-gray-300 shadow-lg transform transition-transform duration-300 ease-in-out z-40 ${
+				className={`fixed top-16 left-0 bg-white border-r border-gray-200 shadow-lg transform transition-transform duration-300 ease-in-out z-40 ${
 					isOpen ? "translate-x-0" : "-translate-x-full"
 				}`}
-				style={{ width: "280px", height: "calc(100vh - 4rem)" }}
+				style={{ width: "340px", height: "calc(100vh - 4rem)" }}
 			>
 				<div className="flex flex-col h-full">
 					{/* Header */}
-					<div className="p-0 border-b border-gray-200">
-						<div className="flex items-center justify-center">
+					<div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
+						<div className="flex items-center gap-3">
 							<Image
 								src="/aws_icons/architecture_group_icons/AWS-Cloud-logo_32_Dark.svg"
 								alt="AWS Logo"
-								width={64}
-								height={64}
+								width={50}
+								height={50}
 							/>
+							<div className="border-l border-gray-300 pl-3">
+								<h2 className="text-lg font-semibold text-gray-900">
+									AWS Services
+								</h2>
+								<p className="text-xs text-gray-600">Drag to add to canvas</p>
+							</div>
 						</div>
 					</div>
 
 					{/* Services List */}
-					<div className="flex-1 overflow-y-auto">
+					<div className="flex-1 overflow-y-auto bg-white">
 						{categories.map((category) => {
 							const services = getServicesForCategory(category);
 							const isExpanded = expandedCategories.has(category);
 
 							return (
-								<div key={category} className="">
+								<div
+									key={category}
+									className="border-b border-gray-100 last:border-b-0"
+								>
 									{/* Category Header */}
 									<button
 										onClick={() => toggleCategory(category)}
-										className="w-full flex items-center justify-between p-4 text-left hover:bg-gray-50 transition-colors border-b border-gray-200 mb-4"
+										className="w-full flex items-center justify-between px-6 py-4 text-left hover:bg-gray-50 transition-colors"
 									>
-										<div className="flex justify-center items-center space-x-3 ">
-											<div className="w-8 h-6 rounded flex items-center justify-center">
+										<div className="flex items-center space-x-3">
+											<div className="w-6 h-6 flex items-center justify-center">
 												{getCategoryIcon(category)}
 											</div>
 											<span className="font-medium text-gray-900">
@@ -609,7 +618,7 @@ export default function ServicesSidebar({
 
 									{/* Category Services */}
 									{isExpanded && (
-										<div className="px-4 pb-4">
+										<div className="px-6 pb-4">
 											{category === "Infrastructure" ? (
 												// Full-width layout for Infrastructure components
 												<div className="space-y-2">
@@ -620,17 +629,13 @@ export default function ServicesSidebar({
 															onDragStart={(event) =>
 																onDragStart(event, service)
 															}
-															className={`flex items-center p-3 border rounded-lg cursor-move transition-colors group bg-white border-gray-200 ${
-																service.isContainer
-																	? "hover:border-purple-500 hover:bg-purple-50"
-																	: "hover:border-blue-400 hover:bg-blue-50"
-															} ${
+															className={`flex items-center p-3 border rounded-lg cursor-move transition-colors group bg-white border-gray-200 hover:border-purple-300 hover:bg-purple-50 hover:shadow-sm ${
 																service.status === "in-development"
 																	? "opacity-50"
 																	: ""
 															}`}
 														>
-															<div className="relative w-8 h-8 mr-3 flex-shrink-0">
+															<div className="relative w-10 h-10 mr-3 flex-shrink-0">
 																<Image
 																	src={service.icon}
 																	alt={service.name}
@@ -655,17 +660,13 @@ export default function ServicesSidebar({
 															onDragStart={(event) =>
 																onDragStart(event, service)
 															}
-															className={`flex flex-col items-center p-2 border rounded-lg cursor-move transition-colors group bg-white border-gray-200 ${
-																service.isContainer
-																	? "hover:border-blue-500 hover:bg-blue-50"
-																	: "hover:border-blue-400 hover:bg-blue-50"
-															} ${
+															className={`flex flex-col items-center p-3 border rounded-lg cursor-move transition-colors group bg-white border-gray-200 hover:border-blue-300 hover:bg-blue-50 hover:shadow-sm ${
 																service.status === "in-development"
 																	? "opacity-50"
 																	: ""
 															}`}
 														>
-															<div className="relative w-8 h-8 mb-1">
+															<div className="relative w-10 h-10 mb-2">
 																<Image
 																	src={service.icon}
 																	alt={service.name}
@@ -674,9 +675,18 @@ export default function ServicesSidebar({
 																	sizes="32px"
 																/>
 															</div>
-															<span className="text-xs text-center text-gray-700 group-hover:text-blue-700 font-medium leading-tight">
-																{service.name}
-															</span>
+															<Tooltip>
+																<TooltipTrigger>
+																	<span className="text-xs text-center text-gray-800 group-hover:text-blue-700 leading-tight">
+																		{service.name.length > 7
+																			? `${service.name.slice(0, 7)}...`
+																			: service.name}
+																	</span>
+																</TooltipTrigger>
+																<TooltipContent side="bottom">
+																	{service.name}
+																</TooltipContent>
+															</Tooltip>
 														</div>
 													))}
 												</div>
@@ -693,9 +703,9 @@ export default function ServicesSidebar({
 			{/* Toggle Button - Attached to sidebar edge */}
 			<button
 				onClick={onToggle}
-				className={`fixed z-50 bg-white border border-gray-300 shadow-lg hover:bg-gray-50 transition-all duration-300 ease-in-out ${
+				className={`fixed z-50 bg-white border border-gray-200 shadow-lg hover:bg-gray-50 transition-all duration-300 ease-in-out ${
 					isOpen
-						? "left-[280px] rounded-r-lg border-l-0"
+						? "left-[340px] rounded-r-lg border-l-0"
 						: "left-0 rounded-r-lg"
 				}`}
 				style={{
@@ -708,11 +718,11 @@ export default function ServicesSidebar({
 				aria-label="Toggle Services Sidebar"
 			>
 				<svg
-					className={`w-5 h-5 transition-transform duration-300 ${
+					className={`w-5 h-5 transition-transform duration-300 text-gray-600 ${
 						isOpen ? "rotate-180" : ""
 					}`}
 					fill="none"
-					stroke="gray"
+					stroke="currentColor"
 					viewBox="0 0 24 24"
 				>
 					<path

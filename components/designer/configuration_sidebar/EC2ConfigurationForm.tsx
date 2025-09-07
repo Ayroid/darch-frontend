@@ -24,6 +24,8 @@ import { useConfigurationContext } from "@/lib/stores";
 import { useAutoConfiguration } from "@/hooks/use-auto-configuration";
 import { CollapsibleSection } from "@/components/shared/CollapsibleSection";
 import AutoConfigurationTooltip from "@/components/utilities/AutoConfigurationTooltip";
+import { TbSettings } from "react-icons/tb";
+import { FiCpu, FiDatabase } from "react-icons/fi";
 
 interface EC2ConfigurationFormProps {
 	config: EC2Configuration;
@@ -50,9 +52,6 @@ const EC2ConfigurationForm: React.FC<EC2ConfigurationFormProps> = ({
 
 	// Get auto-configuration info for fields
 	const regionInfo = getFieldInfo("awsRegionId");
-	const availabilityZoneInfo = getFieldInfo("awsAvailabilityZone");
-	const subnetIdInfo = getFieldInfo("subnetId");
-
 	// const handleTagChange = (key: string, value: string) => {
 	// 	const currentTags = config.tags || {};
 	// 	if (value === "") {
@@ -78,7 +77,7 @@ const EC2ConfigurationForm: React.FC<EC2ConfigurationFormProps> = ({
 
 	return (
 		<TooltipProvider>
-			<div className="space-y-6">
+			<div className="space-y-6 py-4">
 				{/* Auto-configured fields section */}
 				{(isFieldDisabled("awsRegionId") ||
 					isFieldDisabled("awsAvailabilityZone") ||
@@ -212,10 +211,11 @@ const EC2ConfigurationForm: React.FC<EC2ConfigurationFormProps> = ({
 				)}
 
 				{/* Basic Configuration */}
-				<div className="space-y-4">
-					<h3 className="text-sm font-semibold text-gray-700 border-b pb-2">
-						Basic Configuration
-					</h3>
+				<div className="space-y-4 px-4 pb-4 border-b">
+					<div className="flex items-center space-x-2 pb-2">
+						<TbSettings className="w-6 h-6 text-gray-600" />
+						<h3 className="font-medium text-gray-900">Basic Configuration</h3>
+					</div>
 
 					<div className="space-y-2">
 						<Label htmlFor="ec2-name">
@@ -276,10 +276,11 @@ const EC2ConfigurationForm: React.FC<EC2ConfigurationFormProps> = ({
 				</div>
 
 				{/* Instance Details */}
-				<div className="space-y-4">
-					<h3 className="text-sm font-semibold text-gray-700 border-b pb-2">
-						Instance Details
-					</h3>
+				<div className="space-y-4 px-4 pb-4 border-b">
+					<div className="flex items-center space-x-2 pb-2">
+						<FiCpu className="w-6 h-6 text-gray-600" />
+						<h3 className="font-medium text-gray-900">Instance Details</h3>
+					</div>
 
 					{/* AWS Region - only show if not auto-configured */}
 					{!isFieldDisabled("awsRegionId") && (
@@ -316,110 +317,6 @@ const EC2ConfigurationForm: React.FC<EC2ConfigurationFormProps> = ({
 						</div>
 					)}
 
-					{/* Availability Zone - only show if not auto-configured */}
-					{!isFieldDisabled("awsAvailabilityZone") && (
-						<div className="space-y-2">
-							<div className="flex items-center gap-2">
-								<Label htmlFor="availabilityZone">
-									Availability Zone<span className="text-red-600">*</span>
-								</Label>
-								{availabilityZoneInfo?.isAutoConfigured && (
-									<Tooltip>
-										<TooltipTrigger>
-											<Badge variant="secondary" className="text-xs">
-												Auto
-											</Badge>
-										</TooltipTrigger>
-										<TooltipContent>
-											<p>
-												Auto-configured from {availabilityZoneInfo.sourceName} (
-												{availabilityZoneInfo.sourceType})
-											</p>
-										</TooltipContent>
-									</Tooltip>
-								)}
-							</div>
-							<Input
-								id="availabilityZone"
-								value={config.awsAvailabilityZone || ""}
-								onChange={(e) =>
-									handleFieldChange("awsAvailabilityZone", e.target.value)
-								}
-								placeholder="e.g., us-east-1a"
-								disabled={isFieldDisabled("awsAvailabilityZone")}
-							/>
-						</div>
-					)}
-
-					{/* Subnet ID - only show if not auto-configured */}
-					{!isFieldDisabled("subnetId") && (
-						<div className="space-y-2">
-							<div className="flex items-center gap-2">
-								<Label htmlFor="subnetId">
-									Subnet ID<span className="text-red-600">*</span>
-								</Label>
-								{subnetIdInfo?.isAutoConfigured && (
-									<Tooltip>
-										<TooltipTrigger>
-											<Badge variant="secondary" className="text-xs">
-												Auto
-											</Badge>
-										</TooltipTrigger>
-										<TooltipContent>
-											<p>
-												Auto-configured from {subnetIdInfo.sourceName} (
-												{subnetIdInfo.sourceType})
-											</p>
-										</TooltipContent>
-									</Tooltip>
-								)}
-							</div>
-							<Input
-								id="subnetId"
-								value={config.subnetId || ""}
-								onChange={(e) => handleFieldChange("subnetId", e.target.value)}
-								placeholder="e.g., subnet-12345678"
-								disabled={isFieldDisabled("subnetId")}
-							/>
-						</div>
-					)}
-
-					{/* Security Groups - only show if not auto-configured */}
-					{!isFieldDisabled("securityGroups") && (
-						<div className="space-y-2">
-							<div className="flex items-center gap-2">
-								<Label htmlFor="securityGroups">
-									Security Groups<span className="text-red-600">*</span>
-								</Label>
-								{getFieldInfo("securityGroups")?.isAutoConfigured && (
-									<Tooltip>
-										<TooltipTrigger>
-											<Badge variant="secondary" className="text-xs">
-												Auto
-											</Badge>
-										</TooltipTrigger>
-										<TooltipContent>
-											<p>Auto-configured from Security Group containers</p>
-										</TooltipContent>
-									</Tooltip>
-								)}
-							</div>
-							<Textarea
-								id="securityGroups"
-								value={(config.securityGroups || []).join(", ")}
-								onChange={(e) =>
-									handleFieldChange(
-										"securityGroups",
-										e.target.value.split(", ").filter(Boolean)
-									)
-								}
-								placeholder="sg-12345678, sg-87654321"
-								className="min-h-[60px]"
-								disabled={isFieldDisabled("securityGroups")}
-							/>
-						</div>
-					)}
-
 					<div className="space-y-2">
 						<Label htmlFor="iamInstanceProfile">
 							IAM Instance Profile<span className="text-red-600">*</span>
@@ -436,10 +333,11 @@ const EC2ConfigurationForm: React.FC<EC2ConfigurationFormProps> = ({
 				</div>
 
 				{/* Storage */}
-				<div className="space-y-4">
-					<h3 className="text-sm font-semibold text-gray-700 border-b pb-2">
-						Storage
-					</h3>
+				<div className="space-y-4 px-4 pb-4">
+					<div className="flex items-center space-x-2 pb-2">
+						<FiDatabase className="w-6 h-6 text-gray-600" />
+						<h3 className="font-medium text-gray-900">Storage</h3>
+					</div>
 
 					<div className="space-y-2">
 						<Label htmlFor="rootVolumeSize">
