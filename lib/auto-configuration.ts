@@ -271,7 +271,7 @@ export function autoConfigureNode(
   // Process each auto field rule
   for (const [fieldName, rule] of Object.entries(rules.autoFields)) {
     console.log(`[autoConfigureNode] Processing field ${fieldName}`, { rule });
-    
+
     const parentTypes = rule.sourceParentType.split(',').map(type => type.trim());
 
     // Handle array fields (like security groups)
@@ -312,11 +312,11 @@ export function autoConfigureNode(
       // Standard single parent type auto-configuration
       const parentNode = findParentOfType(nodeId, parentTypes[0], nodes);
       console.log(`[autoConfigureNode] Looking for parent of type ${parentTypes[0]} for field ${fieldName}`, { parentNode: parentNode?.id });
-      
+
       if (parentNode) {
         const value = getParentConfigurationValue(parentNode, rule.sourceField, nodeConfigurations);
         console.log(`[autoConfigureNode] Got value from parent ${parentNode.id}:`, { sourceField: rule.sourceField, value });
-        
+
         if (value !== undefined && value !== "") {
           (updatedConfig as Record<string, unknown>)[fieldName] = value;
           autoPopulatedFields.push(fieldName);

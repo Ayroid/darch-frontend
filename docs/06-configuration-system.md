@@ -456,7 +456,7 @@ export const defaultConfigurations: Record<string, AWSResourceConfiguration> = {
     enableDnsHostnames: true,
     tags: "Environment=Development",
   } as VPCConfiguration,
-  
+
   "aws-ec2": {
     awsEc2Id: "EC2",
     instanceType: "t3.micro",

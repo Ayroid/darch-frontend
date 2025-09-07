@@ -505,18 +505,18 @@ export function updateNodeParentRelationshipsWithTracking(
   nodes: Node[],
   forceUpdate: boolean = false,
   isDragEnd: boolean = false
-): { 
-  updatedNodes: Node[], 
-  nodesWithChangedParents: Set<string> 
+): {
+  updatedNodes: Node[],
+  nodesWithChangedParents: Set<string>
 } {
   // ... parent relationship logic ...
-  
+
   // Track nodes whose parent relationships changed
   if (node.parentId !== newParentId) {
     updatedNode = updateNodeParentRelationship(updatedNode, newParentId, nodeMap);
     nodesWithChangedParents.add(node.id);
   }
-  
+
   return { updatedNodes, nodesWithChangedParents };
 }
 ```
@@ -786,8 +786,8 @@ console.log(`[autoConfigureNode] Processing node ${nodeId} of type ${nodeResourc
   currentConfig
 });
 
-console.log(`[autoConfigureNode] Looking for parent of type ${parentTypes[0]} for field ${fieldName}`, { 
-  parentNode: parentNode?.id 
+console.log(`[autoConfigureNode] Looking for parent of type ${parentTypes[0]} for field ${fieldName}`, {
+  parentNode: parentNode?.id
 });
 
 console.log(`[getParentConfigurationValue] Getting field ${fieldName} from parent ${parentNode.id}`, {
