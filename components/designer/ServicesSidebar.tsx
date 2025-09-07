@@ -586,7 +586,7 @@ export default function ServicesSidebar({
 					</div>
 
 					{/* Services List */}
-					<div className="flex-1 overflow-y-auto bg-white">
+					<div className="flex-1 overflow-y-auto bg-white hide-scrollbar">
 						{categories.map((category) => {
 							const services = getServicesForCategory(category);
 							const isExpanded = expandedCategories.has(category);

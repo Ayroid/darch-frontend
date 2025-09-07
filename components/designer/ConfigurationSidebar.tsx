@@ -234,7 +234,7 @@ export default function ConfigurationSidebar({
 				</div>
 
 				{/* Content */}
-				<div className="flex-1 overflow-y-auto bg-white">
+				<div className="flex-1 overflow-y-auto bg-white hide-scrollbar">
 					{renderConfigurationForm()}
 				</div>
 			</div>
