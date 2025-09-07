@@ -4,130 +4,154 @@
     "description": "Minimal setup with just an EC2 instance in a VPC for learning",
     "version": "1.0.0",
     "createdAt": "2025-09-04T12:00:00.000Z",
-    "lastModified": "2025-09-04T17:42:37.408Z",
+    "lastModified": "2025-09-07T11:04:24.659Z",
     "provider": "aws"
   },
   "nodes": [
     {
-      "id": "aws-region-1757007709382382",
+      "id": "aws-region-cgvxmx",
       "nodeType": "awsContainer",
       "resourceType": "aws-region",
       "name": "AWS Region",
       "icon": "/aws_icons/architecture_group_icons/AWS-Cloud_32.svg",
       "position": {
-        "x": -212.19143795020625,
-        "y": 44.82185685601672
+        "x": 309,
+        "y": 56
       },
       "dimensions": {
-        "width": 502,
-        "height": 423
+        "width": 698,
+        "height": 547
       },
       "configuration": {
-        "resourceName": "AWS Region",
+        "awsRegionId": "AWS Region",
         "region": "us-east-1",
         "regionName": "US East (N. Virginia)",
         "description": "",
         "isEnabled": true,
         "isDefault": true,
         "tags": "Type=Region"
-      },
-      "isContainer": true
+      }
     },
     {
-      "id": "aws-availability-zone-1757007715705705",
+      "id": "aws-availability-zone-92rm6l",
       "nodeType": "awsContainer",
       "resourceType": "aws-availability-zone",
       "name": "Availability Zone",
       "icon": "/aws_icons/architecture_group_icons/Region_32.svg",
       "position": {
-        "x": 31.331004498447413,
-        "y": 33.22985325592906
+        "x": 29.241353137658848,
+        "y": 32.45131158625878
       },
       "dimensions": {
-        "width": 452,
-        "height": 372
+        "width": 638,
+        "height": 490
       },
       "configuration": {
-        "resourceName": "Availability Zone",
-        "region": "us-east-1",
+        "awsAvailabilityZoneId": "Availability Zone",
+        "awsRegionId": "us-east-1",
         "availabilityZone": "us-east-1a",
         "description": "",
         "isEnabled": true,
         "isPreferred": false,
         "tags": "Type=AvailabilityZone"
       },
-      "isContainer": true,
-      "parentId": "aws-region-1757007709382382"
+      "parentId": "aws-region-cgvxmx"
     },
     {
-      "id": "aws-vpc-1757007724788788",
+      "id": "aws-vpc-jb40z7",
       "nodeType": "awsContainer",
       "resourceType": "aws-vpc",
       "name": "VPC",
       "icon": "/aws_icons/architecture_service_icons/Arch_Networking-Content-Delivery/32/Arch_Amazon-Virtual-Private-Cloud_32.svg",
       "position": {
-        "x": 28.48273136222494,
-        "y": 29.43215574096577
+        "x": 28.35549804269897,
+        "y": 29.18948327924889
       },
       "dimensions": {
-        "width": 401,
-        "height": 317
+        "width": 580,
+        "height": 430
       },
       "configuration": {
-        "resourceName": "VPC",
+        "awsVpcId": "VPC",
         "cidrBlock": "10.0.0.0/16",
-        "region": "us-east-1",
+        "awsRegionId": "us-east-1",
         "enableDnsSupport": true,
         "enableDnsHostnames": true,
         "tags": "Environment=Development"
       },
-      "isContainer": true,
-      "parentId": "aws-availability-zone-1757007715705705"
+      "parentId": "aws-availability-zone-92rm6l"
     },
     {
-      "id": "aws-public-subnet-1757007744794794",
+      "id": "aws-private-subnet-dv0mrf",
+      "nodeType": "awsContainer",
+      "resourceType": "aws-private-subnet",
+      "name": "Private Subnet",
+      "icon": "/aws_icons/architecture_group_icons/Private-subnet_32.svg",
+      "position": {
+        "x": 25.019557096499,
+        "y": 29.18948327924889
+      },
+      "dimensions": {
+        "width": 256,
+        "height": 371
+      },
+      "configuration": {
+        "awsPrivateSubnetId": "Private Subnet",
+        "cidrBlock": "10.0.1.0/24",
+        "awsAvailabilityZone": "us-east-1a",
+        "awsVpcId": "aws-vpc-jb40z7",
+        "awsRegionId": "us-east-1",
+        "description": "",
+        "mapPublicIpOnLaunch": false,
+        "enableNatGateway": false,
+        "tags": "Type=Private"
+      },
+      "parentId": "aws-vpc-jb40z7"
+    },
+    {
+      "id": "aws-public-subnet-iwxt8e",
       "nodeType": "awsContainer",
       "resourceType": "aws-public-subnet",
       "name": "Public Subnet",
       "icon": "/aws_icons/architecture_group_icons/Public-subnet_32.svg",
       "position": {
-        "x": 28.48273136222491,
-        "y": 28.48273136222491
+        "x": 301.06867039453823,
+        "y": 28.355498042698912
       },
       "dimensions": {
-        "width": 345,
-        "height": 266
+        "width": 250,
+        "height": 369
       },
       "configuration": {
-        "resourceName": "Public Subnet",
+        "awsPublicSubnetId": "Public Subnet",
         "cidrBlock": "10.0.0.0/24",
-        "availabilityZone": "us-east-1a",
-        "vpcId": "",
-        "region": "us-east-1",
+        "awsAvailabilityZone": "us-east-1a",
+        "awsVpcId": "aws-vpc-jb40z7",
+        "awsRegionId": "us-east-1",
         "description": "",
         "mapPublicIpOnLaunch": true,
         "tags": "Type=Public"
       },
-      "isContainer": true,
-      "parentId": "aws-vpc-1757007724788788"
+      "parentId": "aws-vpc-jb40z7"
     },
     {
-      "id": "aws-ec2-1757007751858858",
+      "id": "aws-ec2-bsa04e",
       "nodeType": "awsService",
       "resourceType": "aws-ec2",
       "name": "EC2",
       "icon": "/aws_icons/architecture_service_icons/Arch_Compute/32/Arch_Amazon-EC2_32.svg",
       "position": {
-        "x": 126.2734423725305,
-        "y": 80.7010721929706
+        "x": 73.39070081639727,
+        "y": 136.77357879419472
       },
       "configuration": {
-        "resourceName": "EC2",
+        "awsEc2Id": "EC2",
         "instanceType": "t3.micro",
         "amiId": "ami-0c55b159cbfafe1d0",
         "keyPairName": "",
-        "availabilityZone": "us-east-1a",
-        "subnetId": "",
+        "awsRegionId": "us-east-1",
+        "awsAvailabilityZone": "us-east-1a",
+        "subnetId": "aws-public-subnet-iwxt8e",
         "securityGroups": [],
         "rootVolumeSize": 8,
         "rootVolumeType": "gp3",
@@ -138,11 +162,41 @@
         "autoRecovery": true,
         "associatePublicIpAddress": false,
         "tenancy": "default",
-        "tags": {},
-        "region": "us-east-1"
+        "tags": {}
       },
-      "isContainer": false,
-      "parentId": "aws-public-subnet-1757007744794794"
+      "parentId": "aws-public-subnet-iwxt8e"
+    },
+    {
+      "id": "aws-ec2-5ea1df",
+      "nodeType": "awsService",
+      "resourceType": "aws-ec2",
+      "name": "EC2",
+      "icon": "/aws_icons/architecture_service_icons/Arch_Compute/32/Arch_Amazon-EC2_32.svg",
+      "position": {
+        "x": 99.63856481501296,
+        "y": 131.4801984683213
+      },
+      "configuration": {
+        "awsEc2Id": "EC2",
+        "instanceType": "t3.micro",
+        "amiId": "ami-0c55b159cbfafe1d0",
+        "keyPairName": "",
+        "awsRegionId": "us-east-1",
+        "awsAvailabilityZone": "us-east-1a",
+        "subnetId": "aws-private-subnet-dv0mrf",
+        "securityGroups": [],
+        "rootVolumeSize": 8,
+        "rootVolumeType": "gp3",
+        "deleteOnTermination": true,
+        "encrypted": false,
+        "detailedMonitoring": false,
+        "terminationProtection": false,
+        "autoRecovery": true,
+        "associatePublicIpAddress": false,
+        "tenancy": "default",
+        "tags": {}
+      },
+      "parentId": "aws-private-subnet-dv0mrf"
     }
   ],
   "connections": [],
