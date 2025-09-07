@@ -12,7 +12,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { AWSRegionConfiguration } from "@/lib/types/aws-resources";
 import { AWS_REGIONS_WITH_NAMES } from "@/lib/data/aws_regions";
-import AutoConfigurationTooltip from "@/components/utilities/AutoConfigurationTooltip";
+import { CollapsibleSection } from "@/components/shared/CollapsibleSection";
+import { FiGlobe } from "react-icons/fi";
 
 interface AWSRegionConfigurationFormProps {
 	config: AWSRegionConfiguration;
@@ -46,91 +47,59 @@ const AWSRegionConfigurationForm: React.FC<AWSRegionConfigurationFormProps> = ({
 	};
 
 	return (
-		<div className="space-y-4">
-			<div className="space-y-2">
-				<Label htmlFor="region-name">
-					Region Name <span className="text-red-600">*</span>
-				</Label>
-				<Input
-					id="region-name"
-					placeholder="Enter Region name"
-					value={config.awsRegionId || ""}
-					onChange={(e) => handleFieldChange("awsRegionId", e.target.value)}
-				/>
-			</div>
-			<div className="space-y-2">
-				<Label htmlFor="region">
-					AWS Region<span className="text-red-600">*</span>
-				</Label>
-				<Select value={config.region || ""} onValueChange={handleRegionChange}>
-					<SelectTrigger className="w-full">
-						<SelectValue placeholder="Select AWS region" />
-					</SelectTrigger>
-					<SelectContent>
-						{AWS_REGIONS_WITH_NAMES.map((availableRegion) => (
-							<SelectItem
-								key={availableRegion.region}
-								value={availableRegion.region}
-							>
-								{availableRegion.region}
-							</SelectItem>
-						))}
-					</SelectContent>
-				</Select>
-			</div>
-			{/* Region Name */}
-			<div className="relative space-y-2">
-				<Label htmlFor="region-name">Name</Label>
-				<Input
-					id="region-name"
-					placeholder="Enter region name"
-					value={config.regionName || ""}
-					disabled
-					onChange={(e) => handleFieldChange("regionName", e.target.value)}
-				/>
-				<div className="absolute top-1/2 right-2">
-					<AutoConfigurationTooltip parentContainer="Region" />
+		<div className="space-y-4 py-4">
+			{/* Region Configuration */}
+			<CollapsibleSection
+				title="Region Configuration"
+				icon={<FiGlobe className="h-5 w-5 text-gray-600" />}
+				defaultOpen={true}
+				borderbottom={false}
+			>
+				<div className="space-y-4">
+					<div className="space-y-2">
+						<Label htmlFor="region-name">
+							Region Name <span className="text-red-600">*</span>
+						</Label>
+						<Input
+							id="region-name"
+							placeholder="Enter Region name"
+							value={config.awsRegionId || ""}
+							onChange={(e) => handleFieldChange("awsRegionId", e.target.value)}
+						/>
+					</div>
+					<div className="space-y-2">
+						<Label htmlFor="region">
+							AWS Region<span className="text-red-600">*</span>
+						</Label>
+						<Select value={config.region || ""} onValueChange={handleRegionChange}>
+							<SelectTrigger className="w-full">
+								<SelectValue placeholder="Select AWS region" />
+							</SelectTrigger>
+							<SelectContent>
+								{AWS_REGIONS_WITH_NAMES.map((availableRegion) => (
+									<SelectItem
+										key={availableRegion.region}
+										value={availableRegion.region}
+									>
+										{availableRegion.region}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+					</div>
+					{/* Region Name */}
+					<div className="relative space-y-2">
+						<Label htmlFor="region-name">Name</Label>
+						<Input
+							id="region-name"
+							placeholder="Enter region name"
+							value={config.regionName || ""}
+							disabled
+							onChange={(e) => handleFieldChange("regionName", e.target.value)}
+						/>
+					</div>
 				</div>
-			</div>
-			{/* Region Description */}
-			{/* <div className="space-y-2">
-				<Label htmlFor="description">Description</Label>
-				<Textarea
-					id="description"
-					placeholder="Region description"
-					value={config.description || ""}
-					onChange={(e) => handleFieldChange("description", e.target.value)}
-				/>
-			</div> */}
-			{/* Enable Region */}
-			{/* <div className="flex items-center space-x-2">
-				<Checkbox
-					id="enabled"
-					checked={config.isEnabled ?? true}
-					onCheckedChange={(checked) => handleFieldChange("isEnabled", checked)}
-				/>
-				<Label htmlFor="enabled">Enable Region</Label>
-			</div> */}
-			{/* Default Region */}
-			{/* <div className="flex items-center space-x-2">
-				<Checkbox
-					id="default-region"
-					checked={config.isDefault ?? false}
-					onCheckedChange={(checked) => handleFieldChange("isDefault", checked)}
-				/>
-				<Label htmlFor="default-region">Set as Default Region</Label>
-			</div> */}
-
-			{/* Tags */}
-			{/* <div className="space-y-2">
-				<Label htmlFor="tags">Tags (key=value, separated by commas)</Label>
-				<Textarea
-					id="tags"
-					placeholder="Environment=Production, Owner=TeamA"
-					value={config.tags || ""}
-					onChange={(e) => handleFieldChange("tags", e.target.value)}
-				/>
-			</div> */}
+			</CollapsibleSection>
 		</div>
 	);
 };

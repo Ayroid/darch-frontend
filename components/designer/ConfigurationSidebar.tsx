@@ -215,7 +215,7 @@ export default function ConfigurationSidebar({
 						</div>
 						<div className="border-l border-gray-300 pl-3">
 							<h2 className="text-lg font-semibold text-gray-900">
-								Configuration
+								AWS {getServiceName()}
 							</h2>
 							{selectedNode && (
 								<Tooltip>

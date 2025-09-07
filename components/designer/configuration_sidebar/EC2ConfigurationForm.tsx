@@ -24,7 +24,7 @@ import { useConfigurationContext } from "@/lib/stores";
 import { useAutoConfiguration } from "@/hooks/use-auto-configuration";
 import { CollapsibleSection } from "@/components/shared/CollapsibleSection";
 import AutoConfigurationTooltip from "@/components/utilities/AutoConfigurationTooltip";
-import { TbSettings } from "react-icons/tb";
+import { TbSettings, TbSettingsSpark } from "react-icons/tb";
 import { FiCpu, FiDatabase } from "react-icons/fi";
 
 interface EC2ConfigurationFormProps {
@@ -50,8 +50,6 @@ const EC2ConfigurationForm: React.FC<EC2ConfigurationFormProps> = ({
 		onChange(updatedConfig);
 	};
 
-	// Get auto-configuration info for fields
-	const regionInfo = getFieldInfo("awsRegionId");
 	// const handleTagChange = (key: string, value: string) => {
 	// 	const currentTags = config.tags || {};
 	// 	if (value === "") {
@@ -85,7 +83,7 @@ const EC2ConfigurationForm: React.FC<EC2ConfigurationFormProps> = ({
 					isFieldDisabled("securityGroups")) && (
 					<CollapsibleSection
 						title="Auto Configured Fields"
-						icon={<TbSettings className="w-6 h-6 text-gray-600" />}
+						icon={<TbSettingsSpark className="w-6 h-6 text-gray-600" />}
 					>
 						<div className="space-y-4">
 							{/* AWS Region */}
@@ -288,41 +286,6 @@ const EC2ConfigurationForm: React.FC<EC2ConfigurationFormProps> = ({
 					icon={<FiCpu className="w-6 h-6 text-gray-600" />}
 				>
 					<div className="space-y-4">
-						{/* AWS Region - only show if not auto-configured */}
-						{!isFieldDisabled("awsRegionId") && (
-							<div className="space-y-2">
-								<div className="flex items-center gap-2">
-									<Label htmlFor="region">
-										AWS Region<span className="text-red-600">*</span>
-									</Label>
-									{regionInfo?.isAutoConfigured && (
-										<Tooltip>
-											<TooltipTrigger>
-												<Badge variant="secondary" className="text-xs">
-													Auto
-												</Badge>
-											</TooltipTrigger>
-											<TooltipContent>
-												<p>
-													Auto-configured from {regionInfo.sourceName} (
-													{regionInfo.sourceType})
-												</p>
-											</TooltipContent>
-										</Tooltip>
-									)}
-								</div>
-								<Input
-									id="region"
-									value={config.awsRegionId || ""}
-									onChange={(e) =>
-										handleFieldChange("awsRegionId", e.target.value)
-									}
-									placeholder="e.g., us-east-1"
-									disabled={isFieldDisabled("awsRegionId")}
-								/>
-							</div>
-						)}
-
 						<div className="space-y-2">
 							<Label htmlFor="iamInstanceProfile">
 								IAM Instance Profile<span className="text-red-600">*</span>

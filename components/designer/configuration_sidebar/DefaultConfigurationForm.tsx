@@ -4,8 +4,9 @@ import React from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-
 import { DefaultConfiguration } from "@/lib/types/aws-resources";
+import { CollapsibleSection } from "@/components/shared/CollapsibleSection";
+import { TbSettings } from "react-icons/tb";
 
 interface DefaultConfigurationFormProps {
 	config: DefaultConfiguration;
@@ -26,24 +27,33 @@ export default function DefaultConfigurationForm({
 
 	return (
 		<div className="space-y-4">
-			<div className="space-y-2">
-				<Label htmlFor="service-name">Service Name</Label>
-				<Input
-					id="service-name"
-					placeholder="Enter service name"
-					value={(config.awsResourceId as string) || ""}
-					onChange={(e) => handleFieldChange("awsResourceId", e.target.value)}
-				/>
-			</div>
-			<div className="space-y-2">
-				<Label htmlFor="description">Description</Label>
-				<Textarea
-					id="description"
-					placeholder="Enter description"
-					value={(config.description as string) || ""}
-					onChange={(e) => handleFieldChange("description", e.target.value)}
-				/>
-			</div>
+			{/* Basic Configuration */}
+			<CollapsibleSection
+				title="Basic Configuration"
+				icon={<TbSettings className="h-4 w-4" />}
+				defaultOpen={true}
+			>
+				<div className="space-y-4">
+					<div className="space-y-2">
+						<Label htmlFor="service-name">Service Name</Label>
+						<Input
+							id="service-name"
+							placeholder="Enter service name"
+							value={(config.awsResourceId as string) || ""}
+							onChange={(e) => handleFieldChange("awsResourceId", e.target.value)}
+						/>
+					</div>
+					<div className="space-y-2">
+						<Label htmlFor="description">Description</Label>
+						<Textarea
+							id="description"
+							placeholder="Enter description"
+							value={(config.description as string) || ""}
+							onChange={(e) => handleFieldChange("description", e.target.value)}
+						/>
+					</div>
+				</div>
+			</CollapsibleSection>
 		</div>
 	);
 }
