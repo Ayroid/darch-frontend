@@ -26,12 +26,13 @@ export default function DefaultConfigurationForm({
 	};
 
 	return (
-		<div className="space-y-4">
+		<div className="space-y-4 py-4">
 			{/* Basic Configuration */}
 			<CollapsibleSection
 				title="Basic Configuration"
 				icon={<TbSettings className="h-4 w-4" />}
 				defaultOpen={true}
+				borderbottom={false}
 			>
 				<div className="space-y-4">
 					<div className="space-y-2">

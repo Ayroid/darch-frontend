@@ -116,7 +116,7 @@ export default function ConfigurationSidebar({
 	const renderConfigurationForm = () => {
 		if (!selectedNode) {
 			return (
-				<div className="flex flex-col items-center justify-center h-full text-center">
+				<div className="flex flex-col items-center justify-center h-full text-center px-6">
 					<div className="w-20 h-20 rounded-xl bg-blue-100 flex items-center justify-center mb-6">
 						<TbCube className="w-12 h-12 text-blue-600" />
 					</div>
