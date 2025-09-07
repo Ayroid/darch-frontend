@@ -23,6 +23,7 @@ import { ec2InstanceTypes, ebsVolumeTypes } from "@/lib/data/aws_ec2";
 import { useConfigurationContext } from "@/lib/stores";
 import { useAutoConfiguration } from "@/hooks/use-auto-configuration";
 import { CollapsibleSection } from "@/components/shared/CollapsibleSection";
+import AutoConfigurationTooltip from "@/components/utilities/AutoConfigurationTooltip";
 
 interface EC2ConfigurationFormProps {
 	config: EC2Configuration;
@@ -83,89 +84,59 @@ const EC2ConfigurationForm: React.FC<EC2ConfigurationFormProps> = ({
 					isFieldDisabled("awsAvailabilityZone") ||
 					isFieldDisabled("subnetId") ||
 					isFieldDisabled("securityGroups")) && (
-					<CollapsibleSection
-						title="Auto-configured Fields"
-						defaultOpen={false}
-					>
+					<CollapsibleSection title="Auto Configured Fields" defaultOpen={true}>
 						{/* AWS Region */}
 						{isFieldDisabled("awsRegionId") && (
 							<div className="space-y-2">
 								<div className="flex items-center gap-2">
 									<Label htmlFor="region">
-										AWS Region<span className="text-red-600">*</span>
+										AWS Region <span className="text-red-600">*</span>
 									</Label>
-									{regionInfo?.isAutoConfigured && (
-										<Tooltip>
-											<TooltipTrigger>
-												<Badge variant="secondary" className="text-xs">
-													Auto
-												</Badge>
-											</TooltipTrigger>
-											<TooltipContent>
-												<p>
-													Auto-configured from {regionInfo.sourceName} (
-													{regionInfo.sourceType})
-												</p>
-											</TooltipContent>
-										</Tooltip>
+								</div>
+								<div className="relative">
+									<Input
+										id="region"
+										placeholder="Enter AWS region"
+										value={config.awsRegionId || ""}
+										onChange={(e) =>
+											handleFieldChange("awsRegionId", e.target.value)
+										}
+										disabled={isFieldDisabled("awsRegionId")}
+									/>
+									{isFieldDisabled("awsRegionId") && (
+										<div className="absolute top-1/2 right-2 transform -translate-y-1/2">
+											<AutoConfigurationTooltip parentContainer="Region" />
+										</div>
 									)}
 								</div>
-								<Input
-									id="region"
-									value={config.awsRegionId || ""}
-									onChange={(e) =>
-										handleFieldChange("awsRegionId", e.target.value)
-									}
-									placeholder="e.g., us-east-1"
-									disabled={isFieldDisabled("awsRegionId")}
-								/>
-								{isFieldDisabled("awsRegionId") && (
-									<p className="text-xs text-muted-foreground">
-										This field is automatically configured based on the
-										container hierarchy.
-									</p>
-								)}
 							</div>
 						)}
 
-						{/* Availability Zone */}
+						{/* Availability Zone - auto-configured */}
 						{isFieldDisabled("awsAvailabilityZone") && (
 							<div className="space-y-2">
 								<div className="flex items-center gap-2">
-									<Label htmlFor="availabilityZone">
-										Availability Zone<span className="text-red-600">*</span>
+									<Label htmlFor="availability-zone">
+										AWS Availability Zone{" "}
+										<span className="text-red-600">*</span>
 									</Label>
-									{availabilityZoneInfo?.isAutoConfigured && (
-										<Tooltip>
-											<TooltipTrigger>
-												<Badge variant="secondary" className="text-xs">
-													Auto
-												</Badge>
-											</TooltipTrigger>
-											<TooltipContent>
-												<p>
-													Auto-configured from {availabilityZoneInfo.sourceName}{" "}
-													({availabilityZoneInfo.sourceType})
-												</p>
-											</TooltipContent>
-										</Tooltip>
+								</div>
+								<div className="relative">
+									<Input
+										id="availability-zone"
+										placeholder="Enter AWS availability zone"
+										value={config.awsAvailabilityZone || ""}
+										onChange={(e) =>
+											handleFieldChange("awsAvailabilityZone", e.target.value)
+										}
+										disabled={isFieldDisabled("awsAvailabilityZone")}
+									/>
+									{isFieldDisabled("awsAvailabilityZone") && (
+										<div className="absolute top-1/2 right-2 transform -translate-y-1/2">
+											<AutoConfigurationTooltip parentContainer="Availability Zone" />
+										</div>
 									)}
 								</div>
-								<Input
-									id="availabilityZone"
-									value={config.awsAvailabilityZone || ""}
-									onChange={(e) =>
-										handleFieldChange("awsAvailabilityZone", e.target.value)
-									}
-									placeholder="e.g., us-east-1a"
-									disabled={isFieldDisabled("awsAvailabilityZone")}
-								/>
-								{isFieldDisabled("awsAvailabilityZone") && (
-									<p className="text-xs text-muted-foreground">
-										This field is automatically configured based on the
-										container hierarchy.
-									</p>
-								)}
 							</div>
 						)}
 
@@ -174,39 +145,25 @@ const EC2ConfigurationForm: React.FC<EC2ConfigurationFormProps> = ({
 							<div className="space-y-2">
 								<div className="flex items-center gap-2">
 									<Label htmlFor="subnetId">
-										Subnet ID<span className="text-red-600">*</span>
+										Subnet ID <span className="text-red-600">*</span>
 									</Label>
-									{subnetIdInfo?.isAutoConfigured && (
-										<Tooltip>
-											<TooltipTrigger>
-												<Badge variant="secondary" className="text-xs">
-													Auto
-												</Badge>
-											</TooltipTrigger>
-											<TooltipContent>
-												<p>
-													Auto-configured from {subnetIdInfo.sourceName} (
-													{subnetIdInfo.sourceType})
-												</p>
-											</TooltipContent>
-										</Tooltip>
+								</div>
+								<div className="relative">
+									<Input
+										id="subnetId"
+										placeholder="e.g., subnet-12345678"
+										value={config.subnetId || ""}
+										onChange={(e) =>
+											handleFieldChange("subnetId", e.target.value)
+										}
+										disabled={isFieldDisabled("subnetId")}
+									/>
+									{isFieldDisabled("subnetId") && (
+										<div className="absolute top-1/2 right-2 transform -translate-y-1/2">
+											<AutoConfigurationTooltip parentContainer="Subnet" />
+										</div>
 									)}
 								</div>
-								<Input
-									id="subnetId"
-									value={config.subnetId || ""}
-									onChange={(e) =>
-										handleFieldChange("subnetId", e.target.value)
-									}
-									placeholder="e.g., subnet-12345678"
-									disabled={isFieldDisabled("subnetId")}
-								/>
-								{isFieldDisabled("subnetId") && (
-									<p className="text-xs text-muted-foreground">
-										This field is automatically configured based on the
-										container hierarchy.
-									</p>
-								)}
 							</div>
 						)}
 

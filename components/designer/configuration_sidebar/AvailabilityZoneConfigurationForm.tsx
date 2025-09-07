@@ -48,7 +48,7 @@ const AvailabilityZoneConfigurationForm: React.FC<
 		<div className="space-y-6">
 			{/* Auto-configured fields section */}
 			{isFieldDisabled("awsRegionId") && (
-				<CollapsibleSection title="Auto-configured Fields" defaultOpen={false}>
+				<CollapsibleSection title="Auto Configured Fields" defaultOpen={true}>
 					<div className="space-y-2">
 						<div className="flex items-center gap-2">
 							<Label htmlFor="region">
@@ -95,33 +95,6 @@ const AvailabilityZoneConfigurationForm: React.FC<
 						}
 					/>
 				</div>
-
-				{/* AWS Region - only show if not auto-configured */}
-				{!isFieldDisabled("awsRegionId") && (
-					<div className="space-y-2">
-						<div className="flex items-center gap-2">
-							<Label htmlFor="region">
-								AWS Region <span className="text-red-600">*</span>
-							</Label>
-						</div>
-						<div className="relative">
-							<Input
-								id="region"
-								placeholder="Enter AWS region"
-								value={config.awsRegionId || ""}
-								onChange={(e) =>
-									handleFieldChange("awsRegionId", e.target.value)
-								}
-								disabled={isFieldDisabled("awsRegionId")}
-							/>
-							{isFieldDisabled("awsRegionId") && (
-								<div className="absolute top-1/2 right-2 transform -translate-y-1/2">
-									<AutoConfigurationTooltip parentContainer="Region" />
-								</div>
-							)}
-						</div>
-					</div>
-				)}
 
 				<div className="space-y-2">
 					<Label htmlFor="availability-zone">

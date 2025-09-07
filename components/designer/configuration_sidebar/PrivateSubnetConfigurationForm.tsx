@@ -37,7 +37,7 @@ const PrivateSubnetConfigurationForm: React.FC<
 			{(isFieldDisabled("awsVpcId") ||
 				isFieldDisabled("awsRegionId") ||
 				isFieldDisabled("awsAvailabilityZone")) && (
-				<CollapsibleSection title="Auto-configured Fields" defaultOpen={false}>
+				<CollapsibleSection title="Auto Configured Fields" defaultOpen={true}>
 					{/* VPC ID - auto-configured */}
 					{isFieldDisabled("awsVpcId") && (
 						<div className="space-y-2">
@@ -140,29 +140,6 @@ const PrivateSubnetConfigurationForm: React.FC<
 					/>
 				</div>
 
-				{/* VPC ID - only show if not auto-configured */}
-				{!isFieldDisabled("awsVpcId") && (
-					<div className="space-y-2">
-						<Label htmlFor="vpc-id">
-							VPC ID <span className="text-red-600">*</span>
-						</Label>
-						<div className="relative">
-							<Input
-								id="vpc-id"
-								placeholder="vpc-xxxxxxxxx"
-								value={config.awsVpcId || ""}
-								onChange={(e) => handleFieldChange("awsVpcId", e.target.value)}
-								disabled={isFieldDisabled("awsVpcId")}
-							/>
-							{isFieldDisabled("awsVpcId") && (
-								<div className="absolute top-1/2 right-2 transform -translate-y-1/2">
-									<AutoConfigurationTooltip parentContainer="VPC" />
-								</div>
-							)}
-						</div>
-					</div>
-				)}
-
 				{/* CIDR Block */}
 				<div className="space-y-2">
 					<Label htmlFor="cidr-block">
@@ -175,60 +152,6 @@ const PrivateSubnetConfigurationForm: React.FC<
 						onChange={(e) => handleFieldChange("cidrBlock", e.target.value)}
 					/>
 				</div>
-
-				{/* Region - only show if not auto-configured */}
-				{!isFieldDisabled("awsRegionId") && (
-					<div className="space-y-2">
-						<div className="flex items-center gap-2">
-							<Label htmlFor="region">
-								AWS Region <span className="text-red-600">*</span>
-							</Label>
-						</div>
-						<div className="relative">
-							<Input
-								id="region"
-								placeholder="Enter AWS region"
-								value={config.awsRegionId || ""}
-								onChange={(e) =>
-									handleFieldChange("awsRegionId", e.target.value)
-								}
-								disabled={isFieldDisabled("awsRegionId")}
-							/>
-							{isFieldDisabled("awsRegionId") && (
-								<div className="absolute top-1/2 right-2 transform -translate-y-1/2">
-									<AutoConfigurationTooltip parentContainer="Region" />
-								</div>
-							)}
-						</div>
-					</div>
-				)}
-
-				{/* Availability Zone - only show if not auto-configured */}
-				{!isFieldDisabled("awsAvailabilityZone") && (
-					<div className="space-y-2">
-						<div className="flex items-center gap-2">
-							<Label htmlFor="availability-zone">
-								AWS Availability Zone <span className="text-red-600">*</span>
-							</Label>
-						</div>
-						<div className="relative">
-							<Input
-								id="availability-zone"
-								placeholder="Enter AWS availability zone"
-								value={config.awsAvailabilityZone || ""}
-								onChange={(e) =>
-									handleFieldChange("awsAvailabilityZone", e.target.value)
-								}
-								disabled={isFieldDisabled("awsAvailabilityZone")}
-							/>
-							{isFieldDisabled("awsAvailabilityZone") && (
-								<div className="absolute top-1/2 right-2 transform -translate-y-1/2">
-									<AutoConfigurationTooltip parentContainer="Availability Zone" />
-								</div>
-							)}
-						</div>
-					</div>
-				)}
 			</div>
 		</div>
 	);

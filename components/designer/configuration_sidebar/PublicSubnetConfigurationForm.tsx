@@ -37,7 +37,7 @@ const PublicSubnetConfigurationForm: React.FC<
 			{(isFieldDisabled("awsVpcId") ||
 				isFieldDisabled("awsRegionId") ||
 				isFieldDisabled("awsAvailabilityZone")) && (
-				<CollapsibleSection title="Auto-configured Fields" defaultOpen={false}>
+				<CollapsibleSection title="Auto Configured Fields" defaultOpen={true}>
 					{/* VPC ID - auto-configured */}
 					{isFieldDisabled("awsVpcId") && (
 						<div className="space-y-2">
