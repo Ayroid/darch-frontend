@@ -242,7 +242,9 @@ export const useArchitectureStore = create<
 						// Note: Node ID should be generated before calling addNode
 						// ID generation is handled by getNodeId() in nodeUtils.tsx
 						if (!node.id) {
-							console.warn("Node ID not provided to addNode - this should be generated beforehand");
+							console.warn(
+								"Node ID not provided to addNode - this should be generated beforehand"
+							);
 							return node.id || "";
 						}
 
@@ -279,15 +281,12 @@ export const useArchitectureStore = create<
 						state.currentData!.metadata.lastModified = new Date().toISOString();
 						state.hasUnsavedChanges = true;
 
-						// Auto-configure the new node based on its container hierarchy
-						const { nodes } = get().convertToReactFlow();
-						// Add the new node to the nodes array for hierarchy calculation
-						const nodesWithNew = [...nodes, node];
-
+						// Auto-configure using current store state to get all nodes for hierarchy
+						const { nodes: allNodes } = get().convertToReactFlow();
 						const { updatedConfig, autoPopulatedFields } = autoConfigureNode(
 							node.id,
 							nodeConfig,
-							nodesWithNew,
+							[...allNodes, node], // Include the new node in the hierarchy
 							state.nodeConfigurations,
 							resourceType
 						);

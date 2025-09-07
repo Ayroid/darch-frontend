@@ -8,7 +8,6 @@ import {
   AWSResourceConfiguration,
   AWSRegionConfiguration,
   AvailabilityZoneConfiguration,
-  VPCConfiguration
 } from "@/lib/types/aws-resources";
 import { buildParentChildMap } from "./parent-child-logic";
 
@@ -93,7 +92,7 @@ export const AWS_RESOURCE_FIELD_RULES: ResourceFieldRules = {
       awsVpcId: {
         sourceParentType: "aws-vpc",
         sourceField: "awsVpcId",
-        defaultValue: "default-vpc",
+        defaultValue: "",
       },
     },
     disabledFields: ["awsVpcId"],
@@ -209,8 +208,8 @@ export function getParentConfigurationValue(
       // For cases where we need the node/service ID itself (like VPC ID, Subnet ID)
       return parentNode.id;
     case "awsVpcId":
-      // For VPC, we might need to use a generated ID or the node ID itself
-      return (parentConfig as VPCConfiguration).awsVpcId; // Use node ID as VPC ID for now
+      // For VPC, we need to return the VPC's identifier from its configuration
+      return parentNode.id;
     case "subnetId":
       // For subnets, use the node ID as subnet ID
       return parentNode.id;
@@ -260,9 +259,11 @@ export function autoConfigureNode(
     return { updatedConfig: currentConfig, autoPopulatedFields: [] };
   }
 
-  console.log(`[autoConfigureNode] Processing node ${nodeId} of type ${nodeResourceType}`, {
+  console.log(`[autoConfigureNode] === DEBUG: Processing node ${nodeId} of type ${nodeResourceType} ===`, {
     rules: rules.autoFields,
-    currentConfig
+    currentConfig,
+    nodeConfigurationsKeys: Object.keys(nodeConfigurations),
+    nodeConfigurationsValues: nodeConfigurations
   });
 
   const updatedConfig = { ...currentConfig };
@@ -311,18 +312,30 @@ export function autoConfigureNode(
     } else {
       // Standard single parent type auto-configuration
       const parentNode = findParentOfType(nodeId, parentTypes[0], nodes);
-      console.log(`[autoConfigureNode] Looking for parent of type ${parentTypes[0]} for field ${fieldName}`, { parentNode: parentNode?.id });
+      console.log(`[autoConfigureNode] Looking for parent of type ${parentTypes[0]} for field ${fieldName}`, {
+        parentNode: parentNode?.id,
+        parentNodeServiceId: parentNode?.data?.serviceId,
+        targetParentType: parentTypes[0]
+      });
 
       if (parentNode) {
         const value = getParentConfigurationValue(parentNode, rule.sourceField, nodeConfigurations);
-        console.log(`[autoConfigureNode] Got value from parent ${parentNode.id}:`, { sourceField: rule.sourceField, value });
+        console.log(`[autoConfigureNode] Got value from parent ${parentNode.id}:`, {
+          sourceField: rule.sourceField,
+          value,
+          valueType: typeof value
+        });
 
         if (value !== undefined && value !== "") {
           (updatedConfig as Record<string, unknown>)[fieldName] = value;
           autoPopulatedFields.push(fieldName);
           console.log(`[autoConfigureNode] Auto-populated ${fieldName} from ${parentTypes[0]} parent:`, value);
           continue;
+        } else {
+          console.log(`[autoConfigureNode] Value from parent was undefined or empty for field ${fieldName}`);
         }
+      } else {
+        console.log(`[autoConfigureNode] No parent of type ${parentTypes[0]} found for field ${fieldName}`);
       }
     }
 

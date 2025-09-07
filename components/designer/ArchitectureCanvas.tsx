@@ -21,7 +21,10 @@ import { useCanvasShortcuts } from "@/lib/keyboard-shortcuts";
 import { useCanvasUndoRedo } from "@/hooks/use-canvas-undo-redo";
 import { useArchitectureData } from "@/hooks/use-architecture-data";
 import { useArchitectureStore } from "@/lib/stores";
-import { updateNodeParentRelationships, clearContainerCaches } from "@/lib/container-logic";
+import {
+	updateNodeParentRelationships,
+	clearContainerCaches,
+} from "@/lib/container-logic";
 import UndoRedoControls from "./UndoRedoControls";
 import ShortcutsButton from "./ShortcutsButton";
 import {
@@ -144,11 +147,14 @@ export default function ArchitectureCanvas({
 	onNodeDoubleClick,
 }: ArchitectureCanvasProps) {
 	// Double click handler for nodes
-	const handleNodeDoubleClick = useCallback((event: React.MouseEvent, node: Node) => {
-		if (onNodeDoubleClick) {
-			onNodeDoubleClick(node);
-		}
-	}, [onNodeDoubleClick]);
+	const handleNodeDoubleClick = useCallback(
+		(event: React.MouseEvent, node: Node) => {
+			if (onNodeDoubleClick) {
+				onNodeDoubleClick(node);
+			}
+		},
+		[onNodeDoubleClick]
+	);
 	const reactFlowWrapper = useRef<HTMLDivElement>(null);
 	const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
 	const [edges, setEdges, onEdgesChangeDefault] = useEdgesState(initialEdges);
@@ -164,11 +170,8 @@ export default function ArchitectureCanvas({
 		addConnection: addArchConnection,
 		convertToReactFlow,
 	} = useArchitectureData();
-	const {
-		getNodeConfiguration,
-		updateNodeConfiguration,
-		nodeConfigurations
-	} = useArchitectureStore();
+	const { getNodeConfiguration, updateNodeConfiguration, nodeConfigurations } =
+		useArchitectureStore();
 
 	// Load initial data from architecture manager (only on first load)
 	useEffect(() => {
@@ -186,29 +189,38 @@ export default function ArchitectureCanvas({
 	const { undo, redo, canUndo, canRedo } = undoRedoHook;
 
 	// Custom edge change handler with undo/redo support
-	const onEdgesChange = useCallback((changes: EdgeChange[]) => {
-		// Check if any edges are being deleted
-		const deleteChanges = changes.filter(change => change.type === 'remove');
+	const onEdgesChange = useCallback(
+		(changes: EdgeChange[]) => {
+			// Check if any edges are being deleted
+			const deleteChanges = changes.filter(
+				(change) => change.type === "remove"
+			);
 
-		// Apply the default edge changes
-		onEdgesChangeDefault(changes);
+			// Apply the default edge changes
+			onEdgesChangeDefault(changes);
 
-		// Save state if edges were deleted
-		if (deleteChanges.length > 0) {
-			setTimeout(() => {
-				setNodes((currentNodes) => {
-					setEdges((currentEdges) => {
-						// Save undo state after both nodes and edges are updated
-						setTimeout(() => {
-							undoRedoHook.saveAfterEdgeOperation(currentNodes, currentEdges, 'delete');
-						}, 0);
-						return currentEdges;
+			// Save state if edges were deleted
+			if (deleteChanges.length > 0) {
+				setTimeout(() => {
+					setNodes((currentNodes) => {
+						setEdges((currentEdges) => {
+							// Save undo state after both nodes and edges are updated
+							setTimeout(() => {
+								undoRedoHook.saveAfterEdgeOperation(
+									currentNodes,
+									currentEdges,
+									"delete"
+								);
+							}, 0);
+							return currentEdges;
+						});
+						return currentNodes;
 					});
-					return currentNodes;
-				});
-			}, 0);
-		}
-	}, [onEdgesChangeDefault, setNodes, setEdges, undoRedoHook]);
+				}, 0);
+			}
+		},
+		[onEdgesChangeDefault, setNodes, setEdges, undoRedoHook]
+	);
 
 	// Create node handlers
 	const nodeHandlers = createNodeHandlers(
@@ -248,7 +260,7 @@ export default function ArchitectureCanvas({
 		if (previousState) {
 			setNodes(previousState.nodes);
 			setEdges(previousState.edges);
-			console.log("Undid last action:", previousState.action || 'unknown');
+			console.log("Undid last action:", previousState.action || "unknown");
 		}
 	}, [undo, setNodes, setEdges]);
 
@@ -258,7 +270,7 @@ export default function ArchitectureCanvas({
 		if (nextState) {
 			setNodes(nextState.nodes);
 			setEdges(nextState.edges);
-			console.log("Redid last action:", nextState.action || 'unknown');
+			console.log("Redid last action:", nextState.action || "unknown");
 		}
 	}, [redo, setNodes, setEdges]);
 
@@ -311,7 +323,11 @@ export default function ArchitectureCanvas({
 					setEdges((currentEdges) => {
 						// Save undo state after both nodes and edges are updated
 						setTimeout(() => {
-							undoRedoHook.saveAfterEdgeOperation(currentNodes, currentEdges, 'add');
+							undoRedoHook.saveAfterEdgeOperation(
+								currentNodes,
+								currentEdges,
+								"add"
+							);
 						}, 0);
 						return currentEdges;
 					});
@@ -370,11 +386,21 @@ export default function ArchitectureCanvas({
 					const nodesWithNew = nds.concat(newNode);
 					// Clear caches when adding new nodes
 					clearContainerCaches();
-					return updateNodeParentRelationships(nodesWithNew);
+					const updatedNodes = updateNodeParentRelationships(nodesWithNew);
+
+					// Find the updated node with correct parent relationships
+					const updatedNode =
+						updatedNodes.find((node) => node.id === newNode.id) || newNode;
+
+					// Schedule addArchNode to run after the state update with the updated node
+					setTimeout(() => {
+						addArchNode(updatedNode);
+					}, 0);
+
+					return updatedNodes;
 				});
 
-				// Add to architecture data
-				addArchNode(newNode);
+				// Don't call addArchNode here - it's called in setTimeout above
 				onNodeAdd?.(newNode);
 
 				// Save state after adding node
@@ -383,7 +409,11 @@ export default function ArchitectureCanvas({
 						setEdges((currentEdges) => {
 							// Save undo state after both nodes and edges are updated
 							setTimeout(() => {
-								undoRedoHook.saveAfterNodeOperation(currentNodes, currentEdges, 'add');
+								undoRedoHook.saveAfterNodeOperation(
+									currentNodes,
+									currentEdges,
+									"add"
+								);
 							}, 0);
 							return currentEdges;
 						});
@@ -392,7 +422,14 @@ export default function ArchitectureCanvas({
 				}, 0);
 			}
 		},
-		[reactFlowInstance, setNodes, setEdges, addArchNode, onNodeAdd, undoRedoHook]
+		[
+			reactFlowInstance,
+			setNodes,
+			setEdges,
+			addArchNode,
+			onNodeAdd,
+			undoRedoHook,
+		]
 	);
 
 	const proOptions = { hideAttribution: true };
