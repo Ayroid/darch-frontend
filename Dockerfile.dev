@@ -1,0 +1,26 @@
+# Development Dockerfile for Darch Frontend
+# Optimized for development with hot reloading
+
+FROM node:18-alpine
+
+# Install dependencies for development
+RUN apk add --no-cache libc6-compat
+
+WORKDIR /app
+
+# Install dependencies
+COPY package.json package-lock.json* ./
+RUN npm ci
+
+# Copy source code
+COPY . .
+
+# Expose the development port
+EXPOSE 3000
+
+# Set environment variables
+ENV NODE_ENV=development
+ENV NEXT_TELEMETRY_DISABLED=1
+
+# Start the development server
+CMD ["npm", "run", "dev"]

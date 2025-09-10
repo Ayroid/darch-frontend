@@ -8,6 +8,16 @@ export type { UndoRedoActionType } from './canvas/undo-redo-store';
 export { useValidationStore } from './validation/validation-store';
 export type { ValidationRule } from './validation/validation-store';
 
+// Terraform store
+export { 
+	useTerraformStore,
+	useTerraformDialog,
+	useTerraformOutput,
+	useTerraformGeneration,
+	useTerraformDownload,
+	formatBytes
+} from './terraform/terraform-store';
+
 // New unified architecture store
 export {
 	useArchitectureStore,

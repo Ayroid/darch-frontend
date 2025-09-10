@@ -274,6 +274,26 @@ npm run build
 npm run lint
 ```
 
+### Docker Deployment
+The application is fully containerized for easy deployment:
+
+```bash
+# Build the Docker image
+docker build -t darch-frontend .
+
+# Run the container
+docker run -p 3000:3000 darch-frontend
+
+# Access the application at http://localhost:3000
+```
+
+**Docker Configuration:**
+- **Multi-stage build** for optimized production image
+- **Standalone output** enabled in Next.js for minimal container size
+- **Non-root user** for security
+- **Node.js 18 Alpine** for small image footprint
+- **Port 3000** exposed for the application
+
 ### Development Server
 - **URL**: http://localhost:3000
 - **Hot Reload**: Automatic page refresh on file changes
