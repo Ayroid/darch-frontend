@@ -56,6 +56,8 @@ EXPOSE 3000
 
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
+# Backend URL environment variable
+ENV NEXT_PUBLIC_BACKEND_URL="http://localhost:5000"
 
 # Start the application
 CMD ["node", "server.js"]

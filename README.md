@@ -461,6 +461,64 @@ interface AWSContainerNodeData {
 }
 ```
 
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js 18 or higher
+- npm or yarn package manager
+- Docker (optional, for containerized deployment)
+
+### Local Development
+
+1. **Clone the repository**
+```bash
+git clone <repository-url>
+cd Darch-Frontend
+```
+
+2. **Install dependencies**
+```bash
+npm install
+```
+
+3. **Configure environment variables**
+```bash
+cp .env.template .env.local
+```
+Edit `.env.local` and set the backend URL:
+```env
+NEXT_PUBLIC_BACKEND_URL=http://localhost:5000
+```
+
+4. **Start development server**
+```bash
+npm run dev
+```
+
+The application will be available at `http://localhost:3000`.
+
+### Docker Deployment
+
+1. **Build the Docker image**
+```bash
+docker build -t darch-frontend .
+```
+
+2. **Run with custom backend URL**
+```bash
+docker run -p 3000:3000 -e NEXT_PUBLIC_BACKEND_URL="http://your-backend:5000" darch-frontend
+```
+
+For detailed Docker deployment instructions, see [DOCKER_DEPLOYMENT.md](./DOCKER_DEPLOYMENT.md).
+
+### Environment Configuration
+
+The application uses the following environment variables:
+
+- `NEXT_PUBLIC_BACKEND_URL`: Backend API URL (default: `http://localhost:5000`)
+
+**Important**: The `NEXT_PUBLIC_` prefix is required for client-side environment variables in Next.js.
+
 ## 🤝 Contributing
 
 ### Code Style

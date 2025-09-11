@@ -1,5 +1,8 @@
 import { create } from 'zustand';
 
+// Get backend URL from environment variable with fallback
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000';
+
 // Types
 export interface BackendProject {
 	name: string;
@@ -120,7 +123,7 @@ export const useTerraformStore = create<TerraformState>((set, get) => ({
 		set({ isGenerating: true, output: "🔄 Generating Terraform configuration...\n" });
 
 		try {
-			const response = await fetch('http://localhost:5000/api/generate-terraform', {
+			const response = await fetch(`${BACKEND_URL}/api/generate-terraform`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
@@ -166,7 +169,7 @@ export const useTerraformStore = create<TerraformState>((set, get) => ({
 			let errorOutput = '';
 			if (error instanceof Error) {
 				if (error.message.includes('Failed to fetch')) {
-					errorOutput = '❌ Cannot connect to backend server\n\nPlease ensure:\n• Backend server is running on http://localhost:5000\n• No CORS issues\n• Server is accessible';
+					errorOutput = `❌ Cannot connect to backend server\n\nPlease ensure:\n• Backend server is running on ${BACKEND_URL}\n• No CORS issues\n• Server is accessible`;
 				} else {
 					errorOutput = `❌ Error: ${error.message}`;
 				}
@@ -189,7 +192,7 @@ export const useTerraformStore = create<TerraformState>((set, get) => ({
 	// Fetch latest project
 	fetchLatestProject: async () => {
 		try {
-			const response = await fetch("http://localhost:5000/api/projects");
+			const response = await fetch(`${BACKEND_URL}/api/projects`);
 			const result = await response.json();
 			
 			if (result.success && result.data.projects.length > 0) {
@@ -227,7 +230,7 @@ export const useTerraformStore = create<TerraformState>((set, get) => ({
 		set((state) => ({ output: state.output + downloadMsg }));
 		
 		try {
-			const response = await fetch(`http://localhost:5000/api/projects/${encodeURIComponent(latestProject.name)}/download`);
+			const response = await fetch(`${BACKEND_URL}/api/projects/${encodeURIComponent(latestProject.name)}/download`);
 			
 			if (!response.ok) {
 				throw new Error(`Download failed: ${response.statusText}`);
