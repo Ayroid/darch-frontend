@@ -89,7 +89,6 @@ interface TerraformState {
 	// API operations
 	generateTerraform: (data: unknown, projectName: string) => Promise<void>;
 	planTerraform: (data: unknown, projectName: string) => Promise<void>;
-	quickPlan: (data: unknown, projectName: string) => Promise<void>;
 	downloadZip: () => Promise<void>;
 	fetchLatestProject: () => Promise<void>;
 }
@@ -426,7 +425,7 @@ export const useTerraformStore = create<TerraformState>((set, get) => ({
 								lastProgress = jobStatus.progress;
 								set(state => {
 									if (state.isPlanPolling) {
-										const progressMessage = jobStatus.message 
+										const progressMessage = jobStatus.message
 											? `⏳ ${jobStatus.message} (${jobStatus.progress}%)\n`
 											: `⏳ Progress: ${jobStatus.progress}%\n`;
 										return { output: state.output + progressMessage };
@@ -477,7 +476,7 @@ export const useTerraformStore = create<TerraformState>((set, get) => ({
 					// ✅ SAFE ACCESS: Check result type and properties
 					if (finalResult?.result) {
 						const result = finalResult.result;
-						
+
 						// Type guard to check if it's a detailed TerraformPlanResult
 						if ('resourceSummary' in result) {
 							const detailedResult = result as TerraformPlanResult;
@@ -575,97 +574,6 @@ export const useTerraformStore = create<TerraformState>((set, get) => ({
 		}
 	},
 
-	// Quick plan (sync, no terraform init)
-	quickPlan: async (data: unknown, projectName: string) => {
-		if (!data) {
-			set({ output: '❌ No architecture data available. Please create some resources first.' });
-			return;
-		}
-
-		const archData = data as { nodes?: Array<unknown>; [key: string]: unknown };
-		if (!archData.nodes || archData.nodes.length === 0) {
-			set({ output: '❌ No resources found in your architecture. Please add some AWS resources first.' });
-			return;
-		}
-
-		set({ isPlanning: true, output: "🔄 Generating quick plan preview...\n" });
-
-		try {
-			const response = await fetch(`${BACKEND_URL}/api/terraform/plan`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({
-					architectureData: data,
-					projectName: projectName.toLowerCase().replace(/\s+/g, '-')
-				})
-			});
-
-			if (!response.ok) {
-				throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-			}
-
-			const result = await response.json();
-
-			if (result.success && result.data) {
-				const { resourceSummary, costEstimate, modules, warnings } = result.data;
-
-				let planOutput = `✅ Quick Plan Preview\n\n`;
-				planOutput += `📊 Resource Summary:\n`;
-				planOutput += `   Total Resources: ${resourceSummary.totalResources}\n`;
-
-				Object.entries(resourceSummary.resourceTypes).forEach(([type, count]) => {
-					planOutput += `   ${type}: ${count}\n`;
-				});
-
-				planOutput += `\n💰 Cost Estimate:\n`;
-				planOutput += `   Monthly Total: $${costEstimate.monthlyEstimate.toFixed(2)}\n`;
-
-				Object.entries(costEstimate.breakdown).forEach(([resource, cost]) => {
-					planOutput += `   ${resource}: $${(cost as number).toFixed(2)}\n`;
-				});
-
-				if (modules.length > 0) {
-					planOutput += `\n📦 Modules:\n`;
-					modules.forEach((module: { name: string; source: string }) => {
-						planOutput += `   ${module.name}: ${module.source}\n`;
-					});
-				}
-
-				if (warnings.length > 0) {
-					planOutput += `\n⚠️ Warnings:\n`;
-					warnings.forEach((warning: string) => {
-						planOutput += `   • ${warning}\n`;
-					});
-				}
-
-				planOutput += `\n💡 Note: This is a quick preview. Use "Full Plan" for complete terraform init validation.`;
-
-				set({
-					output: planOutput,
-					planResult: result.data
-				});
-			} else {
-				throw new Error(result.error || 'Failed to generate plan');
-			}
-		} catch (error) {
-			let errorOutput = '';
-			if (error instanceof Error) {
-				if (error.message.includes('Failed to fetch')) {
-					errorOutput = `❌ Cannot connect to backend server\n\nPlease ensure:\n• Backend server is running on ${BACKEND_URL}\n• No CORS issues\n• Server is accessible`;
-				} else {
-					errorOutput = `❌ Quick Plan Error: ${error.message}`;
-				}
-			} else {
-				errorOutput = '❌ Unknown error occurred during quick plan';
-			}
-			set({ output: errorOutput });
-		} finally {
-			set({ isPlanning: false });
-		}
-	},
-
 	// Simplified polling - removed standalone method to avoid recursive calls
 }));
 
@@ -701,7 +609,6 @@ const planSelector = (state: TerraformState) => ({
 	planResult: state.planResult,
 	currentJobId: state.currentJobId,
 	planTerraform: state.planTerraform,
-	quickPlan: state.quickPlan,
 });
 
 // Export hooks with stable selectors
