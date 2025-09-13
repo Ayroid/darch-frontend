@@ -52,19 +52,23 @@ export default function TopBar({
 		toggleProjectDropdown,
 	} = useUIStore();
 
-	// Zustand store hooks
-	const {
-		isDialogOpen,
-		output,
-		isGenerating,
-		isDownloading,
-		latestProject,
-		openDialog,
-		closeDialog,
-		generateTerraform,
-		downloadZip,
-		clearOutput,
-	} = useTerraformStore();
+	// Zustand store hooks - use individual state pieces to prevent infinite loops
+	const isDialogOpen = useTerraformStore(state => state.isDialogOpen);
+	const output = useTerraformStore(state => state.output);
+	const isGenerating = useTerraformStore(state => state.isGenerating);
+	const isDownloading = useTerraformStore(state => state.isDownloading);
+	const latestProject = useTerraformStore(state => state.latestProject);
+	const isPlanning = useTerraformStore(state => state.isPlanning);
+	const isPlanPolling = useTerraformStore(state => state.isPlanPolling);
+
+	// Actions
+	const openDialog = useTerraformStore(state => state.openDialog);
+	const closeDialog = useTerraformStore(state => state.closeDialog);
+	const clearOutput = useTerraformStore(state => state.clearOutput);
+	const generateTerraform = useTerraformStore(state => state.generateTerraform);
+	const downloadZip = useTerraformStore(state => state.downloadZip);
+	const planTerraform = useTerraformStore(state => state.planTerraform);
+	const quickPlan = useTerraformStore(state => state.quickPlan);
 
 	// Utility function to format bytes
 	const formatBytesLocal = (bytes: number): string => {
@@ -88,6 +92,26 @@ export default function TopBar({
 	// Handle Download ZIP
 	const handleDownloadZip = async () => {
 		await downloadZip();
+	};
+
+	// Handle Plan Terraform (Full plan with terraform init)
+	const handlePlanTerraform = async () => {
+		if (!currentData) {
+			return;
+		}
+
+		const projectName = currentProject.name.toLowerCase().replace(/\s+/g, '-');
+		await planTerraform(currentData, projectName);
+	};
+
+	// Handle Quick Plan (Preview without terraform init)
+	const handleQuickPlan = async () => {
+		if (!currentData) {
+			return;
+		}
+
+		const projectName = currentProject.name.toLowerCase().replace(/\s+/g, '-');
+		await quickPlan(currentData, projectName);
 	};
 
 	// Click outside to close dropdown
@@ -199,7 +223,7 @@ export default function TopBar({
 							</div>
 						</DialogTitle>
 					</DialogHeader>
-					
+
 					<div className="space-y-8">
 						{/* Status Banner */}
 						{latestProject && (
@@ -246,7 +270,7 @@ export default function TopBar({
 								<FiCode className="w-5 h-5 mr-2 text-blue-600" />
 								Actions
 							</h3>
-							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+							<div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
 								{/* Generate Button */}
 								<Button
 									onClick={handleGenerateTerraform}
@@ -265,7 +289,7 @@ export default function TopBar({
 										</div>
 									</div>
 								</Button>
-								
+
 								{/* Download Button */}
 								<Button
 									onClick={handleDownloadZip}
@@ -281,6 +305,46 @@ export default function TopBar({
 											</div>
 											<div className="text-xs text-emerald-600">
 												{isDownloading ? "Preparing download..." : latestProject ? "Ready to download" : "Generate first"}
+											</div>
+										</div>
+									</div>
+								</Button>
+
+								{/* Plan Button (Full Plan with terraform init) */}
+								<Button
+									onClick={handlePlanTerraform}
+									disabled={isPlanning || isGenerating || !latestProject}
+									variant="outline"
+									className="h-16 border-2 border-purple-200 hover:border-purple-300 hover:bg-purple-50 transition-all duration-200"
+								>
+									<div className="flex items-center space-x-3">
+										<FiCheck className="w-6 h-6 text-purple-600" />
+										<div className="text-left">
+											<div className="font-semibold text-purple-700">
+												{isPlanning ? (isPlanPolling ? "Planning..." : "Starting...") : "Full Plan"}
+											</div>
+											<div className="text-xs text-purple-600">
+												{isPlanning ? "Analyzing infrastructure..." : latestProject ? "Plan with terraform init" : "Generate first"}
+											</div>
+										</div>
+									</div>
+								</Button>
+
+								{/* Quick Plan Button */}
+								<Button
+									onClick={handleQuickPlan}
+									disabled={isPlanning || isGenerating}
+									variant="outline"
+									className="h-16 border-2 border-orange-200 hover:border-orange-300 hover:bg-orange-50 transition-all duration-200"
+								>
+									<div className="flex items-center space-x-3">
+										<FiFileText className="w-6 h-6 text-orange-600" />
+										<div className="text-left">
+											<div className="font-semibold text-orange-700">
+												{isPlanning ? "Planning..." : "Quick Plan"}
+											</div>
+											<div className="text-xs text-orange-600">
+												{isPlanning ? "Generating preview..." : "Fast preview (no init)"}
 											</div>
 										</div>
 									</div>
