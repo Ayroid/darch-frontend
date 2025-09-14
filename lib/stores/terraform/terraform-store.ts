@@ -361,7 +361,7 @@ export const useTerraformStore = create<TerraformState>((set, get) => ({
 
 		try {
 			// Start async plan job
-			const response = await fetch(`${BACKEND_URL}/api/terraform/plan-execute`, {
+			const response = await fetch(`${BACKEND_URL}/api/terraform/plan`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
