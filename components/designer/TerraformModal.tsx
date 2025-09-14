@@ -7,13 +7,15 @@ import {
 	DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { useTerraformStore } from "@/lib/stores/terraform/terraform-store";
+import { useTerraformStore, useTerraformOperations } from "@/lib/stores/terraform/terraform-store";
 import {
 	FiCode,
 	FiCheck,
 	FiDownload,
 	FiFileText,
 	FiTrash2,
+	FiPlay,
+	FiAlertTriangle,
 } from "react-icons/fi";
 import { LuFileText } from "react-icons/lu";
 
@@ -47,12 +49,26 @@ const TerraformDialog: React.FC<TerraformDialogProps> = ({
 }) => {
 	const { currentData } = useArchitectureData();
 
+	// Store selectors - following the API guide patterns
 	const clearOutput = useTerraformStore((state) => state.clearOutput);
-	const generateTerraform = useTerraformStore(
-		(state) => state.generateTerraform
-	);
+	const generateTerraform = useTerraformStore((state) => state.generateTerraform);
 	const downloadZip = useTerraformStore((state) => state.downloadZip);
-	const planTerraform = useTerraformStore((state) => state.planTerraform);
+
+	// Terraform operations following the API guide
+	const {
+		planTerraform,
+		applyTerraform,
+		destroyTerraform,
+		isApplying,
+		isDestroying,
+		isApplyPolling,
+		isDestroyPolling,
+		currentJob,
+		lastError,
+		networkError,
+		cancelOperation,
+		clearErrors
+	} = useTerraformOperations();
 
 	// Handle Generate Terraform
 	const handleGenerateTerraform = async () => {
@@ -69,19 +85,48 @@ const TerraformDialog: React.FC<TerraformDialogProps> = ({
 		await downloadZip();
 	};
 
-	// Handle Plan Terraform (Full plan with terraform init)
+	// Handle Plan Terraform - following API guide patterns
 	const handlePlanTerraform = async () => {
 		if (!currentData) {
 			return;
 		}
 
+		clearErrors();
 		const projectName = currentProject.name.toLowerCase().replace(/\s+/g, "-");
 		await planTerraform(currentData, projectName);
+	};
+
+	// Handle Apply Terraform - following API guide patterns
+	const handleApplyTerraform = async () => {
+		if (!currentData) {
+			return;
+		}
+
+		clearErrors();
+		const projectName = currentProject.name.toLowerCase().replace(/\s+/g, "-");
+		await applyTerraform(currentData, projectName);
+	};
+
+	// Handle Destroy Terraform - following API guide patterns
+	const handleDestroyTerraform = async () => {
+		if (!currentData) {
+			return;
+		}
+
+		clearErrors();
+		const projectName = currentProject.name.toLowerCase().replace(/\s+/g, "-");
+		await destroyTerraform(projectName);
+	};
+
+	// Handle Cancel Operation
+	const handleCancelOperation = () => {
+		cancelOperation();
 	};
 
 	// Handle Clear Output
 	const handleClearOutput = () => {
 		clearOutput();
+		clearErrors();
 	};
 
 	return (
@@ -122,8 +167,8 @@ const TerraformDialog: React.FC<TerraformDialogProps> = ({
 						</div>
 					)}
 
-					{/* Action Buttons */}
-					<div className="grid grid-cols-3 gap-4">
+					{/* Action Buttons - Following API Guide Layout */}
+					<div className="grid grid-cols-2 gap-4 mb-4">
 						<Button
 							onClick={handleGenerateTerraform}
 							disabled={isGenerating}
@@ -147,19 +192,119 @@ const TerraformDialog: React.FC<TerraformDialogProps> = ({
 								{isDownloading ? "Downloading..." : "Download"}
 							</span>
 						</Button>
+					</div>
 
+					{/* Terraform Operations - Following API Guide Specifications */}
+					<div className="grid grid-cols-3 gap-4">
 						<Button
 							onClick={handlePlanTerraform}
-							disabled={isDownloading || !latestProject}
+							disabled={isPlanning || !latestProject || isApplying || isDestroying}
 							variant="outline"
-							className="h-16 flex-col space-y-1 border-purple-300 text-purple-600 hover:bg-purple-50 hover:border-purple-400 hover:text-purple-700"
+							className="h-16 flex-col space-y-1 border-blue-300 text-blue-600 hover:bg-blue-50 hover:border-blue-400 hover:text-blue-700"
 						>
 							<FiCheck className="w-5 h-5" />
 							<span className="text-sm">
 								{isPlanning ? "Planning..." : "Plan"}
 							</span>
 						</Button>
+
+						<Button
+							onClick={handleApplyTerraform}
+							disabled={isApplying || !latestProject || isPlanning || isDestroying}
+							variant="outline"
+							className="h-16 flex-col space-y-1 border-green-300 text-green-600 hover:bg-green-50 hover:border-green-400 hover:text-green-700"
+						>
+							<FiPlay className="w-5 h-5" />
+							<span className="text-sm">
+								{isApplying ? "Applying..." : "Apply"}
+							</span>
+						</Button>
+
+						<Button
+							onClick={handleDestroyTerraform}
+							disabled={isDestroying || !latestProject || isPlanning || isApplying}
+							variant="outline"
+							className="h-16 flex-col space-y-1 border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 hover:text-red-700"
+						>
+							<FiAlertTriangle className="w-5 h-5" />
+							<span className="text-sm">
+								{isDestroying ? "Destroying..." : "Destroy"}
+							</span>
+						</Button>
 					</div>
+
+					{/* Job Status Section - Following API Guide */}
+					{currentJob && (
+						<div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+							<div className="flex items-center justify-between mb-2">
+								<div className="flex items-center space-x-2">
+									<span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+										currentJob.status === 'running' ? 'bg-blue-100 text-blue-800' :
+										currentJob.status === 'completed' ? 'bg-green-100 text-green-800' :
+										currentJob.status === 'failed' ? 'bg-red-100 text-red-800' :
+										'bg-gray-100 text-gray-800'
+									}`}>
+										{currentJob.status.charAt(0).toUpperCase() + currentJob.status.slice(1)}
+									</span>
+									<span className="text-sm text-gray-600">Job ID: {currentJob.id}</span>
+								</div>
+								{(isApplyPolling || isDestroyPolling || (isPlanning && currentJob.status === 'running')) && (
+									<Button
+										onClick={handleCancelOperation}
+										variant="outline"
+										size="sm"
+										className="text-red-600 border-red-300 hover:bg-red-50"
+									>
+										Cancel
+									</Button>
+								)}
+							</div>
+							<div className="mb-2">
+								<div className="flex items-center justify-between text-sm">
+									<span>{currentJob.message}</span>
+									<span>{currentJob.progress}%</span>
+								</div>
+								<div className="w-full bg-gray-200 rounded-full h-2 mt-1">
+									<div
+										className={`h-2 rounded-full transition-width ${
+											currentJob.status === 'completed' ? 'bg-green-500' :
+											currentJob.status === 'failed' ? 'bg-red-500' :
+											'bg-blue-500'
+										}`}
+										style={{ width: `${currentJob.progress}%` }}
+									></div>
+								</div>
+							</div>
+						</div>
+					)}
+
+					{/* Error Display - Following API Guide */}
+					{(lastError || networkError) && (
+						<div className="border border-red-200 rounded-lg p-4 bg-red-50">
+							<div className="flex items-center justify-between mb-2">
+								<h4 className="font-medium text-red-900 flex items-center">
+									<FiAlertTriangle className="w-4 h-4 mr-2" />
+									Error
+								</h4>
+								<Button
+									onClick={() => clearErrors()}
+									variant="outline"
+									size="sm"
+									className="text-red-600 border-red-300 hover:bg-red-100"
+								>
+									Dismiss
+								</Button>
+							</div>
+							{lastError && (
+								<p className="text-sm text-red-700 mb-2">{lastError}</p>
+							)}
+							{networkError && (
+								<p className="text-sm text-red-600">
+									Network connectivity issue. Please check your connection and try again.
+								</p>
+							)}
+						</div>
+					)}
 
 					{/* Output Section */}
 					{output ? (
