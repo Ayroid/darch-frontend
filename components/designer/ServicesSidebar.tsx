@@ -133,6 +133,28 @@ const awsServices: AWSService[] = [
 		status: "ready",
 	},
 	{
+		id: "aws-internet-gateway",
+		name: "InternetGateway",
+		icon: "/aws_icons/Resource-Icons_07312025/Res_Networking-Content-Delivery/Res_Amazon-VPC_Internet-Gateway_48.svg",
+		category: "Network",
+		status: "ready",
+	},
+	{
+		id: "aws-nat-gateway",
+		name: "NATGateway",
+		icon: "/aws_icons/Resource-Icons_07312025/Res_Networking-Content-Delivery/Res_Amazon-VPC_NAT-Gateway_48.svg",
+		category: "Network",
+		status: "ready",
+	},
+	{
+		id: "aws-route-table",
+		name: "RouteTable",
+		icon: "/aws_icons/Resource-Icons_07312025/Res_Networking-Content-Delivery/Res_Amazon-Route-53_Route-Table_48.svg",
+		category: "Network",
+		isContainer: true,
+		status: "ready",
+	},
+	{
 		id: "aws-cloudfront",
 		name: "CloudFront",
 		icon: "/aws_icons/architecture_service_icons/Arch_Networking-Content-Delivery/32/Arch_Amazon-CloudFront_32.svg",
