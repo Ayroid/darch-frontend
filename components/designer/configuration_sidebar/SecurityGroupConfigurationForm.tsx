@@ -104,6 +104,28 @@ const SecurityGroupConfigurationForm: React.FC<
 		handleFieldChange(type, rules);
 	};
 
+	// Tag management functions
+	const handleTagChange = (key: string, value: string) => {
+		const updatedTags = { ...(config.tags || {}) };
+		if (value.trim() === "") {
+			delete updatedTags[key];
+		} else {
+			updatedTags[key] = value;
+		}
+		handleFieldChange("tags", updatedTags);
+	};
+
+	const addTag = () => {
+		const newTagKey = `tag-${Object.keys(config.tags || {}).length + 1}`;
+		handleTagChange(newTagKey, "");
+	};
+
+	const removeTag = (key: string) => {
+		const updatedTags = { ...(config.tags || {}) };
+		delete updatedTags[key];
+		handleFieldChange("tags", updatedTags);
+	};
+
 	return (
 		<TooltipProvider>
 			<div className="space-y-4 py-4">
@@ -372,6 +394,48 @@ const SecurityGroupConfigurationForm: React.FC<
 								</div>
 							</div>
 						))}
+					</div>
+				</CollapsibleSection>
+
+				{/* Tags section */}
+				<CollapsibleSection
+					title="Tags"
+					defaultOpen={false}
+					icon={<TbSettings className="w-6 h-6 text-gray-600" />}
+				>
+					<div className="space-y-4">
+						{Object.entries(config.tags || {}).map(([key, value]) => (
+							<div key={key} className="flex gap-2">
+								<Input
+									placeholder="Key"
+									value={key}
+									onChange={(e) => {
+										const newKey = e.target.value;
+										const updatedTags = { ...(config.tags || {}) };
+										delete updatedTags[key];
+										if (newKey) {
+											updatedTags[newKey] = value;
+										}
+										handleFieldChange("tags", updatedTags);
+									}}
+								/>
+								<Input
+									placeholder="Value"
+									value={value}
+									onChange={(e) => handleTagChange(key, e.target.value)}
+								/>
+								<Button
+									type="button"
+									variant="ghost"
+									onClick={() => removeTag(key)}
+								>
+									Remove
+								</Button>
+							</div>
+						))}
+						<Button type="button" variant="outline" onClick={addTag}>
+							Add Tag
+						</Button>
 					</div>
 				</CollapsibleSection>
 			</div>

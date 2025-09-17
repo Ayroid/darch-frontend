@@ -8,7 +8,7 @@ import { useConfigurationContext } from "@/lib/stores";
 import { useAutoConfiguration } from "@/hooks/use-auto-configuration";
 import AutoConfigurationTooltip from "@/components/utilities/AutoConfigurationTooltip";
 import { CollapsibleSection } from "@/components/shared/CollapsibleSection";
-import { TbSettingsSpark } from "react-icons/tb";
+import { TbSettingsSpark, TbSettings } from "react-icons/tb";
 import { FiGlobe } from "react-icons/fi";
 
 interface PublicSubnetConfigurationFormProps {
@@ -163,6 +163,26 @@ const PublicSubnetConfigurationForm: React.FC<
 							onChange={(e) => handleFieldChange("cidrBlock", e.target.value)}
 						/>
 					</div>
+				</div>
+			</CollapsibleSection>
+
+			{/* Tags section */}
+			<CollapsibleSection
+				title="Tags"
+				defaultOpen={false}
+				icon={<TbSettings className="w-6 h-6 text-gray-600" />}
+			>
+				<div className="space-y-2">
+					<Label htmlFor="tags">Tags</Label>
+					<Input
+						id="tags"
+						placeholder="key1=value1,key2=value2"
+						value={config.tags || ""}
+						onChange={(e) => handleFieldChange("tags", e.target.value)}
+					/>
+					<p className="text-sm text-gray-500">
+						Enter comma-separated key=value pairs
+					</p>
 				</div>
 			</CollapsibleSection>
 		</div>

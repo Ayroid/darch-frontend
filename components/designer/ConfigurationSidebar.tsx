@@ -36,6 +36,12 @@ const awsServiceConfigurationMap: Record<string, ConfigurationFormComponent> = {
 		ConfigurationSidebarMap.PublicSubnetConfigurationForm as ConfigurationFormComponent,
 	"aws-security-group":
 		ConfigurationSidebarMap.SecurityGroupConfigurationForm as ConfigurationFormComponent,
+	"aws-internet-gateway":
+		ConfigurationSidebarMap.InternetGatewayConfigurationForm as ConfigurationFormComponent,
+	"aws-nat-gateway":
+		ConfigurationSidebarMap.NATGatewayConfigurationForm as ConfigurationFormComponent,
+	"aws-route-table":
+		ConfigurationSidebarMap.RouteTableConfigurationForm as ConfigurationFormComponent,
 };
 
 interface ConfigurationSidebarProps {

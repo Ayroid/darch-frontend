@@ -14,6 +14,7 @@ import { AWSRegionConfiguration } from "@/lib/types/aws-resources";
 import { AWS_REGIONS_WITH_NAMES } from "@/lib/data/aws_regions";
 import { CollapsibleSection } from "@/components/shared/CollapsibleSection";
 import { FiGlobe } from "react-icons/fi";
+import { TbSettings } from "react-icons/tb";
 
 interface AWSRegionConfigurationFormProps {
 	config: AWSRegionConfiguration;
@@ -98,6 +99,26 @@ const AWSRegionConfigurationForm: React.FC<AWSRegionConfigurationFormProps> = ({
 							onChange={(e) => handleFieldChange("regionName", e.target.value)}
 						/>
 					</div>
+				</div>
+			</CollapsibleSection>
+
+			{/* Tags section */}
+			<CollapsibleSection
+				title="Tags"
+				defaultOpen={false}
+				icon={<TbSettings className="w-6 h-6 text-gray-600" />}
+			>
+				<div className="space-y-2">
+					<Label htmlFor="tags">Tags</Label>
+					<Input
+						id="tags"
+						placeholder="key1=value1,key2=value2"
+						value={config.tags || ""}
+						onChange={(e) => handleFieldChange("tags", e.target.value)}
+					/>
+					<p className="text-sm text-gray-500">
+						Enter comma-separated key=value pairs
+					</p>
 				</div>
 			</CollapsibleSection>
 		</div>

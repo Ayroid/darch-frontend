@@ -11,6 +11,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
 	Tooltip,
@@ -50,28 +51,35 @@ const EC2ConfigurationForm: React.FC<EC2ConfigurationFormProps> = ({
 		onChange(updatedConfig);
 	};
 
-	// const handleTagChange = (key: string, value: string) => {
-	// 	const currentTags = config.tags || {};
-	// 	if (value === "") {
-	// 		const newTags = { ...currentTags };
-	// 		delete newTags[key];
-	// 		onChange({ ...config, tags: newTags });
-	// 	} else {
-	// 		onChange({
-	// 			...config,
-	// 			tags: { ...currentTags, [key]: value },
-	// 		});
-	// 	}
-	// };
+	const handleTagChange = (key: string, value: string) => {
+		const currentTags = config.tags || {};
+		if (value === "") {
+			const newTags = { ...currentTags };
+			delete newTags[key];
+			onChange({ ...config, tags: newTags });
+		} else {
+			onChange({
+				...config,
+				tags: { ...currentTags, [key]: value },
+			});
+		}
+	};
 
-	// const addTag = () => {
-	// 	const currentTags = config.tags || {};
-	// 	const key = `Tag${Object.keys(currentTags).length + 1}`;
-	// 	onChange({
-	// 		...config,
-	// 		tags: { ...currentTags, [key]: "" },
-	// 	});
-	// };
+	const addTag = () => {
+		const currentTags = config.tags || {};
+		const key = `Key${Object.keys(currentTags).length + 1}`;
+		onChange({
+			...config,
+			tags: { ...currentTags, [key]: "" },
+		});
+	};
+
+	const removeTag = (keyToRemove: string) => {
+		const currentTags = config.tags || {};
+		const newTags = { ...currentTags };
+		delete newTags[keyToRemove];
+		onChange({ ...config, tags: newTags });
+	};
 
 	return (
 		<TooltipProvider>
@@ -350,6 +358,74 @@ const EC2ConfigurationForm: React.FC<EC2ConfigurationFormProps> = ({
 								</SelectContent>
 							</Select>
 						</div>
+					</div>
+				</CollapsibleSection>
+
+				{/* Tags */}
+				<CollapsibleSection
+					title="Tags"
+					defaultOpen={false}
+					icon={<TbSettings className="w-6 h-6 text-gray-600" />}
+					borderbottom={false}
+				>
+					<div className="space-y-4">
+						<div className="flex justify-end">
+							<Button
+								type="button"
+								variant="outline"
+								size="sm"
+								onClick={addTag}
+							>
+								+ Add Tag
+							</Button>
+						</div>
+
+						{Object.entries(config.tags || {}).map(([key, value]) => (
+							<div key={key} className="grid grid-cols-2 gap-3 p-3 border rounded-md">
+								<div className="space-y-2">
+									<Label>Key</Label>
+									<Input
+										value={key}
+										onChange={(e) => {
+											const oldKey = key;
+											const newKey = e.target.value;
+											if (newKey !== oldKey) {
+												const newTags = { ...config.tags };
+												delete newTags[oldKey];
+												if (newKey.trim() !== "") {
+													newTags[newKey] = value;
+												}
+												onChange({ ...config, tags: newTags });
+											}
+										}}
+										placeholder="Tag key"
+									/>
+								</div>
+								<div className="space-y-2">
+									<Label>Value</Label>
+									<Input
+										value={value}
+										onChange={(e) => handleTagChange(key, e.target.value)}
+										placeholder="Tag value"
+									/>
+								</div>
+								<div className="col-span-2 flex justify-end">
+									<Button
+										type="button"
+										variant="ghost"
+										onClick={() => removeTag(key)}
+									>
+										Remove
+									</Button>
+								</div>
+							</div>
+						))}
+
+						{Object.keys(config.tags || {}).length === 0 && (
+							<div className="text-center py-4 text-gray-500">
+								<p>No tags configured. Click &quot;Add Tag&quot; to create your first tag.</p>
+							</div>
+						)}
 					</div>
 				</CollapsibleSection>
 			</div>

@@ -10,7 +10,7 @@ import { useConfigurationContext } from "@/lib/stores";
 import { useAutoConfiguration } from "@/hooks/use-auto-configuration";
 import AutoConfigurationTooltip from "@/components/utilities/AutoConfigurationTooltip";
 import { CollapsibleSection } from "@/components/shared/CollapsibleSection";
-import { TbSettingsSpark } from "react-icons/tb";
+import { TbSettingsSpark, TbSettings } from "react-icons/tb";
 import { FiGlobe } from "react-icons/fi";
 
 interface VPCConfigurationFormProps {
@@ -109,6 +109,29 @@ const VPCConfigurationForm: React.FC<VPCConfigurationFormProps> = ({
 								value={config.cidrBlock || ""}
 								onChange={(e) => handleFieldChange("cidrBlock", e.target.value)}
 							/>
+						</div>
+					</div>
+				</CollapsibleSection>
+
+				{/* Tags */}
+				<CollapsibleSection
+					title="Tags"
+					defaultOpen={false}
+					icon={<TbSettings className="w-6 h-6 text-gray-600" />}
+					borderbottom={false}
+				>
+					<div className="space-y-4">
+						<div className="space-y-2">
+							<Label htmlFor="vpc-tags">Tags</Label>
+							<Input
+								id="vpc-tags"
+								placeholder="key1=value1,key2=value2"
+								value={config.tags || ""}
+								onChange={(e) => handleFieldChange("tags", e.target.value)}
+							/>
+							<p className="text-xs text-gray-500">
+								Enter tags as comma-separated key=value pairs (e.g., Environment=Production,Project=MyApp)
+							</p>
 						</div>
 					</div>
 				</CollapsibleSection>

@@ -25,7 +25,7 @@ import {
 	updateNodeParentRelationships,
 	clearContainerCaches,
 } from "@/lib/container-logic";
-import UndoRedoControls from "./UndoRedoControls";
+// import UndoRedoControls from "./UndoRedoControls";
 import ShortcutsButton from "./ShortcutsButton";
 import {
 	createNodeHandlers,
@@ -448,12 +448,12 @@ export default function ArchitectureCanvas({
 			<style dangerouslySetInnerHTML={{ __html: nodeStyles }} />
 			<div className="w-full h-full relative z-10" ref={reactFlowWrapper}>
 				{/* Undo/Redo Controls */}
-				<UndoRedoControls
+				{/* <UndoRedoControls
 					canUndo={canUndo}
 					canRedo={canRedo}
 					onUndo={handleUndo}
 					onRedo={handleRedo}
-				/>
+				/> */}
 
 				<ReactFlow
 					nodes={nodes}

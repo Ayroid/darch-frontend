@@ -187,6 +187,24 @@ export function isAvailabilityZoneConfiguration(
 	return "availabilityZone" in config && "region" in config;
 }
 
+export function isInternetGatewayConfiguration(
+	config: AWSResourceConfiguration
+): config is InternetGatewayConfiguration {
+	return "awsInternetGatewayId" in config;
+}
+
+export function isNATGatewayConfiguration(
+	config: AWSResourceConfiguration
+): config is NATGatewayConfiguration {
+	return "awsNatGatewayId" in config && "awsSubnetId" in config;
+}
+
+export function isRouteTableConfiguration(
+	config: AWSResourceConfiguration
+): config is RouteTableConfiguration {
+	return "awsRouteTableId" in config && "routes" in config;
+}
+
 // Service type mapping for configuration forms
 export const AWS_SERVICE_TYPE_MAP = {
 	"aws-vpc": "VPC",
@@ -196,6 +214,9 @@ export const AWS_SERVICE_TYPE_MAP = {
 	"aws-region": "AWSRegion",
 	"aws-availability-zone": "AvailabilityZone",
 	"aws-security-group": "SecurityGroup",
+	"aws-internet-gateway": "InternetGateway",
+	"aws-nat-gateway": "NATGateway",
+	"aws-route-table": "RouteTable",
 } as const;
 
 export type AWSResourceConfiguration =
@@ -206,11 +227,62 @@ export type AWSResourceConfiguration =
 	| VPCConfiguration
 	| PublicSubnetConfiguration
 	| SecurityGroupConfiguration
+	| InternetGatewayConfiguration
+	| NATGatewayConfiguration
+	| RouteTableConfiguration
 	| DefaultConfiguration;
 
 export type AWSServiceType = keyof typeof AWS_SERVICE_TYPE_MAP;
 export type AWSServiceName = (typeof AWS_SERVICE_TYPE_MAP)[AWSServiceType];
 
+
+// Internet Gateway Configuration
+export interface InternetGatewayConfiguration {
+	awsInternetGatewayId: string;
+	awsVpcId?: string;
+	description?: string;
+	state?: 'available' | 'attaching' | 'attached' | 'detaching' | 'detached';
+	tags?: Record<string, string>;
+}
+
+// NAT Gateway Configuration
+export interface NATGatewayConfiguration {
+	awsNatGatewayId: string;
+	awsSubnetId: string;
+	allocationId?: string; // Elastic IP allocation ID
+	state?: 'pending' | 'failed' | 'available' | 'deleting' | 'deleted';
+	natGatewayType?: 'public' | 'private';
+	description?: string;
+	tags?: Record<string, string>;
+}
+
+// Route Table Configuration
+export interface RouteTableConfiguration {
+	awsRouteTableId: string;
+	awsVpcId: string;
+	routes: Route[];
+	associations: RouteTableAssociation[];
+	description?: string;
+	tags?: Record<string, string>;
+}
+
+export interface Route {
+	destinationCidrBlock?: string;
+	destinationIpv6CidrBlock?: string;
+	gatewayId?: string;
+	instanceId?: string;
+	natGatewayId?: string;
+	networkInterfaceId?: string;
+	vpcPeeringConnectionId?: string;
+	state?: 'active' | 'blackhole';
+}
+
+export interface RouteTableAssociation {
+	associationId?: string;
+	subnetId?: string;
+	gatewayId?: string;
+	main?: boolean;
+}
 
 // =============================================================================
 // COMMENTED OUT RESOURCES - NO CONFIGURATION FORMS AVAILABLE
@@ -219,45 +291,6 @@ export type AWSServiceName = (typeof AWS_SERVICE_TYPE_MAP)[AWSServiceType];
 // and are commented out until forms are implemented.
 
 /*
-
-// Internet Gateway Configuration
-export interface InternetGatewayConfiguration extends BaseAWSResource {
-  vpcId?: string;
-  state?: 'available' | 'attaching' | 'attached' | 'detaching' | 'detached';
-}
-
-// NAT Gateway Configuration
-export interface NATGatewayConfiguration extends BaseAWSResource {
-  subnetId: string;
-  allocationId?: string; // Elastic IP allocation ID
-  state?: 'pending' | 'failed' | 'available' | 'deleting' | 'deleted';
-  natGatewayType?: 'public' | 'private';
-}
-
-// Route Table Configuration
-export interface RouteTableConfiguration extends BaseAWSResource {
-  vpcId: string;
-  routes: Route[];
-  associations: RouteTableAssociation[];
-}
-
-export interface Route {
-  destinationCidrBlock?: string;
-  destinationIpv6CidrBlock?: string;
-  gatewayId?: string;
-  instanceId?: string;
-  natGatewayId?: string;
-  networkInterfaceId?: string;
-  vpcPeeringConnectionId?: string;
-  state?: 'active' | 'blackhole';
-}
-
-export interface RouteTableAssociation {
-  associationId?: string;
-  subnetId?: string;
-  gatewayId?: string;
-  main?: boolean;
-}
 
 // Load Balancer Configuration
 export interface LoadBalancerConfiguration extends BaseAWSResource {

@@ -6,6 +6,9 @@ import AvailabilityZoneConfigurationForm from "./AvailabilityZoneConfigurationFo
 import PrivateSubnetConfigurationForm from "./PrivateSubnetConfigurationForm";
 import PublicSubnetConfigurationForm from "./PublicSubnetConfigurationForm";
 import SecurityGroupConfigurationForm from "./SecurityGroupConfigurationForm";
+import InternetGatewayConfigurationForm from "./InternetGatewayConfigurationForm";
+import NATGatewayConfigurationForm from "./NATGatewayConfigurationForm";
+import RouteTableConfigurationForm from "./RouteTableConfigurationForm";
 
 const ConfigurationSidebarMap = {
 	VPCConfigurationForm,
@@ -16,6 +19,9 @@ const ConfigurationSidebarMap = {
 	PrivateSubnetConfigurationForm,
 	PublicSubnetConfigurationForm,
 	SecurityGroupConfigurationForm,
+	InternetGatewayConfigurationForm,
+	NATGatewayConfigurationForm,
+	RouteTableConfigurationForm,
 };
 
 export { ConfigurationSidebarMap };
