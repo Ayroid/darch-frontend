@@ -91,7 +91,7 @@ export const AWS_RESOURCE_FIELD_RULES: ResourceFieldRules = {
 		autoFields: {
 			awsVpcId: {
 				sourceParentType: "aws-vpc",
-				sourceField: "id",
+				sourceField: "awsVpcId",
 				// No default value - only set when actually inside a VPC
 			},
 		},
@@ -111,12 +111,12 @@ export const AWS_RESOURCE_FIELD_RULES: ResourceFieldRules = {
 			},
 			subnetId: {
 				sourceParentType: "aws-private-subnet,aws-public-subnet",
-				sourceField: "id",
+				sourceField: "awsPrivateSubnetId,awsPublicSubnetId",
 				defaultValue: "default-subnet",
 			},
 			securityGroups: {
 				sourceParentType: "aws-security-group",
-				sourceField: "id",
+				sourceField: "awsSecurityGroupId",
 				defaultValue: [],
 			},
 		},
@@ -127,7 +127,7 @@ export const AWS_RESOURCE_FIELD_RULES: ResourceFieldRules = {
 		autoFields: {
 			awsVpcId: {
 				sourceParentType: "aws-vpc",
-				sourceField: "id",
+				sourceField: "awsVpcId",
 				// No default value - only set when actually connected to a VPC
 			},
 		},
@@ -137,17 +137,17 @@ export const AWS_RESOURCE_FIELD_RULES: ResourceFieldRules = {
 		autoFields: {
 			awsVpcId: {
 				sourceParentType: "aws-vpc",
-				sourceField: "id",
+				sourceField: "awsVpcId",
 				// No default value - only set when actually inside a VPC or connected via edge
 			},
 			awsInternetGatewayId: {
 				sourceParentType: "aws-internet-gateway",
-				sourceField: "id",
+				sourceField: "awsInternetGatewayId",
 				// No default value - only set when actually connected to an IGW
 			},
 			awsSubnetId: {
 				sourceParentType: "aws-private-subnet,aws-public-subnet",
-				sourceField: "id",
+				sourceField: "awsPrivateSubnetId,awsPublicSubnetId",
 				// No default value - only set when actually connected to a subnet
 			},
 		},
@@ -286,16 +286,16 @@ export function getParentConfigurationValue(
 	);
 
 	// Special handling for different field mappings
+	// Now we properly check the configuration field first, then fallback to node ID for legacy cases
 	switch (fieldName) {
 		case "id":
-			// For cases where we need the node/service ID itself (like VPC ID, Subnet ID)
+			// Legacy case - return node ID directly
+			console.log(
+				`[getParentConfigurationValue] Using node ID for legacy 'id' field:`,
+				parentNode.id
+			);
 			return parentNode.id;
-		case "awsVpcId":
-			// For VPC, we need to return the VPC's identifier from its configuration
-			return parentNode.id;
-		case "subnetId":
-			// For subnets, use the node ID as subnet ID
-			return parentNode.id;
+
 		case "region":
 			const regionValue = (parentConfig as AWSRegionConfiguration).region;
 			console.log(
@@ -303,6 +303,7 @@ export function getParentConfigurationValue(
 				regionValue
 			);
 			return regionValue;
+
 		case "availabilityZone":
 			const azValue = (parentConfig as AvailabilityZoneConfiguration)
 				.availabilityZone;
@@ -311,13 +312,56 @@ export function getParentConfigurationValue(
 				azValue
 			);
 			return azValue;
+
 		default:
-			const defaultValue = (parentConfig as Record<string, unknown>)[fieldName];
+			// First try to get the value from configuration
+			const configValue = (parentConfig as Record<string, unknown>)[fieldName];
 			console.log(
-				`[getParentConfigurationValue] Default field ${fieldName} value:`,
-				defaultValue
+				`[getParentConfigurationValue] Looking for field ${fieldName} in config:`,
+				{
+					configValue,
+					configValueType: typeof configValue,
+					hasValue: configValue !== undefined && configValue !== null && configValue !== "",
+				}
 			);
-			return defaultValue;
+
+			// If config has a valid value that's not a display name, use it
+			if (configValue !== undefined && configValue !== null && configValue !== "") {
+				// Check if this looks like a display name (starts with "AWS " and contains the service type)
+				const isDisplayName = typeof configValue === "string" && 
+					configValue.startsWith("AWS ") && 
+					fieldName.toLowerCase().includes('id');
+				
+				if (!isDisplayName) {
+					console.log(
+						`[getParentConfigurationValue] Found valid config field ${fieldName}:`,
+						configValue
+					);
+					return configValue;
+				} else {
+					console.log(
+						`[getParentConfigurationValue] Field ${fieldName} contains display name "${configValue}", using node ID instead:`,
+						parentNode.id
+					);
+					return parentNode.id;
+				}
+			}
+
+			// Fallback: If this is an ID-like field and config is empty, 
+			// we might want to use node ID (but only if the field name suggests it's an ID field)
+			if (fieldName.toLowerCase().includes('id')) {
+				console.log(
+					`[getParentConfigurationValue] Field ${fieldName} is empty in config, using node ID as fallback:`,
+					parentNode.id
+				);
+				return parentNode.id;
+			}
+
+			// Otherwise return undefined to indicate no value found
+			console.log(
+				`[getParentConfigurationValue] No value found for field ${fieldName}, returning undefined`
+			);
+			return undefined;
 	}
 }
 
@@ -407,30 +451,39 @@ export function autoConfigureNode(
 			continue;
 		}
 
-		// Handle multiple possible parent types (like subnets for EC2)
+		// Handle multiple possible parent types (like subnets for EC2) and source fields
 		if (parentTypes.length > 1) {
 			let foundValue = false;
 			let foundNode = null;
 			let source = "parent";
 
+			// Parse source fields - could be comma-separated for different resource types
+			const sourceFields = rule.sourceField
+				.split(",")
+				.map((field) => field.trim());
+
 			// First try to find a parent
 			for (const parentType of parentTypes) {
 				const parentNode = findParentOfType(nodeId, parentType, nodes);
 				if (parentNode) {
-					const value = getParentConfigurationValue(
-						parentNode,
-						rule.sourceField,
-						nodeConfigurations
-					);
-					if (value !== undefined && value !== "") {
-						foundNode = parentNode;
-						foundValue = true;
-						console.log(
-							`[autoConfigureNode] Found ${fieldName} from ${parentType} parent:`,
-							value
+					// Try each possible source field for this parent type
+					for (const sourceField of sourceFields) {
+						const value = getParentConfigurationValue(
+							parentNode,
+							sourceField,
+							nodeConfigurations
 						);
-						break; // Use the first valid parent found
+						if (value !== undefined && value !== "") {
+							foundNode = parentNode;
+							foundValue = true;
+							console.log(
+								`[autoConfigureNode] Found ${fieldName} from ${parentType} parent using field ${sourceField}:`,
+								value
+							);
+							break; // Use the first valid field found
+						}
 					}
+					if (foundValue) break; // Use the first valid parent found
 				}
 			}
 
@@ -491,17 +544,34 @@ export function autoConfigureNode(
 
 			// Apply the found value or clear if no value found
 			if (foundValue && foundNode) {
-				const value = getParentConfigurationValue(
-					foundNode,
-					rule.sourceField,
-					nodeConfigurations
-				);
-				if (value !== undefined && value !== "") {
-					(updatedConfig as Record<string, unknown>)[fieldName] = value;
+				// Parse source fields again and try each one
+				const sourceFields = rule.sourceField
+					.split(",")
+					.map((field) => field.trim());
+				
+				let finalValue = null;
+				for (const sourceField of sourceFields) {
+					const value = getParentConfigurationValue(
+						foundNode,
+						sourceField,
+						nodeConfigurations
+					);
+					if (value !== undefined && value !== "") {
+						finalValue = value;
+						console.log(
+							`[autoConfigureNode] Using source field ${sourceField} for ${fieldName}:`,
+							value
+						);
+						break;
+					}
+				}
+
+				if (finalValue !== null) {
+					(updatedConfig as Record<string, unknown>)[fieldName] = finalValue;
 					autoPopulatedFields.push(fieldName);
 					console.log(
 						`[autoConfigureNode] Auto-populated ${fieldName} from ${source}:`,
-						value
+						finalValue
 					);
 				}
 			} else {
@@ -592,31 +662,46 @@ export function autoConfigureNode(
 			}
 
 			if (foundNode) {
-				const value = getParentConfigurationValue(
-					foundNode,
-					rule.sourceField,
-					nodeConfigurations
-				);
-				console.log(
-					`[autoConfigureNode] Got value from ${source} ${foundNode.id}:`,
-					{
-						sourceField: rule.sourceField,
-						value,
-						valueType: typeof value,
-					}
-				);
+				// Handle multiple source fields for single parent type
+				const sourceFields = rule.sourceField
+					.split(",")
+					.map((field) => field.trim());
 
-				if (value !== undefined && value !== "") {
-					(updatedConfig as Record<string, unknown>)[fieldName] = value;
+				let finalValue = null;
+				let usedSourceField = null;
+
+				for (const sourceField of sourceFields) {
+					const value = getParentConfigurationValue(
+						foundNode,
+						sourceField,
+						nodeConfigurations
+					);
+					console.log(
+						`[autoConfigureNode] Trying source field ${sourceField} from ${source} ${foundNode.id}:`,
+						{
+							value,
+							valueType: typeof value,
+						}
+					);
+
+					if (value !== undefined && value !== "") {
+						finalValue = value;
+						usedSourceField = sourceField;
+						break;
+					}
+				}
+
+				if (finalValue !== null) {
+					(updatedConfig as Record<string, unknown>)[fieldName] = finalValue;
 					autoPopulatedFields.push(fieldName);
 					console.log(
-						`[autoConfigureNode] Auto-populated ${fieldName} from ${parentTypes[0]} ${source}:`,
-						value
+						`[autoConfigureNode] Auto-populated ${fieldName} from ${parentTypes[0]} ${source} using field ${usedSourceField}:`,
+						finalValue
 					);
 					continue;
 				} else {
 					console.log(
-						`[autoConfigureNode] Value from ${source} was undefined or empty for field ${fieldName}`
+						`[autoConfigureNode] All source fields (${rule.sourceField}) from ${source} were undefined or empty for field ${fieldName}`
 					);
 				}
 			} else {

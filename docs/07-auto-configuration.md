@@ -152,17 +152,49 @@ export const AWS_RESOURCE_FIELD_RULES: ResourceFieldRules = {
       },
       subnetId: {
         sourceParentType: "aws-private-subnet,aws-public-subnet",
-        sourceField: "id",
+        sourceField: "awsPrivateSubnetId,awsPublicSubnetId",
         defaultValue: "default-subnet",
       },
       securityGroups: {
         sourceParentType: "aws-security-group",
-        sourceField: "id",
+        sourceField: "awsSecurityGroupId",
         defaultValue: [],
       },
     },
     disabledFields: ["awsRegionId", "awsAvailabilityZone", "subnetId"],
     // Note: securityGroups is not disabled as it's an array and user might want to add multiple
+  },
+
+  "aws-internet-gateway": {
+    autoFields: {
+      awsVpcId: {
+        sourceParentType: "aws-vpc",
+        sourceField: "awsVpcId",
+        // No default value - only set when actually connected to a VPC
+      },
+    },
+    disabledFields: ["awsVpcId"],
+  },
+
+  "aws-route-table": {
+    autoFields: {
+      awsVpcId: {
+        sourceParentType: "aws-vpc",
+        sourceField: "awsVpcId",
+        // No default value - only set when actually inside a VPC or connected via edge
+      },
+      awsInternetGatewayId: {
+        sourceParentType: "aws-internet-gateway",
+        sourceField: "awsInternetGatewayId",
+        // No default value - only set when actually connected to an IGW
+      },
+      awsSubnetId: {
+        sourceParentType: "aws-private-subnet,aws-public-subnet",
+        sourceField: "awsPrivateSubnetId,awsPublicSubnetId",
+        // No default value - only set when actually connected to a subnet
+      },
+    },
+    disabledFields: ["awsVpcId", "awsInternetGatewayId", "awsSubnetId"],
   },
 };
 ```
@@ -302,6 +334,49 @@ export function getParentConfigurationValue(
 ```
 
 **Purpose**: Extracts configuration values from parent containers with special handling for ID fields and field name mappings.
+
+#### Display Name Detection
+
+The system intelligently handles display names vs actual IDs:
+
+```typescript
+// If config has a valid value that's not a display name, use it
+if (configValue !== undefined && configValue !== null && configValue !== "") {
+  // Check if this looks like a display name (starts with "AWS " and contains the service type)
+  const isDisplayName = typeof configValue === "string" && 
+    configValue.startsWith("AWS ") && 
+    fieldName.toLowerCase().includes('id');
+  
+  if (!isDisplayName) {
+    return configValue; // Use actual ID
+  } else {
+    return parentNode.id; // Use node ID instead of display name
+  }
+}
+```
+
+This ensures that when a VPC has `awsVpcId: "AWS VPC"` (display name), Route Tables and other resources get the actual VPC node ID instead of the display name.
+
+#### Multiple Source Fields
+
+For resources that can be placed in multiple parent types, the system supports comma-separated source fields:
+
+```typescript
+// Route Table can get subnet ID from either private or public subnets
+awsSubnetId: {
+  sourceParentType: "aws-private-subnet,aws-public-subnet",
+  sourceField: "awsPrivateSubnetId,awsPublicSubnetId",
+}
+
+// System tries each source field until it finds a valid value
+const sourceFields = rule.sourceField.split(",").map(field => field.trim());
+for (const sourceField of sourceFields) {
+  const value = getParentConfigurationValue(parentNode, sourceField, nodeConfigurations);
+  if (value !== undefined && value !== "") {
+    return value; // Use first valid value found
+  }
+}
+```
 
 ## Auto-Configuration Process
 
@@ -774,6 +849,26 @@ VPC
         └── subnetId: "private-subnet-id" (from Private Subnet)
 ```
 
+### Scenario 5: Route Table Edge Connections
+
+Route Tables can be configured through both parent-child relationships and edge connections:
+
+```
+VPC (vpc-123) 
+├── Route Table [INSIDE VPC - AUTO-CONFIGURED]
+│   └── awsVpcId: "vpc-123" (from parent VPC container)
+│
+Internet Gateway (igw-456) ──edge──► Route Table [EDGE CONNECTED - AUTO-CONFIGURED]
+                                    ├── awsVpcId: "vpc-123" (from VPC container)
+                                    └── awsInternetGatewayId: "igw-456" (from edge connection)
+```
+
+**Key Features:**
+- **Parent-Child Configuration**: VPC ID inherited from container hierarchy
+- **Edge Configuration**: Internet Gateway ID inherited from edge connections  
+- **Priority System**: Edge connections take priority for IGW/Subnet fields over parent-child
+- **Display Name Handling**: "AWS VPC" display names automatically converted to node IDs
+
 ## Debugging and Troubleshooting
 
 ### Debug Logging
@@ -803,6 +898,8 @@ console.log(`[getParentConfigurationValue] Getting field ${fieldName} from paren
    - Verify parent container exists in hierarchy
    - Ensure parent container has the required configuration field
    - Check if field name matches exactly in rules and configuration
+   - **Route Table Specific**: Verify VPC has proper ID (not just "AWS VPC" display name)
+   - **Edge Connections**: Check if edge connections exist for IGW/Subnet fields
 
 2. **Field Not Disabled**:
    - Verify field is listed in `disabledFields` array
@@ -813,6 +910,16 @@ console.log(`[getParentConfigurationValue] Getting field ${fieldName} from paren
    - Check if parent-child relationships are correctly established
    - Verify `autoConfigureAffectedNodes` is called when parent configuration changes
    - Ensure configuration store is updated with new values
+
+4. **Display Name Issues**:
+   - **Problem**: Resource gets "AWS VPC" instead of actual ID
+   - **Solution**: Display name detection automatically converts to node ID
+   - **Debug**: Check console logs for "display name" detection messages
+
+5. **Multiple Source Field Issues**:
+   - **Problem**: Auto-configuration fails with multiple parent types
+   - **Solution**: Ensure sourceField order matches sourceParentType order
+   - **Example**: `sourceParentType: "aws-private-subnet,aws-public-subnet"` should have `sourceField: "awsPrivateSubnetId,awsPublicSubnetId"`
 
 ## Performance Considerations
 
