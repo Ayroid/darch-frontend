@@ -18,6 +18,11 @@ import { useConfigurationContext } from "@/lib/stores";
 import { useAutoConfiguration } from "@/hooks/use-auto-configuration";
 import { CollapsibleSection } from "@/components/shared/CollapsibleSection";
 import AutoConfigurationTooltip from "@/components/utilities/AutoConfigurationTooltip";
+import {
+	addTag,
+	handleTagChange,
+	removeTag,
+} from "@/components/utilities/ConfigurationSidebarUtils";
 import { TbSettings, TbSettingsSpark, TbRoute } from "react-icons/tb";
 interface NATGatewayConfigurationFormProps {
 	config: NATGatewayConfiguration;
@@ -42,35 +47,7 @@ export default function NATGatewayConfigurationForm({
 		onChange(updatedConfig);
 	};
 
-	const handleTagChange = (key: string, value: string) => {
-		const currentTags = config.tags || {};
-		if (value === "") {
-			const newTags = { ...currentTags };
-			delete newTags[key];
-			onChange({ ...config, tags: newTags });
-		} else {
-			onChange({
-				...config,
-				tags: { ...currentTags, [key]: value },
-			});
-		}
-	};
 
-	const addTag = () => {
-		const currentTags = config.tags || {};
-		const key = `Key${Object.keys(currentTags).length + 1}`;
-		onChange({
-			...config,
-			tags: { ...currentTags, [key]: "" },
-		});
-	};
-
-	const removeTag = (keyToRemove: string) => {
-		const currentTags = config.tags || {};
-		const newTags = { ...currentTags };
-		delete newTags[keyToRemove];
-		onChange({ ...config, tags: newTags });
-	};
 
 	return (
 		<TooltipProvider>
@@ -202,7 +179,7 @@ export default function NATGatewayConfigurationForm({
 								type="button"
 								variant="outline"
 								size="sm"
-								onClick={addTag}
+								onClick={() => addTag(config, (updatedConfig) => onChange(updatedConfig as NATGatewayConfiguration))}
 							>
 								+ Add Tag
 							</Button>
@@ -233,7 +210,7 @@ export default function NATGatewayConfigurationForm({
 									<Label>Value</Label>
 									<Input
 										value={value}
-										onChange={(e) => handleTagChange(key, e.target.value)}
+										onChange={(e) => handleTagChange(config, key, e.target.value, (updatedConfig) => onChange(updatedConfig as NATGatewayConfiguration))}
 										placeholder="Tag value"
 									/>
 								</div>
@@ -241,7 +218,7 @@ export default function NATGatewayConfigurationForm({
 									<Button
 										type="button"
 										variant="ghost"
-										onClick={() => removeTag(key)}
+										onClick={() => removeTag(config, (updatedConfig) => onChange(updatedConfig as NATGatewayConfiguration), key)}
 									>
 										Remove
 									</Button>

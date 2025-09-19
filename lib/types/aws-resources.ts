@@ -23,7 +23,7 @@ export interface VPCConfiguration {
 	description?: string;
 	enableDnsSupport?: boolean;
 	enableDnsHostnames?: boolean;
-	tags?: string; // comma-separated key=value pairs for backward compatibility
+	tags?: Record<string, string>; // comma-separated key=value pairs for backward compatibility
 }
 
 // EC2 Configuration
@@ -77,7 +77,7 @@ export interface PublicSubnetConfiguration {
 	awsAvailabilityZone: string;
 	description: string;
 	mapPublicIpOnLaunch: boolean;
-	tags?: string; // comma-separated key=value pairs for backward compatibility
+	tags?: Record<string, string>; // comma-separated key=value pairs for backward compatibility
 }
 
 export interface PrivateSubnetConfiguration {
@@ -89,7 +89,7 @@ export interface PrivateSubnetConfiguration {
 	description: string;
 	mapPublicIpOnLaunch: boolean;
 	enableNatGateway: boolean;
-	tags?: string; // comma-separated key=value pairs for backward compatibility
+	tags?: Record<string, string>; // comma-separated key=value pairs for backward compatibility
 }
 
 // AWS Region Configuration
@@ -100,7 +100,7 @@ export interface AWSRegionConfiguration {
 	description: string;
 	isEnabled: boolean;
 	isDefault: boolean;
-	tags: string; // comma-separated for backward compatibility
+	tags?: Record<string, string>; // comma-separated for backward compatibility
 }
 
 // Availability Zone Configuration
@@ -111,7 +111,7 @@ export interface AvailabilityZoneConfiguration {
 	description: string;
 	isEnabled: boolean;
 	isPreferred: boolean;
-	tags: string; // comma-separated for backward compatibility
+	tags?: Record<string, string>; // comma-separated for backward compatibility
 }
 
 // Security Group Configuration
@@ -133,11 +133,60 @@ export interface SecurityGroupRule {
 	description?: string;
 }
 
+// Internet Gateway Configuration
+export interface InternetGatewayConfiguration {
+	awsInternetGatewayId: string;
+	awsVpcId?: string;
+	description?: string;
+	state?: "available" | "attaching" | "attached" | "detaching" | "detached";
+	tags?: Record<string, string>;
+}
+
+// NAT Gateway Configuration
+export interface NATGatewayConfiguration {
+	awsNatGatewayId: string;
+	awsSubnetId: string;
+	allocationId?: string; // Elastic IP allocation ID
+	state?: "pending" | "failed" | "available" | "deleting" | "deleted";
+	natGatewayType?: "public" | "private";
+	description?: string;
+	tags?: Record<string, string>;
+}
+
+// Route Table Configuration
+export interface RouteTableConfiguration {
+	awsRouteTableId: string;
+	awsVpcId: string;
+	routes: Route[];
+	associations: RouteTableAssociation[];
+	description?: string;
+	tags?: Record<string, string>;
+}
+
+export interface Route {
+	destinationCidrBlock?: string;
+	destinationIpv6CidrBlock?: string;
+	gatewayId?: string;
+	instanceId?: string;
+	natGatewayId?: string;
+	networkInterfaceId?: string;
+	vpcPeeringConnectionId?: string;
+	state?: "active" | "blackhole";
+}
+
+export interface RouteTableAssociation {
+	associationId?: string;
+	subnetId?: string;
+	gatewayId?: string;
+	main?: boolean;
+}
+
 // Default/Generic Configuration for unknown resources
 export interface DefaultConfiguration {
 	awsResourceId?: string;
 	description?: string;
 	properties?: Record<string, unknown>;
+	tags?: Record<string, string>;
 }
 
 // Type guards for runtime type checking
@@ -234,55 +283,6 @@ export type AWSResourceConfiguration =
 
 export type AWSServiceType = keyof typeof AWS_SERVICE_TYPE_MAP;
 export type AWSServiceName = (typeof AWS_SERVICE_TYPE_MAP)[AWSServiceType];
-
-
-// Internet Gateway Configuration
-export interface InternetGatewayConfiguration {
-	awsInternetGatewayId: string;
-	awsVpcId?: string;
-	description?: string;
-	state?: 'available' | 'attaching' | 'attached' | 'detaching' | 'detached';
-	tags?: Record<string, string>;
-}
-
-// NAT Gateway Configuration
-export interface NATGatewayConfiguration {
-	awsNatGatewayId: string;
-	awsSubnetId: string;
-	allocationId?: string; // Elastic IP allocation ID
-	state?: 'pending' | 'failed' | 'available' | 'deleting' | 'deleted';
-	natGatewayType?: 'public' | 'private';
-	description?: string;
-	tags?: Record<string, string>;
-}
-
-// Route Table Configuration
-export interface RouteTableConfiguration {
-	awsRouteTableId: string;
-	awsVpcId: string;
-	routes: Route[];
-	associations: RouteTableAssociation[];
-	description?: string;
-	tags?: Record<string, string>;
-}
-
-export interface Route {
-	destinationCidrBlock?: string;
-	destinationIpv6CidrBlock?: string;
-	gatewayId?: string;
-	instanceId?: string;
-	natGatewayId?: string;
-	networkInterfaceId?: string;
-	vpcPeeringConnectionId?: string;
-	state?: 'active' | 'blackhole';
-}
-
-export interface RouteTableAssociation {
-	associationId?: string;
-	subnetId?: string;
-	gatewayId?: string;
-	main?: boolean;
-}
 
 // =============================================================================
 // COMMENTED OUT RESOURCES - NO CONFIGURATION FORMS AVAILABLE

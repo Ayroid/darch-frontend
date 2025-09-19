@@ -8,6 +8,12 @@ import { useConfigurationContext } from "@/lib/stores";
 import { useAutoConfiguration } from "@/hooks/use-auto-configuration";
 import AutoConfigurationTooltip from "@/components/utilities/AutoConfigurationTooltip";
 import { CollapsibleSection } from "@/components/shared/CollapsibleSection";
+import {
+	addTag,
+	handleTagChange,
+	removeTag,
+} from "@/components/utilities/ConfigurationSidebarUtils";
+import { Button } from "@/components/ui/button";
 import { TbSettingsSpark, TbSettings } from "react-icons/tb";
 import { FiGlobe } from "react-icons/fi";
 
@@ -172,17 +178,64 @@ const PublicSubnetConfigurationForm: React.FC<
 				defaultOpen={false}
 				icon={<TbSettings className="w-6 h-6 text-gray-600" />}
 			>
-				<div className="space-y-2">
-					<Label htmlFor="tags">Tags</Label>
-					<Input
-						id="tags"
-						placeholder="key1=value1,key2=value2"
-						value={config.tags || ""}
-						onChange={(e) => handleFieldChange("tags", e.target.value)}
-					/>
-					<p className="text-sm text-gray-500">
-						Enter comma-separated key=value pairs
-					</p>
+				<div className="space-y-4">
+					<div className="flex justify-end">
+						<Button
+							type="button"
+							variant="outline"
+							size="sm"
+							onClick={() => addTag(config, (updatedConfig) => onChange(updatedConfig as PublicSubnetConfiguration))}
+						>
+							+ Add Tag
+						</Button>
+					</div>
+
+					{Object.entries(config.tags || {}).map(([key, value]) => (
+						<div key={key} className="grid grid-cols-2 gap-3 p-3 border rounded-md">
+							<div className="space-y-2">
+								<Label>Key</Label>
+								<Input
+									value={key}
+									onChange={(e) => {
+										const oldKey = key;
+										const newKey = e.target.value;
+										if (newKey !== oldKey) {
+											const newTags = { ...config.tags };
+											delete newTags[oldKey];
+											if (newKey.trim() !== "") {
+												newTags[newKey] = value;
+											}
+											onChange({ ...config, tags: newTags });
+										}
+									}}
+									placeholder="Tag key"
+								/>
+							</div>
+							<div className="space-y-2">
+								<Label>Value</Label>
+								<Input
+									value={value}
+									onChange={(e) => handleTagChange(config, key, e.target.value, (updatedConfig) => onChange(updatedConfig as PublicSubnetConfiguration))}
+									placeholder="Tag value"
+								/>
+							</div>
+							<div className="col-span-2 flex justify-end">
+								<Button
+									type="button"
+									variant="ghost"
+									onClick={() => removeTag(config, (updatedConfig) => onChange(updatedConfig as PublicSubnetConfiguration), key)}
+								>
+									Remove
+								</Button>
+							</div>
+						</div>
+					))}
+
+					{Object.keys(config.tags || {}).length === 0 && (
+						<div className="text-center py-4 text-gray-500">
+							<p>No tags configured. Click &quot;Add Tag&quot; to create your first tag.</p>
+						</div>
+					)}
 				</div>
 			</CollapsibleSection>
 		</div>

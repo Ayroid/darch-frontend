@@ -18,6 +18,11 @@ import { useConfigurationContext } from "@/lib/stores";
 import { useAutoConfiguration } from "@/hooks/use-auto-configuration";
 import { CollapsibleSection } from "@/components/shared/CollapsibleSection";
 import AutoConfigurationTooltip from "@/components/utilities/AutoConfigurationTooltip";
+import {
+	addTag,
+	handleTagChange,
+	removeTag,
+} from "@/components/utilities/ConfigurationSidebarUtils";
 import { TbSettings, TbSettingsSpark } from "react-icons/tb";
 import { FiGlobe } from "react-icons/fi";
 
@@ -44,35 +49,7 @@ const InternetGatewayConfigurationForm: React.FC<InternetGatewayConfigurationFor
 		onChange(updatedConfig);
 	};
 
-	const handleTagChange = (key: string, value: string) => {
-		const currentTags = config.tags || {};
-		if (value === "") {
-			const newTags = { ...currentTags };
-			delete newTags[key];
-			onChange({ ...config, tags: newTags });
-		} else {
-			onChange({
-				...config,
-				tags: { ...currentTags, [key]: value },
-			});
-		}
-	};
 
-	const addTag = () => {
-		const currentTags = config.tags || {};
-		const key = `Key${Object.keys(currentTags).length + 1}`;
-		onChange({
-			...config,
-			tags: { ...currentTags, [key]: "" },
-		});
-	};
-
-	const removeTag = (keyToRemove: string) => {
-		const currentTags = config.tags || {};
-		const newTags = { ...currentTags };
-		delete newTags[keyToRemove];
-		onChange({ ...config, tags: newTags });
-	};
 
 	return (
 		<TooltipProvider>
@@ -176,7 +153,7 @@ const InternetGatewayConfigurationForm: React.FC<InternetGatewayConfigurationFor
 								type="button"
 								variant="outline"
 								size="sm"
-								onClick={addTag}
+								onClick={() => addTag(config, (updatedConfig) => onChange(updatedConfig as InternetGatewayConfiguration))}
 							>
 								+ Add Tag
 							</Button>
@@ -207,7 +184,7 @@ const InternetGatewayConfigurationForm: React.FC<InternetGatewayConfigurationFor
 									<Label>Value</Label>
 									<Input
 										value={value}
-										onChange={(e) => handleTagChange(key, e.target.value)}
+										onChange={(e) => handleTagChange(config, key, e.target.value, (updatedConfig) => onChange(updatedConfig as InternetGatewayConfiguration))}
 										placeholder="Tag value"
 									/>
 								</div>
@@ -215,7 +192,7 @@ const InternetGatewayConfigurationForm: React.FC<InternetGatewayConfigurationFor
 									<Button
 										type="button"
 										variant="ghost"
-										onClick={() => removeTag(key)}
+										onClick={() => removeTag(config, (updatedConfig) => onChange(updatedConfig as InternetGatewayConfiguration), key)}
 									>
 										Remove
 									</Button>

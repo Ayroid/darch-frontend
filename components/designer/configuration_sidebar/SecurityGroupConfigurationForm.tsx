@@ -22,6 +22,11 @@ import { useAutoConfiguration } from "@/hooks/use-auto-configuration";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { CollapsibleSection } from "@/components/shared/CollapsibleSection";
 import AutoConfigurationTooltip from "@/components/utilities/AutoConfigurationTooltip";
+import {
+	addTag,
+	handleTagChange,
+	removeTag,
+} from "@/components/utilities/ConfigurationSidebarUtils";
 import { TbSettings, TbSettingsSpark } from "react-icons/tb";
 import { LuCircleArrowDown, LuCircleArrowUp } from "react-icons/lu";
 
@@ -105,26 +110,6 @@ const SecurityGroupConfigurationForm: React.FC<
 	};
 
 	// Tag management functions
-	const handleTagChange = (key: string, value: string) => {
-		const updatedTags = { ...(config.tags || {}) };
-		if (value.trim() === "") {
-			delete updatedTags[key];
-		} else {
-			updatedTags[key] = value;
-		}
-		handleFieldChange("tags", updatedTags);
-	};
-
-	const addTag = () => {
-		const newTagKey = `tag-${Object.keys(config.tags || {}).length + 1}`;
-		handleTagChange(newTagKey, "");
-	};
-
-	const removeTag = (key: string) => {
-		const updatedTags = { ...(config.tags || {}) };
-		delete updatedTags[key];
-		handleFieldChange("tags", updatedTags);
-	};
 
 	return (
 		<TooltipProvider>
@@ -422,18 +407,18 @@ const SecurityGroupConfigurationForm: React.FC<
 								<Input
 									placeholder="Value"
 									value={value}
-									onChange={(e) => handleTagChange(key, e.target.value)}
+									onChange={(e) => handleTagChange(config, key, e.target.value, (updatedConfig) => onChange(updatedConfig as SecurityGroupConfiguration))}
 								/>
 								<Button
 									type="button"
 									variant="ghost"
-									onClick={() => removeTag(key)}
+									onClick={() => removeTag(config, (updatedConfig) => onChange(updatedConfig as SecurityGroupConfiguration), key)}
 								>
 									Remove
 								</Button>
 							</div>
 						))}
-						<Button type="button" variant="outline" onClick={addTag}>
+						<Button type="button" variant="outline" onClick={() => addTag(config, (updatedConfig) => onChange(updatedConfig as SecurityGroupConfiguration))}>
 							Add Tag
 						</Button>
 					</div>
