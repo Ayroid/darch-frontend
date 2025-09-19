@@ -104,9 +104,10 @@ export const defaultConfigurations: Record<string, AWSResourceConfiguration> = {
 	"aws-route-table": {
 		awsRouteTableId: "AWS Route Table",
 		awsVpcId: "",
+		awsInternetGatewayId: "",
+		awsSubnetId: "",
 		routes: [],
 		associations: [],
-		subnetIds: [],
 		tags: { Name: "MyRouteTable" },
 	} as RouteTableConfiguration,
 	"aws-nat-gateway": {

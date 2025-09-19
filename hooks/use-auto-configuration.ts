@@ -24,8 +24,8 @@ export function useAutoConfiguration({ nodeId, resourceType }: UseAutoConfigurat
 
   // Get field information
   const fieldInfo = useMemo(() => {
-    const { nodes } = convertToReactFlow();
-    const autoConfigInfo = getAutoConfigurationInfo(nodeId, resourceType, nodes);
+    const { nodes, edges } = convertToReactFlow();
+    const autoConfigInfo = getAutoConfigurationInfo(nodeId, resourceType, nodes, edges);
 
     const result: Record<string, FieldInfo> = {};
 

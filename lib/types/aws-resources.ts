@@ -157,6 +157,8 @@ export interface NATGatewayConfiguration {
 export interface RouteTableConfiguration {
 	awsRouteTableId: string;
 	awsVpcId: string;
+	awsInternetGatewayId?: string;
+	awsSubnetId?: string;
 	routes: Route[];
 	associations: RouteTableAssociation[];
 	description?: string;

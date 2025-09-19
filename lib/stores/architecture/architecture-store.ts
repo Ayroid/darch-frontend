@@ -282,13 +282,14 @@ export const useArchitectureStore = create<
 						state.hasUnsavedChanges = true;
 
 						// Auto-configure using current store state to get all nodes for hierarchy
-						const { nodes: allNodes } = get().convertToReactFlow();
+						const { nodes: allNodes, edges: allEdges } = get().convertToReactFlow();
 						const { updatedConfig, autoPopulatedFields } = autoConfigureNode(
 							node.id,
 							nodeConfig,
 							[...allNodes, node], // Include the new node in the hierarchy
 							state.nodeConfigurations,
-							resourceType
+							resourceType,
+							allEdges
 						);
 
 						// Apply auto-configuration if any fields were populated
@@ -347,6 +348,39 @@ export const useArchitectureStore = create<
 							}
 						}
 					});
+
+					// Auto-configure affected nodes after position change (parent-child relationships may have changed)
+					const { nodes, edges } = get().convertToReactFlow();
+					const nodeConfig = get().nodeConfigurations[nodeId];
+					if (nodeConfig) {
+						const movedNode = nodes.find(n => n.id === nodeId);
+						const resourceType = movedNode?.data?.serviceId as string;
+						if (resourceType) {
+							const { updatedConfig, autoPopulatedFields } = autoConfigureNode(
+								nodeId,
+								nodeConfig,
+								nodes,
+								get().nodeConfigurations,
+								resourceType,
+								edges
+							);
+
+							// Apply auto-configuration if any fields were populated
+							if (autoPopulatedFields.length > 0) {
+								set((state) => {
+									state.nodeConfigurations[nodeId] = updatedConfig;
+									// Update the corresponding node in architecture data
+									if (state.currentData) {
+										const archNode = state.currentData.nodes.find(n => n.id === nodeId);
+										if (archNode) {
+											archNode.configuration = updatedConfig;
+										}
+									}
+								});
+								console.log(`Auto-configured node ${nodeId} after position change:`, autoPopulatedFields);
+							}
+						}
+					}
 				},
 
 				updateFromReactFlow: (nodes, edges) => {
@@ -430,12 +464,13 @@ export const useArchitectureStore = create<
 								state.hasUnsavedChanges = true;
 							}
 
-							// Auto-configure affected child nodes
-							const { nodes } = get().convertToReactFlow();
+							// Auto-configure affected child nodes and edge-connected nodes
+							const { nodes, edges } = get().convertToReactFlow();
 							const affectedUpdates = autoConfigureAffectedNodes(
 								nodeId,
 								nodes,
-								state.nodeConfigurations
+								state.nodeConfigurations,
+								edges
 							);
 
 							// Apply auto-configuration updates
@@ -509,14 +544,60 @@ export const useArchitectureStore = create<
 						state.currentData!.connections.push(connection);
 						state.currentData!.metadata.lastModified = new Date().toISOString();
 						state.hasUnsavedChanges = true;
+
+						// Auto-configure nodes affected by the new connection
+						const { nodes, edges } = get().convertToReactFlow();
+						const updatedEdges = [...edges, edge]; // Include the new edge
+
+						// Check both source and target nodes for auto-configuration
+						for (const nodeId of [edge.source, edge.target]) {
+							const nodeConfig = state.nodeConfigurations[nodeId];
+							if (!nodeConfig) continue;
+
+							const node = nodes.find(n => n.id === nodeId);
+							const resourceType = node?.data?.serviceId as string;
+							if (!resourceType) continue;
+
+							const { updatedConfig, autoPopulatedFields } = autoConfigureNode(
+								nodeId,
+								nodeConfig,
+								nodes,
+								state.nodeConfigurations,
+								resourceType,
+								updatedEdges
+							);
+
+							// Apply auto-configuration if any fields were populated
+							if (autoPopulatedFields.length > 0) {
+								state.nodeConfigurations[nodeId] = updatedConfig;
+
+								// Update the corresponding node in architecture data
+								const archNode = state.currentData.nodes.find(n => n.id === nodeId);
+								if (archNode) {
+									archNode.configuration = updatedConfig;
+								}
+
+								console.log(
+									`Auto-configured node ${nodeId} after edge connection with fields:`,
+									autoPopulatedFields
+								);
+							}
+						}
 					});
 
 					get().forceSave();
 				},
 
 				removeConnection: (connectionId) => {
+					let removedConnection: NodeConnection | null = null;
+
 					set((state) => {
 						if (state.currentData) {
+							// Find the connection being removed to get source and target
+							removedConnection = state.currentData.connections.find(
+								conn => conn.id === connectionId
+							) || null;
+
 							state.currentData.connections =
 								state.currentData.connections.filter(
 									(conn) => conn.id !== connectionId
@@ -524,6 +605,61 @@ export const useArchitectureStore = create<
 							state.currentData.metadata.lastModified =
 								new Date().toISOString();
 							state.hasUnsavedChanges = true;
+
+							// Auto-configure nodes affected by the removed connection
+							if (removedConnection) {
+								const { nodes, edges } = get().convertToReactFlow();
+								console.log(`[removeConnection] Processing removed connection:`, {
+									connectionId,
+									source: removedConnection.source,
+									target: removedConnection.target,
+									remainingEdges: edges.length
+								});
+
+								// Check both source and target nodes for auto-configuration
+								for (const nodeId of [removedConnection.source, removedConnection.target]) {
+									const nodeConfig = state.nodeConfigurations[nodeId];
+									if (!nodeConfig) continue;
+
+									const node = nodes.find(n => n.id === nodeId);
+									const resourceType = node?.data?.serviceId as string;
+									if (!resourceType) continue;
+
+									console.log(`[removeConnection] Auto-configuring node ${nodeId} (${resourceType}) after edge removal...`);
+									
+									const { updatedConfig, autoPopulatedFields } = autoConfigureNode(
+										nodeId,
+										nodeConfig,
+										nodes,
+										state.nodeConfigurations,
+										resourceType,
+										edges // Use current edges (after removal)
+									);
+
+									console.log(`[removeConnection] Auto-config result for ${nodeId}:`, {
+										autoPopulatedFields,
+										hasChanges: autoPopulatedFields.length > 0
+									});
+
+									// Apply auto-configuration if any fields were changed
+									if (autoPopulatedFields.length > 0) {
+										state.nodeConfigurations[nodeId] = updatedConfig;
+
+										// Update the corresponding node in architecture data
+										const archNode = state.currentData.nodes.find(n => n.id === nodeId);
+										if (archNode) {
+											archNode.configuration = updatedConfig;
+										}
+
+										console.log(
+											`Auto-configured node ${nodeId} after edge removal with fields:`,
+											autoPopulatedFields
+										);
+									} else {
+										console.log(`[removeConnection] No auto-config changes needed for ${nodeId}`);
+									}
+								}
+							}
 						}
 					});
 
