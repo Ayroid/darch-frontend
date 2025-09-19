@@ -17,7 +17,7 @@ export const defaultConfigurations: Record<string, AWSResourceConfiguration> = {
 		awsRegionId: "us-east-1",
 		enableDnsSupport: true,
 		enableDnsHostnames: true,
-		tags: "Environment=Development",
+		tags: { Name: "MyVPC" },
 	} as VPCConfiguration,
 	"aws-ec2": {
 		awsEc2Id: "AWS EC2",
@@ -46,7 +46,7 @@ export const defaultConfigurations: Record<string, AWSResourceConfiguration> = {
 		description: "",
 		isEnabled: true,
 		isDefault: true,
-		tags: "Type=Region",
+		tags: { Name: "MyRegion" },
 	} as AWSRegionConfiguration,
 	"aws-availability-zone": {
 		awsAvailabilityZoneId: "AWS Availability Zone",
@@ -55,7 +55,7 @@ export const defaultConfigurations: Record<string, AWSResourceConfiguration> = {
 		description: "",
 		isEnabled: true,
 		isPreferred: false,
-		tags: "Type=AvailabilityZone",
+		tags: { Name: "MyAvailabilityZone", Type: "AvailabilityZone" },
 	} as AvailabilityZoneConfiguration,
 	"aws-private-subnet": {
 		awsPrivateSubnetId: "AWS Private Subnet",
@@ -66,7 +66,7 @@ export const defaultConfigurations: Record<string, AWSResourceConfiguration> = {
 		description: "",
 		mapPublicIpOnLaunch: false,
 		enableNatGateway: false,
-		tags: "Type=Private",
+		tags: { Name: "MyPrivateSubnet", Type: "Private" },
 	} as PrivateSubnetConfiguration,
 	"aws-public-subnet": {
 		awsPublicSubnetId: "AWS Public Subnet",
@@ -76,7 +76,7 @@ export const defaultConfigurations: Record<string, AWSResourceConfiguration> = {
 		awsRegionId: "us-east-1",
 		description: "",
 		mapPublicIpOnLaunch: true,
-		tags: "Type=Public",
+		tags: { Name: "MyPublicSubnet", Type: "Public" },
 	} as PublicSubnetConfiguration,
 	"aws-security-group": {
 		awsSecurityGroupId: "AWS Security Group",
