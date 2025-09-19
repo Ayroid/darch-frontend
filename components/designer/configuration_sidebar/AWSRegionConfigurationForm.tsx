@@ -60,7 +60,6 @@ const AWSRegionConfigurationForm: React.FC<AWSRegionConfigurationFormProps> = ({
 				title="Region Configuration"
 				icon={<FiGlobe className="h-5 w-5 text-gray-600" />}
 				defaultOpen={true}
-				borderbottom={false}
 			>
 				<div className="space-y-4">
 					<div className="space-y-2">
@@ -113,6 +112,7 @@ const AWSRegionConfigurationForm: React.FC<AWSRegionConfigurationFormProps> = ({
 				title="Tags"
 				defaultOpen={false}
 				icon={<TbSettings className="w-6 h-6 text-gray-600" />}
+				borderbottom={false}
 			>
 				<div className="space-y-4">
 					<div className="flex justify-end">

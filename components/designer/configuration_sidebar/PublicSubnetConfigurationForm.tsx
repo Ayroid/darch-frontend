@@ -139,7 +139,6 @@ const PublicSubnetConfigurationForm: React.FC<
 				title="Subnet Configuration"
 				icon={<FiGlobe className="w-6 h-6 text-gray-600" />}
 				defaultOpen={true}
-				borderbottom={false}
 			>
 				<div className="space-y-4">
 					{/* Subnet Name */}
@@ -177,6 +176,7 @@ const PublicSubnetConfigurationForm: React.FC<
 				title="Tags"
 				defaultOpen={false}
 				icon={<TbSettings className="w-6 h-6 text-gray-600" />}
+				borderbottom={false}
 			>
 				<div className="space-y-4">
 					<div className="flex justify-end">
@@ -184,14 +184,21 @@ const PublicSubnetConfigurationForm: React.FC<
 							type="button"
 							variant="outline"
 							size="sm"
-							onClick={() => addTag(config, (updatedConfig) => onChange(updatedConfig as PublicSubnetConfiguration))}
+							onClick={() =>
+								addTag(config, (updatedConfig) =>
+									onChange(updatedConfig as PublicSubnetConfiguration)
+								)
+							}
 						>
 							+ Add Tag
 						</Button>
 					</div>
 
 					{Object.entries(config.tags || {}).map(([key, value]) => (
-						<div key={key} className="grid grid-cols-2 gap-3 p-3 border rounded-md">
+						<div
+							key={key}
+							className="grid grid-cols-2 gap-3 p-3 border rounded-md"
+						>
 							<div className="space-y-2">
 								<Label>Key</Label>
 								<Input
@@ -215,7 +222,15 @@ const PublicSubnetConfigurationForm: React.FC<
 								<Label>Value</Label>
 								<Input
 									value={value}
-									onChange={(e) => handleTagChange(config, key, e.target.value, (updatedConfig) => onChange(updatedConfig as PublicSubnetConfiguration))}
+									onChange={(e) =>
+										handleTagChange(
+											config,
+											key,
+											e.target.value,
+											(updatedConfig) =>
+												onChange(updatedConfig as PublicSubnetConfiguration)
+										)
+									}
 									placeholder="Tag value"
 								/>
 							</div>
@@ -223,7 +238,14 @@ const PublicSubnetConfigurationForm: React.FC<
 								<Button
 									type="button"
 									variant="ghost"
-									onClick={() => removeTag(config, (updatedConfig) => onChange(updatedConfig as PublicSubnetConfiguration), key)}
+									onClick={() =>
+										removeTag(
+											config,
+											(updatedConfig) =>
+												onChange(updatedConfig as PublicSubnetConfiguration),
+											key
+										)
+									}
 								>
 									Remove
 								</Button>
@@ -233,7 +255,10 @@ const PublicSubnetConfigurationForm: React.FC<
 
 					{Object.keys(config.tags || {}).length === 0 && (
 						<div className="text-center py-4 text-gray-500">
-							<p>No tags configured. Click &quot;Add Tag&quot; to create your first tag.</p>
+							<p>
+								No tags configured. Click &quot;Add Tag&quot; to create your
+								first tag.
+							</p>
 						</div>
 					)}
 				</div>

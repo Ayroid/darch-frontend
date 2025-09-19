@@ -285,7 +285,6 @@ const SecurityGroupConfigurationForm: React.FC<
 					title="Egress Rules"
 					defaultOpen={true}
 					icon={<LuCircleArrowUp className="w-6 h-6 text-gray-600" />}
-					borderbottom={false}
 				>
 					<div className="space-y-4">
 						<div className="flex justify-end">
@@ -387,6 +386,7 @@ const SecurityGroupConfigurationForm: React.FC<
 					title="Tags"
 					defaultOpen={false}
 					icon={<TbSettings className="w-6 h-6 text-gray-600" />}
+					borderbottom={false}
 				>
 					<div className="space-y-4">
 						{Object.entries(config.tags || {}).map(([key, value]) => (
@@ -407,18 +407,41 @@ const SecurityGroupConfigurationForm: React.FC<
 								<Input
 									placeholder="Value"
 									value={value}
-									onChange={(e) => handleTagChange(config, key, e.target.value, (updatedConfig) => onChange(updatedConfig as SecurityGroupConfiguration))}
+									onChange={(e) =>
+										handleTagChange(
+											config,
+											key,
+											e.target.value,
+											(updatedConfig) =>
+												onChange(updatedConfig as SecurityGroupConfiguration)
+										)
+									}
 								/>
 								<Button
 									type="button"
 									variant="ghost"
-									onClick={() => removeTag(config, (updatedConfig) => onChange(updatedConfig as SecurityGroupConfiguration), key)}
+									onClick={() =>
+										removeTag(
+											config,
+											(updatedConfig) =>
+												onChange(updatedConfig as SecurityGroupConfiguration),
+											key
+										)
+									}
 								>
 									Remove
 								</Button>
 							</div>
 						))}
-						<Button type="button" variant="outline" onClick={() => addTag(config, (updatedConfig) => onChange(updatedConfig as SecurityGroupConfiguration))}>
+						<Button
+							type="button"
+							variant="outline"
+							onClick={() =>
+								addTag(config, (updatedConfig) =>
+									onChange(updatedConfig as SecurityGroupConfiguration)
+								)
+							}
+						>
 							Add Tag
 						</Button>
 					</div>

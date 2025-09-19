@@ -94,7 +94,6 @@ const AvailabilityZoneConfigurationForm: React.FC<
 				title="Availability Zone Configuration"
 				icon={<FiMapPin className="w-6 h-6 text-gray-600" />}
 				defaultOpen={true}
-				borderbottom={false}
 			>
 				<div className="space-y-4">
 					<div className="space-y-2">

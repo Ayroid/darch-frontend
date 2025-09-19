@@ -90,7 +90,6 @@ const VPCConfigurationForm: React.FC<VPCConfigurationFormProps> = ({
 					title="VPC Configuration"
 					defaultOpen={true}
 					icon={<FiGlobe className="w-6 h-6 text-gray-600" />}
-					borderbottom={false}
 				>
 					<div className="space-y-4">
 						<div className="space-y-2">
@@ -132,14 +131,21 @@ const VPCConfigurationForm: React.FC<VPCConfigurationFormProps> = ({
 								type="button"
 								variant="outline"
 								size="sm"
-								onClick={() => addTag(config, (updatedConfig) => onChange(updatedConfig as VPCConfiguration))}
+								onClick={() =>
+									addTag(config, (updatedConfig) =>
+										onChange(updatedConfig as VPCConfiguration)
+									)
+								}
 							>
 								+ Add Tag
 							</Button>
 						</div>
 
 						{Object.entries(config.tags || {}).map(([key, value]) => (
-							<div key={key} className="grid grid-cols-2 gap-3 p-3 border rounded-md">
+							<div
+								key={key}
+								className="grid grid-cols-2 gap-3 p-3 border rounded-md"
+							>
 								<div className="space-y-2">
 									<Label>Key</Label>
 									<Input
@@ -163,7 +169,15 @@ const VPCConfigurationForm: React.FC<VPCConfigurationFormProps> = ({
 									<Label>Value</Label>
 									<Input
 										value={value}
-										onChange={(e) => handleTagChange(config, key, e.target.value, (updatedConfig) => onChange(updatedConfig as VPCConfiguration))}
+										onChange={(e) =>
+											handleTagChange(
+												config,
+												key,
+												e.target.value,
+												(updatedConfig) =>
+													onChange(updatedConfig as VPCConfiguration)
+											)
+										}
 										placeholder="Tag value"
 									/>
 								</div>
@@ -171,7 +185,14 @@ const VPCConfigurationForm: React.FC<VPCConfigurationFormProps> = ({
 									<Button
 										type="button"
 										variant="ghost"
-										onClick={() => removeTag(config, (updatedConfig) => onChange(updatedConfig as VPCConfiguration), key)}
+										onClick={() =>
+											removeTag(
+												config,
+												(updatedConfig) =>
+													onChange(updatedConfig as VPCConfiguration),
+												key
+											)
+										}
 									>
 										Remove
 									</Button>
@@ -181,7 +202,10 @@ const VPCConfigurationForm: React.FC<VPCConfigurationFormProps> = ({
 
 						{Object.keys(config.tags || {}).length === 0 && (
 							<div className="text-center py-4 text-gray-500">
-								<p>No tags configured. Click &quot;Add Tag&quot; to create your first tag.</p>
+								<p>
+									No tags configured. Click &quot;Add Tag&quot; to create your
+									first tag.
+								</p>
 							</div>
 						)}
 					</div>

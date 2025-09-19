@@ -139,7 +139,6 @@ const PrivateSubnetConfigurationForm: React.FC<
 				title="Subnet Configuration"
 				icon={<FiGlobe className="w-6 h-6 text-gray-600" />}
 				defaultOpen={true}
-				borderbottom={false}
 			>
 				<div className="space-y-4">
 					{/* Subnet Name */}
@@ -177,6 +176,7 @@ const PrivateSubnetConfigurationForm: React.FC<
 				title="Tags"
 				defaultOpen={false}
 				icon={<TbSettings className="w-6 h-6 text-gray-600" />}
+				borderbottom={false}
 			>
 				<div className="space-y-4">
 					<div className="flex justify-end">

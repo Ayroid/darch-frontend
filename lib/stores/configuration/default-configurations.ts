@@ -7,6 +7,9 @@ import type {
 	PublicSubnetConfiguration,
 	AWSResourceConfiguration,
 	SecurityGroupConfiguration,
+	InternetGatewayConfiguration,
+	RouteTableConfiguration,
+	NATGatewayConfiguration,
 } from "@/lib/types/aws-resources";
 
 // Default configuration values for different service types
@@ -37,7 +40,7 @@ export const defaultConfigurations: Record<string, AWSResourceConfiguration> = {
 		autoRecovery: true,
 		associatePublicIpAddress: false,
 		tenancy: "default",
-		tags: {},
+		tags: { Name: "MyEC2Instance" },
 	} as EC2Configuration,
 	"aws-region": {
 		awsRegionId: "AWS Region",
@@ -91,15 +94,37 @@ export const defaultConfigurations: Record<string, AWSResourceConfiguration> = {
 				description: "All outbound",
 			},
 		],
-		tags: {},
+		tags: { Name: "MySecurityGroup" },
 	} as SecurityGroupConfiguration,
+	"aws-internet-gateway": {
+		awsInternetGatewayId: "AWS Internet Gateway",
+		awsVpcId: "",
+		tags: { Name: "MyInternetGateway" },
+	} as InternetGatewayConfiguration,
+	"aws-route-table": {
+		awsRouteTableId: "AWS Route Table",
+		awsVpcId: "",
+		routes: [],
+		associations: [],
+		subnetIds: [],
+		tags: { Name: "MyRouteTable" },
+	} as RouteTableConfiguration,
+	"aws-nat-gateway": {
+		awsNatGatewayId: "AWS NAT Gateway",
+		awsSubnetId: "",
+		allocationId: "",
+		tags: { Name: "MyNATGateway" },
+	} as NATGatewayConfiguration,
 };
 
 // Utility function to get default configuration for a service type
 export const getDefaultConfiguration = (
 	resourceType: string
 ): AWSResourceConfiguration => {
-		return defaultConfigurations[resourceType] || {
-		awsResourceId: 'Unknown Service',
-	} as AWSResourceConfiguration;
+	return (
+		defaultConfigurations[resourceType] ||
+		({
+			awsResourceId: "Unknown Service",
+		} as AWSResourceConfiguration)
+	);
 };
