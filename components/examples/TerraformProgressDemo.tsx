@@ -15,7 +15,7 @@
  */
 
 import React, { useState } from 'react';
-import { useTerraformOperation } from '@/hooks/use-terraform-operation';
+import { useTerraformOperation } from '@/lib/hooks/use-terraform-operation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -297,7 +297,7 @@ export function TerraformProgressDemo({
 
                       {showLogs && (
                         <div className="bg-gray-900 text-green-400 p-3 rounded-md font-mono text-xs max-h-64 overflow-y-auto">
-                          {job.logs.map((log, index) => (
+                          {job.logs.map((log: string, index: number) => (
                             <div key={index} className="whitespace-pre-wrap">
                               {log}
                             </div>

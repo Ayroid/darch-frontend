@@ -91,8 +91,8 @@ export const AWS_RESOURCE_FIELD_RULES: ResourceFieldRules = {
 		autoFields: {
 			awsVpcId: {
 				sourceParentType: "aws-vpc",
-				sourceField: "awsVpcId",
-				defaultValue: "",
+				sourceField: "id",
+				// No default value - only set when actually inside a VPC
 			},
 		},
 		disabledFields: ["awsVpcId"],

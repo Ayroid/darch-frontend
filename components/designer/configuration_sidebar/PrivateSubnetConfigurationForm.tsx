@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PrivateSubnetConfiguration } from "@/lib/types/aws-resources";
 import { useConfigurationContext } from "@/lib/stores";
-import { useAutoConfiguration } from "@/hooks/use-auto-configuration";
+import { useAutoConfiguration } from "@/lib/hooks/use-auto-configuration";
 import AutoConfigurationTooltip from "@/components/utilities/AutoConfigurationTooltip";
 import { CollapsibleSection } from "@/components/shared/CollapsibleSection";
 import {

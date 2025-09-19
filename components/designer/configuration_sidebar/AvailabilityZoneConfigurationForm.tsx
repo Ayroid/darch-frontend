@@ -13,7 +13,7 @@ import {
 import { AvailabilityZoneConfiguration } from "@/lib/types/aws-resources";
 import { AWS_REGIONS_WITH_AZS } from "@/lib/data/aws_regions";
 import { useConfigurationContext } from "@/lib/stores";
-import { useAutoConfiguration } from "@/hooks/use-auto-configuration";
+import { useAutoConfiguration } from "@/lib/hooks/use-auto-configuration";
 import AutoConfigurationTooltip from "@/components/utilities/AutoConfigurationTooltip";
 import { CollapsibleSection } from "@/components/shared/CollapsibleSection";
 import { TbSettingsSpark, TbSettings } from "react-icons/tb";

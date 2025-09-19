@@ -7,7 +7,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { VPCConfiguration } from "@/lib/types/aws-resources";
 import { useFormValidation } from "@/lib/stores/hooks/use-form-validation";
 import { useConfigurationContext } from "@/lib/stores";
-import { useAutoConfiguration } from "@/hooks/use-auto-configuration";
+import { useAutoConfiguration } from "@/lib/hooks/use-auto-configuration";
 import AutoConfigurationTooltip from "@/components/utilities/AutoConfigurationTooltip";
 import { CollapsibleSection } from "@/components/shared/CollapsibleSection";
 import {

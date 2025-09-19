@@ -3,7 +3,7 @@
 import { Badge } from "@/components/ui/badge";
 import { FiServer } from "react-icons/fi";
 import { useRouter } from "next/navigation";
-import { useArchitectureData } from "@/hooks/use-architecture-data";
+import { useArchitectureData } from "@/lib/hooks/use-architecture-data";
 
 interface Template {
 	id: string;

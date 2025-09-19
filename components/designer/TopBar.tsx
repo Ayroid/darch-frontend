@@ -6,7 +6,7 @@ import { FiUser, FiSettings, FiCode, FiChevronDown } from "react-icons/fi";
 import ArchitectureImportExport from "./ArchitectureImportExport";
 import { Node, Edge } from "@xyflow/react";
 import { useUIStore } from "@/lib/stores";
-
+import { formatBytes } from "@/lib/utils";
 import { useTerraformStore } from "@/lib/stores/terraform/terraform-store";
 import TerraformDialog from "./TerraformModal";
 
@@ -55,14 +55,7 @@ export default function TopBar({
 	const openDialog = useTerraformStore((state) => state.openDialog);
 	const closeDialog = useTerraformStore((state) => state.closeDialog);
 
-	// Utility function to format bytes
-	const formatBytesLocal = (bytes: number): string => {
-		if (bytes === 0) return "0 B";
-		const k = 1024;
-		const sizes = ["B", "KB", "MB", "GB"];
-		const i = Math.floor(Math.log(bytes) / Math.log(k));
-		return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
-	};
+	// Using shared formatBytes utility
 
 	// Click outside to close dropdown
 	useEffect(() => {
@@ -159,7 +152,7 @@ export default function TopBar({
 					isPlanning={isPlanning}
 					output={output}
 					latestProject={latestProject}
-					formatBytes={formatBytesLocal}
+					formatBytes={formatBytes}
 				/>
 			</div>
 		</div>

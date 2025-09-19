@@ -19,7 +19,7 @@ import {
 	RouteTableAssociation,
 } from "@/lib/types/aws-resources";
 import { useConfigurationContext } from "@/lib/stores";
-import { useAutoConfiguration } from "@/hooks/use-auto-configuration";
+import { useAutoConfiguration } from "@/lib/hooks/use-auto-configuration";
 import { CollapsibleSection } from "@/components/shared/CollapsibleSection";
 import AutoConfigurationTooltip from "@/components/utilities/AutoConfigurationTooltip";
 import {

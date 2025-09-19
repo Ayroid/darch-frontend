@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
-import { ReactFlowProvider, Node, Edge } from "@xyflow/react";
+import React from "react";
+import { ReactFlowProvider, Node as FlowNode } from "@xyflow/react";
 import ArchitectureCanvas from "./ArchitectureCanvas";
 import ServicesSidebar from "./ServicesSidebar";
 import ConfigurationSidebar from "./ConfigurationSidebar";
@@ -9,196 +9,50 @@ import TopBar from "./TopBar";
 import KeyboardShortcutsHelp from "./KeyboardShortcutsHelp";
 import SettingsModal from "./SettingsModal";
 import { useApplicationShortcuts } from "@/lib/keyboard-shortcuts";
-import {
-	useUIStore,
-	useCanvasStore,
-	useArchitectureStore,
-} from "@/lib/stores";
-
-// Types
-interface Project {
-	id: string;
-	name: string;
-	environment: string;
-}
-
-interface Architecture {
-	id: string;
-	name: string;
-	createdAt: Date;
-	nodes: Node[];
-}
-
-type TabType = "design" | "share" | "settings";
+import { useUIStore, useCanvasStore } from "@/lib/stores";
+import { useArchitectureState } from "@/lib/hooks/use-architecture-state";
+import { useDesignerHandlers } from "@/lib/hooks/use-designer-handlers";
 
 export default function ArchitectureDesigner() {
 	// Store hooks
-	const { addNode } = useArchitectureStore();
 	const {
 		isSidebarOpen,
 		isConfigurationSidebarVisible,
 		isHelpOpen,
 		isSettingsOpen,
-		toggleSidebar,
-		toggleConfigurationSidebar,
-		setHelpOpen,
-		setSettingsOpen,
-		toggleHelp,
 	} = useUIStore();
-	const { selectedNode, setSelectedNode } = useCanvasStore();
+	const { selectedNode } = useCanvasStore();
 
-	// State management (keeping only non-UI related state)
-	const [activeTab, setActiveTab] = useState<TabType>("design");
-	const [currentProject] = useState<Project>({
-		id: "1",
-		name: "Project 1",
-		environment: "Dev",
-	});
-	const [architectures, setArchitectures] = useState<Architecture[]>([
-		{
-			id: "1",
-			name: "Main Architecture",
-			createdAt: new Date(),
-			nodes: [],
-		},
-	]);
-	const [currentArchitecture, setCurrentArchitecture] = useState<Architecture>(
-		architectures[0]
-	);
+	// Custom hooks for state and handlers
+	const {
+		activeTab,
+		currentProject,
+		currentArchitecture,
+		handleNewArchitecture,
+		handleTabChange,
+		setCurrentArchitecture,
+	} = useArchitectureState();
 
-	// Event handlers
-	const handleToggleSidebar = useCallback(() => {
-		toggleSidebar();
-	}, [toggleSidebar]);
+	const handlers = useDesignerHandlers();
 
-	const handleToggleConfigurationSidebar = useCallback(() => {
-		toggleConfigurationSidebar();
-	}, [toggleConfigurationSidebar]);
-
-	const handleNodeAdd = useCallback(
-		(node: Node) => {
-			console.log("Node added:", node);
-
-			// Add node to the unified architecture store
-			// This will automatically handle configuration initialization
-			addNode(node);
-
-			setCurrentArchitecture((prev) => ({
-				...prev,
-				nodes: [...prev.nodes, node],
-			}));
-		},
-		[addNode]
-	);
-
-	const handleNewArchitecture = useCallback(() => {
-		const newArch: Architecture = {
-			id: Date.now().toString(),
-			name: `Architecture ${architectures.length + 1}`,
-			createdAt: new Date(),
-			nodes: [],
-		};
-		setArchitectures((prev) => [...prev, newArch]);
-		setCurrentArchitecture(newArch);
-		console.log("Created new architecture:", newArch.name);
-	}, [architectures.length]);
-
-	const handleTabChange = useCallback((tab: TabType) => {
-		setActiveTab(tab);
-		console.log("Switched to tab:", tab);
-	}, []);
-
-	const handleShare = useCallback(() => {
-		setActiveTab("share");
-		console.log("Sharing architecture:", currentArchitecture.name);
-		// TODO: Implement actual share functionality
-	}, [currentArchitecture]);
-
-	const handleSettings = useCallback(() => {
-		setActiveTab("settings");
-		setSettingsOpen(true);
-		console.log("Opening settings");
-	}, [setSettingsOpen]);
-
-	const handleHelp = useCallback(() => {
-		console.log("Opening help");
-		// TODO: Implement help modal or redirect
-	}, []);
-
-	const handleProfile = useCallback(() => {
-		console.log("Opening profile");
-		// TODO: Implement profile menu or modal
-	}, []);
-
-	const handleToggleFullscreen = useCallback(() => {
-		if (document.fullscreenElement) {
-			document.exitFullscreen();
-		} else {
-			document.documentElement.requestFullscreen();
-		}
-		console.log("Toggled fullscreen");
-	}, []);
-
-	const handleShowHelp = useCallback(() => {
-		toggleHelp();
-		console.log("Toggling keyboard shortcuts help");
-	}, [toggleHelp]);
-
-	const handleCloseHelp = useCallback(() => {
-		setHelpOpen(false);
-	}, [setHelpOpen]);
-
-	const handleCloseSettings = useCallback(() => {
-		setSettingsOpen(false);
-	}, [setSettingsOpen]);
-
-	const handleNodeSelect = useCallback(
-		(node: Node | null) => {
-			setSelectedNode(node);
-			console.log("Node selected:", node?.id);
-		},
-		[setSelectedNode]
-	);
-
-	const handleNodeUpdate = useCallback(
-		(nodeId: string, data: Record<string, unknown>) => {
-			setCurrentArchitecture((prev) => ({
-				...prev,
-				nodes: prev.nodes.map((node) =>
-					node.id === nodeId ? { ...node, data } : node
-				),
-			}));
-			console.log("Node updated:", nodeId, data);
-		},
-		[]
-	);
-
-	const handleDataLoaded = useCallback((nodes: Node[], edges: Edge[]) => {
-		console.log("Loading architecture data:", { nodes, edges });
-		// The ArchitectureCanvas will automatically load the data through the architecture data manager
-		// We don't need to do anything here as the data is managed by the hook
-	}, []);
+	// Wrapper functions that match component signatures
+	const wrappedHandlers = {
+		handleNodeAdd: (node: FlowNode) => handlers.handleNodeAdd(node, setCurrentArchitecture),
+		handleShare: () => handlers.handleShare(currentArchitecture, (tab) => handleTabChange(tab as "design" | "share" | "settings")),
+		handleSettings: () => handlers.handleSettings((tab) => handleTabChange(tab as "design" | "share" | "settings")),
+		handleNodeUpdate: (nodeId: string, data: Record<string, unknown>) =>
+			handlers.handleNodeUpdate(nodeId, data, setCurrentArchitecture),
+	};
 
 	// Use application shortcuts
 	useApplicationShortcuts({
 		onNewArchitecture: handleNewArchitecture,
 		onSave: () => console.log("Save shortcut pressed"),
-		onToggleSidebar: handleToggleSidebar,
-		onToggleConfigurationSidebar: handleToggleConfigurationSidebar,
-		onToggleFullscreen: handleToggleFullscreen,
-		onShowHelp: handleShowHelp,
+		onToggleSidebar: handlers.handleToggleSidebar,
+		onToggleConfigurationSidebar: handlers.handleToggleConfigurationSidebar,
+		onToggleFullscreen: handlers.handleToggleFullscreen,
+		onShowHelp: handlers.handleShowHelp,
 	});
-
-	// Double click handler for nodes
-	const handleNodeDoubleClick = useCallback(
-		(node: Node) => {
-			setSelectedNode(node);
-			if (!isConfigurationSidebarVisible) {
-				toggleConfigurationSidebar();
-			}
-		},
-		[isConfigurationSidebarVisible, setSelectedNode, toggleConfigurationSidebar]
-	);
 
 	return (
 		<div className="w-full h-screen relative overflow-hidden bg-gray-100">
@@ -209,26 +63,26 @@ export default function ArchitectureDesigner() {
 					activeTab={activeTab}
 					onTabChange={handleTabChange}
 					onNewArchitecture={handleNewArchitecture}
-					onShare={handleShare}
-					onSettings={handleSettings}
-					onHelp={handleHelp}
-					onProfile={handleProfile}
-					onDataLoaded={handleDataLoaded}
+					onShare={wrappedHandlers.handleShare}
+					onSettings={wrappedHandlers.handleSettings}
+					onHelp={handlers.handleHelp}
+					onProfile={handlers.handleProfile}
+					onDataLoaded={handlers.handleDataLoaded}
 				/>
 
 				{/* Main Content Area */}
 				<div className="flex h-full pt-16">
 					<ServicesSidebar
 						isOpen={isSidebarOpen}
-						onToggle={handleToggleSidebar}
+						onToggle={handlers.handleToggleSidebar}
 					/>
 
 					<div className="flex-1 relative">
 						<ArchitectureCanvas
-							onNodeAdd={handleNodeAdd}
-							onShowHelp={handleShowHelp}
-							onNodeSelect={handleNodeSelect}
-							onNodeDoubleClick={handleNodeDoubleClick}
+							onNodeAdd={wrappedHandlers.handleNodeAdd}
+							onShowHelp={handlers.handleShowHelp}
+							onNodeSelect={handlers.handleNodeSelect}
+							onNodeDoubleClick={handlers.handleNodeDoubleClick}
 						/>
 					</div>
 
@@ -236,16 +90,16 @@ export default function ArchitectureDesigner() {
 					<ConfigurationSidebar
 						selectedNode={selectedNode}
 						isOpen={isConfigurationSidebarVisible}
-						onToggle={handleToggleConfigurationSidebar}
-						onNodeUpdate={handleNodeUpdate}
+						onToggle={handlers.handleToggleConfigurationSidebar}
+						onNodeUpdate={wrappedHandlers.handleNodeUpdate}
 					/>
 				</div>
 
 				{/* Keyboard Shortcuts Help Modal */}
-				<KeyboardShortcutsHelp isOpen={isHelpOpen} onClose={handleCloseHelp} />
+				<KeyboardShortcutsHelp isOpen={isHelpOpen} onClose={handlers.handleCloseHelp} />
 
 				{/* Settings Modal */}
-				<SettingsModal isOpen={isSettingsOpen} onClose={handleCloseSettings} />
+				<SettingsModal isOpen={isSettingsOpen} onClose={handlers.handleCloseSettings} />
 			</ReactFlowProvider>
 		</div>
 	);

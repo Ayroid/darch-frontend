@@ -4,10 +4,14 @@ Welcome to the comprehensive documentation for Darch - a cloud architecture desi
 
 ## Table of Contents
 
-1. [Overview](#overview)
-2. [Architecture](#architecture)
-3. [Core Features](#core-features)
-4. [Documentation Structure](#documentation-structure)
+- [Darch Frontend Documentation](#darch-frontend-documentation)
+  - [Table of Contents](#table-of-contents)
+  - [Overview](#overview)
+    - [Key Technologies](#key-technologies)
+  - [Architecture](#architecture)
+  - [Core Features](#core-features)
+  - [Documentation Structure](#documentation-structure)
+  - [Getting Started](#getting-started)
 
 ## Overview
 

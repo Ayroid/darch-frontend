@@ -1,5 +1,5 @@
 import type { Project } from "./TopBar";
-import { useArchitectureData } from "@/hooks/use-architecture-data";
+import { useArchitectureData } from "@/lib/hooks/use-architecture-data";
 import {
 	Dialog,
 	DialogContent,

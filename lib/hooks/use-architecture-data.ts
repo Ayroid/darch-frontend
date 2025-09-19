@@ -5,8 +5,8 @@
 
 import { useCallback } from 'react';
 import { Node, Edge } from '@xyflow/react';
-import { ArchitectureData, ArchitectureMetadata } from '../lib/types/architecture';
-import { useArchitectureStore } from '../lib/stores/architecture/architecture-store';
+import { ArchitectureData, ArchitectureMetadata } from '@/lib/types/architecture';
+import { useArchitectureStore } from '@/lib/stores/architecture/architecture-store';
 
 export interface UseArchitectureDataReturn {
   // Data
@@ -79,7 +79,7 @@ export function useArchitectureData(): UseArchitectureDataReturn {
   }, [storeRemoveNode]);
 
   const updateNodeConfiguration = useCallback((
-    nodeId: string, 
+    nodeId: string,
     configuration: Record<string, string | number | boolean | string[] | number[] | boolean[] | Record<string, unknown>>
   ) => {
     storeUpdateNodeConfiguration(nodeId, configuration);

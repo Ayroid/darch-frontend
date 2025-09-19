@@ -18,8 +18,8 @@ import {
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { useCanvasShortcuts } from "@/lib/keyboard-shortcuts";
-import { useCanvasUndoRedo } from "@/hooks/use-canvas-undo-redo";
-import { useArchitectureData } from "@/hooks/use-architecture-data";
+import { useCanvasUndoRedo } from "@/lib/hooks/use-canvas-undo-redo";
+import { useArchitectureData } from "@/lib/hooks/use-architecture-data";
 import { useArchitectureStore } from "@/lib/stores";
 import {
 	updateNodeParentRelationships,
@@ -186,7 +186,7 @@ export default function ArchitectureCanvas({
 
 	// Undo/Redo functionality
 	const undoRedoHook = useCanvasUndoRedo();
-	const { undo, redo, canUndo, canRedo } = undoRedoHook;
+	const { undo, redo } = undoRedoHook;
 
 	// Custom edge change handler with undo/redo support
 	const onEdgesChange = useCallback(

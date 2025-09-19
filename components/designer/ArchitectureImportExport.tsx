@@ -12,7 +12,7 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from "@/components/ui/dialog";
-import { useArchitectureData } from "@/hooks/use-architecture-data";
+import { useArchitectureData } from "@/lib/hooks/use-architecture-data";
 import { Node, Edge } from "@xyflow/react";
 import {
 	FiDownload,
