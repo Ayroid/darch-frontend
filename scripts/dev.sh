@@ -33,60 +33,60 @@ print_error() {
 case "$1" in
     "dev")
         print_status "Starting development environment..."
-        docker-compose --profile dev up --build
+        docker-compose -f docker/docker-compose.yml --profile dev up --build
         ;;
     "prod")
         print_status "Starting production environment..."
-        docker-compose up --build -d
+        docker-compose -f docker/docker-compose.yml up --build -d
         print_success "Production environment started!"
         print_status "Frontend: http://localhost:3000"
         ;;
     "full")
         print_status "Starting full-stack environment..."
-        docker-compose -f docker-compose.full.yml --profile full-stack up --build
+        docker-compose -f docker/docker-compose.full.yml --profile full-stack up --build
         ;;
     "build")
         print_status "Building Docker images..."
-        docker-compose build
+        docker-compose -f docker/docker-compose.yml build
         print_success "Build completed!"
         ;;
     "stop")
         print_status "Stopping all services..."
-        docker-compose down
-        docker-compose -f docker-compose.full.yml down
+        docker-compose -f docker/docker-compose.yml down
+        docker-compose -f docker/docker-compose.full.yml down
         print_success "All services stopped!"
         ;;
     "clean")
         print_status "Cleaning up Docker resources..."
-        docker-compose down --volumes --remove-orphans
+        docker-compose -f docker/docker-compose.yml down --volumes --remove-orphans
         docker system prune -f
         print_success "Cleanup completed!"
         ;;
     "logs")
         if [ -n "$2" ]; then
             print_status "Showing logs for $2..."
-            docker-compose logs -f "$2"
+            docker-compose -f docker/docker-compose.yml logs -f "$2"
         else
             print_status "Showing all logs..."
-            docker-compose logs -f
+            docker-compose -f docker/docker-compose.yml logs -f
         fi
         ;;
     "shell")
         if [ -n "$2" ]; then
             print_status "Opening shell in $2..."
-            docker-compose exec "$2" /bin/sh
+            docker-compose -f docker/docker-compose.yml exec "$2" /bin/sh
         else
             print_status "Opening shell in frontend..."
-            docker-compose exec frontend /bin/sh
+            docker-compose -f docker/docker-compose.yml exec frontend /bin/sh
         fi
         ;;
     "health")
         print_status "Checking service health..."
-        docker-compose ps
+        docker-compose -f docker/docker-compose.yml ps
         ;;
     "update")
         print_status "Updating dependencies..."
-        docker-compose build --no-cache
+        docker-compose -f docker/docker-compose.yml build --no-cache
         print_success "Update completed!"
         ;;
     *)

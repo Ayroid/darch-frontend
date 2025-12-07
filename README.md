@@ -102,72 +102,53 @@ Comprehensive keyboard shortcuts for productivity:
 ```
 frontend/
 ├── app/                          # Next.js App Router
-│   ├── layout.tsx               # Root layout with fonts and metadata
-│   ├── page.tsx                 # Homepage route
-│   ├── globals.css              # Global styles and CSS variables
-│   └── designer/
-│       └── page.tsx             # Architecture designer route
-├── components/
-│   ├── homepage/                # Homepage components
-│   │   ├── Homepage.tsx         # Main homepage layout
-│   │   ├── DarchSidebar.tsx     # Homepage sidebar
-│   │   ├── TopBar.tsx           # Homepage top navigation
-│   │   ├── RecentArchitectures.tsx # Recent architectures widget
-│   │   └── ArchitectureTemplates.tsx # Architecture templates widget
-│   ├── designer/                # Architecture designer components
-│   │   ├── ArchitectureDesigner.tsx  # Main designer layout (refactored)
-│   │   ├── ArchitectureCanvas.tsx    # React Flow canvas
-│   │   ├── ServicesSidebar.tsx       # AWS services palette
-│   │   ├── ConfigurationSidebar.tsx  # Node configuration panel
-│   │   ├── TopBar.tsx               # Designer top bar
-│   │   ├── nodeUtils.tsx            # Node components and utilities
-│   │   ├── KeyboardShortcutsHelp.tsx # Shortcuts modal
-│   │   ├── UndoRedoControls.tsx     # Undo/redo UI controls
-│   │   └── ShortcutsButton.tsx      # Shortcuts help button
-│   ├── examples/                # Demo and example components
-│   │   └── TerraformProgressDemo.tsx # Terraform progress example
-│   ├── shared/                  # Shared components
-│   │   ├── CollapsibleSection.tsx   # Reusable collapsible section
-│   │   └── index.ts                 # Shared component exports
-│   ├── utilities/               # Utility components
-│   │   ├── AutoConfigurationTooltip.tsx # Auto-configuration tooltip
-│   │   └── ConfigurationSidebarUtils.ts # Configuration utilities (legacy)
-│   └── ui/                      # Reusable UI components
-│       ├── button.tsx           # Button component
-│       ├── input.tsx            # Input component
-│       ├── sidebar.tsx          # Sidebar component
-│       └── ...                  # Other UI primitives
-├── lib/
-│   ├── hooks/                   # Custom React hooks
-│   │   ├── use-mobile.ts        # Mobile detection hook
-│   │   ├── use-architecture-state.ts    # Architecture state management
-│   │   ├── use-designer-handlers.ts     # Designer event handlers
-│   │   ├── use-canvas-undo-redo.ts      # Canvas undo/redo functionality
-│   │   ├── use-terraform-operation.ts   # Terraform operations
-│   │   ├── use-auto-configuration.ts    # Auto-configuration logic
-│   │   └── use-architecture-data.ts     # Architecture data management
-│   ├── shared/                  # Shared utilities and constants
-│   │   ├── index.ts            # Unified exports
-│   │   ├── tag-utils.ts        # Tag management utilities
-│   │   ├── component-utils.ts  # Component helper utilities
-│   │   └── constants.ts        # Application constants
-│   ├── stores/                  # Zustand state stores
-│   │   ├── index.ts            # Store exports
-│   │   ├── ui/                 # UI state management
-│   │   ├── canvas/             # Canvas state management
-│   │   ├── architecture/       # Architecture data management
-│   │   └── ...                 # Other domain-specific stores
-│   ├── types/                   # TypeScript type definitions
-│   │   ├── aws-resources.ts    # AWS resource type definitions
-│   │   └── architecture.ts     # Architecture type definitions
-│   ├── keyboard-shortcuts.ts    # Keyboard shortcuts system
-│   └── utils.ts                 # Enhanced utility functions
-└── public/
-    └── aws_icons/               # AWS service icons (official)
-        ├── architecture_service_icons/
-        ├── architecture_group_icons/
-        ├── Category-Icons_07312025/
-        └── Resource-Icons_07312025/
+│   ├── _components/             # Shared components
+│   │   ├── ui/                 # UI library components (shadcn)
+│   │   ├── utilities/          # Shared utilities
+│   │   ├── examples/           # Example components
+│   │   └── shared/             # Shared components
+│   ├── (home)/                 # Homepage route group
+│   │   ├── _components/        # Homepage-specific components
+│   │   │   ├── Homepage.tsx    # Main homepage layout
+│   │   │   ├── DarchSidebar.tsx # Homepage sidebar
+│   │   │   ├── TopBar.tsx      # Homepage top navigation
+│   │   │   ├── RecentArchitectures.tsx # Recent architectures widget
+│   │   │   └── ArchitectureTemplates.tsx # Architecture templates widget
+│   │   └── page.tsx            # Homepage route
+│   ├── designer/               # Designer route
+│   │   ├── _components/        # Designer-specific components
+│   │   │   ├── configuration-sidebar/  # Config forms
+│   │   │   ├── ArchitectureDesigner.tsx  # Main designer layout
+│   │   │   ├── ArchitectureCanvas.tsx    # React Flow canvas
+│   │   │   ├── ServicesSidebar.tsx       # AWS services palette
+│   │   │   ├── ConfigurationSidebar.tsx  # Node configuration panel
+│   │   │   ├── TopBar.tsx               # Designer top bar
+│   │   │   ├── nodeUtils.tsx            # Node components and utilities
+│   │   │   ├── KeyboardShortcutsHelp.tsx # Shortcuts modal
+│   │   │   ├── UndoRedoControls.tsx     # Undo/redo UI controls
+│   │   │   └── ShortcutsButton.tsx      # Shortcuts help button
+│   │   └── page.tsx            # Designer route
+│   ├── layout.tsx              # Root layout
+│   └── globals.css             # Global styles
+├── lib/                        # Library code
+│   ├── hooks/                  # Custom React hooks
+│   ├── shared/                 # Shared utilities and constants
+│   ├── stores/                 # Zustand state stores
+│   ├── types/                  # TypeScript type definitions
+│   └── ...                     # Other library files
+├── public/                     # Static assets
+│   └── aws_icons/              # AWS service icons
+├── scripts/                    # Development and deployment scripts
+│   ├── dev.sh                  # Development environment script
+│   ├── deploy-frontend.sh      # Frontend deployment script
+│   ├── deploy-backend.sh       # Backend deployment script
+│   └── docker-run.sh           # Docker run script
+├── docker/                     # Docker configuration
+│   ├── docker-compose.yml      # Main docker-compose config
+│   ├── docker-compose.full.yml # Full-stack docker-compose config
+│   └── Dockerfile.dev          # Development Dockerfile
+├── docs/                       # Documentation
+└── Dockerfile                  # Production Dockerfile
 ```
 
 ## 🎨 Design System
@@ -340,11 +321,17 @@ npm run lint
 The application is fully containerized for easy deployment:
 
 ```bash
-# Build the Docker image
-docker build -t darch-frontend .
+# Using the development script (recommended)
+./scripts/dev.sh dev      # Start development environment
+./scripts/dev.sh prod     # Start production environment
+./scripts/dev.sh full     # Start full-stack environment
 
-# Run the container
+# Or manually with Docker
+docker build -t darch-frontend .
 docker run -p 3000:3000 darch-frontend
+
+# Using docker-compose
+docker-compose -f docker/docker-compose.yml up --build
 
 # Access the application at http://localhost:3000
 ```
@@ -355,6 +342,16 @@ docker run -p 3000:3000 darch-frontend
 - **Non-root user** for security
 - **Node.js 18 Alpine** for small image footprint
 - **Port 3000** exposed for the application
+
+**Development Script Commands:**
+- `./scripts/dev.sh dev` - Start development environment with hot reload
+- `./scripts/dev.sh prod` - Start production environment
+- `./scripts/dev.sh full` - Start full-stack environment (frontend + backend)
+- `./scripts/dev.sh build` - Build Docker images
+- `./scripts/dev.sh stop` - Stop all services
+- `./scripts/dev.sh clean` - Clean up Docker resources
+- `./scripts/dev.sh logs [service]` - Show logs
+- `./scripts/dev.sh shell [service]` - Open shell in container
 
 ### Development Server
 - **URL**: http://localhost:3000
