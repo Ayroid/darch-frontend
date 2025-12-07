@@ -16,6 +16,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
 	title: "Darch - Architecture Designer",
 	description: "Design and deploy cloud architectures with ease",
+	icons: {
+		icon: "/darch_logo.jpeg",
+	},
 };
 
 export default function RootLayout({

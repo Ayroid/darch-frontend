@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { FiUser, FiSettings, FiCode, FiChevronDown } from "react-icons/fi";
 import ArchitectureImportExport from "./ArchitectureImportExport";
 import { Node, Edge } from "@xyflow/react";
@@ -80,9 +81,13 @@ export default function TopBar({
 				{/* Left Section */}
 				<div className="flex items-center space-x-6">
 					<Link className="flex items-center space-x-3" href="/">
-						<div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
-							<span className="text-white text-sm font-bold">D</span>
-						</div>
+						<Image
+							src="/darch_logo.jpeg"
+							alt="Darch Logo"
+							width={32}
+							height={32}
+							className="rounded-lg"
+						/>
 						<span className="text-xl font-semibold text-gray-900">Darch</span>
 					</Link>
 
