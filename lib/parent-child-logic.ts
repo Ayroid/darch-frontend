@@ -22,8 +22,8 @@ const absolutePositionCache = new Map<string, { x: number; y: number }>();
 const CONTAINER_HIERARCHY = [
   "aws-account",
   "aws-region",
-  "aws-availability-zone",
   "aws-vpc",
+  "aws-availability-zone",
   "aws-private-subnet",
   "aws-public-subnet",
   "aws-auto-scaling",
