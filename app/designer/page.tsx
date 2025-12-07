@@ -1,4 +1,4 @@
-import ArchitectureDesigner from '../../components/designer/ArchitectureDesigner';
+import ArchitectureDesigner from './_components/ArchitectureDesigner';
 
 export default function DesignerPage() {
   return (
