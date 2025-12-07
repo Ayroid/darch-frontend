@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import {
 	Home,
 	FolderOpen,
@@ -27,9 +28,13 @@ export default function DarchSidebar() {
 		<Sidebar>
 			<SidebarHeader>
 				<div className="flex items-center space-x-2 p-4">
-					<div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
-						<span className="text-white font-bold text-sm">D</span>
-					</div>
+					<Image
+						src="/darch_logo.jpeg"
+						alt="Darch Logo"
+						width={32}
+						height={32}
+						className="rounded-lg"
+					/>
 					<span className="font-semibold text-gray-900">Darch</span>
 				</div>
 			</SidebarHeader>
