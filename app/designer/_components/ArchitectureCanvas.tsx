@@ -32,7 +32,7 @@ import {
 	createNodeTypes,
 	getNodeId,
 	getEdgeId,
-} from "./nodeUtils";
+} from "./NodeUtils";
 
 // Custom styles for transparent nodes
 const nodeStyles = `

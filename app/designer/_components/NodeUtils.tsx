@@ -2,7 +2,6 @@
 
 import React from "react";
 import Image from "next/image";
-import { FiChevronDown } from "react-icons/fi";
 import {
 	Node,
 	Edge,
@@ -55,7 +54,200 @@ export interface AWSContainerNodeProps {
 	id: string;
 	data: AWSContainerNodeData;
 	selected?: boolean;
-	onNodeSizeChange?: (id: string, width: number, height: number) => void;
+	onNodeSizeChange?: (id: string, width: number, height: number, x?: number, y?: number) => void;
+}
+
+// ============================================================================
+// REUSABLE COMPONENTS
+// ============================================================================
+
+// Bidirectional Handle Component
+interface BidirectionalHandleProps {
+	position: Position;
+	isConnected: boolean;
+	style: React.CSSProperties;
+}
+
+function BidirectionalHandle({ position, isConnected, style }: BidirectionalHandleProps) {
+	const positionClass = `handle-${position.toLowerCase()}`;
+	const connectedClass = isConnected ? "connected" : "";
+
+	return (
+		<>
+			{/* Target Handle */}
+			<Handle
+				type="target"
+				position={position}
+				id={`${position.toLowerCase()}-target`}
+				className={`${positionClass} ${connectedClass}`}
+				style={{
+					...style,
+					background: "#555",
+					width: "12px",
+					height: "12px",
+					border: "none",
+				}}
+			/>
+			{/* Source Handle */}
+			<Handle
+				type="source"
+				position={position}
+				id={`${position.toLowerCase()}-source`}
+				className={`${positionClass} ${connectedClass}`}
+				style={{
+					...style,
+					background: "transparent",
+					border: "2px solid #555",
+					width: "12px",
+					height: "12px",
+				}}
+			/>
+		</>
+	);
+}
+
+// Node Label Component with smart text wrapping
+interface NodeLabelProps {
+	text: string;
+	maxLength?: number;
+}
+
+function NodeLabel({ text, maxLength = 20 }: NodeLabelProps) {
+	if (text.length <= 10) {
+		return <>{text}</>;
+	}
+
+	if (text.length <= maxLength) {
+		const mid = Math.ceil(text.length / 2);
+		const firstLine = text.slice(0, mid);
+		const secondLine = text.slice(mid);
+		return (
+			<>
+				{firstLine}
+				<br />
+				{secondLine}
+			</>
+		);
+	}
+
+	const truncated = text.slice(0, 17);
+	const mid = Math.ceil(truncated.length / 2);
+	const firstLine = truncated.slice(0, mid);
+	const secondLine = truncated.slice(mid);
+	return (
+		<>
+			{firstLine}
+			<br />
+			{secondLine}...
+		</>
+	);
+}
+
+// Resize Handle Component
+interface ResizeHandleProps {
+	position: "top-left" | "top-right" | "bottom-left" | "bottom-right";
+	onMouseDown: (e: React.MouseEvent) => void;
+}
+
+function ResizeHandle({ position, onMouseDown }: ResizeHandleProps) {
+	const positionStyles: Record<string, React.CSSProperties> = {
+		"top-left": {
+			top: -4,
+			left: -4,
+			cursor: "nw-resize",
+		},
+		"top-right": {
+			top: -4,
+			right: -4,
+			cursor: "ne-resize",
+		},
+		"bottom-left": {
+			bottom: -4,
+			left: -4,
+			cursor: "sw-resize",
+		},
+		"bottom-right": {
+			bottom: -4,
+			right: -4,
+			cursor: "se-resize",
+		},
+	};
+
+	return (
+		<div
+			className={`resize-handle ${position} nodrag`}
+			style={{
+				position: "absolute",
+				...positionStyles[position],
+				width: 8,
+				height: 8,
+				backgroundColor: "#fff",
+				border: "1.5px solid #555",
+				borderRadius: 1,
+				opacity: 0,
+				transition: "opacity 0.2s ease",
+				zIndex: 100,
+			}}
+			onMouseDown={onMouseDown}
+		/>
+	);
+}
+
+// Container Header Component
+interface ContainerHeaderProps {
+	icon: string;
+	name: string;
+}
+
+function ContainerHeader({ icon, name }: ContainerHeaderProps) {
+	return (
+		<div
+			className="container-header"
+			style={{ position: "absolute", top: -1, left: -1 }}
+		>
+			<Image
+				src={icon}
+				alt={name}
+				width={20}
+				height={20}
+				className="w-7 h-7 rounded-tl-sm"
+			/>
+			<span className="text-sm font-semibold">{name}</span>
+		</div>
+	);
+}
+
+// ============================================================================
+// UTILITY FUNCTIONS
+// ============================================================================
+
+// Get service-specific border color
+export function getBorderColor(serviceId?: string): string {
+	const colorMap: Record<string, string> = {
+		"aws-vpc": "#8C4FFF",
+		"aws-private-subnet": "#00A4A6",
+		"aws-public-subnet": "#7AA116",
+		"aws-auto-scaling": "#ED7100",
+		"aws-region": "#000000",
+		"aws-availability-zone": "#00A4A6",
+		"aws-account": "#E7157B",
+		"aws-corporate-datacenter": "#666666",
+		"aws-local-zone": "#4A90E2",
+		"aws-edge-location": "#FF9500",
+		"aws-security-group": "#FF0000",
+	};
+
+	return colorMap[serviceId || ""] || "#8C4FFF";
+}
+
+// Calculate handle positions
+export function calculateHandlePositions(width: number, height: number) {
+	return {
+		top: { top: 0, left: width / 2 },
+		right: { top: height / 2, right: -7 },
+		bottom: { bottom: -7, left: width / 2 },
+		left: { top: height / 2, left: 0 },
+	};
 }
 
 // Helper function to check if a handle is connected (checking both source and target versions)
@@ -78,25 +270,32 @@ export const isHandleConnected = (
 	);
 };
 
+// ============================================================================
+// NODE COMPONENTS
+// ============================================================================
+
 // AWS Service Node Component with handles
 export function AWSServiceNode({ id, data }: AWSServiceNodeProps) {
 	const { icon, name } = data;
 	const edges = useStore((state) => state.edges);
 
-	const isTopConnected = isHandleConnected(id, "top", edges);
-	const isRightConnected = isHandleConnected(id, "right", edges);
-	const isBottomConnected = isHandleConnected(id, "bottom", edges);
-	const isLeftConnected = isHandleConnected(id, "left", edges);
-
 	// Fixed square dimensions for service nodes
 	const nodeSize = 80;
 
-	// Calculate handle positions for service nodes - positioned exactly on edges
-	const handleStyle = {
+	// Calculate handle positions for service nodes
+	const handlePositions = {
 		top: { top: 0, left: nodeSize / 2 },
 		right: { top: nodeSize / 2, right: -6 },
 		bottom: { bottom: -6, left: nodeSize / 2 },
 		left: { top: nodeSize / 2, left: 0 },
+	};
+
+	// Check connection status for each position
+	const connections = {
+		top: isHandleConnected(id, "top", edges),
+		right: isHandleConnected(id, "right", edges),
+		bottom: isHandleConnected(id, "bottom", edges),
+		left: isHandleConnected(id, "left", edges),
 	};
 
 	return (
@@ -109,120 +308,30 @@ export function AWSServiceNode({ id, data }: AWSServiceNodeProps) {
 				height: nodeSize,
 			}}
 		>
-			{/* Top Handles - Bidirectional */}
-			<Handle
-				type="target"
+			{/* All Handles */}
+			<BidirectionalHandle
 				position={Position.Top}
-				id="top-target"
-				className={`handle-top ${isTopConnected ? "connected" : ""}`}
-				style={{
-					...handleStyle.top,
-					background: "#555",
-					width: "12px",
-					height: "12px",
-					border: "none",
-				}}
+				isConnected={connections.top}
+				style={handlePositions.top}
 			/>
-			<Handle
-				type="source"
-				position={Position.Top}
-				id="top-source"
-				className={`handle-top ${isTopConnected ? "connected" : ""}`}
-				style={{
-					...handleStyle.top,
-					background: "transparent",
-					border: "2px solid #555",
-					width: "12px",
-					height: "12px",
-				}}
-			/>
-
-			{/* Right Handles - Bidirectional */}
-			<Handle
-				type="target"
+			<BidirectionalHandle
 				position={Position.Right}
-				id="right-target"
-				className={`handle-right ${isRightConnected ? "connected" : ""}`}
-				style={{
-					...handleStyle.right,
-					background: "#555",
-					width: "12px",
-					height: "12px",
-					border: "none",
-				}}
+				isConnected={connections.right}
+				style={handlePositions.right}
 			/>
-			<Handle
-				type="source"
-				position={Position.Right}
-				id="right-source"
-				className={`handle-right ${isRightConnected ? "connected" : ""}`}
-				style={{
-					...handleStyle.right,
-					background: "transparent",
-					border: "2px solid #555",
-					width: "12px",
-					height: "12px",
-				}}
-			/>
-
-			{/* Bottom Handles - Bidirectional */}
-			<Handle
-				type="target"
+			<BidirectionalHandle
 				position={Position.Bottom}
-				id="bottom-target"
-				className={`handle-bottom ${isBottomConnected ? "connected" : ""}`}
-				style={{
-					...handleStyle.bottom,
-					background: "#555",
-					width: "12px",
-					height: "12px",
-					border: "none",
-				}}
+				isConnected={connections.bottom}
+				style={handlePositions.bottom}
 			/>
-			<Handle
-				type="source"
-				position={Position.Bottom}
-				id="bottom-source"
-				className={`handle-bottom ${isBottomConnected ? "connected" : ""}`}
-				style={{
-					...handleStyle.bottom,
-					background: "transparent",
-					border: "2px solid #555",
-					width: "12px",
-					height: "12px",
-				}}
-			/>
-
-			{/* Left Handles - Bidirectional */}
-			<Handle
-				type="target"
+			<BidirectionalHandle
 				position={Position.Left}
-				id="left-target"
-				className={`handle-left ${isLeftConnected ? "connected" : ""}`}
-				style={{
-					...handleStyle.left,
-					background: "#555",
-					width: "12px",
-					height: "12px",
-					border: "none",
-				}}
-			/>
-			<Handle
-				type="source"
-				position={Position.Left}
-				id="left-source"
-				className={`handle-left ${isLeftConnected ? "connected" : ""}`}
-				style={{
-					...handleStyle.left,
-					background: "transparent",
-					border: "2px solid #555",
-					width: "12px",
-					height: "12px",
-				}}
+				isConnected={connections.left}
+				style={handlePositions.left}
 			/>
 
 			{/* Node content */}
-			<div className="flex flex-col items-center justify-center gap-1">
+			<div className="flex flex-col items-center justify-center gap-1 bg-red-100">
 				<Image
 					src={icon}
 					alt={name}
@@ -231,7 +340,7 @@ export function AWSServiceNode({ id, data }: AWSServiceNodeProps) {
 					className="w-8 h-8"
 				/>
 				<span className="text-xs text-center font-medium text-gray-700 max-w-[60px] leading-tight">
-					{name}
+					<NodeLabel text={name} />
 				</span>
 			</div>
 		</div>
@@ -255,102 +364,92 @@ export function AWSContainerNode({
 		height: (currentNode?.style?.height as number) || 200,
 	};
 
-	const isTopConnected = isHandleConnected(id, "top", edges);
-	const isRightConnected = isHandleConnected(id, "right", edges);
-	const isBottomConnected = isHandleConnected(id, "bottom", edges);
-	const isLeftConnected = isHandleConnected(id, "left", edges);
-
 	// Calculate handle positions based on current node size
-	const handleStyle = {
-		top: { top: 0, left: nodeSize.width / 2 },
-		right: { top: nodeSize.height / 2, right: -7 },
-		bottom: { bottom: -7, left: nodeSize.width / 2 },
-		left: { top: nodeSize.height / 2, left: 0 },
+	const handlePositions = calculateHandlePositions(nodeSize.width, nodeSize.height);
+
+	// Check connection status for each position
+	const connections = {
+		top: isHandleConnected(id, "top", edges),
+		right: isHandleConnected(id, "right", edges),
+		bottom: isHandleConnected(id, "bottom", edges),
+		left: isHandleConnected(id, "left", edges),
 	};
 
-	// Helper function to handle resize mouse down for corner handles
+	// Handle resize mouse down for different corners
 	function handleResizeMouseDown(
-		e: React.MouseEvent,
 		corner: "top-left" | "top-right" | "bottom-left" | "bottom-right"
 	) {
-		e.preventDefault();
-		e.stopPropagation();
-
-		const startX = e.clientX;
-		const startY = e.clientY;
-		const startWidth = nodeSize.width;
-		const startHeight = nodeSize.height;
-
-		const handleMouseMove = (e: MouseEvent) => {
+		return (e: React.MouseEvent) => {
 			e.preventDefault();
 			e.stopPropagation();
 
-			let newWidth = startWidth;
-			let newHeight = startHeight;
+			const startX = e.clientX;
+			const startY = e.clientY;
+			const startWidth = nodeSize.width;
+			const startHeight = nodeSize.height;
 
-			switch (corner) {
-				case "top-left":
-					newWidth = Math.max(250, startWidth - (e.clientX - startX));
-					newHeight = Math.max(200, startHeight - (e.clientY - startY));
-					break;
-				case "top-right":
-					newWidth = Math.max(250, startWidth + (e.clientX - startX));
-					newHeight = Math.max(200, startHeight - (e.clientY - startY));
-					break;
-				case "bottom-left":
-					newWidth = Math.max(250, startWidth - (e.clientX - startX));
-					newHeight = Math.max(200, startHeight + (e.clientY - startY));
-					break;
-				case "bottom-right":
-					newWidth = Math.max(250, startWidth + (e.clientX - startX));
-					newHeight = Math.max(200, startHeight + (e.clientY - startY));
-					break;
-			}
+			// Get the current node position
+			const startPosition = currentNode?.position || { x: 0, y: 0 };
 
-			onNodeSizeChange?.(id, newWidth, newHeight);
+			const handleMouseMove = (e: MouseEvent) => {
+				e.preventDefault();
+				e.stopPropagation();
+
+				const deltaX = e.clientX - startX;
+				const deltaY = e.clientY - startY;
+
+				let newWidth = startWidth;
+				let newHeight = startHeight;
+				let newX = startPosition.x;
+				let newY = startPosition.y;
+
+				// Calculate new dimensions and position based on corner
+				switch (corner) {
+					case "bottom-right":
+						// Expand right and down - no position change needed
+						newWidth = Math.max(250, startWidth + deltaX);
+						newHeight = Math.max(200, startHeight + deltaY);
+						break;
+					case "bottom-left":
+						// Expand left and down - adjust X position to keep right edge fixed
+						newWidth = Math.max(250, startWidth - deltaX);
+						newHeight = Math.max(200, startHeight + deltaY);
+						// Position changes by the actual width change
+						newX = startPosition.x + (startWidth - newWidth);
+						break;
+					case "top-right":
+						// Expand right and up - adjust Y position to keep bottom edge fixed
+						newWidth = Math.max(250, startWidth + deltaX);
+						newHeight = Math.max(200, startHeight - deltaY);
+						// Position changes by the actual height change
+						newY = startPosition.y + (startHeight - newHeight);
+						break;
+					case "top-left":
+						// Expand left and up - adjust both X and Y positions
+						newWidth = Math.max(250, startWidth - deltaX);
+						newHeight = Math.max(200, startHeight - deltaY);
+						// Position changes by the actual width and height changes
+						newX = startPosition.x + (startWidth - newWidth);
+						newY = startPosition.y + (startHeight - newHeight);
+						break;
+				}
+
+				// Update both size and position
+				onNodeSizeChange?.(id, newWidth, newHeight, newX, newY);
+			};
+
+			const handleMouseUp = (e: MouseEvent) => {
+				e.preventDefault();
+				e.stopPropagation();
+
+				document.removeEventListener("mousemove", handleMouseMove);
+				document.removeEventListener("mouseup", handleMouseUp);
+			};
+
+			document.addEventListener("mousemove", handleMouseMove);
+			document.addEventListener("mouseup", handleMouseUp);
 		};
-
-		const handleMouseUp = (e: MouseEvent) => {
-			e.preventDefault();
-			e.stopPropagation();
-
-			document.removeEventListener("mousemove", handleMouseMove);
-			document.removeEventListener("mouseup", handleMouseUp);
-		};
-
-		document.addEventListener("mousemove", handleMouseMove);
-		document.addEventListener("mouseup", handleMouseUp);
 	}
-
-	// Get service-specific border color
-	const getBorderColor = (serviceId?: string) => {
-		switch (serviceId) {
-			case "aws-vpc":
-				return "#8C4FFF"; // Purple (from VPC icon)
-			case "aws-private-subnet":
-				return "#00A4A6"; // Teal/Cyan (from Private subnet icon)
-			case "aws-public-subnet":
-				return "#7AA116"; // Green (from Public subnet icon)
-			case "aws-auto-scaling":
-				return "#ED7100"; // Orange (from Auto Scaling icon)
-			case "aws-region":
-				return "#000000"; // Teal (from Region icon)
-			case "aws-availability-zone":
-				return "#00A4A6"; // Teal (same as region for consistency)
-			case "aws-account":
-				return "#E7157B"; // Magenta/Pink (from AWS Account icon)
-			case "aws-corporate-datacenter":
-				return "#666666"; // Gray for data center
-			case "aws-local-zone":
-				return "#4A90E2"; // Blue for local zones
-			case "aws-edge-location":
-				return "#FF9500"; // Orange for edge locations
-			case "aws-security-group":
-				return "#FF0000"; // Orange for security groups
-			default:
-				return "#8C4FFF"; // Default purple (VPC color)
-		}
-	};
 
 	const borderColor = getBorderColor(serviceId);
 
@@ -367,160 +466,39 @@ export function AWSContainerNode({
 					serviceId === "aws-region" ? "dashed" : "solid"
 				} ${borderColor}`,
 				background:
-					serviceId === "aws-region" ? "transparent" : `${borderColor}0D`, // 1A = 10% alpha in hex
+					serviceId === "aws-region" ? "transparent" : `${borderColor}0D`,
 			}}
 		>
-			{/* Top Handles - Bidirectional */}
-			<Handle
-				type="target"
+			{/* All Handles */}
+			<BidirectionalHandle
 				position={Position.Top}
-				id="top-target"
-				className={`handle-top ${isTopConnected ? "connected" : ""}`}
-				style={{
-					...handleStyle.top,
-					background: "#555",
-					width: "12px",
-					height: "12px",
-					border: "none",
-				}}
+				isConnected={connections.top}
+				style={handlePositions.top}
 			/>
-			<Handle
-				type="source"
-				position={Position.Top}
-				id="top-source"
-				className={`handle-top ${isTopConnected ? "connected" : ""}`}
-				style={{
-					...handleStyle.top,
-					background: "transparent",
-					border: "2px solid #555",
-					width: "12px",
-					height: "12px",
-				}}
-			/>
-
-			{/* Right Handles - Bidirectional */}
-			<Handle
-				type="target"
+			<BidirectionalHandle
 				position={Position.Right}
-				id="right-target"
-				className={`handle-right ${isRightConnected ? "connected" : ""}`}
-				style={{
-					...handleStyle.right,
-					background: "#555",
-					width: "12px",
-					height: "12px",
-					border: "none",
-				}}
+				isConnected={connections.right}
+				style={handlePositions.right}
 			/>
-			<Handle
-				type="source"
-				position={Position.Right}
-				id="right-source"
-				className={`handle-right ${isRightConnected ? "connected" : ""}`}
-				style={{
-					...handleStyle.right,
-					background: "transparent",
-					border: "2px solid #555",
-					width: "12px",
-					height: "12px",
-				}}
-			/>
-
-			{/* Bottom Handles - Bidirectional */}
-			<Handle
-				type="target"
+			<BidirectionalHandle
 				position={Position.Bottom}
-				id="bottom-target"
-				className={`handle-bottom ${isBottomConnected ? "connected" : ""}`}
-				style={{
-					...handleStyle.bottom,
-					background: "#555",
-					width: "12px",
-					height: "12px",
-					border: "none",
-				}}
+				isConnected={connections.bottom}
+				style={handlePositions.bottom}
 			/>
-			<Handle
-				type="source"
-				position={Position.Bottom}
-				id="bottom-source"
-				className={`handle-bottom ${isBottomConnected ? "connected" : ""}`}
-				style={{
-					...handleStyle.bottom,
-					background: "transparent",
-					border: "2px solid #555",
-					width: "12px",
-					height: "12px",
-				}}
-			/>
-
-			{/* Left Handles - Bidirectional */}
-			<Handle
-				type="target"
+			<BidirectionalHandle
 				position={Position.Left}
-				id="left-target"
-				className={`handle-left ${isLeftConnected ? "connected" : ""}`}
-				style={{
-					...handleStyle.left,
-					background: "#555",
-					width: "12px",
-					height: "12px",
-					border: "none",
-				}}
-			/>
-			<Handle
-				type="source"
-				position={Position.Left}
-				id="left-source"
-				className={`handle-left ${isLeftConnected ? "connected" : ""}`}
-				style={{
-					...handleStyle.left,
-					background: "transparent",
-					border: "2px solid #555",
-					width: "12px",
-					height: "12px",
-				}}
+				isConnected={connections.left}
+				style={handlePositions.left}
 			/>
 
-			{/* Container header - icon and name */}
-			<div
-				className="container-header"
-				style={{ position: "absolute", top: -1, left: -1 }}
-			>
-				<Image
-					src={icon}
-					alt={name}
-					width={20}
-					height={20}
-					className="w-7 h-7 rounded-tl-sm"
-				/>
-				<span className="text-sm font-semibold">{name}</span>
-			</div>
+			{/* Container header */}
+			<ContainerHeader icon={icon} name={name} />
 
-			{/* Corner resize handles */}
-			<div
-				className="resize-handle bottom-right nodrag"
-				style={{
-					position: "absolute",
-					bottom: -16,
-					right: -16,
-					width: 16,
-					height: 16,
-					cursor: "se-resize",
-					display: "flex",
-					alignItems: "center",
-					justifyContent: "center",
-					opacity: 0,
-					transition: "opacity 0.2s ease",
-					zIndex: 10,
-				}}
-				onMouseDown={(e) => handleResizeMouseDown(e, "bottom-right")}
-			>
-				<FiChevronDown
-					className="w-4 h-4 text-gray-800"
-					style={{ transform: "rotate(315deg)" }}
-				/>
-			</div>
+			{/* Resize handles at all 4 corners */}
+			<ResizeHandle position="top-left" onMouseDown={handleResizeMouseDown("top-left")} />
+			<ResizeHandle position="top-right" onMouseDown={handleResizeMouseDown("top-right")} />
+			<ResizeHandle position="bottom-left" onMouseDown={handleResizeMouseDown("bottom-left")} />
+			<ResizeHandle position="bottom-right" onMouseDown={handleResizeMouseDown("bottom-right")} />
 		</div>
 	);
 }
@@ -571,13 +549,19 @@ export const createNodeHandlers = (
 	const handleNodeSizeChange = (
 		nodeId: string,
 		width: number,
-		height: number
+		height: number,
+		x?: number,
+		y?: number
 	) => {
 		setNodes((nodes) =>
 			nodes.map((node) =>
 				node.id === nodeId
 					? {
 							...node,
+							// Update position if provided (for top/left resizing)
+							...(x !== undefined && y !== undefined
+								? { position: { x, y } }
+								: {}),
 							style: {
 								...node.style,
 								width,
