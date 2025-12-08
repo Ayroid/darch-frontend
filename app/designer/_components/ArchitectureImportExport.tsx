@@ -19,6 +19,7 @@ import {
 	FiFileText,
 	FiClipboard,
 } from "react-icons/fi";
+import JsonTreeViewer from "./JsonTreeViewer";
 
 interface ArchitectureImportExportProps {
 	onDataLoaded?: (nodes: Node[], edges: Edge[]) => void;
@@ -161,11 +162,12 @@ export default function ArchitectureImportExport({
 								</Button>
 							</div>
 
-							<div className="flex-1 overflow-hidden">
-								<pre className="bg-muted p-4 rounded-lg overflow-auto h-full max-h-[50vh] text-sm font-mono whitespace-pre-wrap border">
-									{jsonData}
-								</pre>
-							</div>
+						<div className="flex-1 overflow-hidden">
+							<JsonTreeViewer 
+								data={JSON.parse(jsonData)} 
+								rootLabel="architecture" 
+							/>
+						</div>
 						</div>
 					</DialogContent>
 				</Dialog>
