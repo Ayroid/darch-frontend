@@ -163,9 +163,9 @@ export default function ArchitectureImportExport({
 							</div>
 
 						<div className="flex-1 overflow-hidden">
-							<JsonTreeViewer 
-								data={JSON.parse(jsonData)} 
-								rootLabel="architecture" 
+							<JsonTreeViewer
+								data={JSON.parse(jsonData)}
+								rootLabel="architecture"
 							/>
 						</div>
 						</div>
