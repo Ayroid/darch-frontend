@@ -182,6 +182,7 @@ function ResizeHandle({ position, onMouseDown }: ResizeHandleProps) {
 				width: 8,
 				height: 8,
 				backgroundColor: "#fff",
+				border: "1px solid #555",
 				borderRadius: 0, // Square corners
 				opacity: 0,
 				transition: "opacity 0.2s ease",
