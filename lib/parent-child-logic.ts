@@ -1,10 +1,50 @@
 /**
  * Parent-Child Relationship Logic for Container Nodes
- * Handles automatic detection and assignment of nodes to container parents
- * NEEDS REFINEMENT - Core logic in development
+ *
+ * This module implements the core logic for managing hierarchical relationships between
+ * container nodes and their children in the architecture designer. It handles automatic
+ * parent detection, position calculations, and relationship validation.
+ *
+ * Core Concepts:
+ * -------------
+ * 1. Containment: Nodes can be placed inside container nodes (VPC, Subnet, etc.)
+ * 2. Hierarchy: AWS resources follow a strict containment hierarchy
+ * 3. Positions: Child positions are relative to their parent container
+ * 4. Bounds Checking: Determines if a node should belong to a container
+ * 5. Snap Targets: Visual feedback for potential parent assignments
+ *
+ * Key Features:
+ * ------------
+ * - **Smart Detection**: Finds the most appropriate parent container
+ * - **Hierarchy Validation**: Enforces AWS resource nesting rules
+ * - **Position Management**: Converts between absolute and relative coordinates
+ * - **Performance Optimization**: Extensive caching for expensive calculations
+ * - **Stability**: Prevents jittery movement with threshold-based logic
+ *
+ * AWS Container Hierarchy (Top to Bottom):
+ * ---------------------------------------
+ * 1. Account → 2. Region → 3. VPC → 4. Availability Zone →
+ * 5. Subnets (Public/Private) → 6. Auto Scaling Groups →
+ * 7. Security Groups → 8. Resources (EC2, etc.)
+ *
+ * Function Categories:
+ * -------------------
+ * - Cache Management: clearParentChildCaches(), invalidateNodeCache()
+ * - Bounds Calculation: getNodeBounds(), isRectangleInside()
+ * - Position Calculation: getAbsoluteNodePosition()
+ * - Parent Finding: findParentContainer(), shouldUpdateParent()
+ * - Hierarchy Validation: canContainerContainContainer()
+ * - Relationship Building: buildParentChildMap()
+ * - Position Updates: updateNodeParentRelationship()
+ *
+ * @module parent-child-logic
  */
 
 import { Node } from "@xyflow/react";
+
+// =============================================================================
+// TYPE DEFINITIONS
+// =============================================================================
 
 export interface NodeBounds {
   x: number;
@@ -13,10 +53,18 @@ export interface NodeBounds {
   height: number;
 }
 
-// Cache for expensive calculations
+// =============================================================================
+// CACHING INFRASTRUCTURE
+// =============================================================================
+
+// Performance caches for expensive calculations
 const boundsCache = new Map<string, NodeBounds>();
 const hierarchyCache = new Map<string, string[]>();
 const absolutePositionCache = new Map<string, { x: number; y: number }>();
+
+// =============================================================================
+// AWS HIERARCHY CONFIGURATION
+// =============================================================================
 
 // AWS container hierarchy (pre-computed for O(1) lookup)
 const CONTAINER_HIERARCHY = [
@@ -80,6 +128,10 @@ for (const resource of CONTAINER_HIERARCHY) {
   currentLevel++;
 }
 
+// =============================================================================
+// CACHE MANAGEMENT
+// =============================================================================
+
 /**
  * Clear all parent-child relationship caches
  */
@@ -108,6 +160,10 @@ export function invalidateNodeCache(nodeId: string): void {
 
   hierarchyCache.delete(nodeId);
 }
+
+// =============================================================================
+// SNAP DETECTION
+// =============================================================================
 
 /**
  * Detects if a node is near a container and could be snapped to it.
@@ -178,6 +234,10 @@ export function getSnapTargets(
 
   return snapTargets;
 }
+
+// =============================================================================
+// BOUNDS CALCULATION
+// =============================================================================
 
 /**
  * Calculates and caches the bounding rectangle of a node including its position and dimensions.
@@ -293,6 +353,10 @@ export function isRectangleMostlyInside(
   return overlapArea / innerArea >= overlapThreshold;
 }
 
+// =============================================================================
+// POSITION CALCULATION
+// =============================================================================
+
 /**
  * Calculates the absolute position of a node by traversing up the parent hierarchy.
  * Accumulates positions from all parent containers to get the global coordinates.
@@ -387,6 +451,10 @@ export function isNodeInsideContainer(
   // This makes container assignment more liberal and movement more free
   return isRectangleWellContained(absoluteNodeBounds, absoluteContainerBounds);
 }
+
+// =============================================================================
+// RELATIONSHIP MANAGEMENT
+// =============================================================================
 
 /**
  * Builds efficient lookup maps for parent-child relationships from the nodes array.
@@ -747,6 +815,10 @@ export function updateNodeParentRelationship(
     extent: undefined, // FIXED: Always allow free movement
   };
 }
+
+// =============================================================================
+// HIERARCHY & VALIDATION
+// =============================================================================
 
 /**
  * Retrieves the complete container hierarchy chain for a given node.

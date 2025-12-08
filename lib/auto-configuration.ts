@@ -1,6 +1,39 @@
 /**
  * Auto-Configuration Logic for AWS Resources
- * Handles automatic field population and field disabling based on container relationships and edge connections
+ *
+ * This module handles automatic field population and validation for AWS resources
+ * in the architecture designer based on their relationships with other resources.
+ *
+ * Key Concepts:
+ * -------------
+ * 1. Parent-Child Hierarchy: Resources inside containers inherit properties
+ *    - Example: VPC inside Region inherits the region value
+ *
+ * 2. Edge Connections: Resources connected via edges can auto-configure
+ *    - Example: Route Table connected to Internet Gateway gets the IGW ID
+ *
+ * 3. Auto-Populated Fields: Fields that are automatically filled based on context
+ *    - Configured via AWS_RESOURCE_FIELD_RULES
+ *    - Can have default values as fallbacks
+ *
+ * 4. Disabled Fields: Auto-populated fields are disabled in the UI
+ *    - Users cannot edit them directly
+ *    - Values update automatically when relationships change
+ *
+ * 5. Special Cases:
+ *    - Availability Zones: AZ value auto-updates to match region's first AZ
+ *    - Route Tables: Some fields prioritize edge connections over hierarchy
+ *    - Security Groups: Multiple groups can be collected from hierarchy
+ *
+ * How It Works:
+ * -------------
+ * When a node is created, moved, or its parent's configuration changes:
+ * 1. autoConfigureNode() runs for the node
+ * 2. Each auto-field rule is processed to find source values
+ * 3. Values are populated from parents, connected nodes, or defaults
+ * 4. autoConfigureAffectedNodes() updates all descendant/connected nodes
+ *
+ * @module auto-configuration
  */
 
 import { Node, Edge } from "@xyflow/react";
@@ -26,8 +59,20 @@ export interface ResourceFieldRules {
 	};
 }
 
-// Define the auto-configuration rules for AWS resources
+/**
+ * Auto-configuration rules for AWS resources
+ *
+ * Each resource type can define:
+ * - autoFields: Fields that should be automatically populated from parent/connected nodes
+ * - disabledFields: Fields that should be disabled in the UI (user cannot edit)
+ *
+ * Field sources can be:
+ * - Parent containers (parent-child hierarchy)
+ * - Connected nodes (via edges)
+ * - Multiple sources (comma-separated, first match wins)
+ */
 export const AWS_RESOURCE_FIELD_RULES: ResourceFieldRules = {
+	// === Regional Resources ===
 	"aws-availability-zone": {
 		autoFields: {
 			awsRegionId: {
@@ -35,9 +80,12 @@ export const AWS_RESOURCE_FIELD_RULES: ResourceFieldRules = {
 				sourceField: "region",
 				defaultValue: "us-east-1",
 			},
+			// Note: availabilityZone field is auto-configured via special logic
+			// based on the awsRegionId value (see autoConfigureNode function)
 		},
 		disabledFields: ["awsRegionId"],
 	},
+
 	"aws-vpc": {
 		autoFields: {
 			awsRegionId: {
@@ -48,6 +96,29 @@ export const AWS_RESOURCE_FIELD_RULES: ResourceFieldRules = {
 		},
 		disabledFields: ["awsRegionId"],
 	},
+
+	// === VPC Resources ===
+	"aws-security-group": {
+		autoFields: {
+			awsVpcId: {
+				sourceParentType: "aws-vpc",
+				sourceField: "awsVpcId",
+			},
+		},
+		disabledFields: ["awsVpcId"],
+	},
+
+	"aws-internet-gateway": {
+		autoFields: {
+			awsVpcId: {
+				sourceParentType: "aws-vpc",
+				sourceField: "awsVpcId",
+			},
+		},
+		disabledFields: ["awsVpcId"],
+	},
+
+	// === Subnet Resources ===
 	"aws-private-subnet": {
 		autoFields: {
 			awsRegionId: {
@@ -68,6 +139,7 @@ export const AWS_RESOURCE_FIELD_RULES: ResourceFieldRules = {
 		},
 		disabledFields: ["awsRegionId", "awsAvailabilityZone", "awsVpcId"],
 	},
+
 	"aws-public-subnet": {
 		autoFields: {
 			awsRegionId: {
@@ -88,16 +160,8 @@ export const AWS_RESOURCE_FIELD_RULES: ResourceFieldRules = {
 		},
 		disabledFields: ["awsRegionId", "awsAvailabilityZone", "awsVpcId"],
 	},
-	"aws-security-group": {
-		autoFields: {
-			awsVpcId: {
-				sourceParentType: "aws-vpc",
-				sourceField: "awsVpcId",
-				// No default value - only set when actually inside a VPC
-			},
-		},
-		disabledFields: ["awsVpcId"],
-	},
+
+	// === Compute Resources ===
 	"aws-ec2": {
 		autoFields: {
 			awsRegionId: {
@@ -122,34 +186,23 @@ export const AWS_RESOURCE_FIELD_RULES: ResourceFieldRules = {
 			},
 		},
 		disabledFields: ["awsRegionId", "awsAvailabilityZone", "subnetId"],
-		// Note: securityGroups is not disabled as it's an array and user might want to add multiple
+		// Note: securityGroups is not disabled as it's an array that can have multiple values
 	},
-	"aws-internet-gateway": {
-		autoFields: {
-			awsVpcId: {
-				sourceParentType: "aws-vpc",
-				sourceField: "awsVpcId",
-				// No default value - only set when actually connected to a VPC
-			},
-		},
-		disabledFields: ["awsVpcId"],
-	},
+
+	// === Networking Resources ===
 	"aws-route-table": {
 		autoFields: {
 			awsVpcId: {
 				sourceParentType: "aws-vpc",
 				sourceField: "awsVpcId",
-				// No default value - only set when actually inside a VPC or connected via edge
 			},
 			awsInternetGatewayId: {
 				sourceParentType: "aws-internet-gateway",
 				sourceField: "awsInternetGatewayId",
-				// No default value - only set when actually connected to an IGW
 			},
 			awsSubnetId: {
 				sourceParentType: "aws-private-subnet,aws-public-subnet",
 				sourceField: "awsPrivateSubnetId,awsPublicSubnetId",
-				// No default value - only set when actually connected to a subnet
 			},
 		},
 		disabledFields: ["awsVpcId", "awsInternetGatewayId", "awsSubnetId"],
@@ -367,6 +420,78 @@ export function getParentConfigurationValue(
 }
 
 /**
+ * Helper: Find a source node (parent or connected) for a field
+ */
+function findSourceNode(
+	nodeId: string,
+	parentTypes: string[],
+	nodes: Node[],
+	edges: Edge[],
+	shouldCheckEdgesAlways: boolean
+): { node: Node | null; source: "parent" | "edge" } {
+	// First try to find a parent
+	let sourceNode: Node | null = null;
+	for (const parentType of parentTypes) {
+		sourceNode = findParentOfType(nodeId, parentType, nodes);
+		if (sourceNode) break;
+	}
+
+	// Check edges if no parent found or if edges should always be checked
+	if ((!sourceNode || shouldCheckEdgesAlways) && edges.length > 0) {
+		const connectedNodes = findConnectedNodesOfTypes(nodeId, parentTypes, nodes, edges);
+		if (connectedNodes.length > 0) {
+			// For fields that should always check edges, prioritize edge connections
+			if (shouldCheckEdgesAlways) {
+				return { node: connectedNodes[0], source: "edge" };
+			} else if (!sourceNode) {
+				return { node: connectedNodes[0], source: "edge" };
+			}
+		}
+	}
+
+	return { node: sourceNode, source: "parent" };
+}
+
+/**
+ * Helper: Get value from source node trying multiple source fields
+ */
+function getValueFromSourceNode(
+	sourceNode: Node,
+	sourceFields: string[],
+	nodeConfigurations: Record<string, AWSResourceConfiguration>
+): unknown {
+	for (const sourceField of sourceFields) {
+		const value = getParentConfigurationValue(sourceNode, sourceField, nodeConfigurations);
+		if (value !== undefined && value !== "") {
+			return value;
+		}
+	}
+	return null;
+}
+
+/**
+ * Helper: Handle security groups array field (special case for EC2)
+ */
+function handleSecurityGroupsField(
+	nodeId: string,
+	rule: { sourceParentType: string; sourceField: string; defaultValue?: unknown },
+	nodes: Node[],
+	nodeConfigurations: Record<string, AWSResourceConfiguration>
+): string[] | null {
+	const parentTypes = rule.sourceParentType.split(",").map((t) => t.trim());
+	const securityGroupParents = findParentsOfTypes(nodeId, parentTypes, nodes);
+
+	if (securityGroupParents.length > 0) {
+		const securityGroupIds = securityGroupParents
+			.map((parent) => getParentConfigurationValue(parent, rule.sourceField, nodeConfigurations))
+			.filter((id) => id !== undefined && id !== "") as string[];
+
+		return securityGroupIds.length > 0 ? securityGroupIds : null;
+	}
+	return null;
+}
+
+/**
  * Auto-configures a node based on its container hierarchy and edge connections
  */
 export function autoConfigureNode(
@@ -388,26 +513,19 @@ export function autoConfigureNode(
 	}
 
 	if (!nodeResourceType) {
-		console.log(
-			`[autoConfigureNode] No resource type found for node ${nodeId}`
-		);
+		console.log(`[autoConfigureNode] No resource type found for node ${nodeId}`);
 		return { updatedConfig: currentConfig, autoPopulatedFields: [] };
 	}
 
 	const rules = AWS_RESOURCE_FIELD_RULES[nodeResourceType];
 	if (!rules) {
-		console.log(
-			`[autoConfigureNode] No rules found for resource type ${nodeResourceType}`
-		);
+		console.log(`[autoConfigureNode] No rules found for resource type ${nodeResourceType}`);
 		return { updatedConfig: currentConfig, autoPopulatedFields: [] };
 	}
 
 	console.log(
-		`[autoConfigureNode] === DEBUG: Processing node ${nodeId} of type ${nodeResourceType} ===`,
-		{
-			currentConfig,
-			autoFields: Object.keys(rules.autoFields)
-		}
+		`[autoConfigureNode] Processing node ${nodeId} of type ${nodeResourceType}`,
+		{ autoFields: Object.keys(rules.autoFields) }
 	);
 
 	const updatedConfig = { ...currentConfig };
@@ -415,324 +533,58 @@ export function autoConfigureNode(
 
 	// Process each auto field rule
 	for (const [fieldName, rule] of Object.entries(rules.autoFields)) {
-		console.log(`[autoConfigureNode] Processing field ${fieldName}`, { rule });
+		const parentTypes = rule.sourceParentType.split(",").map((t) => t.trim());
+		const sourceFields = rule.sourceField.split(",").map((f) => f.trim());
 
-		const parentTypes = rule.sourceParentType
-			.split(",")
-			.map((type) => type.trim());
-
-		// Handle array fields (like security groups)
+		// Special case: Handle array fields (like security groups for EC2)
 		if (fieldName === "securityGroups" && Array.isArray(rule.defaultValue)) {
-			const securityGroupParents = findParentsOfTypes(
-				nodeId,
-				parentTypes,
-				nodes
-			);
-			if (securityGroupParents.length > 0) {
-				const securityGroupIds = securityGroupParents
-					.map((parent) =>
-						getParentConfigurationValue(
-							parent,
-							rule.sourceField,
-							nodeConfigurations
-						)
-					)
-					.filter((id) => id !== undefined && id !== "");
-
-				if (securityGroupIds.length > 0) {
-					(updatedConfig as Record<string, unknown>)[fieldName] =
-						securityGroupIds;
-					autoPopulatedFields.push(fieldName);
-					console.log(
-						`[autoConfigureNode] Auto-populated ${fieldName} with security groups:`,
-						securityGroupIds
-					);
-				}
+			const securityGroupIds = handleSecurityGroupsField(nodeId, rule, nodes, nodeConfigurations);
+			if (securityGroupIds) {
+				(updatedConfig as Record<string, unknown>)[fieldName] = securityGroupIds;
+				autoPopulatedFields.push(fieldName);
+				console.log(`[autoConfigureNode] Auto-populated ${fieldName}:`, securityGroupIds);
 			}
 			continue;
 		}
 
-		// Handle multiple possible parent types (like subnets for EC2) and source fields
-		if (parentTypes.length > 1) {
-			let foundValue = false;
-			let foundNode = null;
-			let source = "parent";
+		// Determine if this field should always check edges (Route Table specific logic)
+		const shouldCheckEdgesAlways =
+			nodeResourceType === "aws-route-table" &&
+			(fieldName === "awsInternetGatewayId" || fieldName === "awsSubnetId");
 
-			// Parse source fields - could be comma-separated for different resource types
-			const sourceFields = rule.sourceField
-				.split(",")
-				.map((field) => field.trim());
+		// Find the source node (parent or connected via edge)
+		const { node: sourceNode, source } = findSourceNode(
+			nodeId,
+			parentTypes,
+			nodes,
+			edges,
+			shouldCheckEdgesAlways
+		);
 
-			// First try to find a parent
-			for (const parentType of parentTypes) {
-				const parentNode = findParentOfType(nodeId, parentType, nodes);
-				if (parentNode) {
-					// Try each possible source field for this parent type
-					for (const sourceField of sourceFields) {
-						const value = getParentConfigurationValue(
-							parentNode,
-							sourceField,
-							nodeConfigurations
-						);
-						if (value !== undefined && value !== "") {
-							foundNode = parentNode;
-							foundValue = true;
-							console.log(
-								`[autoConfigureNode] Found ${fieldName} from ${parentType} parent using field ${sourceField}:`,
-								value
-							);
-							break; // Use the first valid field found
-						}
-					}
-					if (foundValue) break; // Use the first valid parent found
-				}
-			}
-
-			// For Route Tables, also check edge connections even if parent was found
-			const shouldCheckEdgesAlways = nodeResourceType === "aws-route-table" &&
-				(fieldName === "awsInternetGatewayId" || fieldName === "awsSubnetId");
-
-			if ((!foundValue || shouldCheckEdgesAlways) && edges.length > 0) {
-				console.log(
-					`[autoConfigureNode] ${!foundValue ? 'No parent found' : 'Also checking edges'} for ${fieldName} with multiple parent types...`,
-					{
-						totalEdges: edges.length,
-						targetTypes: parentTypes,
-						nodeId,
-						shouldCheckEdgesAlways,
-					}
-				);
-
-				const connectedNodes = findConnectedNodesOfTypes(
-					nodeId,
-					parentTypes,
-					nodes,
-					edges
-				);
-				console.log(
-					`[autoConfigureNode] Found ${connectedNodes.length} connected nodes for ${fieldName}:`,
-					connectedNodes.map(n => ({ id: n.id, serviceId: n.data?.serviceId }))
-				);
-
-				if (connectedNodes.length > 0) {
-					// For Route Table fields, prioritize edge connections over parent-child
-					if (shouldCheckEdgesAlways) {
-						foundNode = connectedNodes[0];
-						source = "edge";
-						foundValue = true;
-						console.log(
-							`[autoConfigureNode] Using edge connection over parent for ${fieldName}:`,
-							{
-								connectedNode: foundNode.id,
-								connectedNodeServiceId: foundNode.data?.serviceId,
-							}
-						);
-					} else if (!foundValue) {
-						// Only use edge if no parent was found
-						foundNode = connectedNodes[0];
-						source = "edge";
-						foundValue = true;
-						console.log(
-							`[autoConfigureNode] Found connected node via edge for ${fieldName}:`,
-							{
-								connectedNode: foundNode.id,
-								connectedNodeServiceId: foundNode.data?.serviceId,
-							}
-						);
-					}
-				}
-			}
-
-			// Apply the found value or clear if no value found
-			if (foundValue && foundNode) {
-				// Parse source fields again and try each one
-				const sourceFields = rule.sourceField
-					.split(",")
-					.map((field) => field.trim());
-				
-				let finalValue = null;
-				for (const sourceField of sourceFields) {
-					const value = getParentConfigurationValue(
-						foundNode,
-						sourceField,
-						nodeConfigurations
-					);
-					if (value !== undefined && value !== "") {
-						finalValue = value;
-						console.log(
-							`[autoConfigureNode] Using source field ${sourceField} for ${fieldName}:`,
-							value
-						);
-						break;
-					}
-				}
-
-				if (finalValue !== null) {
-					(updatedConfig as Record<string, unknown>)[fieldName] = finalValue;
-					autoPopulatedFields.push(fieldName);
-					console.log(
-						`[autoConfigureNode] Auto-populated ${fieldName} from ${source}:`,
-						finalValue
-					);
-				}
-			} else {
-				// Clear the field if no source found (important for cleanup when connections are removed)
-				const currentValue = (currentConfig as Record<string, unknown>)[fieldName];
-				console.log(
-					`[autoConfigureNode] Multiple parent types - no source found for ${fieldName}:`,
-					{ currentValue, willClear: currentValue !== undefined && currentValue !== "" }
-				);
-				if (currentValue !== undefined && currentValue !== "") {
-					(updatedConfig as Record<string, unknown>)[fieldName] = "";
-					autoPopulatedFields.push(fieldName);
-					console.log(
-						`[autoConfigureNode] Cleared ${fieldName} (was: ${currentValue}) - no source found (multiple parent types)`
-					);
-				}
-			}
-
-			continue; // Always continue after handling multiple parent types
-		} else {
-			// Standard single parent type auto-configuration
-			const parentNode = findParentOfType(nodeId, parentTypes[0], nodes);
-			console.log(
-				`[autoConfigureNode] Looking for parent of type ${parentTypes[0]} for field ${fieldName}`,
-				{
-					parentNode: parentNode?.id,
-					parentNodeServiceId: parentNode?.data?.serviceId,
-					targetParentType: parentTypes[0],
-				}
-			);
-
-			let foundNode = parentNode;
-			let source = "parent";
-
-			// For Route Tables, some fields should always check both parent-child AND edge connections
-			// IGW and Subnet connections are typically via edges, VPC can be both
-			const shouldCheckEdgesAlways = nodeResourceType === "aws-route-table" &&
-				(fieldName === "awsInternetGatewayId" || fieldName === "awsSubnetId");
-
-			// If no parent found, or if we should always check edges for this field, try edge connections
-			if ((!parentNode || shouldCheckEdgesAlways) && edges.length > 0) {
-				console.log(
-					`[autoConfigureNode] ${!parentNode ? 'No parent found' : 'Always checking edges'} for ${fieldName}, searching edges...`,
-					{
-						totalEdges: edges.length,
-						targetTypes: parentTypes,
-						nodeId,
-						shouldCheckEdgesAlways,
-					}
-				);
-
-				const connectedNodes = findConnectedNodesOfTypes(
-					nodeId,
-					parentTypes,
-					nodes,
-					edges
-				);
-				console.log(
-					`[autoConfigureNode] Found ${connectedNodes.length} connected nodes for ${fieldName}:`,
-					connectedNodes.map(n => ({ id: n.id, serviceId: n.data?.serviceId }))
-				);
-
-				if (connectedNodes.length > 0) {
-					// For Route Table IGW and Subnet fields, prioritize edge connections over parent-child
-					if (shouldCheckEdgesAlways) {
-						foundNode = connectedNodes[0];
-						source = "edge";
-						console.log(
-							`[autoConfigureNode] Using edge connection over parent for ${fieldName}:`,
-							{
-								connectedNode: foundNode.id,
-								connectedNodeServiceId: foundNode.data?.serviceId,
-							}
-						);
-					} else if (!parentNode) {
-						// Only use edge if no parent was found
-						foundNode = connectedNodes[0];
-						source = "edge";
-						console.log(
-							`[autoConfigureNode] Found connected node of type ${parentTypes[0]} via edge:`,
-							{
-								connectedNode: foundNode.id,
-								connectedNodeServiceId: foundNode.data?.serviceId,
-							}
-						);
-					}
-				}
-			}
-
-			if (foundNode) {
-				// Handle multiple source fields for single parent type
-				const sourceFields = rule.sourceField
-					.split(",")
-					.map((field) => field.trim());
-
-				let finalValue = null;
-				let usedSourceField = null;
-
-				for (const sourceField of sourceFields) {
-					const value = getParentConfigurationValue(
-						foundNode,
-						sourceField,
-						nodeConfigurations
-					);
-					console.log(
-						`[autoConfigureNode] Trying source field ${sourceField} from ${source} ${foundNode.id}:`,
-						{
-							value,
-							valueType: typeof value,
-						}
-					);
-
-					if (value !== undefined && value !== "") {
-						finalValue = value;
-						usedSourceField = sourceField;
-						break;
-					}
-				}
-
-				if (finalValue !== null) {
-					(updatedConfig as Record<string, unknown>)[fieldName] = finalValue;
-					autoPopulatedFields.push(fieldName);
-					console.log(
-						`[autoConfigureNode] Auto-populated ${fieldName} from ${parentTypes[0]} ${source} using field ${usedSourceField}:`,
-						finalValue
-					);
-					continue;
-				} else {
-					console.log(
-						`[autoConfigureNode] All source fields (${rule.sourceField}) from ${source} were undefined or empty for field ${fieldName}`
-					);
-				}
-			} else {
-				console.log(
-					`[autoConfigureNode] No parent or connected node of type ${parentTypes[0]} found for field ${fieldName}`
-				);
+		// Try to get value from source node
+		let fieldValue: unknown = null;
+		if (sourceNode) {
+			fieldValue = getValueFromSourceNode(sourceNode, sourceFields, nodeConfigurations);
+			if (fieldValue !== null) {
+				(updatedConfig as Record<string, unknown>)[fieldName] = fieldValue;
+				autoPopulatedFields.push(fieldName);
+				console.log(`[autoConfigureNode] Auto-populated ${fieldName} from ${source}:`, fieldValue);
+				continue;
 			}
 		}
 
-		// Use default value if no parent found, or clear field if no default
+		// No source found - use default value or clear the field
 		if (rule.defaultValue !== undefined) {
 			(updatedConfig as Record<string, unknown>)[fieldName] = rule.defaultValue;
 			autoPopulatedFields.push(fieldName);
-			console.log(
-				`[autoConfigureNode] Used default value for ${fieldName}:`,
-				rule.defaultValue
-			);
+			console.log(`[autoConfigureNode] Used default value for ${fieldName}:`, rule.defaultValue);
 		} else {
-			// Clear the field if no source found and no default value (important for cleanup)
+			// Clear the field if no source found and no default (important for cleanup)
 			const currentValue = (currentConfig as Record<string, unknown>)[fieldName];
-			console.log(
-				`[autoConfigureNode] Single parent type - no source found for ${fieldName}:`,
-				{ currentValue, willClear: currentValue !== undefined && currentValue !== "" }
-			);
 			if (currentValue !== undefined && currentValue !== "") {
 				(updatedConfig as Record<string, unknown>)[fieldName] = "";
 				autoPopulatedFields.push(fieldName);
-				console.log(
-					`[autoConfigureNode] Cleared ${fieldName} (was: ${currentValue}) - no source found`
-				);
+				console.log(`[autoConfigureNode] Cleared ${fieldName} - no source found`);
 			}
 		}
 	}

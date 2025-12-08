@@ -1,15 +1,56 @@
 /**
  * Z-Index Logic for Node Layering
- * Handles automatic z-index assignment for proper node layering in the canvas
- * READY FOR SHIPPING - Stable and optimized
+ *
+ * This module handles automatic z-index assignment to ensure proper visual layering
+ * of nodes on the canvas. Container nodes appear behind their children, with service
+ * nodes always on top. Similar resources (e.g., subnets) share the same base z-index.
+ *
+ * Key Concepts:
+ * ------------
+ * 1. **Layering**: Containers have lower z-index than services
+ * 2. **Depth-Based**: Nested containers get incrementally higher z-index
+ * 3. **Grouped Resources**: Similar resources (subnets, zones) share base z-index
+ * 4. **Drag Priority**: Dragged nodes always appear on top
+ * 5. **Performance**: Extensive caching for repeated calculations
+ *
+ * Z-Index Ranges:
+ * --------------
+ * - Containers: 10-100 (base) + depth
+ * - Services: 1000 + depth
+ * - Dragging: 10000+ (always on top)
+ *
+ * Base Z-Index Groups:
+ * -------------------
+ * - Account: 10
+ * - Region: 20
+ * - Availability/Local Zones: 30 (grouped)
+ * - VPC: 40
+ * - Subnets: 50 (public/private grouped)
+ * - Auto Scaling: 60
+ * - Security Groups: 70
+ * - Data Centers: 80 (corporate/edge grouped)
+ * - Default: 100
+ *
+ * @module z-index-logic
  */
 
 import { Node } from "@xyflow/react";
 
-// Cache for depth calculations
+// =============================================================================
+// CACHING INFRASTRUCTURE
+// =============================================================================
+
+// Cache for depth calculations (cleared on major structural changes)
 const depthCache = new Map<string, number>();
 
-// Helper function to get the base z-index for similar resources
+// =============================================================================
+// Z-INDEX CONFIGURATION
+// =============================================================================
+
+/**
+ * Get the base z-index for a resource type
+ * Similar resources share the same base to appear at the same level
+ */
 function getResourceGroupZIndex(serviceId: string): number {
   // Base z-indices for different resource groups
   const GROUP_Z_INDEX_MAP = {
@@ -29,15 +70,26 @@ function getResourceGroupZIndex(serviceId: string): number {
   return GROUP_Z_INDEX_MAP[serviceId as keyof typeof GROUP_Z_INDEX_MAP] || 100;
 }
 
+// =============================================================================
+// CACHE MANAGEMENT
+// =============================================================================
+
 /**
  * Clear z-index related caches
+ * Called when nodes are added/removed or major structural changes occur
  */
 export function clearZIndexCaches(): void {
   depthCache.clear();
 }
 
+// =============================================================================
+// Z-INDEX CALCULATION
+// =============================================================================
+
 /**
  * Calculate container hierarchy depth with memoization
+ * Counts how many parent levels exist above a node
+ *
  * Time Complexity: O(1) amortized with caching
  */
 export function calculateContainerDepth(
@@ -101,8 +153,12 @@ export function getNodeZIndex(
 }
 
 /**
- * Get drag-optimized z-index for nodes being dragged
- * Ensures dragging nodes appear on top of all other nodes
+ * Get drag-optimized z-index for dragged nodes
+ * Ensures nodes being dragged always appear on top of everything else
+ * for better visual feedback during drag operations
+ *
+ * @param node - The node being dragged
+ * @returns Z-index value that ensures top-most position
  */
 export function getDragZIndex(node: Node): number {
   const serviceNodeZIndex = 1000;
@@ -115,9 +171,18 @@ export function getDragZIndex(node: Node): number {
   }
 }
 
+// =============================================================================
+// UTILITY FUNCTIONS
+// =============================================================================
+
 /**
  * Build parent-child relationship map for z-index calculations
- * Time Complexity: O(n)
+ * Creates a map from child node IDs to their parent node IDs
+ *
+ * Time Complexity: O(n) where n is the number of nodes
+ *
+ * @param nodes - Array of all nodes in the canvas
+ * @returns Map of child node ID to parent node ID
  */
 export function buildChildToParentMap(nodes: Node[]): Map<string, string> {
   const childToParent = new Map<string, string>();

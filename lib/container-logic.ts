@@ -1,10 +1,33 @@
 /**
  * Container Logic - Main Entry Point
- * Combines Z-Index Logic (shipping-ready) and Parent-Child Logic (in development)
  *
- * SHIPPING STRATEGY:
- * - Z-Index Logic: Stable and ready for production
- * - Parent-Child Logic: Under active development and refinement
+ * This module provides the main interface for managing container-based node relationships
+ * in the architecture designer. It combines z-index layering with parent-child hierarchy
+ * to create a cohesive container management system.
+ *
+ * Key Responsibilities:
+ * ------------------
+ * 1. Node Layering: Automatic z-index assignment for proper visual stacking
+ * 2. Parent Detection: Finding appropriate parent containers for nodes
+ * 3. Hierarchy Management: Maintaining valid parent-child relationships
+ * 4. Position Conversion: Converting between absolute and relative coordinates
+ * 5. Performance Optimization: Caching and drag-aware updates
+ *
+ * Main Functions:
+ * --------------
+ * - updateNodeParentRelationships(): Full relationship update with parent detection
+ * - batchUpdateNodeRelationships(): Optimized updates for changed nodes only
+ * - clearContainerCaches(): Cache management for performance
+ *
+ * Usage:
+ * ------
+ * Called during:
+ * - Node drag operations (real-time with optimizations)
+ * - Node drop events (complete relationship recalculation)
+ * - Bulk node operations (batch processing for efficiency)
+ * - Auto-configuration triggers (relationship change tracking)
+ *
+ * @module container-logic
  */
 
 import { Node } from "@xyflow/react";
@@ -88,6 +111,50 @@ export function clearContainerCaches(): void {
 }
 
 /**
+ * Helper: Process a single node for parent relationship updates
+ * Shared logic between tracking and non-tracking update functions
+ */
+function processNodeUpdate(
+  node: Node,
+  containers: Node[],
+  nodeMap: Map<string, Node>,
+  childToParent: Map<string, string>,
+  isDragEnd: boolean,
+  forceUpdate: boolean
+): {
+  updatedNode: Node;
+  parentChanged: boolean;
+} {
+  // Calculate z-index efficiently
+  const zIndex = getNodeZIndex(node, childToParent);
+
+  // Find potential new parent
+  const potentialNewParent = findParentContainer(node, containers, nodeMap, isDragEnd);
+
+  // Check if we should update the parent
+  const shouldUpdate = shouldUpdateParent(node, potentialNewParent, nodeMap, forceUpdate, isDragEnd);
+  const newParentId = shouldUpdate ? potentialNewParent?.id || undefined : node.parentId;
+
+  // Check if update is needed
+  const needsUpdate = forceUpdate || node.parentId !== newParentId || node.zIndex !== zIndex;
+
+  if (!needsUpdate) {
+    return { updatedNode: { ...node, zIndex }, parentChanged: false };
+  }
+
+  let updatedNode: Node = { ...node, zIndex };
+  let parentChanged = false;
+
+  // Handle parent relationship changes
+  if (node.parentId !== newParentId) {
+    updatedNode = updateNodeParentRelationship(updatedNode, newParentId, nodeMap);
+    parentChanged = true;
+  }
+
+  return { updatedNode, parentChanged };
+}
+
+/**
  * Updates parent relationships for all nodes based on their current positions.
  * Implements performance optimizations to skip expensive calculations during active dragging.
  * Handles z-index assignment and parent relationship updates in a single pass.
@@ -102,14 +169,9 @@ export function updateNodeParentRelationships(
   // Early return for empty arrays
   if (nodes.length === 0) return nodes;
 
-  // PERFORMANCE: If any node is actively being dragged and this isn't a forced update
-  // or drag end event, use shipping-ready z-index-only updates
-  if (!forceUpdate && !isDragEnd) {
-    const anyNodeDragging = nodes.some((node) => node.dragging);
-    if (anyNodeDragging) {
-      // Use shipping-ready z-index logic for optimal performance during dragging
-      return updateNodesZIndex(nodes);
-    }
+  // PERFORMANCE: During active dragging, use z-index-only updates
+  if (!forceUpdate && !isDragEnd && nodes.some((node) => node.dragging)) {
+    return updateNodesZIndex(nodes);
   }
 
   // Build efficient lookup structures once
@@ -120,50 +182,16 @@ export function updateNodeParentRelationships(
   let hasChanges = false;
 
   for (const node of nodes) {
-    // Calculate z-index efficiently using shipping-ready logic
-    const zIndex = getNodeZIndex(node, childToParent);
-
-    // Find potential new parent efficiently (parent-child logic)
-    const potentialNewParent = findParentContainer(
+    const { updatedNode, parentChanged } = processNodeUpdate(
       node,
       containers,
       nodeMap,
-      isDragEnd
+      childToParent,
+      isDragEnd,
+      forceUpdate
     );
 
-    // Check if we should actually update the parent (parent-child logic)
-    const shouldUpdate = shouldUpdateParent(
-      node,
-      potentialNewParent,
-      nodeMap,
-      forceUpdate,
-      isDragEnd
-    );
-    const newParentId = shouldUpdate
-      ? potentialNewParent?.id || undefined
-      : node.parentId;
-
-    // Check if parent relationship needs updating
-    const needsUpdate =
-      forceUpdate || node.parentId !== newParentId || node.zIndex !== zIndex;
-
-    if (!needsUpdate) {
-      updatedNodes.push({ ...node, zIndex });
-      continue;
-    }
-
-    hasChanges = true;
-    let updatedNode: Node = { ...node, zIndex };
-
-    // Handle parent relationship changes (parent-child logic)
-    if (node.parentId !== newParentId) {
-      updatedNode = updateNodeParentRelationship(
-        updatedNode,
-        newParentId,
-        nodeMap
-      );
-    }
-
+    if (parentChanged) hasChanges = true;
     updatedNodes.push(updatedNode);
   }
 
@@ -184,20 +212,15 @@ export function updateNodeParentRelationshipsWithTracking(
   forceUpdate: boolean = false,
   isDragEnd: boolean = false
 ): {
-  updatedNodes: Node[],
-  nodesWithChangedParents: Set<string>
+  updatedNodes: Node[];
+  nodesWithChangedParents: Set<string>;
 } {
   // Early return for empty arrays
   if (nodes.length === 0) return { updatedNodes: nodes, nodesWithChangedParents: new Set() };
 
-  // PERFORMANCE: If any node is actively being dragged and this isn't a forced update
-  // or drag end event, use shipping-ready z-index-only updates
-  if (!forceUpdate && !isDragEnd) {
-    const anyNodeDragging = nodes.some((node) => node.dragging);
-    if (anyNodeDragging) {
-      // Use shipping-ready z-index logic for optimal performance during dragging
-      return { updatedNodes: updateNodesZIndex(nodes), nodesWithChangedParents: new Set() };
-    }
+  // PERFORMANCE: During active dragging, use z-index-only updates
+  if (!forceUpdate && !isDragEnd && nodes.some((node) => node.dragging)) {
+    return { updatedNodes: updateNodesZIndex(nodes), nodesWithChangedParents: new Set() };
   }
 
   // Build efficient lookup structures once
@@ -209,49 +232,17 @@ export function updateNodeParentRelationshipsWithTracking(
   let hasChanges = false;
 
   for (const node of nodes) {
-    // Calculate z-index efficiently using shipping-ready logic
-    const zIndex = getNodeZIndex(node, childToParent);
-
-    // Find potential new parent efficiently (parent-child logic)
-    const potentialNewParent = findParentContainer(
+    const { updatedNode, parentChanged } = processNodeUpdate(
       node,
       containers,
       nodeMap,
-      isDragEnd
+      childToParent,
+      isDragEnd,
+      forceUpdate
     );
 
-    // Check if we should actually update the parent (parent-child logic)
-    const shouldUpdate = shouldUpdateParent(
-      node,
-      potentialNewParent,
-      nodeMap,
-      forceUpdate,
-      isDragEnd
-    );
-    const newParentId = shouldUpdate
-      ? potentialNewParent?.id || undefined
-      : node.parentId;
-
-    // Check if parent relationship needs updating
-    const needsUpdate =
-      forceUpdate || node.parentId !== newParentId || node.zIndex !== zIndex;
-
-    if (!needsUpdate) {
-      updatedNodes.push({ ...node, zIndex });
-      continue;
-    }
-
-    hasChanges = true;
-    let updatedNode: Node = { ...node, zIndex };
-
-    // Handle parent relationship changes (parent-child logic)
-    if (node.parentId !== newParentId) {
-      updatedNode = updateNodeParentRelationship(
-        updatedNode,
-        newParentId,
-        nodeMap
-      );
-      // Track this node for auto-configuration
+    if (parentChanged) {
+      hasChanges = true;
       nodesWithChangedParents.add(node.id);
     }
 
@@ -267,6 +258,30 @@ export function updateNodeParentRelationshipsWithTracking(
 }
 
 /**
+ * Helper: Build set of nodes that need updating in batch operations
+ */
+function buildNodesToUpdateSet(
+  changedNodeIds: Set<string>,
+  parentToChildren: Map<string, string[]>,
+  childToParent: Map<string, string>
+): Set<string> {
+  const nodesToUpdate = new Set<string>();
+
+  for (const nodeId of changedNodeIds) {
+    nodesToUpdate.add(nodeId);
+
+    // Add children of changed containers
+    parentToChildren.get(nodeId)?.forEach((childId) => nodesToUpdate.add(childId));
+
+    // Add parent of changed node
+    const parentId = childToParent.get(nodeId);
+    if (parentId) nodesToUpdate.add(parentId);
+  }
+
+  return nodesToUpdate;
+}
+
+/**
  * Performs optimized batch updates for multiple node relationship changes.
  * Only processes nodes that have actually changed or are related to changed nodes.
  * Implements drag-aware optimizations to maintain performance during interactive operations.
@@ -278,70 +293,23 @@ export function batchUpdateNodeRelationships(
   changedNodeIds: Set<string>,
   isDragEnd: boolean = false
 ): Node[] {
-  // Only update nodes that actually changed or their potential parents/children
-  const { parentToChildren, childToParent, containers } =
-    buildParentChildMap(nodes);
+  const { parentToChildren, childToParent, containers } = buildParentChildMap(nodes);
   const nodeMap = new Map(nodes.map((node) => [node.id, node]));
-
-  const nodesToUpdate = new Set<string>();
-
-  // Add changed nodes and their related nodes
-  for (const nodeId of changedNodeIds) {
-    nodesToUpdate.add(nodeId);
-
-    // Add children of changed containers
-    if (parentToChildren.has(nodeId)) {
-      parentToChildren
-        .get(nodeId)!
-        .forEach((childId) => nodesToUpdate.add(childId));
-    }
-
-    // Add parent of changed node
-    if (childToParent.has(nodeId)) {
-      nodesToUpdate.add(childToParent.get(nodeId)!);
-    }
-  }
+  const nodesToUpdate = buildNodesToUpdateSet(changedNodeIds, parentToChildren, childToParent);
 
   return nodes.map((node) => {
     if (!nodesToUpdate.has(node.id)) {
       return node; // No change needed
     }
 
-    // Use shipping-ready z-index logic
-    const zIndex = getNodeZIndex(node, childToParent);
-
-    // Use parent-child logic
-    const potentialNewParent = findParentContainer(
+    const { updatedNode } = processNodeUpdate(
       node,
       containers,
       nodeMap,
-      isDragEnd
+      childToParent,
+      isDragEnd,
+      false
     );
-
-    // Check if we should actually update the parent
-    const shouldUpdate = shouldUpdateParent(
-      node,
-      potentialNewParent,
-      nodeMap,
-      false,
-      isDragEnd
-    );
-    const newParentId = shouldUpdate
-      ? potentialNewParent?.id || undefined
-      : node.parentId;
-
-    if (node.parentId === newParentId && node.zIndex === zIndex) {
-      return node; // No actual change
-    }
-
-    let updatedNode: Node = { ...node, zIndex };
-    if (node.parentId !== newParentId) {
-      updatedNode = updateNodeParentRelationship(
-        updatedNode,
-        newParentId,
-        nodeMap
-      );
-    }
 
     return updatedNode;
   });
@@ -355,74 +323,29 @@ export function batchUpdateNodeRelationshipsWithTracking(
   changedNodeIds: Set<string>,
   isDragEnd: boolean = false
 ): {
-  updatedNodes: Node[],
-  nodesWithChangedParents: Set<string>
+  updatedNodes: Node[];
+  nodesWithChangedParents: Set<string>;
 } {
-  // Only update nodes that actually changed or their potential parents/children
-  const { parentToChildren, childToParent, containers } =
-    buildParentChildMap(nodes);
+  const { parentToChildren, childToParent, containers } = buildParentChildMap(nodes);
   const nodeMap = new Map(nodes.map((node) => [node.id, node]));
-
-  const nodesToUpdate = new Set<string>();
+  const nodesToUpdate = buildNodesToUpdateSet(changedNodeIds, parentToChildren, childToParent);
   const nodesWithChangedParents = new Set<string>();
-
-  // Add changed nodes and their related nodes
-  for (const nodeId of changedNodeIds) {
-    nodesToUpdate.add(nodeId);
-
-    // Add children of changed containers
-    if (parentToChildren.has(nodeId)) {
-      parentToChildren
-        .get(nodeId)!
-        .forEach((childId) => nodesToUpdate.add(childId));
-    }
-
-    // Add parent of changed node
-    if (childToParent.has(nodeId)) {
-      nodesToUpdate.add(childToParent.get(nodeId)!);
-    }
-  }
 
   const updatedNodes = nodes.map((node) => {
     if (!nodesToUpdate.has(node.id)) {
       return node; // No change needed
     }
 
-    // Use shipping-ready z-index logic
-    const zIndex = getNodeZIndex(node, childToParent);
-
-    // Use parent-child logic
-    const potentialNewParent = findParentContainer(
+    const { updatedNode, parentChanged } = processNodeUpdate(
       node,
       containers,
       nodeMap,
-      isDragEnd
+      childToParent,
+      isDragEnd,
+      false
     );
 
-    // Check if we should actually update the parent
-    const shouldUpdate = shouldUpdateParent(
-      node,
-      potentialNewParent,
-      nodeMap,
-      false,
-      isDragEnd
-    );
-    const newParentId = shouldUpdate
-      ? potentialNewParent?.id || undefined
-      : node.parentId;
-
-    if (node.parentId === newParentId && node.zIndex === zIndex) {
-      return node; // No actual change
-    }
-
-    let updatedNode: Node = { ...node, zIndex };
-    if (node.parentId !== newParentId) {
-      updatedNode = updateNodeParentRelationship(
-        updatedNode,
-        newParentId,
-        nodeMap
-      );
-      // Track this node for auto-configuration
+    if (parentChanged) {
       nodesWithChangedParents.add(node.id);
     }
 
