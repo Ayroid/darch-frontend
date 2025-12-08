@@ -182,8 +182,7 @@ function ResizeHandle({ position, onMouseDown }: ResizeHandleProps) {
 				width: 8,
 				height: 8,
 				backgroundColor: "#fff",
-				border: "1.5px solid #555",
-				borderRadius: 1,
+				borderRadius: 0, // Square corners
 				opacity: 0,
 				transition: "opacity 0.2s ease",
 				zIndex: 100,
@@ -275,19 +274,19 @@ export const isHandleConnected = (
 // ============================================================================
 
 // AWS Service Node Component with handles
-export function AWSServiceNode({ id, data }: AWSServiceNodeProps) {
+export function AWSServiceNode({ id, data, selected }: AWSServiceNodeProps) {
 	const { icon, name } = data;
 	const edges = useStore((state) => state.edges);
 
 	// Fixed square dimensions for service nodes
-	const nodeSize = 80;
+	const nodeSize = 70;
 
 	// Calculate handle positions for service nodes
 	const handlePositions = {
-		top: { top: 0, left: nodeSize / 2 },
-		right: { top: nodeSize / 2, right: -6 },
-		bottom: { bottom: -6, left: nodeSize / 2 },
-		left: { top: nodeSize / 2, left: 0 },
+		top: { top: -1, left: nodeSize / 2 },
+		right: { top: nodeSize / 2, right: -7 },
+		bottom: { bottom: -7, left: nodeSize / 2 },
+		left: { top: nodeSize / 2, left: -1 },
 	};
 
 	// Check connection status for each position
@@ -299,51 +298,68 @@ export function AWSServiceNode({ id, data }: AWSServiceNodeProps) {
 	};
 
 	return (
-		<div
-			className="relative flex flex-col items-center justify-center gap-1"
-			style={{
-				minWidth: nodeSize,
-				minHeight: nodeSize,
-				width: nodeSize,
-				height: nodeSize,
-			}}
-		>
-			{/* All Handles */}
-			<BidirectionalHandle
-				position={Position.Top}
-				isConnected={connections.top}
-				style={handlePositions.top}
-			/>
-			<BidirectionalHandle
-				position={Position.Right}
-				isConnected={connections.right}
-				style={handlePositions.right}
-			/>
-			<BidirectionalHandle
-				position={Position.Bottom}
-				isConnected={connections.bottom}
-				style={handlePositions.bottom}
-			/>
-			<BidirectionalHandle
-				position={Position.Left}
-				isConnected={connections.left}
-				style={handlePositions.left}
-			/>
+		<>
+			{/* Main node area with border and handles */}
+			<div
+				className="relative flex items-center justify-center"
+				style={{
+					width: nodeSize,
+					height: nodeSize,
+					borderRadius: 0, // Square corners
+					backgroundColor: 'transparent',
+					padding: '10px',
+					transition: 'border-color 0.15s ease',
+				}}
+			>
+				{/* All Handles */}
+				<BidirectionalHandle
+					position={Position.Top}
+					isConnected={connections.top}
+					style={handlePositions.top}
+				/>
+				<BidirectionalHandle
+					position={Position.Right}
+					isConnected={connections.right}
+					style={handlePositions.right}
+				/>
+				<BidirectionalHandle
+					position={Position.Bottom}
+					isConnected={connections.bottom}
+					style={handlePositions.bottom}
+				/>
+				<BidirectionalHandle
+					position={Position.Left}
+					isConnected={connections.left}
+					style={handlePositions.left}
+				/>
 
-			{/* Node content */}
-			<div className="flex flex-col items-center justify-center gap-1 bg-red-100">
+				{/* Icon */}
 				<Image
 					src={icon}
 					alt={name}
-					width={32}
-					height={32}
-					className="w-8 h-8"
+					width={44}
+					height={44}
+					className="w-11 h-11"
 				/>
-				<span className="text-xs text-center font-medium text-gray-700 max-w-[60px] leading-tight">
+			</div>
+
+			{/* Name label - Positioned absolutely below the node */}
+			<div
+				style={{
+					position: 'absolute',
+					top: nodeSize + 6,
+					left: '50%',
+					transform: 'translateX(-50%)',
+					pointerEvents: 'none',
+					width: 'max-content',
+					maxWidth: '120px',
+				}}
+			>
+				<span className="text-xs text-center font-medium text-gray-700 leading-tight block">
 					<NodeLabel text={name} />
 				</span>
 			</div>
-		</div>
+		</>
 	);
 }
 

@@ -306,6 +306,11 @@ export default function ArchitectureCanvas({
 
 	const onConnect: OnConnect = useCallback(
 		(params: Connection) => {
+			// Prevent self-loops: source and target cannot be the same node
+			if (params.source === params.target) {
+				return;
+			}
+
 			const newEdge: Edge = {
 				...params,
 				type: defaultEdgeOptions.type,
