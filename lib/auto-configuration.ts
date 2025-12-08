@@ -10,6 +10,7 @@ import {
 	AvailabilityZoneConfiguration,
 } from "@/lib/types/aws-resources";
 import { buildParentChildMap } from "./parent-child-logic";
+import { AWS_REGIONS_WITH_AZS } from "@/lib/data/aws_regions";
 
 // Define which fields should be auto-populated and disabled for each resource type
 export interface ResourceFieldRules {
@@ -731,6 +732,41 @@ export function autoConfigureNode(
 				autoPopulatedFields.push(fieldName);
 				console.log(
 					`[autoConfigureNode] Cleared ${fieldName} (was: ${currentValue}) - no source found`
+				);
+			}
+		}
+	}
+
+	// Special handling for Availability Zone nodes: auto-configure availabilityZone field
+	// when awsRegionId is set or changes
+	if (nodeResourceType === "aws-availability-zone") {
+		const azConfig = updatedConfig as AvailabilityZoneConfiguration;
+		const regionId = azConfig.awsRegionId;
+
+		// If we have a region ID, auto-configure the availabilityZone to the first AZ of that region
+		if (regionId) {
+			const availableAZs = AWS_REGIONS_WITH_AZS[regionId as keyof typeof AWS_REGIONS_WITH_AZS];
+
+			if (availableAZs && availableAZs.length > 0) {
+				const firstAZ = availableAZs[0];
+
+				// Only update if the current AZ is not valid for the region or is empty
+				const currentAZ = azConfig.availabilityZone;
+				const isCurrentAZValid = currentAZ && availableAZs.includes(currentAZ);
+
+				if (!isCurrentAZValid) {
+					azConfig.availabilityZone = firstAZ;
+					if (!autoPopulatedFields.includes("availabilityZone")) {
+						autoPopulatedFields.push("availabilityZone");
+					}
+					console.log(
+						`[autoConfigureNode] Auto-configured availabilityZone to first AZ of region ${regionId}:`,
+						firstAZ
+					);
+				}
+			} else {
+				console.log(
+					`[autoConfigureNode] No availability zones found for region ${regionId}`
 				);
 			}
 		}

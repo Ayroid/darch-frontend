@@ -60,7 +60,7 @@ const awsServices: AWSService[] = [
 		name: "SecurityGroup",
 		icon: "/aws_icons/architecture_group_icons/EC2-instance-contents_32.svg",
 		category: "Compute",
-		isContainer: false,
+		isContainer: true,
 		status: "ready",
 	},
 	{
@@ -706,7 +706,7 @@ export default function ServicesSidebar({
 																	: ""
 															}`}
 														>
-															<div className="relative w-10 h-10 mr-3 flex-shrink-0">
+															<div className="relative w-10 h-10 mr-3 shrink-0">
 																<Image
 																	src={service.icon}
 																	alt={service.name}
