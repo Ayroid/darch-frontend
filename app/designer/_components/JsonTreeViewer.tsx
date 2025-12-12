@@ -134,7 +134,7 @@ const TreeNode: React.FC<TreeNodeProps> = ({
 				style={{ paddingLeft: `${indent}px` }}
 			>
 				{/* Expand/Collapse Icon */}
-				<div className="w-5 h-5 flex items-center justify-center flex-shrink-0 mt-0.5">
+				<div className="w-5 h-5 flex items-center justify-center shrink-0 mt-0.5">
 					{isObject && !isEmpty ? (
 						isExpanded ? (
 							<ChevronDown className="w-4 h-4 text-gray-400" />

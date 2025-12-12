@@ -163,10 +163,32 @@ export default function ArchitectureImportExport({
 							</div>
 
 						<div className="flex-1 overflow-hidden">
-							<JsonTreeViewer
-								data={JSON.parse(jsonData)}
-								rootLabel="architecture"
-							/>
+							{jsonData ? (
+								(() => {
+									try {
+										const parsedData = JSON.parse(jsonData);
+										return (
+											<JsonTreeViewer
+												data={parsedData}
+												rootLabel="architecture"
+											/>
+										);
+									} catch (error) {
+										return (
+											<div className="p-4 bg-red-50 border border-red-200 rounded-md text-red-700">
+												<p className="font-semibold">Error parsing JSON:</p>
+												<p className="text-sm mt-1">
+													{error instanceof Error ? error.message : "Invalid JSON format"}
+												</p>
+											</div>
+										);
+									}
+								})()
+							) : (
+								<div className="p-4 bg-gray-50 border border-gray-200 rounded-md text-gray-600">
+									<p>No data available</p>
+								</div>
+							)}
 						</div>
 						</div>
 					</DialogContent>
