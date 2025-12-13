@@ -24,10 +24,6 @@ export interface VPCConfiguration {
 	enableDnsSupport?: boolean; // Default: true
 	enableDnsHostnames?: boolean; // Default: false
 	instanceTenancy?: "default" | "dedicated"; // Default: "default"
-	assignGeneratedIpv6CidrBlock?: boolean; // Default: false
-	ipv6CidrBlock?: string; // Optional: IPv6 CIDR block
-	ipv6IpamPoolId?: string; // Optional: IPv6 IPAM pool ID
-	ipv6NetmaskLength?: number; // Optional: IPv6 netmask length
 	tags?: Record<string, string>; // comma-separated key=value pairs for backward compatibility
 }
 
@@ -40,64 +36,26 @@ export interface EC2Configuration {
 	keyPairName?: string;
 
 	// Instance Details
-	awsRegionId?: string;
-	awsAvailabilityZone?: string;
 	subnetId?: string;
 	securityGroups?: string[]; // VPC security group IDs
 	iamInstanceProfile?: string;
 
 	// Storage
 	rootVolumeSize?: number; // Default: 8 GB (AMI default)
-	rootVolumeType?: "gp2" | "gp3" | "io1" | "io2" | "st1" | "sc1" | "standard"; // Default: gp3 (modern) or gp2 (legacy)
+	rootVolumeType?: "gp2" | "gp3" | "io1" | "io2" | "st1" | "sc1" | "standard"; // Default: gp3
 	deleteOnTermination?: boolean; // Default: true
 	encrypted?: boolean; // Default: false
-	ebsOptimized?: boolean; // Default: false (or true for some instance types)
+	ebsOptimized?: boolean; // Default: false
 
 	// Monitoring & Management
 	detailedMonitoring?: boolean; // Default: false
 	terminationProtection?: boolean; // Default: false (disable_api_termination)
-	autoRecovery?: boolean; // Default: true (maintenance_options)
-	shutdownBehavior?: "stop" | "terminate"; // Default: "stop" for EBS-backed
 
 	// User Data
 	userData?: string; // Base64 encoded user data script
-	userDataReplaceOnChange?: boolean; // Default: false
 
 	// Network Settings
 	associatePublicIpAddress?: boolean; // Default: false
-	enhancedNetworking?: boolean; // Default: false (ena_support)
-	sriovNetSupport?: "simple"; // SR-IOV support
-	privateIp?: string; // Primary private IPv4 address
-	ipv6AddressCount?: number; // Number of IPv6 addresses
-	ipv6Addresses?: string[]; // Specific IPv6 addresses
-
-	// Placement
-	tenancy?: "default" | "dedicated" | "host"; // Default: "default"
-	hostId?: string;
-	placementGroup?: string;
-	availabilityZone?: string;
-
-	// Instance Metadata Service (IMDSv2)
-	metadataOptions?: {
-		httpEndpoint?: "enabled" | "disabled"; // Default: "enabled"
-		httpTokens?: "optional" | "required"; // Default: "optional", use "required" for IMDSv2
-		httpPutResponseHopLimit?: number; // Default: 1
-		instanceMetadataTags?: "enabled" | "disabled"; // Default: "disabled"
-	};
-
-	// CPU Options (for T-series instances)
-	cpuCoreCount?: number;
-	cpuThreadsPerCore?: number;
-	cpuCredits?: "standard" | "unlimited"; // For T2/T3 instances, default: "standard"
-
-	// Capacity Reservation
-	capacityReservationSpecification?: {
-		capacityReservationPreference?: "open" | "none"; // Default: "open"
-		capacityReservationTarget?: {
-			capacityReservationId?: string;
-			capacityReservationResourceGroupArn?: string;
-		};
-	};
 
 	// Tags
 	tags?: Record<string, string>;
@@ -109,20 +67,9 @@ export interface PublicSubnetConfiguration {
 	awsPublicSubnetId: string;
 	cidrBlock: string; // Required: IPv4 CIDR block
 	awsVpcId: string; // Required: VPC ID
-	awsRegionId?: string;
 	awsAvailabilityZone: string; // Required: Availability Zone
-	availabilityZoneId?: string; // Optional: AZ ID
 	description?: string;
 	mapPublicIpOnLaunch: boolean; // Default: true for public subnets
-	assignIpv6AddressOnCreation?: boolean; // Default: false
-	customerOwnedIpv4Pool?: string; // Optional: Customer owned IPv4 pool
-	enableDns64?: boolean; // Default: false
-	enableResourceNameDnsARecordOnLaunch?: boolean; // Default: false
-	enableResourceNameDnsAAAARecordOnLaunch?: boolean; // Default: false
-	ipv6CidrBlock?: string; // Optional: IPv6 CIDR block
-	ipv6Native?: boolean; // Default: false (IPv6-only subnet)
-	outpostArn?: string; // Optional: Outpost ARN
-	privateDnsHostnameTypeOnLaunch?: "ip-name" | "resource-name"; // Default: "ip-name"
 	tags?: Record<string, string>; // comma-separated key=value pairs for backward compatibility
 }
 
@@ -130,21 +77,10 @@ export interface PrivateSubnetConfiguration {
 	awsPrivateSubnetId: string;
 	cidrBlock: string; // Required: IPv4 CIDR block
 	awsVpcId: string; // Required: VPC ID
-	awsRegionId?: string;
 	awsAvailabilityZone: string; // Required: Availability Zone
-	availabilityZoneId?: string; // Optional: AZ ID
 	description?: string;
 	mapPublicIpOnLaunch: boolean; // Default: false for private subnets
 	enableNatGateway?: boolean; // Custom field for Darch - whether to create NAT Gateway
-	assignIpv6AddressOnCreation?: boolean; // Default: false
-	customerOwnedIpv4Pool?: string; // Optional: Customer owned IPv4 pool
-	enableDns64?: boolean; // Default: false
-	enableResourceNameDnsARecordOnLaunch?: boolean; // Default: false
-	enableResourceNameDnsAAAARecordOnLaunch?: boolean; // Default: false
-	ipv6CidrBlock?: string; // Optional: IPv6 CIDR block
-	ipv6Native?: boolean; // Default: false (IPv6-only subnet)
-	outpostArn?: string; // Optional: Outpost ARN
-	privateDnsHostnameTypeOnLaunch?: "ip-name" | "resource-name"; // Default: "ip-name"
 	tags?: Record<string, string>; // comma-separated key=value pairs for backward compatibility
 }
 
@@ -173,9 +109,7 @@ export interface AvailabilityZoneConfiguration {
 // Security Group Configuration
 export interface SecurityGroupConfiguration {
 	awsSecurityGroupId: string;
-	name?: string; // Security group name (will be generated if not provided)
-	namePrefix?: string; // Creates unique name beginning with prefix
-	groupId?: string; // The ID of the security group (output)
+	name: string; // Security group name (required)
 	awsVpcId: string; // Required: VPC ID
 	description?: string; // Default: "Managed by Terraform"
 	ingressRules: SecurityGroupRule[]; // Ingress rules (can be empty)
@@ -185,17 +119,12 @@ export interface SecurityGroupConfiguration {
 }
 
 export interface SecurityGroupRule {
-	protocol: "tcp" | "udp" | "icmp" | "icmpv6" | "all" | string; // Protocol (-1 for all)
-	fromPort?: number; // Start of port range (required for tcp/udp)
-	toPort?: number; // End of port range (required for tcp/udp)
-	port?: number | string; // Simplified port (for backward compatibility)
+	protocol: "tcp" | "udp" | "icmp" | "all" | string; // Protocol (-1 for all)
+	fromPort: number; // Start of port range (required for tcp/udp)
+	toPort: number; // End of port range (required for tcp/udp)
 	cidrBlocks?: string[]; // IPv4 CIDR blocks
-	ipv6CidrBlocks?: string[]; // IPv6 CIDR blocks
-	source?: string; // CIDR or security group ID for ingress (backward compatibility)
-	destination?: string; // CIDR or security group ID for egress (backward compatibility)
 	sourceSecurityGroupId?: string; // Source security group ID
 	selfReference?: boolean; // Reference to the security group itself
-	prefixListIds?: string[]; // Prefix list IDs
 	description?: string;
 }
 
@@ -203,23 +132,17 @@ export interface SecurityGroupRule {
 export interface InternetGatewayConfiguration {
 	awsInternetGatewayId: string;
 	awsVpcId?: string;
-	description?: string;
-	state?: "available" | "attaching" | "attached" | "detaching" | "detached";
 	tags?: Record<string, string>;
 }
 
 // NAT Gateway Configuration
 export interface NATGatewayConfiguration {
 	awsNatGatewayId: string;
-	awsSubnetId: string; // Required: Subnet ID for the NAT Gateway
+	awsSubnetId: string; // Required: Subnet ID for the NAT Gateway (must be public subnet)
 	allocationId?: string; // Elastic IP allocation ID (required for public NAT Gateway)
 	connectivityType?: "public" | "private"; // Default: "public"
 	privateIp?: string; // Private IPv4 address (for private NAT Gateway)
-	secondaryAllocationIds?: string[]; // Secondary EIP allocation IDs
-	secondaryPrivateIpAddressCount?: number; // Number of secondary private IPs
-	secondaryPrivateIpAddresses?: string[]; // Secondary private IP addresses
-	state?: "pending" | "failed" | "available" | "deleting" | "deleted"; // Status (output)
-	description?: string;
+	createEip?: boolean; // Whether to create Elastic IP (default: true for public)
 	tags?: Record<string, string>;
 }
 
@@ -227,12 +150,9 @@ export interface NATGatewayConfiguration {
 export interface RouteTableConfiguration {
 	awsRouteTableId: string;
 	awsVpcId: string; // Required: VPC ID
-	awsInternetGatewayId?: string; // For convenience (not AWS parameter)
-	awsSubnetId?: string; // For convenience (not AWS parameter)
 	routes: Route[]; // Routes (can be empty, local route is implicit)
 	associations: RouteTableAssociation[]; // Subnet associations
 	propagatingVgws?: string[]; // List of virtual gateways for route propagation
-	description?: string;
 	tags?: Record<string, string>;
 }
 
