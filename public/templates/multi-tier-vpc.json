@@ -13,7 +13,7 @@
       "nodeType": "awsContainer",
       "serviceType": "vpc",
       "name": "Multi-Tier VPC",
-      "icon": "/aws_icons/architecture_service_icons/Arch_Networking-Content-Delivery/32/Arch_Amazon-Virtual-Private-Cloud_32.svg",
+      "icon": "/aws_icons/networking_content_delivery/32/arch_amazon_virtual_private_cloud_32.svg",
       "position": { "x": 50, "y": 50 },
       "dimensions": { "width": 700, "height": 500 },
       "configuration": {
@@ -28,7 +28,7 @@
       "nodeType": "awsContainer",
       "serviceType": "public-subnet",
       "name": "Public Subnet 1",
-      "icon": "/aws_icons/architecture_group_icons/Public-subnet_32.svg",
+      "icon": "/aws_icons/uncategorized/32/public_subnet_32.svg",
       "position": { "x": 100, "y": 100 },
       "dimensions": { "width": 250, "height": 150 },
       "configuration": {
@@ -44,7 +44,7 @@
       "nodeType": "awsContainer",
       "serviceType": "public-subnet",
       "name": "Public Subnet 2",
-      "icon": "/aws_icons/architecture_group_icons/Public-subnet_32.svg",
+      "icon": "/aws_icons/uncategorized/32/public_subnet_32.svg",
       "position": { "x": 400, "y": 100 },
       "dimensions": { "width": 250, "height": 150 },
       "configuration": {
@@ -60,7 +60,7 @@
       "nodeType": "awsContainer",
       "serviceType": "private-subnet",
       "name": "Private Subnet 1",
-      "icon": "/aws_icons/architecture_group_icons/Private-subnet_32.svg",
+      "icon": "/aws_icons/uncategorized/32/private_subnet_32.svg",
       "position": { "x": 100, "y": 300 },
       "dimensions": { "width": 250, "height": 150 },
       "configuration": {
@@ -76,7 +76,7 @@
       "nodeType": "awsContainer",
       "serviceType": "private-subnet",
       "name": "Private Subnet 2",
-      "icon": "/aws_icons/architecture_group_icons/Private-subnet_32.svg",
+      "icon": "/aws_icons/uncategorized/32/private_subnet_32.svg",
       "position": { "x": 400, "y": 300 },
       "dimensions": { "width": 250, "height": 150 },
       "configuration": {
@@ -92,7 +92,7 @@
       "nodeType": "awsService",
       "serviceType": "ec2",
       "name": "Web Server 1",
-      "icon": "/aws_icons/architecture_service_icons/Arch_Compute/32/Arch_Amazon-EC2_32.svg",
+      "icon": "/aws_icons/compute/32/arch_amazon_ec2_32.svg",
       "position": { "x": 175, "y": 150 },
       "configuration": {
         "instanceType": "t3.micro",
@@ -107,7 +107,7 @@
       "nodeType": "awsService",
       "serviceType": "ec2",
       "name": "Web Server 2",
-      "icon": "/aws_icons/architecture_service_icons/Arch_Compute/32/Arch_Amazon-EC2_32.svg",
+      "icon": "/aws_icons/compute/32/arch_amazon_ec2_32.svg",
       "position": { "x": 475, "y": 150 },
       "configuration": {
         "instanceType": "t3.micro",
@@ -122,7 +122,7 @@
       "nodeType": "awsService",
       "serviceType": "ec2",
       "name": "App Server 1",
-      "icon": "/aws_icons/architecture_service_icons/Arch_Compute/32/Arch_Amazon-EC2_32.svg",
+      "icon": "/aws_icons/compute/32/arch_amazon_ec2_32.svg",
       "position": { "x": 175, "y": 350 },
       "configuration": {
         "instanceType": "t3.small",
@@ -137,7 +137,7 @@
       "nodeType": "awsService",
       "serviceType": "ec2",
       "name": "App Server 2",
-      "icon": "/aws_icons/architecture_service_icons/Arch_Compute/32/Arch_Amazon-EC2_32.svg",
+      "icon": "/aws_icons/compute/32/arch_amazon_ec2_32.svg",
       "position": { "x": 475, "y": 350 },
       "configuration": {
         "instanceType": "t3.small",
@@ -152,7 +152,7 @@
       "nodeType": "awsContainer",
       "serviceType": "security-group",
       "name": "Web Security Group",
-      "icon": "/aws_icons/architecture_group_icons/EC2-instance-contents_32.svg",
+      "icon": "/aws_icons/uncategorized/32/ec2_instance_contents_32.svg",
       "position": { "x": 750, "y": 150 },
       "dimensions": { "width": 100, "height": 100 },
       "configuration": {
@@ -188,7 +188,7 @@
       "nodeType": "awsContainer",
       "serviceType": "security-group",
       "name": "App Security Group",
-      "icon": "/aws_icons/architecture_group_icons/EC2-instance-contents_32.svg",
+      "icon": "/aws_icons/uncategorized/32/ec2_instance_contents_32.svg",
       "position": { "x": 750, "y": 300 },
       "dimensions": { "width": 100, "height": 100 },
       "configuration": {

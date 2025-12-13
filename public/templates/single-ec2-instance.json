@@ -13,7 +13,7 @@
       "nodeType": "awsContainer",
       "resourceType": "aws-region",
       "name": "Region",
-      "icon": "/aws_icons/architecture_group_icons/AWS-Cloud_32.svg",
+      "icon": "/aws_icons/uncategorized/32/aws_cloud_32.svg",
       "position": {
         "x": 460.87649084268276,
         "y": -24.534488803010277
@@ -39,7 +39,7 @@
       "nodeType": "awsContainer",
       "resourceType": "aws-vpc",
       "name": "VPC",
-      "icon": "/aws_icons/architecture_service_icons/Arch_Networking-Content-Delivery/32/Arch_Amazon-Virtual-Private-Cloud_32.svg",
+      "icon": "/aws_icons/networking_content_delivery/32/arch_amazon_virtual_private_cloud_32.svg",
       "position": {
         "x": 26.617111042872352,
         "y": 53.65248521568358
@@ -68,7 +68,7 @@
       "nodeType": "awsContainer",
       "resourceType": "aws-availability-zone",
       "name": "AvailabilityZone",
-      "icon": "/aws_icons/architecture_group_icons/Region_32.svg",
+      "icon": "/aws_icons/uncategorized/32/region_32.svg",
       "position": {
         "x": 21.06175457865845,
         "y": 109.02555311305599
@@ -96,7 +96,7 @@
       "nodeType": "awsContainer",
       "resourceType": "aws-public-subnet",
       "name": "PublicSubnet",
-      "icon": "/aws_icons/architecture_group_icons/Public-subnet_32.svg",
+      "icon": "/aws_icons/uncategorized/32/public_subnet_32.svg",
       "position": {
         "x": 39.64565567747513,
         "y": 61.94633699605467
@@ -132,7 +132,7 @@
       "nodeType": "awsContainer",
       "resourceType": "aws-security-group",
       "name": "SecurityGroup",
-      "icon": "/aws_icons/architecture_group_icons/EC2-instance-contents_32.svg",
+      "icon": "/aws_icons/uncategorized/32/ec2_instance_contents_32.svg",
       "position": {
         "x": 50.7959963367648,
         "y": 35.92887545771163
@@ -175,7 +175,7 @@
       "nodeType": "awsService",
       "resourceType": "aws-ec2",
       "name": "EC2",
-      "icon": "/aws_icons/architecture_service_icons/Arch_Compute/32/Arch_Amazon-EC2_32.svg",
+      "icon": "/aws_icons/compute/32/arch_amazon_ec2_32.svg",
       "position": {
         "x": 255.21890842374478,
         "y": 59.46848351621236
@@ -232,7 +232,7 @@
       "nodeType": "awsService",
       "resourceType": "aws-route-table",
       "name": "RouteTable",
-      "icon": "/aws_icons/Resource-Icons_07312025/Res_Networking-Content-Delivery/Res_Amazon-Route-53_Route-Table_48.svg",
+      "icon": "/aws_icons/networking_content_delivery/48/res_amazon_route_53_route_table_48.svg",
       "position": {
         "x": 460.8807472506462,
         "y": 14.86712087905309
@@ -257,7 +257,7 @@
       "nodeType": "awsService",
       "resourceType": "aws-internet-gateway",
       "name": "InternetGateway",
-      "icon": "/aws_icons/Resource-Icons_07312025/Res_Networking-Content-Delivery/Res_Amazon-VPC_Internet-Gateway_48.svg",
+      "icon": "/aws_icons/networking_content_delivery/48/res_amazon_vpc_internet_gateway_48.svg",
       "position": {
         "x": 307.2538315004308,
         "y": 12.389267399210908

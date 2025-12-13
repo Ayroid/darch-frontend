@@ -13,7 +13,7 @@
       "nodeType": "awsContainer",
       "serviceType": "region",
       "name": "AWS Region",
-      "icon": "/aws_icons/architecture_group_icons/AWS-Cloud_32.svg",
+      "icon": "/aws_icons/uncategorized/32/aws_cloud_32.svg",
       "position": { "x": 25, "y": 25 },
       "dimensions": { "width": 950, "height": 650 },
       "configuration": {
@@ -27,7 +27,7 @@
       "nodeType": "awsContainer",
       "serviceType": "availability-zone",
       "name": "Availability Zone 1a",
-      "icon": "/aws_icons/architecture_group_icons/Region_32.svg",
+      "icon": "/aws_icons/uncategorized/32/region_32.svg",
       "position": { "x": 75, "y": 75 },
       "dimensions": { "width": 400, "height": 550 },
       "configuration": {
@@ -41,7 +41,7 @@
       "nodeType": "awsContainer",
       "serviceType": "availability-zone",
       "name": "Availability Zone 1b",
-      "icon": "/aws_icons/architecture_group_icons/Region_32.svg",
+      "icon": "/aws_icons/uncategorized/32/region_32.svg",
       "position": { "x": 525, "y": 75 },
       "dimensions": { "width": 400, "height": 550 },
       "configuration": {
@@ -55,7 +55,7 @@
       "nodeType": "awsContainer",
       "serviceType": "vpc",
       "name": "Production VPC",
-      "icon": "/aws_icons/architecture_service_icons/Arch_Networking-Content-Delivery/32/Arch_Amazon-Virtual-Private-Cloud_32.svg",
+      "icon": "/aws_icons/networking_content_delivery/32/arch_amazon_virtual_private_cloud_32.svg",
       "position": { "x": 125, "y": 125 },
       "dimensions": { "width": 750, "height": 450 },
       "configuration": {
@@ -71,7 +71,7 @@
       "nodeType": "awsContainer",
       "serviceType": "public-subnet",
       "name": "Public Subnet 1a",
-      "icon": "/aws_icons/architecture_group_icons/Public-subnet_32.svg",
+      "icon": "/aws_icons/uncategorized/32/public_subnet_32.svg",
       "position": { "x": 175, "y": 175 },
       "dimensions": { "width": 250, "height": 150 },
       "configuration": {
@@ -87,7 +87,7 @@
       "nodeType": "awsContainer",
       "serviceType": "public-subnet",
       "name": "Public Subnet 1b",
-      "icon": "/aws_icons/architecture_group_icons/Public-subnet_32.svg",
+      "icon": "/aws_icons/uncategorized/32/public_subnet_32.svg",
       "position": { "x": 575, "y": 175 },
       "dimensions": { "width": 250, "height": 150 },
       "configuration": {
@@ -103,7 +103,7 @@
       "nodeType": "awsContainer",
       "serviceType": "private-subnet",
       "name": "Private Subnet 1a",
-      "icon": "/aws_icons/architecture_group_icons/Private-subnet_32.svg",
+      "icon": "/aws_icons/uncategorized/32/private_subnet_32.svg",
       "position": { "x": 175, "y": 375 },
       "dimensions": { "width": 250, "height": 150 },
       "configuration": {
@@ -119,7 +119,7 @@
       "nodeType": "awsContainer",
       "serviceType": "private-subnet",
       "name": "Private Subnet 1b",
-      "icon": "/aws_icons/architecture_group_icons/Private-subnet_32.svg",
+      "icon": "/aws_icons/uncategorized/32/private_subnet_32.svg",
       "position": { "x": 575, "y": 375 },
       "dimensions": { "width": 250, "height": 150 },
       "configuration": {
@@ -135,7 +135,7 @@
       "nodeType": "awsService",
       "serviceType": "ec2",
       "name": "Web Server 1a",
-      "icon": "/aws_icons/architecture_service_icons/Arch_Compute/32/Arch_Amazon-EC2_32.svg",
+      "icon": "/aws_icons/compute/32/arch_amazon_ec2_32.svg",
       "position": { "x": 250, "y": 225 },
       "configuration": {
         "instanceType": "t3.small",
@@ -150,7 +150,7 @@
       "nodeType": "awsService",
       "serviceType": "ec2",
       "name": "Web Server 1b",
-      "icon": "/aws_icons/architecture_service_icons/Arch_Compute/32/Arch_Amazon-EC2_32.svg",
+      "icon": "/aws_icons/compute/32/arch_amazon_ec2_32.svg",
       "position": { "x": 650, "y": 225 },
       "configuration": {
         "instanceType": "t3.small",
@@ -165,7 +165,7 @@
       "nodeType": "awsService",
       "serviceType": "ec2",
       "name": "App Server 1a",
-      "icon": "/aws_icons/architecture_service_icons/Arch_Compute/32/Arch_Amazon-EC2_32.svg",
+      "icon": "/aws_icons/compute/32/arch_amazon_ec2_32.svg",
       "position": { "x": 250, "y": 425 },
       "configuration": {
         "instanceType": "t3.medium",
@@ -180,7 +180,7 @@
       "nodeType": "awsService",
       "serviceType": "ec2",
       "name": "App Server 1b",
-      "icon": "/aws_icons/architecture_service_icons/Arch_Compute/32/Arch_Amazon-EC2_32.svg",
+      "icon": "/aws_icons/compute/32/arch_amazon_ec2_32.svg",
       "position": { "x": 650, "y": 425 },
       "configuration": {
         "instanceType": "t3.medium",
@@ -195,7 +195,7 @@
       "nodeType": "awsContainer",
       "serviceType": "security-group",
       "name": "Web Tier Security Group",
-      "icon": "/aws_icons/architecture_group_icons/EC2-instance-contents_32.svg",
+      "icon": "/aws_icons/uncategorized/32/ec2_instance_contents_32.svg",
       "position": { "x": 450, "y": 250 },
       "dimensions": { "width": 100, "height": 80 },
       "configuration": {
@@ -231,7 +231,7 @@
       "nodeType": "awsContainer",
       "serviceType": "security-group",
       "name": "App Tier Security Group",
-      "icon": "/aws_icons/architecture_group_icons/EC2-instance-contents_32.svg",
+      "icon": "/aws_icons/uncategorized/32/ec2_instance_contents_32.svg",
       "position": { "x": 450, "y": 450 },
       "dimensions": { "width": 100, "height": 80 },
       "configuration": {

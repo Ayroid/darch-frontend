@@ -13,7 +13,7 @@
       "nodeType": "awsContainer",
       "serviceType": "vpc",
       "name": "Main VPC",
-      "icon": "/aws_icons/architecture_service_icons/Arch_Networking-Content-Delivery/32/Arch_Amazon-Virtual-Private-Cloud_32.svg",
+      "icon": "/aws_icons/networking_content_delivery/32/arch_amazon_virtual_private_cloud_32.svg",
       "position": { "x": 100, "y": 100 },
       "dimensions": { "width": 500, "height": 350 },
       "configuration": {
@@ -28,7 +28,7 @@
       "nodeType": "awsContainer",
       "serviceType": "public-subnet",
       "name": "Public Subnet",
-      "icon": "/aws_icons/architecture_group_icons/Public-subnet_32.svg",
+      "icon": "/aws_icons/uncategorized/32/public_subnet_32.svg",
       "position": { "x": 150, "y": 150 },
       "dimensions": { "width": 250, "height": 200 },
       "configuration": {
@@ -44,7 +44,7 @@
       "nodeType": "awsService",
       "serviceType": "ec2",
       "name": "Web Server",
-      "icon": "/aws_icons/architecture_service_icons/Arch_Compute/32/Arch_Amazon-EC2_32.svg",
+      "icon": "/aws_icons/compute/32/arch_amazon_ec2_32.svg",
       "position": { "x": 200, "y": 200 },
       "configuration": {
         "instanceType": "t3.micro",
@@ -59,7 +59,7 @@
       "nodeType": "awsContainer",
       "serviceType": "security-group",
       "name": "Web Security Group",
-      "icon": "/aws_icons/architecture_group_icons/EC2-instance-contents_32.svg",
+      "icon": "/aws_icons/uncategorized/32/ec2_instance_contents_32.svg",
       "position": { "x": 450, "y": 200 },
       "dimensions": { "width": 100, "height": 100 },
       "configuration": {
