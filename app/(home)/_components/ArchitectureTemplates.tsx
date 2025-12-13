@@ -16,33 +16,6 @@ interface Template {
 }
 
 const templates: Template[] = [
-	// {
-	//   id: "simple-web-app",
-	//   name: "Basic Web Setup",
-	//   description: "Simple VPC with EC2 instance and security groups",
-	//   icon: <FiGlobe className="w-6 h-6" />,
-	//   difficulty: "Beginner",
-	//   services: ["VPC", "EC2", "Security Group"],
-	//   filename: "simple-web-app.json"
-	// },
-	// {
-	//   id: "multi-tier-vpc",
-	//   name: "Multi-Tier VPC",
-	//   description: "VPC with public and private subnets across multiple AZs",
-	//   icon: <FiServer className="w-6 h-6" />,
-	//   difficulty: "Beginner",
-	//   services: ["VPC", "Public Subnet", "Private Subnet", "Security Group"],
-	//   filename: "multi-tier-vpc.json"
-	// },
-	// {
-	//   id: "multi-az-setup",
-	//   name: "Multi-AZ Infrastructure",
-	//   description: "High availability setup across multiple availability zones",
-	//   icon: <FiCloud className="w-6 h-6" />,
-	//   difficulty: "Intermediate",
-	//   services: ["Region", "AZ", "VPC", "EC2"],
-	//   filename: "multi-az-setup.json"
-	// },
 	{
 		id: "single-ec2-instance",
 		name: "Single EC2 Instance",

@@ -32,7 +32,7 @@ const awsServices: AWSService[] = [
 	{
 		id: "aws-region",
 		name: "Region",
-		icon: "/aws_icons/architecture_group_icons/AWS-Cloud_32.svg",
+		icon: "/aws_icons/uncategorized/32/aws_cloud_32.svg",
 		category: "Infrastructure",
 		isContainer: true,
 		status: "ready",
@@ -40,7 +40,7 @@ const awsServices: AWSService[] = [
 	{
 		id: "aws-availability-zone",
 		name: "AvailabilityZone",
-		icon: "/aws_icons/architecture_group_icons/Region_32.svg",
+		icon: "/aws_icons/uncategorized/32/region_32.svg",
 		category: "Infrastructure",
 		isContainer: true,
 		status: "ready",
@@ -50,7 +50,7 @@ const awsServices: AWSService[] = [
 	{
 		id: "aws-ec2",
 		name: "EC2",
-		icon: "/aws_icons/architecture_service_icons/Arch_Compute/32/Arch_Amazon-EC2_32.svg",
+		icon: "/aws_icons/compute/32/arch_amazon_ec2_32.svg",
 		category: "Compute",
 		isContainer: false,
 		status: "ready",
@@ -58,7 +58,7 @@ const awsServices: AWSService[] = [
 	{
 		id: "aws-security-group",
 		name: "SecurityGroup",
-		icon: "/aws_icons/architecture_group_icons/EC2-instance-contents_32.svg",
+		icon: "/aws_icons/uncategorized/32/ec2_instance_contents_32.svg",
 		category: "Compute",
 		isContainer: true,
 		status: "ready",
@@ -66,7 +66,7 @@ const awsServices: AWSService[] = [
 	{
 		id: "aws-lambda",
 		name: "Lambda",
-		icon: "/aws_icons/architecture_service_icons/Arch_Compute/32/Arch_AWS-Lambda_32.svg",
+		icon: "/aws_icons/compute/32/arch_aws_lambda_32.svg",
 		category: "Compute",
 		isContainer: false,
 		status: "in-development",
@@ -74,7 +74,7 @@ const awsServices: AWSService[] = [
 	{
 		id: "aws-auto-scaling",
 		name: "AutoScaling",
-		icon: "/aws_icons/architecture_service_icons/Arch_Compute/32/Arch_Amazon-EC2-Auto-Scaling_32.svg",
+		icon: "/aws_icons/compute/32/arch_amazon_ec2_auto_scaling_32.svg",
 		category: "Compute",
 		isContainer: true,
 		status: "in-development",
@@ -82,7 +82,7 @@ const awsServices: AWSService[] = [
 	{
 		id: "aws-elastic-beanstalk",
 		name: "ElasticBeanstalk",
-		icon: "/aws_icons/architecture_service_icons/Arch_Compute/32/Arch_AWS-Elastic-Beanstalk_32.svg",
+		icon: "/aws_icons/compute/32/arch_aws_elastic_beanstalk_32.svg",
 		category: "Compute",
 		isContainer: true,
 		status: "in-development",
@@ -90,7 +90,7 @@ const awsServices: AWSService[] = [
 	{
 		id: "aws-lightsail",
 		name: "Lightsail",
-		icon: "/aws_icons/architecture_service_icons/Arch_Compute/32/Arch_Amazon-Lightsail_32.svg",
+		icon: "/aws_icons/compute/32/arch_amazon_lightsail_32.svg",
 		category: "Compute",
 		isContainer: false,
 		status: "in-development",
@@ -98,7 +98,7 @@ const awsServices: AWSService[] = [
 	{
 		id: "aws-batch",
 		name: "Batch",
-		icon: "/aws_icons/architecture_service_icons/Arch_Compute/32/Arch_AWS-Batch_32.svg",
+		icon: "/aws_icons/compute/32/arch_aws_batch_32.svg",
 		category: "Compute",
 		isContainer: false,
 		status: "in-development",
@@ -106,7 +106,7 @@ const awsServices: AWSService[] = [
 	{
 		id: "aws-app-runner",
 		name: "AppRunner",
-		icon: "/aws_icons/architecture_service_icons/Arch_Compute/32/Arch_AWS-App-Runner_32.svg",
+		icon: "/aws_icons/compute/32/arch_aws_app_runner_32.svg",
 		category: "Compute",
 		isContainer: false,
 		status: "in-development",
@@ -116,7 +116,7 @@ const awsServices: AWSService[] = [
 	{
 		id: "aws-vpc",
 		name: "VPC",
-		icon: "/aws_icons/architecture_service_icons/Arch_Networking-Content-Delivery/32/Arch_Amazon-Virtual-Private-Cloud_32.svg",
+		icon: "/aws_icons/networking_content_delivery/32/arch_amazon_virtual_private_cloud_32.svg",
 		category: "Network",
 		isContainer: true,
 		status: "ready",
@@ -124,7 +124,7 @@ const awsServices: AWSService[] = [
 	{
 		id: "aws-private-subnet",
 		name: "PrivateSubnet",
-		icon: "/aws_icons/architecture_group_icons/Private-subnet_32.svg",
+		icon: "/aws_icons/uncategorized/32/private_subnet_32.svg",
 		category: "Network",
 		isContainer: true,
 		status: "ready",
@@ -132,7 +132,7 @@ const awsServices: AWSService[] = [
 	{
 		id: "aws-public-subnet",
 		name: "PublicSubnet",
-		icon: "/aws_icons/architecture_group_icons/Public-subnet_32.svg",
+		icon: "/aws_icons/uncategorized/32/public_subnet_32.svg",
 		category: "Network",
 		isContainer: true,
 		status: "ready",
@@ -140,7 +140,7 @@ const awsServices: AWSService[] = [
 	{
 		id: "aws-internet-gateway",
 		name: "InternetGateway",
-		icon: "/aws_icons/Resource-Icons_07312025/Res_Networking-Content-Delivery/Res_Amazon-VPC_Internet-Gateway_48.svg",
+		icon: "/aws_icons/networking_content_delivery/48/res_amazon_vpc_internet_gateway_48.svg",
 		category: "Network",
 		isContainer: false,
 		status: "ready",
@@ -148,7 +148,7 @@ const awsServices: AWSService[] = [
 	{
 		id: "aws-nat-gateway",
 		name: "NATGateway",
-		icon: "/aws_icons/Resource-Icons_07312025/Res_Networking-Content-Delivery/Res_Amazon-VPC_NAT-Gateway_48.svg",
+		icon: "/aws_icons/networking_content_delivery/48/res_amazon_vpc_nat_gateway_48.svg",
 		category: "Network",
 		isContainer: false,
 		status: "ready",
@@ -156,7 +156,7 @@ const awsServices: AWSService[] = [
 	{
 		id: "aws-route-table",
 		name: "RouteTable",
-		icon: "/aws_icons/Resource-Icons_07312025/Res_Networking-Content-Delivery/Res_Amazon-Route-53_Route-Table_48.svg",
+		icon: "/aws_icons/networking_content_delivery/48/res_amazon_route_53_route_table_48.svg",
 		category: "Network",
 		isContainer: false,
 		status: "ready",
@@ -164,7 +164,7 @@ const awsServices: AWSService[] = [
 	{
 		id: "aws-cloudfront",
 		name: "CloudFront",
-		icon: "/aws_icons/architecture_service_icons/Arch_Networking-Content-Delivery/32/Arch_Amazon-CloudFront_32.svg",
+		icon: "/aws_icons/networking_content_delivery/32/arch_amazon_cloud_front_32.svg",
 		category: "Network",
 		isContainer: false,
 		status: "in-development",
@@ -172,7 +172,7 @@ const awsServices: AWSService[] = [
 	{
 		id: "aws-route53",
 		name: "Route53",
-		icon: "/aws_icons/architecture_service_icons/Arch_Networking-Content-Delivery/32/Arch_Amazon-Route-53_32.svg",
+		icon: "/aws_icons/networking_content_delivery/32/arch_amazon_route_53_32.svg",
 		category: "Network",
 		isContainer: true,
 		status: "in-development",
@@ -180,7 +180,7 @@ const awsServices: AWSService[] = [
 	{
 		id: "aws-api-gateway",
 		name: "APIGateway",
-		icon: "/aws_icons/architecture_service_icons/Arch_Networking-Content-Delivery/32/Arch_Amazon-API-Gateway_32.svg",
+		icon: "/aws_icons/networking_content_delivery/32/arch_amazon_api_gateway_32.svg",
 		category: "Network",
 		isContainer: false,
 		status: "in-development",
@@ -188,7 +188,7 @@ const awsServices: AWSService[] = [
 	{
 		id: "aws-elb",
 		name: "LoadBalancer",
-		icon: "/aws_icons/architecture_service_icons/Arch_Networking-Content-Delivery/32/Arch_Elastic-Load-Balancing_32.svg",
+		icon: "/aws_icons/networking_content_delivery/32/arch_elastic_load_balancing_32.svg",
 		category: "Network",
 		isContainer: false,
 		status: "in-development",
@@ -196,7 +196,7 @@ const awsServices: AWSService[] = [
 	{
 		id: "aws-direct-connect",
 		name: "DirectConnect",
-		icon: "/aws_icons/architecture_service_icons/Arch_Networking-Content-Delivery/32/Arch_AWS-Direct-Connect_32.svg",
+		icon: "/aws_icons/networking_content_delivery/32/arch_aws_direct_connect_32.svg",
 		category: "Network",
 		isContainer: false,
 		status: "in-development",
@@ -204,7 +204,7 @@ const awsServices: AWSService[] = [
 	{
 		id: "aws-global-accelerator",
 		name: "GlobalAccelerator",
-		icon: "/aws_icons/architecture_service_icons/Arch_Networking-Content-Delivery/32/Arch_AWS-Global-Accelerator_32.svg",
+		icon: "/aws_icons/networking_content_delivery/32/arch_aws_global_accelerator_32.svg",
 		category: "Network",
 		isContainer: false,
 		status: "in-development",
@@ -212,7 +212,7 @@ const awsServices: AWSService[] = [
 	{
 		id: "aws-transit-gateway",
 		name: "TransitGateway",
-		icon: "/aws_icons/architecture_service_icons/Arch_Networking-Content-Delivery/32/Arch_AWS-Transit-Gateway_32.svg",
+		icon: "/aws_icons/networking_content_delivery/32/arch_aws_transit_gateway_32.svg",
 		category: "Network",
 		isContainer: false,
 		status: "in-development",
@@ -222,7 +222,7 @@ const awsServices: AWSService[] = [
 	{
 		id: "aws-rds",
 		name: "RDS",
-		icon: "/aws_icons/architecture_service_icons/Arch_Database/32/Arch_Amazon-RDS_32.svg",
+		icon: "/aws_icons/database/32/arch_amazon_rds_32.svg",
 		category: "Database",
 		isContainer: false,
 		status: "in-development",
@@ -230,7 +230,7 @@ const awsServices: AWSService[] = [
 	{
 		id: "aws-dynamodb",
 		name: "DynamoDB",
-		icon: "/aws_icons/architecture_service_icons/Arch_Database/32/Arch_Amazon-DynamoDB_32.svg",
+		icon: "/aws_icons/database/32/arch_amazon_dynamo_db_32.svg",
 		category: "Database",
 		isContainer: false,
 		status: "in-development",
@@ -238,7 +238,7 @@ const awsServices: AWSService[] = [
 	{
 		id: "aws-aurora",
 		name: "Aurora",
-		icon: "/aws_icons/architecture_service_icons/Arch_Database/32/Arch_Amazon-Aurora_32.svg",
+		icon: "/aws_icons/database/32/arch_amazon_aurora_32.svg",
 		category: "Database",
 		isContainer: false,
 		status: "in-development",
@@ -246,7 +246,7 @@ const awsServices: AWSService[] = [
 	{
 		id: "aws-elasticache",
 		name: "ElastiCache",
-		icon: "/aws_icons/architecture_service_icons/Arch_Database/32/Arch_Amazon-ElastiCache_32.svg",
+		icon: "/aws_icons/database/32/arch_amazon_elasti_cache_32.svg",
 		category: "Database",
 		isContainer: false,
 		status: "in-development",
@@ -254,7 +254,7 @@ const awsServices: AWSService[] = [
 	{
 		id: "aws-documentdb",
 		name: "DocumentDB",
-		icon: "/aws_icons/architecture_service_icons/Arch_Database/32/Arch_Amazon-DocumentDB_32.svg",
+		icon: "/aws_icons/database/32/arch_amazon_document_db_32.svg",
 		category: "Database",
 		isContainer: false,
 		status: "in-development",
@@ -262,7 +262,7 @@ const awsServices: AWSService[] = [
 	{
 		id: "aws-neptune",
 		name: "Neptune",
-		icon: "/aws_icons/architecture_service_icons/Arch_Database/32/Arch_Amazon-Neptune_32.svg",
+		icon: "/aws_icons/database/32/arch_amazon_neptune_32.svg",
 		category: "Database",
 		isContainer: false,
 		status: "in-development",
@@ -270,7 +270,7 @@ const awsServices: AWSService[] = [
 	{
 		id: "aws-memorydb",
 		name: "MemoryDB",
-		icon: "/aws_icons/architecture_service_icons/Arch_Database/32/Arch_Amazon-MemoryDB_32.svg",
+		icon: "/aws_icons/database/32/arch_amazon_memory_db_32.svg",
 		category: "Database",
 		isContainer: false,
 		status: "in-development",
@@ -280,7 +280,7 @@ const awsServices: AWSService[] = [
 	{
 		id: "aws-s3",
 		name: "S3",
-		icon: "/aws_icons/architecture_service_icons/Arch_Storage/32/Arch_Amazon-Simple-Storage-Service_32.svg",
+		icon: "/aws_icons/storage/32/arch_amazon_simple_storage_service_32.svg",
 		category: "Storage",
 		isContainer: false,
 		status: "in-development",
@@ -288,7 +288,7 @@ const awsServices: AWSService[] = [
 	{
 		id: "aws-ebs",
 		name: "EBS",
-		icon: "/aws_icons/architecture_service_icons/Arch_Storage/32/Arch_Amazon-Elastic-Block-Store_32.svg",
+		icon: "/aws_icons/storage/32/arch_amazon_elastic_block_store_32.svg",
 		category: "Storage",
 		isContainer: false,
 		status: "in-development",
@@ -296,7 +296,7 @@ const awsServices: AWSService[] = [
 	{
 		id: "aws-efs",
 		name: "EFS",
-		icon: "/aws_icons/architecture_service_icons/Arch_Storage/32/Arch_Amazon-EFS_32.svg",
+		icon: "/aws_icons/storage/32/arch_amazon_efs_32.svg",
 		category: "Storage",
 		isContainer: false,
 		status: "in-development",
@@ -304,7 +304,7 @@ const awsServices: AWSService[] = [
 	{
 		id: "aws-s3-glacier",
 		name: "S3Glacier",
-		icon: "/aws_icons/architecture_service_icons/Arch_Storage/32/Arch_Amazon-Simple-Storage-Service-Glacier_32.svg",
+		icon: "/aws_icons/storage/32/arch_amazon_simple_storage_service_glacier_32.svg",
 		category: "Storage",
 		isContainer: false,
 		status: "in-development",
@@ -312,7 +312,7 @@ const awsServices: AWSService[] = [
 	{
 		id: "aws-fsx",
 		name: "FSx",
-		icon: "/aws_icons/architecture_service_icons/Arch_Storage/32/Arch_Amazon-FSx_32.svg",
+		icon: "/aws_icons/storage/32/arch_amazon_fsx_32.svg",
 		category: "Storage",
 		isContainer: false,
 		status: "in-development",
@@ -320,7 +320,7 @@ const awsServices: AWSService[] = [
 	{
 		id: "aws-storage-gateway",
 		name: "StorageGateway",
-		icon: "/aws_icons/architecture_service_icons/Arch_Storage/32/Arch_AWS-Storage-Gateway_32.svg",
+		icon: "/aws_icons/storage/32/arch_aws_storage_gateway_32.svg",
 		category: "Storage",
 		isContainer: false,
 		status: "in-development",
@@ -328,7 +328,7 @@ const awsServices: AWSService[] = [
 	{
 		id: "aws-backup",
 		name: "Backup",
-		icon: "/aws_icons/architecture_service_icons/Arch_Storage/32/Arch_AWS-Backup_32.svg",
+		icon: "/aws_icons/storage/32/arch_aws_backup_32.svg",
 		category: "Storage",
 		isContainer: false,
 		status: "in-development",
@@ -338,7 +338,7 @@ const awsServices: AWSService[] = [
 	{
 		id: "aws-iam",
 		name: "IAM",
-		icon: "/aws_icons/architecture_service_icons/Arch_Security-Identity-Compliance/32/Arch_AWS-Identity-and-Access-Management_32.svg",
+		icon: "/aws_icons/security_identity_compliance/32/arch_aws_identity_and_access_management_32.svg",
 		category: "Security",
 		isContainer: false,
 		status: "in-development",
@@ -346,7 +346,7 @@ const awsServices: AWSService[] = [
 	{
 		id: "aws-cognito",
 		name: "Cognito",
-		icon: "/aws_icons/architecture_service_icons/Arch_Security-Identity-Compliance/32/Arch_Amazon-Cognito_32.svg",
+		icon: "/aws_icons/security_identity_compliance/32/arch_amazon_cognito_32.svg",
 		category: "Security",
 		isContainer: false,
 		status: "in-development",
@@ -354,7 +354,7 @@ const awsServices: AWSService[] = [
 	{
 		id: "aws-kms",
 		name: "KMS",
-		icon: "/aws_icons/architecture_service_icons/Arch_Security-Identity-Compliance/32/Arch_AWS-Key-Management-Service_32.svg",
+		icon: "/aws_icons/security_identity_compliance/32/arch_aws_key_management_service_32.svg",
 		category: "Security",
 		isContainer: false,
 		status: "in-development",
@@ -362,7 +362,7 @@ const awsServices: AWSService[] = [
 	{
 		id: "aws-secrets-manager",
 		name: "SecretsManager",
-		icon: "/aws_icons/architecture_service_icons/Arch_Security-Identity-Compliance/32/Arch_AWS-Secrets-Manager_32.svg",
+		icon: "/aws_icons/security_identity_compliance/32/arch_aws_secrets_manager_32.svg",
 		category: "Security",
 		isContainer: false,
 		status: "in-development",
@@ -370,7 +370,7 @@ const awsServices: AWSService[] = [
 	{
 		id: "aws-waf",
 		name: "WAF",
-		icon: "/aws_icons/architecture_service_icons/Arch_Security-Identity-Compliance/32/Arch_AWS-WAF_32.svg",
+		icon: "/aws_icons/security_identity_compliance/32/arch_aws_waf_32.svg",
 		category: "Security",
 		isContainer: false,
 		status: "in-development",
@@ -378,7 +378,7 @@ const awsServices: AWSService[] = [
 	{
 		id: "aws-shield",
 		name: "Shield",
-		icon: "/aws_icons/architecture_service_icons/Arch_Security-Identity-Compliance/32/Arch_AWS-Shield_32.svg",
+		icon: "/aws_icons/security_identity_compliance/32/arch_aws_shield_32.svg",
 		category: "Security",
 		isContainer: false,
 		status: "in-development",
@@ -386,7 +386,7 @@ const awsServices: AWSService[] = [
 	{
 		id: "aws-guardduty",
 		name: "GuardDuty",
-		icon: "/aws_icons/architecture_service_icons/Arch_Security-Identity-Compliance/32/Arch_Amazon-GuardDuty_32.svg",
+		icon: "/aws_icons/security_identity_compliance/32/arch_amazon_guard_duty_32.svg",
 		category: "Security",
 		isContainer: false,
 		status: "in-development",
@@ -394,7 +394,7 @@ const awsServices: AWSService[] = [
 	{
 		id: "aws-security-hub",
 		name: "SecurityHub",
-		icon: "/aws_icons/architecture_service_icons/Arch_Security-Identity-Compliance/32/Arch_AWS-Security-Hub_32.svg",
+		icon: "/aws_icons/security_identity_compliance/32/arch_aws_security_hub_32.svg",
 		category: "Security",
 		isContainer: false,
 		status: "in-development",
@@ -404,7 +404,7 @@ const awsServices: AWSService[] = [
 	{
 		id: "aws-cloudwatch",
 		name: "CloudWatch",
-		icon: "/aws_icons/architecture_service_icons/Arch_Management-Governance/32/Arch_Amazon-CloudWatch_32.svg",
+		icon: "/aws_icons/management_governance/32/arch_amazon_cloud_watch_32.svg",
 		category: "Management",
 		isContainer: false,
 		status: "in-development",
@@ -412,7 +412,7 @@ const awsServices: AWSService[] = [
 	{
 		id: "aws-cloudformation",
 		name: "CloudFormation",
-		icon: "/aws_icons/architecture_service_icons/Arch_Management-Governance/32/Arch_AWS-CloudFormation_32.svg",
+		icon: "/aws_icons/management_governance/32/arch_aws_cloud_formation_32.svg",
 		category: "Management",
 		isContainer: true,
 		status: "in-development",
@@ -420,7 +420,7 @@ const awsServices: AWSService[] = [
 	{
 		id: "aws-cloudtrail",
 		name: "CloudTrail",
-		icon: "/aws_icons/architecture_service_icons/Arch_Management-Governance/32/Arch_AWS-CloudTrail_32.svg",
+		icon: "/aws_icons/management_governance/32/arch_aws_cloud_trail_32.svg",
 		category: "Management",
 		isContainer: false,
 		status: "in-development",
@@ -428,7 +428,7 @@ const awsServices: AWSService[] = [
 	{
 		id: "aws-config",
 		name: "Config",
-		icon: "/aws_icons/architecture_service_icons/Arch_Management-Governance/32/Arch_AWS-Config_32.svg",
+		icon: "/aws_icons/management_governance/32/arch_aws_config_32.svg",
 		category: "Management",
 		isContainer: false,
 		status: "in-development",
@@ -436,7 +436,7 @@ const awsServices: AWSService[] = [
 	{
 		id: "aws-systems-manager",
 		name: "SystemsManager",
-		icon: "/aws_icons/architecture_service_icons/Arch_Management-Governance/32/Arch_AWS-Systems-Manager_32.svg",
+		icon: "/aws_icons/management_governance/32/arch_aws_systems_manager_32.svg",
 		category: "Management",
 		isContainer: false,
 		status: "in-development",
@@ -444,7 +444,7 @@ const awsServices: AWSService[] = [
 	{
 		id: "aws-trusted-advisor",
 		name: "TrustedAdvisor",
-		icon: "/aws_icons/architecture_service_icons/Arch_Management-Governance/32/Arch_AWS-Trusted-Advisor_32.svg",
+		icon: "/aws_icons/management_governance/32/arch_aws_trusted_advisor_32.svg",
 		category: "Management",
 		isContainer: false,
 		status: "in-development",
@@ -452,7 +452,7 @@ const awsServices: AWSService[] = [
 	{
 		id: "aws-organizations",
 		name: "Organizations",
-		icon: "/aws_icons/architecture_service_icons/Arch_Management-Governance/32/Arch_AWS-Organizations_32.svg",
+		icon: "/aws_icons/management_governance/32/arch_aws_organizations_32.svg",
 		category: "Management",
 		isContainer: true,
 		status: "in-development",
@@ -460,7 +460,7 @@ const awsServices: AWSService[] = [
 	{
 		id: "aws-control-tower",
 		name: "ControlTower",
-		icon: "/aws_icons/architecture_service_icons/Arch_Management-Governance/32/Arch_AWS-Control-Tower_32.svg",
+		icon: "/aws_icons/management_governance/32/arch_aws_control_tower_32.svg",
 		category: "Management",
 		isContainer: true,
 		status: "in-development",
@@ -470,7 +470,7 @@ const awsServices: AWSService[] = [
 	{
 		id: "aws-ecs",
 		name: "ECS",
-		icon: "/aws_icons/architecture_service_icons/Arch_Containers/32/Arch_Amazon-Elastic-Container-Service_32.svg",
+		icon: "/aws_icons/containers/32/arch_amazon_elastic_container_service_32.svg",
 		category: "Containers",
 		isContainer: true,
 		status: "in-development",
@@ -478,7 +478,7 @@ const awsServices: AWSService[] = [
 	{
 		id: "aws-eks",
 		name: "EKS",
-		icon: "/aws_icons/architecture_service_icons/Arch_Containers/32/Arch_Amazon-Elastic-Kubernetes-Service_32.svg",
+		icon: "/aws_icons/containers/32/arch_amazon_elastic_kubernetes_service_32.svg",
 		category: "Containers",
 		isContainer: true,
 		status: "in-development",
@@ -486,7 +486,7 @@ const awsServices: AWSService[] = [
 	{
 		id: "aws-fargate",
 		name: "Fargate",
-		icon: "/aws_icons/architecture_service_icons/Arch_Containers/32/Arch_AWS-Fargate_32.svg",
+		icon: "/aws_icons/containers/32/arch_aws_fargate_32.svg",
 		category: "Containers",
 		isContainer: false,
 		status: "in-development",
@@ -494,7 +494,7 @@ const awsServices: AWSService[] = [
 	{
 		id: "aws-ecr",
 		name: "ECR",
-		icon: "/aws_icons/architecture_service_icons/Arch_Containers/32/Arch_Amazon-Elastic-Container-Registry_32.svg",
+		icon: "/aws_icons/containers/32/arch_amazon_elastic_container_registry_32.svg",
 		category: "Containers",
 		isContainer: false,
 		status: "in-development",
@@ -504,7 +504,7 @@ const awsServices: AWSService[] = [
 	{
 		id: "aws-athena",
 		name: "Athena",
-		icon: "/aws_icons/architecture_service_icons/Arch_Analytics/32/Arch_Amazon-Athena_32.svg",
+		icon: "/aws_icons/analytics/32/arch_amazon_athena_32.svg",
 		category: "Analytics",
 		isContainer: false,
 		status: "in-development",
@@ -512,7 +512,7 @@ const awsServices: AWSService[] = [
 	{
 		id: "aws-redshift",
 		name: "Redshift",
-		icon: "/aws_icons/architecture_service_icons/Arch_Analytics/32/Arch_Amazon-Redshift_32.svg",
+		icon: "/aws_icons/analytics/32/arch_amazon_redshift_32.svg",
 		category: "Analytics",
 		isContainer: false,
 		status: "in-development",
@@ -520,7 +520,7 @@ const awsServices: AWSService[] = [
 	{
 		id: "aws-emr",
 		name: "EMR",
-		icon: "/aws_icons/architecture_service_icons/Arch_Analytics/32/Arch_Amazon-EMR_32.svg",
+		icon: "/aws_icons/analytics/32/arch_amazon_emr_32.svg",
 		category: "Analytics",
 		isContainer: false,
 		status: "in-development",
@@ -528,7 +528,7 @@ const awsServices: AWSService[] = [
 	{
 		id: "aws-kinesis",
 		name: "Kinesis",
-		icon: "/aws_icons/architecture_service_icons/Arch_Analytics/32/Arch_Amazon-Kinesis_32.svg",
+		icon: "/aws_icons/analytics/32/arch_amazon_kinesis_32.svg",
 		category: "Analytics",
 		isContainer: false,
 		status: "in-development",
@@ -536,7 +536,7 @@ const awsServices: AWSService[] = [
 	{
 		id: "aws-glue",
 		name: "Glue",
-		icon: "/aws_icons/architecture_service_icons/Arch_Analytics/32/Arch_AWS-Glue_32.svg",
+		icon: "/aws_icons/analytics/32/arch_aws_glue_32.svg",
 		category: "Analytics",
 		isContainer: false,
 		status: "in-development",
@@ -544,7 +544,7 @@ const awsServices: AWSService[] = [
 	{
 		id: "aws-quicksight",
 		name: "QuickSight",
-		icon: "/aws_icons/architecture_service_icons/Arch_Analytics/32/Arch_Amazon-QuickSight_32.svg",
+		icon: "/aws_icons/analytics/32/arch_amazon_quick_sight_32.svg",
 		category: "Analytics",
 		isContainer: false,
 		status: "in-development",
@@ -552,7 +552,7 @@ const awsServices: AWSService[] = [
 	{
 		id: "aws-opensearch",
 		name: "OpenSearch",
-		icon: "/aws_icons/architecture_service_icons/Arch_Analytics/32/Arch_Amazon-OpenSearch-Service_32.svg",
+		icon: "/aws_icons/analytics/32/arch_amazon_open_search_service_32.svg",
 		category: "Analytics",
 		isContainer: false,
 		status: "in-development",
@@ -642,7 +642,7 @@ export default function ServicesSidebar({
 					<div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
 						<div className="flex items-center gap-3">
 							<Image
-								src="/aws_icons/architecture_group_icons/AWS-Cloud-logo_32_Dark.svg"
+								src="/aws_icons/uncategorized/32/aws_cloud_logo_32_dark.svg"
 								alt="AWS Logo"
 								width={50}
 								height={50}
