@@ -106,23 +106,23 @@ export default function NATGatewayConfigurationForm({
 							/>
 						</div>
 
-						<div className="space-y-2">
-							<Label htmlFor="nat-type">NAT Gateway Type</Label>
-							<Select
-								value={config.natGatewayType || "public"}
-								onValueChange={(value) => handleFieldChange("natGatewayType", value)}
-							>
-								<SelectTrigger className="w-full">
-									<SelectValue placeholder="Select NAT Gateway type" />
-								</SelectTrigger>
-								<SelectContent>
-									<SelectItem value="public">Public</SelectItem>
-									<SelectItem value="private">Private</SelectItem>
-								</SelectContent>
-							</Select>
-						</div>
+					<div className="space-y-2">
+						<Label htmlFor="connectivity-type">Connectivity Type</Label>
+						<Select
+							value={config.connectivityType || "public"}
+							onValueChange={(value) => handleFieldChange("connectivityType", value)}
+						>
+							<SelectTrigger className="w-full">
+								<SelectValue placeholder="Select connectivity type" />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value="public">Public</SelectItem>
+								<SelectItem value="private">Private</SelectItem>
+							</SelectContent>
+						</Select>
+					</div>
 
-						{config.natGatewayType === "public" && (
+					{config.connectivityType === "public" && (
 							<div className="space-y-2">
 								<Label htmlFor="allocation-id">Elastic IP Allocation ID</Label>
 								<Input
@@ -134,36 +134,18 @@ export default function NATGatewayConfigurationForm({
 							</div>
 						)}
 
-						<div className="space-y-2">
-							<Label htmlFor="state">State</Label>
-							<Select
-								value={config.state || "available"}
-								onValueChange={(value) => handleFieldChange("state", value)}
-							>
-								<SelectTrigger className="w-full">
-									<SelectValue placeholder="Select state" />
-								</SelectTrigger>
-								<SelectContent>
-									<SelectItem value="pending">Pending</SelectItem>
-									<SelectItem value="failed">Failed</SelectItem>
-									<SelectItem value="available">Available</SelectItem>
-									<SelectItem value="deleting">Deleting</SelectItem>
-									<SelectItem value="deleted">Deleted</SelectItem>
-								</SelectContent>
-							</Select>
-						</div>
-
-						<div className="space-y-2">
-							<Label htmlFor="description">Description</Label>
-							<Textarea
-								id="description"
-								value={config.description || ""}
-								onChange={(e) => handleFieldChange("description", e.target.value)}
-								placeholder="NAT Gateway description"
-								className="min-h-[60px]"
-							/>
-						</div>
-					</div>
+					{config.connectivityType === "private" && (
+							<div className="space-y-2">
+								<Label htmlFor="private-ip">Private IP Address</Label>
+								<Input
+									id="private-ip"
+									value={config.privateIp || ""}
+									onChange={(e) => handleFieldChange("privateIp", e.target.value)}
+									placeholder="10.0.1.5"
+								/>
+							</div>
+						)}
+				</div>
 				</CollapsibleSection>
 
 				{/* Tags */}

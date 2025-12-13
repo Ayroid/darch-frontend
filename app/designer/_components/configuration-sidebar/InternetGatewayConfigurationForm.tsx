@@ -107,36 +107,6 @@ const InternetGatewayConfigurationForm: React.FC<InternetGatewayConfigurationFor
 								onChange={(e) => handleFieldChange("awsInternetGatewayId", e.target.value)}
 							/>
 						</div>
-
-						<div className="space-y-2">
-							<Label htmlFor="state">State</Label>
-							<Select
-								value={config.state || "available"}
-								onValueChange={(value) => handleFieldChange("state", value)}
-							>
-								<SelectTrigger className="w-full">
-									<SelectValue placeholder="Select state" />
-								</SelectTrigger>
-								<SelectContent>
-									<SelectItem value="available">Available</SelectItem>
-									<SelectItem value="attaching">Attaching</SelectItem>
-									<SelectItem value="attached">Attached</SelectItem>
-									<SelectItem value="detaching">Detaching</SelectItem>
-									<SelectItem value="detached">Detached</SelectItem>
-								</SelectContent>
-							</Select>
-						</div>
-
-						<div className="space-y-2">
-							<Label htmlFor="description">Description</Label>
-							<Textarea
-								id="description"
-								value={config.description || ""}
-								onChange={(e) => handleFieldChange("description", e.target.value)}
-								placeholder="Internet Gateway description"
-								className="min-h-[60px]"
-							/>
-						</div>
 					</div>
 				</CollapsibleSection>
 
