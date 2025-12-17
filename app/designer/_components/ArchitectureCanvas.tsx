@@ -166,11 +166,11 @@ export default function ArchitectureCanvas({
 	const {
 		currentData,
 		updateFromReactFlow,
-		addNode: addArchNode,
+		addResource: addArchResource,
 		addConnection: addArchConnection,
 		convertToReactFlow,
 	} = useArchitectureData();
-	const { getNodeConfiguration, updateNodeConfiguration, nodeConfigurations } =
+	const { getResourceConfiguration, updateResourceConfiguration, resourceConfigurations } =
 		useArchitectureStore();
 
 	// Load initial data from architecture manager (only on first load)
@@ -229,8 +229,8 @@ export default function ArchitectureCanvas({
 		setEdges,
 		onNodesChange,
 		onNodeAdd,
-		getNodeConfiguration,
-		{ getNodeConfiguration, updateNodeConfiguration, nodeConfigurations },
+		getResourceConfiguration,
+		{ getResourceConfiguration, updateResourceConfiguration, resourceConfigurations },
 		undoRedoHook
 	);
 
@@ -397,15 +397,15 @@ export default function ArchitectureCanvas({
 					const updatedNode =
 						updatedNodes.find((node) => node.id === newNode.id) || newNode;
 
-					// Schedule addArchNode to run after the state update with the updated node
+					// Schedule addArchResource to run after the state update with the updated node
 					setTimeout(() => {
-						addArchNode(updatedNode);
+						addArchResource(updatedNode);
 					}, 0);
 
 					return updatedNodes;
 				});
 
-				// Don't call addArchNode here - it's called in setTimeout above
+				// Don't call addArchResource here - it's called in setTimeout above
 				onNodeAdd?.(newNode);
 
 				// Save state after adding node
@@ -431,7 +431,7 @@ export default function ArchitectureCanvas({
 			reactFlowInstance,
 			setNodes,
 			setEdges,
-			addArchNode,
+			addArchResource,
 			onNodeAdd,
 			undoRedoHook,
 		]

@@ -14,7 +14,7 @@ export interface Dimensions {
   height: number;
 }
 
-export interface NodeConnection {
+export interface ResourceConnection {
   id: string;
   source: string;
   target: string;
@@ -23,7 +23,7 @@ export interface NodeConnection {
   type?: string;
 }
 
-export interface ArchitectureNode {
+export interface ArchitectureResource {
   id: string;
   nodeType: 'awsService' | 'awsContainer';
   resourceType: string; // e.g., 'aws-ec2', 'aws-vpc', 'aws-s3'
@@ -44,8 +44,8 @@ export interface ArchitectureData {
     lastModified: string;
     provider: string; // e.g., 'aws', 'azure', 'gcp'
   };
-  nodes: ArchitectureNode[];
-  connections: NodeConnection[];
+  resources: ArchitectureResource[];
+  connections: ResourceConnection[];
   variables?: {
     [key: string]: {
       description: string;

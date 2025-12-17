@@ -36,6 +36,8 @@ export interface EC2Configuration {
 	keyPairName?: string;
 
 	// Instance Details
+	awsRegionId?: string;
+	awsAvailabilityZone?: string;
 	subnetId?: string;
 	securityGroups?: string[]; // VPC security group IDs
 	iamInstanceProfile?: string;
@@ -65,6 +67,7 @@ export interface EC2Configuration {
 // Subnet Configurations
 export interface PublicSubnetConfiguration {
 	awsPublicSubnetId: string;
+	awsRegionId?: string;
 	cidrBlock: string; // Required: IPv4 CIDR block
 	awsVpcId: string; // Required: VPC ID
 	awsAvailabilityZone: string; // Required: Availability Zone
@@ -75,6 +78,7 @@ export interface PublicSubnetConfiguration {
 
 export interface PrivateSubnetConfiguration {
 	awsPrivateSubnetId: string;
+	awsRegionId?: string;
 	cidrBlock: string; // Required: IPv4 CIDR block
 	awsVpcId: string; // Required: VPC ID
 	awsAvailabilityZone: string; // Required: Availability Zone
@@ -120,11 +124,20 @@ export interface SecurityGroupConfiguration {
 
 export interface SecurityGroupRule {
 	protocol: "tcp" | "udp" | "icmp" | "all" | string; // Protocol (-1 for all)
-	fromPort: number; // Start of port range (required for tcp/udp)
-	toPort: number; // End of port range (required for tcp/udp)
+
+	// Simplified fields for frontend forms
+	port?: number | "all"; // Port (single value or "all")
+	source?: string; // Source CIDR block or security group (for ingress rules)
+	destination?: string; // Destination CIDR block (for egress rules)
+
+	// AWS Terraform fields
+	fromPort?: number; // Start of port range (required for tcp/udp)
+	toPort?: number; // End of port range (required for tcp/udp)
 	cidrBlocks?: string[]; // IPv4 CIDR blocks
+	ipv6CidrBlocks?: string[]; // IPv6 CIDR blocks
 	sourceSecurityGroupId?: string; // Source security group ID
 	selfReference?: boolean; // Reference to the security group itself
+
 	description?: string;
 }
 
@@ -150,6 +163,9 @@ export interface NATGatewayConfiguration {
 export interface RouteTableConfiguration {
 	awsRouteTableId: string;
 	awsVpcId: string; // Required: VPC ID
+	awsInternetGatewayId?: string;
+	awsSubnetId?: string; // Optional: Primary subnet association
+	description?: string;
 	routes: Route[]; // Routes (can be empty, local route is implicit)
 	associations: RouteTableAssociation[]; // Subnet associations
 	propagatingVgws?: string[]; // List of virtual gateways for route propagation

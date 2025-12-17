@@ -23,7 +23,7 @@ export {
 	useArchitectureStore,
 	useArchitectureData,
 	useArchitectureActions,
-	useNodeConfiguration
+	useResourceConfiguration
 } from './architecture/architecture-store';
 
 // Enhanced hooks

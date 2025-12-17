@@ -388,8 +388,9 @@ export const useTerraformStore = create<TerraformState>((set, get) => ({
 			return;
 		}
 
-		const archData = data as { nodes?: Array<unknown>; [key: string]: unknown };
-		if (!archData.nodes || archData.nodes.length === 0) {
+		const archData = data as { resources?: Array<unknown>; [key: string]: unknown };
+		const resourceList = (archData.resources) as Array<unknown> | undefined;
+		if (!resourceList || resourceList.length === 0) {
 			set({ output: '❌ No resources found in your architecture. Please add some AWS resources first.' });
 			return;
 		}
@@ -572,8 +573,9 @@ export const useTerraformStore = create<TerraformState>((set, get) => ({
 			return;
 		}
 
-		const archData = data as { nodes?: Array<unknown>; [key: string]: unknown };
-		if (!archData.nodes || archData.nodes.length === 0) {
+		const archData = data as { resources?: Array<unknown>; [key: string]: unknown };
+		const resourceList = archData.resources as Array<unknown> | undefined;
+		if (!resourceList || resourceList.length === 0) {
 			set({ output: '❌ No resources found in your architecture. Please add some AWS resources first.' });
 			return;
 		}
@@ -753,8 +755,9 @@ export const useTerraformStore = create<TerraformState>((set, get) => ({
 			return;
 		}
 
-		const archData = data as { nodes?: Array<unknown>; [key: string]: unknown };
-		if (!archData.nodes || archData.nodes.length === 0) {
+		const archData = data as { resources?: Array<unknown>; [key: string]: unknown };
+		const resourceList = archData.resources as Array<unknown> | undefined;
+		if (!resourceList || resourceList.length === 0) {
 			set({ output: '❌ No resources found in your architecture. Please add some AWS resources first.' });
 			return;
 		}

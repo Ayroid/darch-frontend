@@ -5,8 +5,8 @@ import { persist } from "zustand/middleware";
 import { Node, Edge } from "@xyflow/react";
 import {
 	ArchitectureData,
-	ArchitectureNode,
-	NodeConnection,
+	ArchitectureResource,
+	ResourceConnection,
 	ArchitectureMetadata,
 } from "@/lib/types/architecture";
 import { AWSResourceConfiguration } from "@/lib/types/aws-resources";
@@ -25,10 +25,10 @@ interface ArchitectureState {
 	currentData: ArchitectureData | null;
 
 	// Node configurations (integrated from configuration store)
-	nodeConfigurations: Record<string, AWSResourceConfiguration>;
+	resourceConfigurations: Record<string, AWSResourceConfiguration>;
 
 	// UI state
-	selectedNodeId: string | null;
+	selectedResourceId: string | null;
 	isLoading: boolean;
 
 	// File management
@@ -46,24 +46,24 @@ interface ArchitectureActions {
 	clear: () => void;
 	getCurrentData: () => ArchitectureData | null;
 
-	// Node management
-	addNode: (node: Node) => string;
-	removeNode: (nodeId: string) => void;
-	updateNodePosition: (
-		nodeId: string,
+	// Resource management
+	addResource: (resource: Node) => string;
+	removeResource: (resourceId: string) => void;
+	updateResourcePosition: (
+		resourceId: string,
 		position: { x: number; y: number }
 	) => void;
-	updateFromReactFlow: (nodes: Node[], edges: Edge[]) => void;
+	updateFromReactFlow: (resources: Node[], edges: Edge[]) => void;
 
 	// Configuration management
-	initializeNodeConfiguration: (nodeId: string, serviceId: string) => void;
-	updateNodeConfiguration: (
-		nodeId: string,
+	initializeResourceConfiguration: (resourceId: string, serviceId: string) => void;
+	updateResourceConfiguration: (
+		resourceId: string,
 		configuration: Partial<AWSResourceConfiguration>
 	) => void;
-	getNodeConfiguration: (nodeId: string) => AWSResourceConfiguration | null;
-	deleteNodeConfiguration: (nodeId: string) => void;
-	setSelectedNode: (nodeId: string | null) => void;
+	getResourceConfiguration: (resourceId: string) => AWSResourceConfiguration | null;
+	deleteResourceConfiguration: (resourceId: string) => void;
+	setSelectedResource: (resourceId: string | null) => void;
 
 	// Connection management
 	addConnection: (edge: Edge) => void;
@@ -90,11 +90,11 @@ interface ArchitectureActions {
 // Helper functions
 // Note: ID generation is handled by getNodeId() in nodeUtils.tsx
 
-// Convert ReactFlow nodes to ArchitectureNode format
-const convertReactFlowNodeToArchNode = (
+// Convert ReactFlow nodes to ArchitectureResource format
+const convertReactFlowNodeToArchResource = (
 	node: Node,
 	nodeConfig?: AWSResourceConfiguration
-): ArchitectureNode => {
+): ArchitectureResource => {
 	const data = node.data as Record<string, unknown>;
 	return {
 		id: node.id,
@@ -120,8 +120,8 @@ const convertReactFlowNodeToArchNode = (
 	};
 };
 
-// Convert ReactFlow edges to NodeConnection format
-const convertReactFlowEdgeToConnection = (edge: Edge): NodeConnection => {
+// Convert ReactFlow edges to ResourceConnection format
+const convertReactFlowEdgeToConnection = (edge: Edge): ResourceConnection => {
 	return {
 		id: edge.id,
 		source: edge.source,
@@ -132,30 +132,30 @@ const convertReactFlowEdgeToConnection = (edge: Edge): NodeConnection => {
 	};
 };
 
-// Convert ArchitectureNode to ReactFlow node format
-const convertArchNodeToReactFlowNode = (archNode: ArchitectureNode): Node => {
+// Convert ArchitectureResource to ReactFlow node format
+const convertArchResourceToReactFlowNode = (archResource: ArchitectureResource): Node => {
 	return {
-		id: archNode.id,
-		type: archNode.nodeType,
-		position: archNode.position,
+		id: archResource.id,
+		type: archResource.nodeType,
+		position: archResource.position,
 		data: {
-			icon: archNode.icon,
-			name: archNode.name,
-			serviceId: archNode.resourceType,
-			configuration: archNode.configuration,
+			icon: archResource.icon,
+			name: archResource.name,
+			serviceId: archResource.resourceType,
+			configuration: archResource.configuration,
 		},
-		style: archNode.dimensions
+		style: archResource.dimensions
 			? {
-					width: archNode.dimensions.width,
-					height: archNode.dimensions.height,
+					width: archResource.dimensions.width,
+					height: archResource.dimensions.height,
 			  }
 			: undefined,
-		parentId: archNode.parentId,
+		parentId: archResource.parentId,
 	};
 };
 
-// Convert NodeConnection to ReactFlow edge format
-const convertConnectionToReactFlowEdge = (connection: NodeConnection): Edge => {
+// Convert ResourceConnection to ReactFlow edge format
+const convertConnectionToReactFlowEdge = (connection: ResourceConnection): Edge => {
 	return {
 		id: connection.id,
 		source: connection.source,
@@ -175,8 +175,8 @@ export const useArchitectureStore = create<
 			immer((set, get) => ({
 				// Initial state
 				currentData: null,
-				nodeConfigurations: {},
-				selectedNodeId: null,
+				resourceConfigurations: {},
+				selectedResourceId: null,
 				isLoading: false,
 				currentFileName: DEFAULT_FILE_NAME,
 				hasUnsavedChanges: false,
@@ -194,7 +194,7 @@ export const useArchitectureStore = create<
 							lastModified: now,
 							provider: metadata.provider || "aws",
 						},
-						nodes: [],
+						resources: [],
 						connections: [],
 						variables: {},
 						outputs: {},
@@ -202,8 +202,8 @@ export const useArchitectureStore = create<
 
 					set((state) => {
 						state.currentData = newData;
-						state.nodeConfigurations = {};
-						state.selectedNodeId = null;
+						state.resourceConfigurations = {};
+						state.selectedResourceId = null;
 						state.hasUnsavedChanges = false;
 						state.currentFileName = DEFAULT_FILE_NAME;
 					});
@@ -214,8 +214,8 @@ export const useArchitectureStore = create<
 				clear: () => {
 					set((state) => {
 						state.currentData = null;
-						state.nodeConfigurations = {};
-						state.selectedNodeId = null;
+						state.resourceConfigurations = {};
+						state.selectedResourceId = null;
 						state.hasUnsavedChanges = false;
 						state.currentFileName = DEFAULT_FILE_NAME;
 						if (state.autoSaveTimeout) {
@@ -233,7 +233,7 @@ export const useArchitectureStore = create<
 				},
 
 				// Node management
-				addNode: (node) => {
+				addResource: (node) => {
 					set((state) => {
 						if (!state.currentData) {
 							state.currentData = get().createNew();
@@ -273,11 +273,11 @@ export const useArchitectureStore = create<
 						}
 
 						// Store configuration in the unified store
-						state.nodeConfigurations[node.id] = nodeConfig;
+						state.resourceConfigurations[node.id] = nodeConfig;
 
 						// Convert and add to architecture data
-						const archNode = convertReactFlowNodeToArchNode(node, nodeConfig);
-						state.currentData!.nodes.push(archNode);
+						const archResource = convertReactFlowNodeToArchResource(node, nodeConfig);
+						state.currentData!.resources.push(archResource);
 						state.currentData!.metadata.lastModified = new Date().toISOString();
 						state.hasUnsavedChanges = true;
 
@@ -287,15 +287,15 @@ export const useArchitectureStore = create<
 							node.id,
 							nodeConfig,
 							[...allNodes, node], // Include the new node in the hierarchy
-							state.nodeConfigurations,
+							state.resourceConfigurations,
 							resourceType,
 							allEdges
 						);
 
 						// Apply auto-configuration if any fields were populated
 						if (autoPopulatedFields.length > 0) {
-							state.nodeConfigurations[node.id] = updatedConfig;
-							archNode.configuration = updatedConfig;
+							state.resourceConfigurations[node.id] = updatedConfig;
+							archResource.configuration = updatedConfig;
 
 							console.log(
 								`Auto-configured new node ${node.id} with fields:`,
@@ -308,10 +308,10 @@ export const useArchitectureStore = create<
 					return node.id;
 				},
 
-				removeNode: (nodeId) => {
+				removeResource: (nodeId) => {
 					set((state) => {
 						if (state.currentData) {
-							state.currentData.nodes = state.currentData.nodes.filter(
+							state.currentData.resources = state.currentData.resources.filter(
 								(node) => node.id !== nodeId
 							);
 							state.currentData.connections =
@@ -322,11 +322,11 @@ export const useArchitectureStore = create<
 								new Date().toISOString();
 
 							// Remove configuration
-							delete state.nodeConfigurations[nodeId];
+							delete state.resourceConfigurations[nodeId];
 
 							// Clear selection if this node was selected
-							if (state.selectedNodeId === nodeId) {
-								state.selectedNodeId = null;
+							if (state.selectedResourceId === nodeId) {
+								state.selectedResourceId = null;
 							}
 
 							state.hasUnsavedChanges = true;
@@ -336,10 +336,10 @@ export const useArchitectureStore = create<
 					get().forceSave();
 				},
 
-				updateNodePosition: (nodeId, position) => {
+				updateResourcePosition: (nodeId, position) => {
 					set((state) => {
 						if (state.currentData) {
-							const node = state.currentData.nodes.find((n) => n.id === nodeId);
+							const node = state.currentData.resources.find((n) => n.id === nodeId);
 							if (node) {
 								node.position = position;
 								state.currentData.metadata.lastModified =
@@ -351,7 +351,7 @@ export const useArchitectureStore = create<
 
 					// Auto-configure affected nodes after position change (parent-child relationships may have changed)
 					const { nodes, edges } = get().convertToReactFlow();
-					const nodeConfig = get().nodeConfigurations[nodeId];
+					const nodeConfig = get().resourceConfigurations[nodeId];
 					if (nodeConfig) {
 						const movedNode = nodes.find(n => n.id === nodeId);
 						const resourceType = movedNode?.data?.serviceId as string;
@@ -360,7 +360,7 @@ export const useArchitectureStore = create<
 								nodeId,
 								nodeConfig,
 								nodes,
-								get().nodeConfigurations,
+								get().resourceConfigurations,
 								resourceType,
 								edges
 							);
@@ -368,12 +368,12 @@ export const useArchitectureStore = create<
 							// Apply auto-configuration if any fields were populated
 							if (autoPopulatedFields.length > 0) {
 								set((state) => {
-									state.nodeConfigurations[nodeId] = updatedConfig;
+									state.resourceConfigurations[nodeId] = updatedConfig;
 									// Update the corresponding node in architecture data
 									if (state.currentData) {
-										const archNode = state.currentData.nodes.find(n => n.id === nodeId);
-										if (archNode) {
-											archNode.configuration = updatedConfig;
+										const archResource = state.currentData.resources.find(n => n.id === nodeId);
+										if (archResource) {
+											archResource.configuration = updatedConfig;
 										}
 									}
 								});
@@ -390,9 +390,9 @@ export const useArchitectureStore = create<
 						}
 
 						// Convert and update nodes
-						state.currentData!.nodes = nodes.map((node) => {
-							const config = state.nodeConfigurations[node.id];
-							return convertReactFlowNodeToArchNode(node, config);
+						state.currentData!.resources = nodes.map((node) => {
+							const config = state.resourceConfigurations[node.id];
+							return convertReactFlowNodeToArchResource(node, config);
 						});
 
 						// Convert and update connections
@@ -420,19 +420,19 @@ export const useArchitectureStore = create<
 				},
 
 				// Configuration management
-				initializeNodeConfiguration: (nodeId, serviceId) => {
+				initializeResourceConfiguration: (nodeId, serviceId) => {
 					set((state) => {
-						if (!state.nodeConfigurations[nodeId]) {
+						if (!state.resourceConfigurations[nodeId]) {
 							const defaultConfig = getDefaultConfiguration(serviceId);
-							state.nodeConfigurations[nodeId] = defaultConfig;
+							state.resourceConfigurations[nodeId] = defaultConfig;
 
 							// Update architecture data
 							if (state.currentData) {
-								const node = state.currentData.nodes.find(
+								const node = state.currentData.resources.find(
 									(n) => n.id === nodeId
 								);
 								if (node) {
-									node.configuration = state.nodeConfigurations[nodeId];
+									node.configuration = state.resourceConfigurations[nodeId];
 									state.currentData.metadata.lastModified =
 										new Date().toISOString();
 									state.hasUnsavedChanges = true;
@@ -442,9 +442,9 @@ export const useArchitectureStore = create<
 					});
 				},
 
-				updateNodeConfiguration: (nodeId, updates) => {
+				updateResourceConfiguration: (nodeId, updates) => {
 					set((state) => {
-						const existingConfig = state.nodeConfigurations[nodeId] || {};
+						const existingConfig = state.resourceConfigurations[nodeId] || {};
 
 						// Simply merge the updates without filtering since resourceType is no longer in config
 						const updatedConfig = {
@@ -452,13 +452,13 @@ export const useArchitectureStore = create<
 							...updates,
 						} as AWSResourceConfiguration;
 
-						state.nodeConfigurations[nodeId] = updatedConfig;
+						state.resourceConfigurations[nodeId] = updatedConfig;
 
 						// Update architecture data
 						if (state.currentData) {
-							const node = state.currentData.nodes.find((n) => n.id === nodeId);
+							const node = state.currentData.resources.find((n) => n.id === nodeId);
 							if (node) {
-								node.configuration = state.nodeConfigurations[nodeId];
+								node.configuration = state.resourceConfigurations[nodeId];
 								state.currentData.metadata.lastModified =
 									new Date().toISOString();
 								state.hasUnsavedChanges = true;
@@ -469,7 +469,7 @@ export const useArchitectureStore = create<
 							const affectedUpdates = autoConfigureAffectedNodes(
 								nodeId,
 								nodes,
-								state.nodeConfigurations,
+								state.resourceConfigurations,
 								edges
 							);
 
@@ -478,10 +478,10 @@ export const useArchitectureStore = create<
 								nodeId: affectedNodeId,
 								updatedConfig,
 							} of affectedUpdates) {
-								state.nodeConfigurations[affectedNodeId] = updatedConfig;
+								state.resourceConfigurations[affectedNodeId] = updatedConfig;
 
 								// Update the corresponding node in architecture data
-								const affectedNode = state.currentData.nodes.find(
+								const affectedNode = state.currentData.resources.find(
 									(n) => n.id === affectedNodeId
 								);
 								if (affectedNode) {
@@ -505,18 +505,18 @@ export const useArchitectureStore = create<
 					get().forceSave();
 				},
 
-				getNodeConfiguration: (nodeId) => {
-					const config = get().nodeConfigurations[nodeId];
+				getResourceConfiguration: (nodeId) => {
+					const config = get().resourceConfigurations[nodeId];
 					return config || null;
 				},
 
-				deleteNodeConfiguration: (nodeId) => {
+				deleteResourceConfiguration: (nodeId) => {
 					set((state) => {
-						delete state.nodeConfigurations[nodeId];
+						delete state.resourceConfigurations[nodeId];
 
 						// Update architecture data
 						if (state.currentData) {
-							const node = state.currentData.nodes.find((n) => n.id === nodeId);
+							const node = state.currentData.resources.find((n) => n.id === nodeId);
 							if (node) {
 								node.configuration = {};
 								state.currentData.metadata.lastModified =
@@ -527,9 +527,9 @@ export const useArchitectureStore = create<
 					});
 				},
 
-				setSelectedNode: (nodeId) => {
+				setSelectedResource: (nodeId) => {
 					set((state) => {
-						state.selectedNodeId = nodeId;
+						state.selectedResourceId = nodeId;
 					});
 				},
 
@@ -551,7 +551,7 @@ export const useArchitectureStore = create<
 
 						// Check both source and target nodes for auto-configuration
 						for (const nodeId of [edge.source, edge.target]) {
-							const nodeConfig = state.nodeConfigurations[nodeId];
+							const nodeConfig = state.resourceConfigurations[nodeId];
 							if (!nodeConfig) continue;
 
 							const node = nodes.find(n => n.id === nodeId);
@@ -562,19 +562,19 @@ export const useArchitectureStore = create<
 								nodeId,
 								nodeConfig,
 								nodes,
-								state.nodeConfigurations,
+								state.resourceConfigurations,
 								resourceType,
 								updatedEdges
 							);
 
 							// Apply auto-configuration if any fields were populated
 							if (autoPopulatedFields.length > 0) {
-								state.nodeConfigurations[nodeId] = updatedConfig;
+								state.resourceConfigurations[nodeId] = updatedConfig;
 
 								// Update the corresponding node in architecture data
-								const archNode = state.currentData.nodes.find(n => n.id === nodeId);
-								if (archNode) {
-									archNode.configuration = updatedConfig;
+								const archResource = state.currentData.resources.find(n => n.id === nodeId);
+								if (archResource) {
+									archResource.configuration = updatedConfig;
 								}
 
 								console.log(
@@ -589,7 +589,7 @@ export const useArchitectureStore = create<
 				},
 
 				removeConnection: (connectionId) => {
-					let removedConnection: NodeConnection | null = null;
+					let removedConnection: ResourceConnection | null = null;
 
 					set((state) => {
 						if (state.currentData) {
@@ -618,7 +618,7 @@ export const useArchitectureStore = create<
 
 								// Check both source and target nodes for auto-configuration
 								for (const nodeId of [removedConnection.source, removedConnection.target]) {
-									const nodeConfig = state.nodeConfigurations[nodeId];
+									const nodeConfig = state.resourceConfigurations[nodeId];
 									if (!nodeConfig) continue;
 
 									const node = nodes.find(n => n.id === nodeId);
@@ -626,12 +626,12 @@ export const useArchitectureStore = create<
 									if (!resourceType) continue;
 
 									console.log(`[removeConnection] Auto-configuring node ${nodeId} (${resourceType}) after edge removal...`);
-									
+
 									const { updatedConfig, autoPopulatedFields } = autoConfigureNode(
 										nodeId,
 										nodeConfig,
 										nodes,
-										state.nodeConfigurations,
+										state.resourceConfigurations,
 										resourceType,
 										edges // Use current edges (after removal)
 									);
@@ -643,12 +643,12 @@ export const useArchitectureStore = create<
 
 									// Apply auto-configuration if any fields were changed
 									if (autoPopulatedFields.length > 0) {
-										state.nodeConfigurations[nodeId] = updatedConfig;
+										state.resourceConfigurations[nodeId] = updatedConfig;
 
 										// Update the corresponding node in architecture data
-										const archNode = state.currentData.nodes.find(n => n.id === nodeId);
-										if (archNode) {
-											archNode.configuration = updatedConfig;
+										const archResource = state.currentData.resources.find(n => n.id === nodeId);
+										if (archResource) {
+											archResource.configuration = updatedConfig;
 										}
 
 										console.log(
@@ -677,24 +677,24 @@ export const useArchitectureStore = create<
 							},
 						};
 
-						// Import configurations from nodes
+						// Import configurations from resources
 						const configs: Record<string, AWSResourceConfiguration> = {};
-						jsonData.nodes.forEach((node) => {
+						jsonData.resources.forEach((resource) => {
 							if (
-								node.configuration &&
-								typeof node.configuration === "object"
+								resource.configuration &&
+								typeof resource.configuration === "object"
 							) {
-								configs[node.id] =
-									node.configuration as AWSResourceConfiguration;
+								configs[resource.id] =
+									resource.configuration as AWSResourceConfiguration;
 							}
 						});
-						state.nodeConfigurations = configs;
+						state.resourceConfigurations = configs;
 						state.hasUnsavedChanges = false;
 					});
 
 					const currentData = get().currentData!;
-					const nodes = currentData.nodes.map((node) =>
-						convertArchNodeToReactFlowNode(node)
+					const nodes = currentData.resources.map((node) =>
+						convertArchResourceToReactFlowNode(node)
 					);
 					const edges = currentData.connections.map((conn) =>
 						convertConnectionToReactFlowEdge(conn)
@@ -777,8 +777,8 @@ export const useArchitectureStore = create<
 						return { nodes: [], edges: [] };
 					}
 
-					const nodes = state.currentData.nodes.map((node) =>
-						convertArchNodeToReactFlowNode(node)
+					const nodes = state.currentData.resources.map((node) =>
+						convertArchResourceToReactFlowNode(node)
 					);
 					const edges = state.currentData.connections.map((conn) =>
 						convertConnectionToReactFlowEdge(conn)
@@ -816,7 +816,7 @@ export const useArchitectureStore = create<
 				// Only persist essential data
 				partialize: (state) => ({
 					currentData: state.currentData,
-					nodeConfigurations: state.nodeConfigurations,
+					resourceConfigurations: state.resourceConfigurations,
 					currentFileName: state.currentFileName,
 				}),
 			}
@@ -842,10 +842,10 @@ export const useArchitectureData = () => {
 export const useArchitectureActions = () => {
 	return useArchitectureStore((state) => ({
 		updateFromReactFlow: state.updateFromReactFlow,
-		addNode: state.addNode,
-		removeNode: state.removeNode,
-		updateNodeConfiguration: state.updateNodeConfiguration,
-		updateNodePosition: state.updateNodePosition,
+		addResource: state.addResource,
+		removeResource: state.removeResource,
+		updateResourceConfiguration: state.updateResourceConfiguration,
+		updateResourcePosition: state.updateResourcePosition,
 		addConnection: state.addConnection,
 		removeConnection: state.removeConnection,
 		loadFromJSON: state.loadFromJSON,
@@ -859,14 +859,14 @@ export const useArchitectureActions = () => {
 	}));
 };
 
-export const useNodeConfiguration = () => {
+export const useResourceConfiguration = () => {
 	return useArchitectureStore((state) => ({
-		selectedNodeId: state.selectedNodeId,
-		nodeConfigurations: state.nodeConfigurations,
-		setSelectedNode: state.setSelectedNode,
-		initializeNodeConfiguration: state.initializeNodeConfiguration,
-		updateNodeConfiguration: state.updateNodeConfiguration,
-		getNodeConfiguration: state.getNodeConfiguration,
-		deleteNodeConfiguration: state.deleteNodeConfiguration,
+		selectedResourceId: state.selectedResourceId,
+		resourceConfigurations: state.resourceConfigurations,
+		setSelectedResource: state.setSelectedResource,
+		initializeResourceConfiguration: state.initializeResourceConfiguration,
+		updateResourceConfiguration: state.updateResourceConfiguration,
+		getResourceConfiguration: state.getResourceConfiguration,
+		deleteResourceConfiguration: state.deleteResourceConfiguration,
 	}));
 };

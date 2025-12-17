@@ -18,7 +18,7 @@ type Architecture = {
  */
 export function useDesignerHandlers() {
   // Store hooks
-  const { addNode } = useArchitectureStore();
+  const { addResource } = useArchitectureStore();
   const {
     toggleSidebar,
     toggleConfigurationSidebar,
@@ -43,14 +43,14 @@ export function useDesignerHandlers() {
       console.log("Node added:", node);
 
       // Add node to the unified architecture store
-      addNode(node);
+      addResource(node);
 
       setCurrentArchitecture((prev: Architecture) => ({
         ...prev,
         nodes: [...prev.nodes, node],
       }));
     },
-    [addNode]
+    [addResource]
   );
 
   const handleShare = useCallback((currentArchitecture: Architecture, setActiveTab: (tab: string) => void) => {

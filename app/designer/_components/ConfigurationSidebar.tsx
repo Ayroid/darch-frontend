@@ -59,9 +59,9 @@ export default function ConfigurationSidebar({
 }: ConfigurationSidebarProps) {
 	// Unified architecture store
 	const {
-		getNodeConfiguration,
-		updateNodeConfiguration,
-		initializeNodeConfiguration,
+		getResourceConfiguration,
+		updateResourceConfiguration,
+		initializeResourceConfiguration,
 	} = useArchitectureStore();
 
 	// Initialize configuration when node is selected
@@ -69,13 +69,13 @@ export default function ConfigurationSidebar({
 		if (selectedNode) {
 			const data = selectedNode.data as Record<string, unknown>;
 			const serviceId = (data?.serviceId as string) || "";
-			initializeNodeConfiguration(selectedNode.id, serviceId);
+			initializeResourceConfiguration(selectedNode.id, serviceId);
 		}
-	}, [selectedNode, initializeNodeConfiguration]);
+	}, [selectedNode, initializeResourceConfiguration]);
 
 	// Get current configuration from store
 	const config = selectedNode
-		? getNodeConfiguration(selectedNode.id) || {}
+		? getResourceConfiguration(selectedNode.id) || {}
 		: {};
 
 	const handleConfigChange = (newConfig: AWSResourceConfiguration) => {
@@ -84,7 +84,7 @@ export default function ConfigurationSidebar({
 		const nodeId = selectedNode.id;
 
 		// Update the architecture store (this will update both the configuration and the JSON data)
-		updateNodeConfiguration(nodeId, newConfig);
+		updateResourceConfiguration(nodeId, newConfig);
 
 		// Update the node data for the canvas
 		onNodeUpdate(selectedNode.id, {

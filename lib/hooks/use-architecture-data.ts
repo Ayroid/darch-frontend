@@ -17,10 +17,10 @@ export interface UseArchitectureDataReturn {
   // Actions
   createNew: (metadata?: Partial<ArchitectureMetadata>) => void;
   updateFromReactFlow: (nodes: Node[], edges: Edge[]) => void;
-  addNode: (node: Node) => string;
-  removeNode: (nodeId: string) => void;
-  updateNodeConfiguration: (nodeId: string, configuration: Record<string, string | number | boolean | string[] | number[] | boolean[] | Record<string, unknown>>) => void;
-  updateNodePosition: (nodeId: string, position: { x: number; y: number }) => void;
+  addResource: (node: Node) => string;
+  removeResource: (nodeId: string) => void;
+  updateResourceConfiguration: (nodeId: string, configuration: Record<string, string | number | boolean | string[] | number[] | boolean[] | Record<string, unknown>>) => void;
+  updateResourcePosition: (nodeId: string, position: { x: number; y: number }) => void;
   addConnection: (edge: Edge) => void;
   removeConnection: (connectionId: string) => void;
 
@@ -46,10 +46,10 @@ export function useArchitectureData(): UseArchitectureDataReturn {
     createNew: storeCreateNew,
     clear: storeClear,
     updateFromReactFlow: storeUpdateFromReactFlow,
-    addNode: storeAddNode,
-    removeNode: storeRemoveNode,
-    updateNodeConfiguration: storeUpdateNodeConfiguration,
-    updateNodePosition: storeUpdateNodePosition,
+    addResource: storeAddResource,
+    removeResource: storeRemoveResource,
+    updateResourceConfiguration: storeUpdateResourceConfiguration,
+    updateResourcePosition: storeUpdateResourcePosition,
     addConnection: storeAddConnection,
     removeConnection: storeRemoveConnection,
     loadFromJSON: storeLoadFromJSON,
@@ -70,24 +70,24 @@ export function useArchitectureData(): UseArchitectureDataReturn {
     storeUpdateFromReactFlow(nodes, edges);
   }, [storeUpdateFromReactFlow]);
 
-  const addNode = useCallback((node: Node): string => {
-    return storeAddNode(node);
-  }, [storeAddNode]);
+  const addResource = useCallback((node: Node): string => {
+    return storeAddResource(node);
+  }, [storeAddResource]);
 
-  const removeNode = useCallback((nodeId: string) => {
-    storeRemoveNode(nodeId);
-  }, [storeRemoveNode]);
+  const removeResource = useCallback((nodeId: string) => {
+    storeRemoveResource(nodeId);
+  }, [storeRemoveResource]);
 
-  const updateNodeConfiguration = useCallback((
+  const updateResourceConfiguration = useCallback((
     nodeId: string,
     configuration: Record<string, string | number | boolean | string[] | number[] | boolean[] | Record<string, unknown>>
   ) => {
-    storeUpdateNodeConfiguration(nodeId, configuration);
-  }, [storeUpdateNodeConfiguration]);
+    storeUpdateResourceConfiguration(nodeId, configuration);
+  }, [storeUpdateResourceConfiguration]);
 
-  const updateNodePosition = useCallback((nodeId: string, position: { x: number; y: number }) => {
-    storeUpdateNodePosition(nodeId, position);
-  }, [storeUpdateNodePosition]);
+  const updateResourcePosition = useCallback((nodeId: string, position: { x: number; y: number }) => {
+    storeUpdateResourcePosition(nodeId, position);
+  }, [storeUpdateResourcePosition]);
 
   const addConnection = useCallback((edge: Edge) => {
     storeAddConnection(edge);
@@ -138,10 +138,10 @@ export function useArchitectureData(): UseArchitectureDataReturn {
     // Actions
     createNew,
     updateFromReactFlow,
-    addNode,
-    removeNode,
-    updateNodeConfiguration,
-    updateNodePosition,
+    addResource,
+    removeResource,
+    updateResourceConfiguration,
+    updateResourcePosition,
     addConnection,
     removeConnection,
 

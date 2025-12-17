@@ -22,12 +22,12 @@ import { AWSResourceConfiguration } from "@/lib/types/aws-resources";
 
 // Type for architecture store - we'll use specific methods
 type ArchitectureStore = {
-	getNodeConfiguration: (nodeId: string) => AWSResourceConfiguration | null;
-	updateNodeConfiguration: (
+	getResourceConfiguration: (nodeId: string) => AWSResourceConfiguration | null;
+	updateResourceConfiguration: (
 		nodeId: string,
 		config: Partial<AWSResourceConfiguration>
 	) => void;
-	nodeConfigurations: Record<string, AWSResourceConfiguration>;
+	resourceConfigurations: Record<string, AWSResourceConfiguration>;
 };
 
 // Interfaces
@@ -537,9 +537,9 @@ export const createNodeHandlers = (
 	nodes: Node[],
 	setNodes: (nodes: Node[] | ((nodes: Node[]) => Node[])) => void,
 	setEdges: (edges: Edge[] | ((edges: Edge[]) => Edge[])) => void,
-	onNodesChange: (changes: NodeChange[]) => void,
-	onNodeAdd?: (node: Node) => void,
-	getNodeConfiguration?: (nodeId: string) => unknown,
+	onResourceChange: (changes: NodeChange[]) => void,
+	onResourceAdd?: (node: Node) => void,
+	getResourceConfiguration?: (nodeId: string) => unknown,
 	architectureStore?: ArchitectureStore,
 	undoRedoHook?: {
 		saveAfterNodeOperation: (
@@ -598,7 +598,7 @@ export const createNodeHandlers = (
 	// Enhanced nodes change handler with container logic and edge cleanup
 	const handleNodesChange = (changes: NodeChange[]) => {
 		// First apply the node changes
-		onNodesChange(changes);
+		onResourceChange(changes);
 
 		// Check for position changes that indicate a drag end (not during drag)
 		const dragEndChanges = changes.filter(
@@ -683,7 +683,7 @@ export const createNodeHandlers = (
 							setTimeout(() => {
 								for (const nodeId of nodesWithChangedParents) {
 									const nodeConfig =
-										architectureStore.getNodeConfiguration(nodeId);
+										architectureStore.getResourceConfiguration(nodeId);
 									const node = updatedNodes.find((n) => n.id === nodeId);
 									const resourceType = node?.data?.serviceId as string;
 									if (nodeConfig && resourceType) {
@@ -691,10 +691,10 @@ export const createNodeHandlers = (
 											nodeId,
 											nodeConfig,
 											updatedNodes,
-											architectureStore.nodeConfigurations,
+											architectureStore.resourceConfigurations,
 											resourceType
 										);
-										architectureStore.updateNodeConfiguration(
+										architectureStore.updateResourceConfiguration(
 											nodeId,
 											updatedConfig
 										);
@@ -718,7 +718,7 @@ export const createNodeHandlers = (
 							setTimeout(() => {
 								for (const nodeId of nodesWithChangedParents) {
 									const nodeConfig =
-										architectureStore.getNodeConfiguration(nodeId);
+										architectureStore.getResourceConfiguration(nodeId);
 									const node = updatedNodes.find((n) => n.id === nodeId);
 									const resourceType = node?.data?.serviceId as string;
 									if (nodeConfig && resourceType) {
@@ -726,10 +726,10 @@ export const createNodeHandlers = (
 											nodeId,
 											nodeConfig,
 											updatedNodes,
-											architectureStore.nodeConfigurations,
+											architectureStore.resourceConfigurations,
 											resourceType
 										);
-										architectureStore.updateNodeConfiguration(
+										architectureStore.updateResourceConfiguration(
 											nodeId,
 											updatedConfig
 										);
@@ -771,7 +771,7 @@ export const createNodeHandlers = (
 
 		// Enhance copied nodes with their configurations
 		const nodesWithConfigs = selectedNodes.map((node) => {
-			const config = getNodeConfiguration?.(node.id);
+			const config = getResourceConfiguration?.(node.id);
 			return {
 				...node,
 				data: {
@@ -808,8 +808,8 @@ export const createNodeHandlers = (
 			...newNodes,
 		]);
 
-		// Call onNodeAdd for each new node
-		newNodes.forEach((node) => onNodeAdd?.(node));
+		// Call onResourceAdd for each new node
+		newNodes.forEach((node) => onResourceAdd?.(node));
 
 		// Save state after pasting
 		setTimeout(() => {
@@ -837,7 +837,7 @@ export const createNodeHandlers = (
 		if (selectedNodes.length === 0) return;
 
 		const newNodes = selectedNodes.map((node) => {
-			const config = getNodeConfiguration?.(node.id);
+			const config = getResourceConfiguration?.(node.id);
 			return {
 				...node,
 				id: getNodeId(
@@ -862,8 +862,8 @@ export const createNodeHandlers = (
 			...newNodes,
 		]);
 
-		// Call onNodeAdd for each new node
-		newNodes.forEach((node) => onNodeAdd?.(node));
+		// Call onResourceAdd for each new node
+		newNodes.forEach((node) => onResourceAdd?.(node));
 
 		// Save state after duplicating
 		setTimeout(() => {
