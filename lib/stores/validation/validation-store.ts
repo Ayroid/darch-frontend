@@ -67,7 +67,7 @@ const validateAMIId = (amiId: string): string | null => {
 	if (!amiId) return "AMI ID is required";
 	const amiRegex = /^ami-[a-f0-9]{8,17}$/;
 	if (!amiRegex.test(amiId)) {
-		return "Invalid AMI ID format (e.g., ami-0c55b159cbfafe1d0)";
+		return "Invalid AMI ID format (e.g., ami-00ca570c1b6d79f36)";
 	}
 	return null;
 };

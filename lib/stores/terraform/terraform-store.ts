@@ -769,7 +769,7 @@ export const useTerraformStore = create<TerraformState>((set, get) => ({
 				},
 				body: JSON.stringify({
 					projectName: projectName.toLowerCase().replace(/\s+/g, '-'),
-					architecture: data
+					architectureData: data
 				})
 			});
 
@@ -779,11 +779,11 @@ export const useTerraformStore = create<TerraformState>((set, get) => ({
 
 			const result = await response.json();
 
-			if (result.success && result.jobId) {
-				const jobId = result.jobId;
+			if (result.success && result.data.jobId) {
+				const jobId = result.data.jobId;
 				set({
 					currentJob: { id: jobId, status: 'pending', progress: 0, message: 'Starting apply...', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), logs: [] },
-					output: `🔄 Apply job started (ID: ${jobId})\n⏱️ Estimated duration: ${result.estimatedDuration || 180} seconds\n\n`
+					output: `🔄 Apply job started (ID: ${jobId})\n⏱️ Estimated duration: ${result.data.estimatedDuration || 180} seconds\n\n`
 				});
 
 				// Start polling
@@ -829,11 +829,11 @@ export const useTerraformStore = create<TerraformState>((set, get) => ({
 
 			const result = await response.json();
 
-			if (result.success && result.jobId) {
-				const jobId = result.jobId;
+			if (result.success && result.data.jobId) {
+				const jobId = result.data.jobId;
 				set({
 					currentJob: { id: jobId, status: 'pending', progress: 0, message: 'Starting destroy...', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), logs: [] },
-					output: `🔄 Destroy job started (ID: ${jobId})\n⏱️ Estimated duration: ${result.estimatedDuration || 120} seconds\n\n`
+					output: `🔄 Destroy job started (ID: ${jobId})\n⏱️ Estimated duration: ${result.data.estimatedDuration || 120} seconds\n\n`
 				});
 
 				// Start polling

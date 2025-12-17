@@ -28,7 +28,7 @@ export const defaultConfigurations: Record<string, AWSResourceConfiguration> = {
 	"aws-ec2": {
 		awsEc2Id: "AWS EC2",
 		instanceType: "t3.micro", // Required: Free tier eligible, modern instance type
-		amiId: "ami-0c55b159cbfafe1d0", // Required: Amazon Linux 2 AMI (update per region)
+		amiId: "ami-00ca570c1b6d79f36", // Required: Amazon Linux 2 AMI (update per region)
 		keyPairName: "",
 
 		// Instance Details
