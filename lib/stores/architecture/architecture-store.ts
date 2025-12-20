@@ -98,8 +98,8 @@ const convertReactFlowNodeToArchResource = (
 	const data = node.data as Record<string, unknown>;
 	return {
 		id: node.id,
-		nodeType: node.type as "awsService" | "awsContainer",
-		resourceType:
+		node_type: (node.type === "awsService" ? "aws_service" : "aws_container") as "aws_service" | "aws_container",
+		resource_type:
 			typeof data?.serviceId === "string"
 				? data.serviceId
 				: typeof data?.name === "string"
@@ -116,7 +116,7 @@ const convertReactFlowNodeToArchResource = (
 			  }
 			: undefined,
 		configuration: nodeConfig || {},
-		parentId: node.parentId,
+		parent_id: node.parentId,
 	};
 };
 
@@ -126,8 +126,8 @@ const convertReactFlowEdgeToConnection = (edge: Edge): ResourceConnection => {
 		id: edge.id,
 		source: edge.source,
 		target: edge.target,
-		sourceHandle: edge.sourceHandle || undefined,
-		targetHandle: edge.targetHandle || undefined,
+		source_handle: edge.sourceHandle || undefined,
+		target_handle: edge.targetHandle || undefined,
 		type: edge.type || "smoothstep",
 	};
 };
@@ -136,12 +136,13 @@ const convertReactFlowEdgeToConnection = (edge: Edge): ResourceConnection => {
 const convertArchResourceToReactFlowNode = (archResource: ArchitectureResource): Node => {
 	return {
 		id: archResource.id,
-		type: archResource.nodeType,
+		// Convert from snake_case (JSON format) to camelCase (ReactFlow format)
+		type: archResource.node_type === "aws_service" ? "awsService" : "awsContainer",
 		position: archResource.position,
 		data: {
 			icon: archResource.icon,
 			name: archResource.name,
-			serviceId: archResource.resourceType,
+			serviceId: archResource.resource_type,
 			configuration: archResource.configuration,
 		},
 		style: archResource.dimensions
@@ -150,7 +151,7 @@ const convertArchResourceToReactFlowNode = (archResource: ArchitectureResource):
 					height: archResource.dimensions.height,
 			  }
 			: undefined,
-		parentId: archResource.parentId,
+		parentId: archResource.parent_id,
 	};
 };
 
@@ -160,8 +161,8 @@ const convertConnectionToReactFlowEdge = (connection: ResourceConnection): Edge 
 		id: connection.id,
 		source: connection.source,
 		target: connection.target,
-		sourceHandle: connection.sourceHandle,
-		targetHandle: connection.targetHandle,
+		sourceHandle: connection.source_handle,
+		targetHandle: connection.target_handle,
 		type: connection.type || "smoothstep",
 	};
 };
@@ -185,13 +186,12 @@ export const useArchitectureStore = create<
 				// Core data management
 				createNew: (metadata = {}) => {
 					const now = new Date().toISOString();
-					const newData: ArchitectureData = {
-						metadata: {
+					const newData: ArchitectureData = {					format_version: "2.0.0",						metadata: {
 							name: metadata.name || "Untitled Architecture",
 							description: metadata.description || "",
 							version: "1.0.0",
-							createdAt: now,
-							lastModified: now,
+							created_at: now,
+							last_modified: now,
 							provider: metadata.provider || "aws",
 						},
 						resources: [],
@@ -278,7 +278,7 @@ export const useArchitectureStore = create<
 						// Convert and add to architecture data
 						const archResource = convertReactFlowNodeToArchResource(node, nodeConfig);
 						state.currentData!.resources.push(archResource);
-						state.currentData!.metadata.lastModified = new Date().toISOString();
+						state.currentData!.metadata.last_modified = new Date().toISOString();
 						state.hasUnsavedChanges = true;
 
 						// Auto-configure using current store state to get all nodes for hierarchy
@@ -318,7 +318,7 @@ export const useArchitectureStore = create<
 								state.currentData.connections.filter(
 									(conn) => conn.source !== nodeId && conn.target !== nodeId
 								);
-							state.currentData.metadata.lastModified =
+							state.currentData.metadata.last_modified =
 								new Date().toISOString();
 
 							// Remove configuration
@@ -342,7 +342,7 @@ export const useArchitectureStore = create<
 							const node = state.currentData.resources.find((n) => n.id === nodeId);
 							if (node) {
 								node.position = position;
-								state.currentData.metadata.lastModified =
+								state.currentData.metadata.last_modified =
 									new Date().toISOString();
 								state.hasUnsavedChanges = true;
 							}
@@ -400,7 +400,7 @@ export const useArchitectureStore = create<
 							convertReactFlowEdgeToConnection(edge)
 						);
 
-						state.currentData!.metadata.lastModified = new Date().toISOString();
+						state.currentData!.metadata.last_modified = new Date().toISOString();
 						state.hasUnsavedChanges = true;
 					});
 
@@ -433,7 +433,7 @@ export const useArchitectureStore = create<
 								);
 								if (node) {
 									node.configuration = state.resourceConfigurations[nodeId];
-									state.currentData.metadata.lastModified =
+									state.currentData.metadata.last_modified =
 										new Date().toISOString();
 									state.hasUnsavedChanges = true;
 								}
@@ -459,7 +459,7 @@ export const useArchitectureStore = create<
 							const node = state.currentData.resources.find((n) => n.id === nodeId);
 							if (node) {
 								node.configuration = state.resourceConfigurations[nodeId];
-								state.currentData.metadata.lastModified =
+								state.currentData.metadata.last_modified =
 									new Date().toISOString();
 								state.hasUnsavedChanges = true;
 							}
@@ -519,7 +519,7 @@ export const useArchitectureStore = create<
 							const node = state.currentData.resources.find((n) => n.id === nodeId);
 							if (node) {
 								node.configuration = {};
-								state.currentData.metadata.lastModified =
+								state.currentData.metadata.last_modified =
 									new Date().toISOString();
 								state.hasUnsavedChanges = true;
 							}
@@ -542,7 +542,7 @@ export const useArchitectureStore = create<
 
 						const connection = convertReactFlowEdgeToConnection(edge);
 						state.currentData!.connections.push(connection);
-						state.currentData!.metadata.lastModified = new Date().toISOString();
+						state.currentData!.metadata.last_modified = new Date().toISOString();
 						state.hasUnsavedChanges = true;
 
 						// Auto-configure nodes affected by the new connection
@@ -602,7 +602,7 @@ export const useArchitectureStore = create<
 								state.currentData.connections.filter(
 									(conn) => conn.id !== connectionId
 								);
-							state.currentData.metadata.lastModified =
+							state.currentData.metadata.last_modified =
 								new Date().toISOString();
 							state.hasUnsavedChanges = true;
 
@@ -673,7 +673,7 @@ export const useArchitectureStore = create<
 							...jsonData,
 							metadata: {
 								...jsonData.metadata,
-								lastModified: new Date().toISOString(),
+								last_modified: new Date().toISOString(),
 							},
 						};
 
