@@ -3,8 +3,7 @@ import EC2ConfigurationForm from "./EC2ConfigurationForm";
 import DefaultConfigurationForm from "./DefaultConfigurationForm";
 import AWSRegionConfigurationForm from "./AWSRegionConfigurationForm";
 import AvailabilityZoneConfigurationForm from "./AvailabilityZoneConfigurationForm";
-import PrivateSubnetConfigurationForm from "./PrivateSubnetConfigurationForm";
-import PublicSubnetConfigurationForm from "./PublicSubnetConfigurationForm";
+import SubnetConfigurationForm from "./SubnetConfigurationForm";
 import SecurityGroupConfigurationForm from "./SecurityGroupConfigurationForm";
 import InternetGatewayConfigurationForm from "./InternetGatewayConfigurationForm";
 import NATGatewayConfigurationForm from "./NATGatewayConfigurationForm";
@@ -16,8 +15,7 @@ const ConfigurationSidebarMap = {
 	DefaultConfigurationForm,
 	AWSRegionConfigurationForm,
 	AvailabilityZoneConfigurationForm,
-	PrivateSubnetConfigurationForm,
-	PublicSubnetConfigurationForm,
+	SubnetConfigurationForm,
 	SecurityGroupConfigurationForm,
 	InternetGatewayConfigurationForm,
 	NATGatewayConfigurationForm,

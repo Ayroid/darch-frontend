@@ -83,13 +83,13 @@ const EC2ConfigurationForm: React.FC<EC2ConfigurationFormProps> = ({
 										<Input
 											id="region"
 											placeholder="Enter AWS region"
-											value={config.awsRegionId || ""}
+											value={config.region || ""}
 											onChange={(e) =>
-												handleFieldChange("awsRegionId", e.target.value)
+												handleFieldChange("region", e.target.value)
 											}
-											disabled={isFieldDisabled("awsRegionId")}
+											disabled={isFieldDisabled("region")}
 										/>
-										{isFieldDisabled("awsRegionId") && (
+										{isFieldDisabled("region") && (
 											<div className="absolute top-1/2 right-2 transform -translate-y-1/2">
 												<AutoConfigurationTooltip parentContainer="Region" />
 											</div>
@@ -111,13 +111,13 @@ const EC2ConfigurationForm: React.FC<EC2ConfigurationFormProps> = ({
 										<Input
 											id="availability-zone"
 											placeholder="Enter AWS availability zone"
-											value={config.awsAvailabilityZone || ""}
+											value={config.availability_zone || ""}
 											onChange={(e) =>
-												handleFieldChange("awsAvailabilityZone", e.target.value)
+												handleFieldChange("availability_zone", e.target.value)
 											}
-											disabled={isFieldDisabled("awsAvailabilityZone")}
+											disabled={isFieldDisabled("availability_zone")}
 										/>
-										{isFieldDisabled("awsAvailabilityZone") && (
+										{isFieldDisabled("availability_zone") && (
 											<div className="absolute top-1/2 right-2 transform -translate-y-1/2">
 												<AutoConfigurationTooltip parentContainer="Availability Zone" />
 											</div>
@@ -138,13 +138,13 @@ const EC2ConfigurationForm: React.FC<EC2ConfigurationFormProps> = ({
 										<Input
 											id="subnetId"
 											placeholder="e.g., subnet-12345678"
-											value={config.subnetId || ""}
+											value={config.subnet_id || ""}
 											onChange={(e) =>
-												handleFieldChange("subnetId", e.target.value)
+												handleFieldChange("subnet_id", e.target.value)
 											}
-											disabled={isFieldDisabled("subnetId")}
+											disabled={isFieldDisabled("subnet_id")}
 										/>
-										{isFieldDisabled("subnetId") && (
+										{isFieldDisabled("subnet_id") && (
 											<div className="absolute top-1/2 right-2 transform -translate-y-1/2">
 												<AutoConfigurationTooltip parentContainer="Subnet" />
 											</div>
@@ -175,18 +175,18 @@ const EC2ConfigurationForm: React.FC<EC2ConfigurationFormProps> = ({
 									</div>
 									<Textarea
 										id="securityGroups"
-										value={(config.securityGroups || []).join(", ")}
-										onChange={(e) =>
-											handleFieldChange(
-												"securityGroups",
-												e.target.value.split(", ").filter(Boolean)
-											)
-										}
-										placeholder="sg-12345678, sg-87654321"
-										className="min-h-[60px]"
-										disabled={isFieldDisabled("securityGroups")}
-									/>
-									{isFieldDisabled("securityGroups") && (
+									value={(config.security_groups || []).join(", ")}
+									onChange={(e) =>
+										handleFieldChange(
+											"security_groups",
+											e.target.value.split(", ").filter(Boolean)
+										)
+									}
+									placeholder="sg-12345678, sg-87654321"
+									className="min-h-[60px]"
+									disabled={isFieldDisabled("security_groups")}
+								/>
+								{isFieldDisabled("security_groups") && (
 										<p className="text-xs text-muted-foreground">
 											This field is automatically configured from Security Group
 											containers.
@@ -205,25 +205,14 @@ const EC2ConfigurationForm: React.FC<EC2ConfigurationFormProps> = ({
 				>
 					<div className="space-y-4">
 						<div className="space-y-2">
-							<Label htmlFor="ec2-name">
-								Instance Name<span className="text-red-600">*</span>
-							</Label>
-							<Input
-								id="ec2-name"
-								value={config.awsEc2Id || ""}
-								onChange={(e) => handleFieldChange("awsEc2Id", e.target.value)}
-								placeholder="e.g., Web Server"
-							/>
-						</div>
 
-						<div className="space-y-2">
 							<Label htmlFor="instanceType">
 								Instance Type<span className="text-red-600">*</span>
 							</Label>
 							<Select
-								value={config.instanceType || ""}
-								onValueChange={(value) =>
-									handleFieldChange("instanceType", value)
+							value={config.instance_type || ""}
+							onValueChange={(value) =>
+								handleFieldChange("instance_type", value)
 								}
 							>
 								<SelectTrigger className="w-full">
@@ -245,84 +234,82 @@ const EC2ConfigurationForm: React.FC<EC2ConfigurationFormProps> = ({
 							</Label>
 							<Input
 								id="amiId"
-								value={config.amiId || ""}
-								onChange={(e) => handleFieldChange("amiId", e.target.value)}
-								placeholder="e.g., ami-0abcdef1234567890"
-							/>
-						</div>
-
-						<div className="space-y-2">
-							<Label htmlFor="keyPairName">Key Pair Name</Label>
-							<Input
-								id="keyPairName"
-								value={config.keyPairName || ""}
-								onChange={(e) =>
-									handleFieldChange("keyPairName", e.target.value)
-								}
-								placeholder="e.g., my-key-pair"
-							/>
-						</div>
+							value={config.ami_id || ""}
+							onChange={(e) => handleFieldChange("ami_id", e.target.value)}
+							placeholder="e.g., ami-0abcdef1234567890"
+						/>
 					</div>
-				</CollapsibleSection>
 
-				{/* Instance Details */}
-				<CollapsibleSection
-					title="Instance Details"
-					icon={<FiCpu className="w-6 h-6 text-gray-600" />}
-				>
-					<div className="space-y-4">
-						<div className="space-y-2">
-							<Label htmlFor="iamInstanceProfile">
-								IAM Instance Profile<span className="text-red-600">*</span>
-							</Label>
-							<Input
-								id="iamInstanceProfile"
-								value={config.iamInstanceProfile || ""}
-								onChange={(e) =>
-									handleFieldChange("iamInstanceProfile", e.target.value)
-								}
-								placeholder="e.g., EC2-Instance-Profile"
-							/>
-						</div>
+					<div className="space-y-2">
+						<Label htmlFor="keyPairName">Key Pair Name</Label>
+						<Input
+							id="keyPairName"
+							value={config.key_pair_name || ""}
+							onChange={(e) =>
+								handleFieldChange("key_pair_name", e.target.value)
+							}
+							placeholder="e.g., my-key-pair"
+						/>
 					</div>
-				</CollapsibleSection>
+				</div>
+			</CollapsibleSection>
 
-				{/* Storage */}
-				<CollapsibleSection
-					title="Storage Configuration"
-					icon={<FiDatabase className="w-6 h-6 text-gray-600" />}
-				>
-					<div className="space-y-4">
-						<div className="space-y-2">
-							<Label htmlFor="rootVolumeSize">
-								Root Volume Size (GB)<span className="text-red-600">*</span>
-							</Label>
-							<Input
-								id="rootVolumeSize"
-								type="number"
-								value={config.rootVolumeSize || 8}
-								onChange={(e) =>
-									handleFieldChange(
-										"rootVolumeSize",
-										parseInt(e.target.value) || 8
-									)
-								}
-								placeholder="8"
-								min="8"
-								max="16384"
-							/>
-						</div>
+			{/* Instance Details */}
+			<CollapsibleSection
+				title="Instance Details"
+				icon={<FiCpu className="w-6 h-6 text-gray-600" />}
+			>
+				<div className="space-y-4">
+					<div className="space-y-2">
+						<Label htmlFor="iamInstanceProfile">
+							IAM Instance Profile<span className="text-red-600">*</span>
+						</Label>
+						<Input
+							id="iamInstanceProfile"
+							value={config.iam_instance_profile || ""}
+							onChange={(e) =>
+								handleFieldChange("iam_instance_profile", e.target.value)
+							}
+							placeholder="e.g., EC2-Instance-Profile"
+						/>
+					</div>
+				</div>
+			</CollapsibleSection>
 
-						<div className="space-y-2">
-							<Label htmlFor="rootVolumeType">
-								Root Volume Type<span className="text-red-600">*</span>
-							</Label>
-							<Select
-								value={config.rootVolumeType || ""}
-								onValueChange={(value) =>
-									handleFieldChange("rootVolumeType", value)
-								}
-							>
+			{/* Storage */}
+			<CollapsibleSection
+				title="Storage Configuration"
+				icon={<FiDatabase className="w-6 h-6 text-gray-600" />}
+			>
+				<div className="space-y-4">
+					<div className="space-y-2">
+						<Label htmlFor="rootVolumeSize">
+							Root Volume Size (GB)<span className="text-red-600">*</span>
+						</Label>
+						<Input
+							id="rootVolumeSize"
+							type="number"
+							value={config.root_volume_size || 8}
+							onChange={(e) =>
+								handleFieldChange(
+									"root_volume_size",
+									Number.parseInt(e.target.value)
+								)
+							}
+							placeholder="e.g., 30"
+						/>
+					</div>
+
+					<div className="space-y-2">
+						<Label htmlFor="rootVolumeType">
+							Root Volume Type<span className="text-red-600">*</span>
+						</Label>
+						<Select
+							value={config.root_volume_type || ""}
+							onValueChange={(value) =>
+								handleFieldChange("root_volume_type", value)
+							}
+						>
 								<SelectTrigger className="w-full">
 									<SelectValue placeholder="Select volume type" />
 								</SelectTrigger>

@@ -60,50 +60,54 @@ export default function RouteTableConfigurationForm({
 
 	// Route management functions
 	const addRoute = () => {
+		const routeId = `route-${Date.now()}`;
 		const newRoute: Route = {
-			destinationCidrBlock: "",
+			destination_cidr_block: "",
 			state: "active",
 		};
-		const updatedRoutes = [...(config.routes || []), newRoute];
+		const updatedRoutes = { ...(config.routes || {}), [routeId]: newRoute };
 		handleFieldChange("routes", updatedRoutes);
 	};
 
-	const updateRoute = (index: number, updatedRoute: Partial<Route>) => {
-		const updatedRoutes = (config.routes || []).map((route, i) =>
-			i === index ? { ...route, ...updatedRoute } : route
-		);
+	const updateRoute = (routeId: string, updatedRoute: Partial<Route>) => {
+		const updatedRoutes = {
+			...config.routes,
+			[routeId]: { ...config.routes[routeId], ...updatedRoute },
+		};
 		handleFieldChange("routes", updatedRoutes);
 	};
 
-	const removeRoute = (index: number) => {
-		const updatedRoutes = (config.routes || []).filter((_, i) => i !== index);
+	const removeRoute = (routeId: string) => {
+		const updatedRoutes = { ...config.routes };
+		delete updatedRoutes[routeId];
 		handleFieldChange("routes", updatedRoutes);
 	};
 
 	// Association management functions
 	const addAssociation = () => {
+		const assocId = `assoc-${Date.now()}`;
 		const newAssociation: RouteTableAssociation = {
-			subnetId: "",
+			subnet_id: "",
 			main: false,
 		};
-		const updatedAssociations = [...(config.associations || []), newAssociation];
+		const updatedAssociations = { ...(config.associations || {}), [assocId]: newAssociation };
 		handleFieldChange("associations", updatedAssociations);
 	};
 
 	const updateAssociation = (
-		index: number,
+		assocId: string,
 		updatedAssociation: Partial<RouteTableAssociation>
 	) => {
-		const updatedAssociations = (config.associations || []).map((assoc, i) =>
-			i === index ? { ...assoc, ...updatedAssociation } : assoc
-		);
+		const updatedAssociations = {
+			...config.associations,
+			[assocId]: { ...config.associations[assocId], ...updatedAssociation },
+		};
 		handleFieldChange("associations", updatedAssociations);
 	};
 
-	const removeAssociation = (index: number) => {
-		const updatedAssociations = (config.associations || []).filter(
-			(_, i) => i !== index
-		);
+	const removeAssociation = (assocId: string) => {
+		const updatedAssociations = { ...config.associations };
+		delete updatedAssociations[assocId];
 		handleFieldChange("associations", updatedAssociations);
 	};
 
@@ -113,7 +117,7 @@ export default function RouteTableConfigurationForm({
 		<TooltipProvider>
 			<div className="space-y-4 py-4">
 				{/* Auto-configured fields section */}
-				{(isFieldDisabled("awsVpcId") ||
+				{(isFieldDisabled("vpc_id") ||
 					isFieldDisabled("awsInternetGatewayId") ||
 					isFieldDisabled("awsSubnetId")) && (
 					<CollapsibleSection
@@ -122,7 +126,7 @@ export default function RouteTableConfigurationForm({
 						icon={<TbSettingsSpark className="w-6 h-6 text-gray-600" />}
 					>
 						<div className="space-y-4">
-							{isFieldDisabled("awsVpcId") && (
+{isFieldDisabled("vpc_id") && (
 								<div className="space-y-2">
 									<div className="flex items-center gap-2">
 										<Label htmlFor="vpc-id">
@@ -133,13 +137,13 @@ export default function RouteTableConfigurationForm({
 										<Input
 											id="vpc-id"
 											placeholder="vpc-12345678"
-											value={config.awsVpcId || ""}
-											onChange={(e) =>
-												handleFieldChange("awsVpcId", e.target.value)
-											}
-											disabled={isFieldDisabled("awsVpcId")}
+										value={config.vpc_id || ""}
+										onChange={(e) =>
+											handleFieldChange("vpc_id", e.target.value)
+										}
+										disabled={isFieldDisabled("vpc_id")}
 										/>
-										{isFieldDisabled("awsVpcId") && (
+										{isFieldDisabled("vpc_id") && (
 											<div className="absolute top-1/2 right-2 transform -translate-y-1/2">
 												<AutoConfigurationTooltip parentContainer="VPC" />
 											</div>
@@ -148,7 +152,7 @@ export default function RouteTableConfigurationForm({
 								</div>
 							)}
 
-							{isFieldDisabled("awsInternetGatewayId") && (
+							{isFieldDisabled("internet_gateway_id") && (
 								<div className="space-y-2">
 									<div className="flex items-center gap-2">
 										<Label htmlFor="igw-id">
@@ -159,13 +163,13 @@ export default function RouteTableConfigurationForm({
 										<Input
 											id="igw-id"
 											placeholder="igw-12345678"
-											value={config.awsInternetGatewayId || ""}
+											value={config.internet_gateway_id || ""}
 											onChange={(e) =>
-												handleFieldChange("awsInternetGatewayId", e.target.value)
+												handleFieldChange("internet_gateway_id", e.target.value)
 											}
-											disabled={isFieldDisabled("awsInternetGatewayId")}
+											disabled={isFieldDisabled("internet_gateway_id")}
 										/>
-										{isFieldDisabled("awsInternetGatewayId") && (
+										{isFieldDisabled("internet_gateway_id") && (
 											<div className="absolute top-1/2 right-2 transform -translate-y-1/2">
 												<AutoConfigurationTooltip parentContainer="Internet Gateway" />
 											</div>
@@ -174,7 +178,7 @@ export default function RouteTableConfigurationForm({
 								</div>
 							)}
 
-							{isFieldDisabled("awsSubnetId") && (
+							{isFieldDisabled("subnet_id") && (
 								<div className="space-y-2">
 									<div className="flex items-center gap-2">
 										<Label htmlFor="subnet-id">
@@ -185,13 +189,13 @@ export default function RouteTableConfigurationForm({
 										<Input
 											id="subnet-id"
 											placeholder="subnet-12345678"
-											value={config.awsSubnetId || ""}
+											value={config.subnet_id || ""}
 											onChange={(e) =>
-												handleFieldChange("awsSubnetId", e.target.value)
+												handleFieldChange("subnet_id", e.target.value)
 											}
-											disabled={isFieldDisabled("awsSubnetId")}
+											disabled={isFieldDisabled("subnet_id")}
 										/>
-										{isFieldDisabled("awsSubnetId") && (
+										{isFieldDisabled("subnet_id") && (
 											<div className="absolute top-1/2 right-2 transform -translate-y-1/2">
 												<AutoConfigurationTooltip parentContainer="Subnet" />
 											</div>
@@ -210,65 +214,51 @@ export default function RouteTableConfigurationForm({
 					icon={<TbRoute2 className="w-6 h-6 text-gray-600" />}
 				>
 					<div className="space-y-4">
-						<div className="space-y-2">
-							<Label htmlFor="rtb-name">
-								Route Table Name <span className="text-red-600">*</span>
-							</Label>
-							<Input
-								id="rtb-name"
-								placeholder="Enter route table name"
-								value={config.awsRouteTableId || ""}
-								onChange={(e) =>
-									handleFieldChange("awsRouteTableId", e.target.value)
-								}
-							/>
-						</div>
-
-						{!isFieldDisabled("awsVpcId") && (
+						{!isFieldDisabled("vpc_id") && (
 							<div className="space-y-2">
 								<Label htmlFor="vpc-id-manual">
 									VPC ID <span className="text-red-600">*</span>
 								</Label>
 								<Input
 									id="vpc-id-manual"
-									value={config.awsVpcId || ""}
+									value={config.vpc_id || ""}
 									onChange={(e) =>
-										handleFieldChange("awsVpcId", e.target.value)
+										handleFieldChange("vpc_id", e.target.value)
 									}
 									placeholder="vpc-12345678"
 								/>
 							</div>
 						)}
 
-						{!isFieldDisabled("awsInternetGatewayId") && (
+						{!isFieldDisabled("internet_gateway_id") && (
 							<div className="space-y-2">
 								<Label htmlFor="igw-id-manual">
 									Internet Gateway ID
 								</Label>
 								<Input
 									id="igw-id-manual"
-									value={config.awsInternetGatewayId || ""}
+									value={config.internet_gateway_id || ""}
 									onChange={(e) =>
-										handleFieldChange("awsInternetGatewayId", e.target.value)
-									}
-									placeholder="igw-12345678"
-								/>
+										handleFieldChange("internet_gateway_id", e.target.value)
+										}
+										placeholder="igw-12345678"
+									/>
 							</div>
 						)}
 
-						{!isFieldDisabled("awsSubnetId") && (
+						{!isFieldDisabled("subnet_id") && (
 							<div className="space-y-2">
 								<Label htmlFor="subnet-id-manual">
 									Subnet ID
 								</Label>
 								<Input
 									id="subnet-id-manual"
-									value={config.awsSubnetId || ""}
+									value={config.subnet_id || ""}
 									onChange={(e) =>
-										handleFieldChange("awsSubnetId", e.target.value)
-									}
-									placeholder="subnet-12345678"
-								/>
+										handleFieldChange("subnet_id", e.target.value)
+										}
+										placeholder="subnet-12345678"
+									/>
 							</div>
 						)}
 
@@ -306,14 +296,14 @@ export default function RouteTableConfigurationForm({
 							</Button>
 						</div>
 
-						{(config.routes || []).map((route, index) => (
-							<div key={index} className="p-3 border rounded-md space-y-4">
-								<div className="flex justify-between items-center">
-									<h4 className="font-medium">Route {index + 1}</h4>
-									<Button
-										type="button"
-										variant="ghost"
-										onClick={() => removeRoute(index)}
+					{Object.entries(config.routes || {}).map(([routeId, route]) => (
+						<div key={routeId} className="p-3 border rounded-md space-y-4">
+							<div className="flex justify-between items-center">
+								<h4 className="font-medium">Route: {routeId}</h4>
+								<Button
+									type="button"
+									variant="ghost"
+									onClick={() => removeRoute(routeId)}
 									>
 										<TbTrash className="w-4 h-4" />
 									</Button>
@@ -323,22 +313,22 @@ export default function RouteTableConfigurationForm({
 									<div className="space-y-2">
 										<Label>Destination CIDR Block *</Label>
 										<Input
-											value={route.destinationCidrBlock}
-											onChange={(e) =>
-												updateRoute(index, {
-													destinationCidrBlock: e.target.value,
-												})
-											}
-											placeholder="0.0.0.0/0"
-										/>
-									</div>
+										value={route.destination_cidr_block}
+										onChange={(e) =>
+											updateRoute(routeId, {
+												destination_cidr_block: e.target.value,
+											})
+										}
+										placeholder="0.0.0.0/0"
+									/>
+								</div>
 
-									<div className="space-y-2">
-										<Label>State</Label>
-										<Select
-											value={route.state}
-											onValueChange={(value) =>
-												updateRoute(index, { state: value as Route["state"] })
+								<div className="space-y-2">
+									<Label>State</Label>
+									<Select
+										value={route.state}
+										onValueChange={(value) =>
+											updateRoute(routeId, { state: value as Route["state"] })
 											}
 										>
 											<SelectTrigger className="w-full">
@@ -354,9 +344,9 @@ export default function RouteTableConfigurationForm({
 									<div className="space-y-2">
 										<Label>Gateway ID</Label>
 										<Input
-											value={route.gatewayId || ""}
+											value={route.gateway_id || ""}
 											onChange={(e) =>
-												updateRoute(index, { gatewayId: e.target.value })
+												updateRoute(routeId, { gateway_id: e.target.value })
 											}
 											placeholder="igw-12345678"
 										/>
@@ -365,9 +355,9 @@ export default function RouteTableConfigurationForm({
 									<div className="space-y-2">
 										<Label>Instance ID</Label>
 										<Input
-											value={route.instanceId || ""}
+											value={route.instance_id || ""}
 											onChange={(e) =>
-												updateRoute(index, { instanceId: e.target.value })
+												updateRoute(routeId, { instance_id: e.target.value })
 											}
 											placeholder="i-12345678"
 										/>
@@ -376,10 +366,10 @@ export default function RouteTableConfigurationForm({
 									<div className="col-span-2 space-y-2">
 										<Label>Network Interface ID</Label>
 										<Input
-											value={route.networkInterfaceId || ""}
+											value={route.network_interface_id || ""}
 											onChange={(e) =>
-												updateRoute(index, {
-													networkInterfaceId: e.target.value,
+												updateRoute(routeId, {
+													network_interface_id: e.target.value,
 												})
 											}
 											placeholder="eni-12345678"
@@ -389,7 +379,7 @@ export default function RouteTableConfigurationForm({
 							</div>
 						))}
 
-						{(config.routes || []).length === 0 && (
+						{Object.keys(config.routes || {}).length === 0 && (
 							<div className="text-center py-4 text-gray-500">
 								<p>
 									No routes configured. Click &quot;Add Route&quot; to create
@@ -419,14 +409,14 @@ export default function RouteTableConfigurationForm({
 							</Button>
 						</div>
 
-						{(config.associations || []).map((association, index) => (
-							<div key={index} className="p-3 border rounded-md space-y-4">
+						{Object.entries(config.associations || {}).map(([assocId, association]) => (
+							<div key={assocId} className="p-3 border rounded-md space-y-4">
 								<div className="flex justify-between items-center">
-									<h4 className="font-medium">Association {index + 1}</h4>
+									<h4 className="font-medium">Association: {assocId}</h4>
 									<Button
 										type="button"
 										variant="ghost"
-										onClick={() => removeAssociation(index)}
+										onClick={() => removeAssociation(assocId)}
 									>
 										<TbTrash className="w-4 h-4" />
 									</Button>
@@ -436,9 +426,9 @@ export default function RouteTableConfigurationForm({
 									<div className="space-y-2">
 										<Label>Subnet ID *</Label>
 										<Input
-											value={association.subnetId}
+											value={association.subnet_id}
 											onChange={(e) =>
-												updateAssociation(index, { subnetId: e.target.value })
+												updateAssociation(assocId, { subnet_id: e.target.value })
 											}
 											placeholder="subnet-12345678"
 										/>
@@ -447,20 +437,20 @@ export default function RouteTableConfigurationForm({
 									<div className="flex items-center space-x-2 pt-6">
 										<input
 											type="checkbox"
-											id={`main-${index}`}
+											id={`main-${assocId}`}
 											checked={association.main}
 											onChange={(e) =>
-												updateAssociation(index, { main: e.target.checked })
+												updateAssociation(assocId, { main: e.target.checked })
 											}
 											className="w-4 h-4"
 										/>
-										<Label htmlFor={`main-${index}`}>Main Route Table</Label>
+										<Label htmlFor={`main-${assocId}`}>Main Route Table</Label>
 									</div>
 								</div>
 							</div>
 						))}
 
-						{(config.associations || []).length === 0 && (
+						{Object.keys(config.associations || {}).length === 0 && (
 							<div className="text-center py-4 text-gray-500">
 								<p>
 									No associations configured. Click &quot;Add Association&quot;

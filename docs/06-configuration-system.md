@@ -460,7 +460,7 @@ export const defaultConfigurations: Record<string, AWSResourceConfiguration> = {
   "aws-ec2": {
     awsEc2Id: "EC2",
     instanceType: "t3.micro",
-    amiId: "ami-00ca570c1b6d79f36",
+    amiId: "latest",
     keyPairName: "",
     awsRegionId: "us-east-1",
     awsAvailabilityZone: "us-east-1a",

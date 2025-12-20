@@ -47,7 +47,7 @@ const AvailabilityZoneConfigurationForm: React.FC<
 		onChange(updatedConfig);
 	};
 
-	const selectedRegion = config.awsRegionId;
+	const selectedRegion = config.region;
 	const availableAZs =
 		AWS_REGIONS_WITH_AZS[selectedRegion as keyof typeof AWS_REGIONS_WITH_AZS] ||
 		[];
@@ -55,7 +55,7 @@ const AvailabilityZoneConfigurationForm: React.FC<
 	return (
 		<div className="space-y-4 py-4">
 			{/* Auto Configured Fields */}
-			{isFieldDisabled("awsRegionId") && (
+			{isFieldDisabled("region") && (
 				<CollapsibleSection
 					title="Auto Configured Fields"
 					icon={<TbSettingsSpark className="w-6 h-6 text-gray-600" />}
@@ -72,13 +72,13 @@ const AvailabilityZoneConfigurationForm: React.FC<
 								<Input
 									id="region"
 									placeholder="Enter AWS region"
-									value={config.awsRegionId || ""}
-									onChange={(e) =>
-										handleFieldChange("awsRegionId", e.target.value)
-									}
-									disabled={isFieldDisabled("awsRegionId")}
-								/>
-								{isFieldDisabled("awsRegionId") && (
+								value={config.region || ""}
+								onChange={(e) =>
+									handleFieldChange("region", e.target.value)
+								}
+								disabled={isFieldDisabled("region")}
+							/>
+							{isFieldDisabled("region") && (
 									<div className="absolute top-1/2 right-2 transform -translate-y-1/2">
 										<AutoConfigurationTooltip parentContainer="Region" />
 									</div>
@@ -97,28 +97,13 @@ const AvailabilityZoneConfigurationForm: React.FC<
 			>
 				<div className="space-y-4">
 					<div className="space-y-2">
-						<Label htmlFor="az-name">
-							AZ Name
-							<span className="text-red-600">*</span>
-						</Label>
-						<Input
-							id="az-name"
-							placeholder="Enter AZ name"
-							value={config.awsAvailabilityZoneId || ""}
-							onChange={(e) =>
-								handleFieldChange("awsAvailabilityZoneId", e.target.value)
-							}
-						/>
-					</div>
-
-					<div className="space-y-2">
 						<Label htmlFor="availability-zone">
 							Availability Zone <span className="text-red-600">*</span>
 						</Label>
 						<Select
-							value={config.availabilityZone || ""}
+							value={config.availability_zone || ""}
 							onValueChange={(value) =>
-								handleFieldChange("availabilityZone", value)
+								handleFieldChange("availability_zone", value)
 							}
 							disabled={!selectedRegion}
 						>

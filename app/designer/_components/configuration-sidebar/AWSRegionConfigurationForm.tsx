@@ -63,17 +63,7 @@ const AWSRegionConfigurationForm: React.FC<AWSRegionConfigurationFormProps> = ({
 			>
 				<div className="space-y-4">
 					<div className="space-y-2">
-						<Label htmlFor="region-name">
-							Region Name <span className="text-red-600">*</span>
-						</Label>
-						<Input
-							id="region-name"
-							placeholder="Enter Region name"
-							value={config.awsRegionId || ""}
-							onChange={(e) => handleFieldChange("awsRegionId", e.target.value)}
-						/>
-					</div>
-					<div className="space-y-2">
+
 						<Label htmlFor="region">
 							AWS Region<span className="text-red-600">*</span>
 						</Label>
@@ -95,22 +85,22 @@ const AWSRegionConfigurationForm: React.FC<AWSRegionConfigurationFormProps> = ({
 					</div>
 					{/* Region Name */}
 					<div className="relative space-y-2">
-						<Label htmlFor="region-name">Name</Label>
-						<Input
-							id="region-name"
-							placeholder="Enter region name"
-							value={config.regionName || ""}
-							disabled
-							onChange={(e) => handleFieldChange("regionName", e.target.value)}
-						/>
-					</div>
+					<Label htmlFor="region-name">Region Name</Label>
+					<Input
+						id="region-name"
+						placeholder="Enter region name"
+						value={config.region_name || ""}
+						disabled
+						onChange={(e) => handleFieldChange("region_name", e.target.value)}
+					/>
 				</div>
-			</CollapsibleSection>
+		</div>
+	</CollapsibleSection>
 
-			{/* Tags section */}
-			<CollapsibleSection
-				title="Tags"
-				defaultOpen={false}
+	{/* Tags section */}
+	<CollapsibleSection
+		title="Tags"
+		defaultOpen={false}
 				icon={<TbSettings className="w-6 h-6 text-gray-600" />}
 				borderbottom={false}
 			>

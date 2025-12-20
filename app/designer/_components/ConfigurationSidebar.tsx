@@ -30,10 +30,12 @@ const awsServiceConfigurationMap: Record<string, ConfigurationFormComponent> = {
 		ConfigurationSidebarMap.AWSRegionConfigurationForm as ConfigurationFormComponent,
 	"aws-availability-zone":
 		ConfigurationSidebarMap.AvailabilityZoneConfigurationForm as ConfigurationFormComponent,
+	"aws-subnet":
+		ConfigurationSidebarMap.SubnetConfigurationForm as ConfigurationFormComponent,
 	"aws-private-subnet":
-		ConfigurationSidebarMap.PrivateSubnetConfigurationForm as ConfigurationFormComponent,
+		ConfigurationSidebarMap.SubnetConfigurationForm as ConfigurationFormComponent,
 	"aws-public-subnet":
-		ConfigurationSidebarMap.PublicSubnetConfigurationForm as ConfigurationFormComponent,
+		ConfigurationSidebarMap.SubnetConfigurationForm as ConfigurationFormComponent,
 	"aws-security-group":
 		ConfigurationSidebarMap.SecurityGroupConfigurationForm as ConfigurationFormComponent,
 	"aws-internet-gateway":

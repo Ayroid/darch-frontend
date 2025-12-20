@@ -41,9 +41,9 @@ import {
 	AWSResourceConfiguration,
 	AWSRegionConfiguration,
 	AvailabilityZoneConfiguration,
-} from "@/lib/types/aws-resources";
+} from "./types/aws-resources";
 import { buildParentChildMap } from "./parent-child-logic";
-import { AWS_REGIONS_WITH_AZS } from "@/lib/data/aws_regions";
+import { AWS_REGIONS_WITH_AZS } from "./data/aws_regions";
 
 // Define which fields should be auto-populated and disabled for each resource type
 export interface ResourceFieldRules {
@@ -75,137 +75,116 @@ export const AWS_RESOURCE_FIELD_RULES: ResourceFieldRules = {
 	// === Regional Resources ===
 	"aws-availability-zone": {
 		autoFields: {
-			awsRegionId: {
+			region: {
 				sourceParentType: "aws-region",
 				sourceField: "region",
 				defaultValue: "us-east-1",
 			},
-			// Note: availabilityZone field is auto-configured via special logic
-			// based on the awsRegionId value (see autoConfigureNode function)
+			// Note: availability_zone field is auto-configured via special logic
+			// based on the region value (see autoConfigureNode function)
 		},
-		disabledFields: ["awsRegionId"],
+		disabledFields: ["region"],
 	},
 
 	"aws-vpc": {
 		autoFields: {
-			awsRegionId: {
+			region: {
 				sourceParentType: "aws-region",
 				sourceField: "region",
 				defaultValue: "us-east-1",
 			},
 		},
-		disabledFields: ["awsRegionId"],
+		disabledFields: ["region"],
 	},
 
 	// === VPC Resources ===
 	"aws-security-group": {
 		autoFields: {
-			awsVpcId: {
+			vpc_id: {
 				sourceParentType: "aws-vpc",
-				sourceField: "awsVpcId",
+				sourceField: "vpc_id",
 			},
 		},
-		disabledFields: ["awsVpcId"],
+		disabledFields: ["vpc_id"],
 	},
 
 	"aws-internet-gateway": {
 		autoFields: {
-			awsVpcId: {
+			vpc_id: {
 				sourceParentType: "aws-vpc",
-				sourceField: "awsVpcId",
+				sourceField: "vpc_id",
 			},
 		},
-		disabledFields: ["awsVpcId"],
+		disabledFields: ["vpc_id"],
 	},
 
 	// === Subnet Resources ===
-	"aws-private-subnet": {
+	"aws-subnet": {
 		autoFields: {
-			awsRegionId: {
+			region: {
 				sourceParentType: "aws-region",
 				sourceField: "region",
 				defaultValue: "us-east-1",
 			},
-			awsAvailabilityZone: {
+			availability_zone: {
 				sourceParentType: "aws-availability-zone",
-				sourceField: "availabilityZone",
+				sourceField: "availability_zone",
 				defaultValue: "us-east-1a",
 			},
-			awsVpcId: {
+			vpc_id: {
 				sourceParentType: "aws-vpc",
-				sourceField: "awsVpcId",
+				sourceField: "vpc_id",
 				defaultValue: "default-vpc",
 			},
 		},
-		disabledFields: ["awsRegionId", "awsAvailabilityZone", "awsVpcId"],
-	},
-
-	"aws-public-subnet": {
-		autoFields: {
-			awsRegionId: {
-				sourceParentType: "aws-region",
-				sourceField: "region",
-				defaultValue: "us-east-1",
-			},
-			awsAvailabilityZone: {
-				sourceParentType: "aws-availability-zone",
-				sourceField: "availabilityZone",
-				defaultValue: "us-east-1a",
-			},
-			awsVpcId: {
-				sourceParentType: "aws-vpc",
-				sourceField: "awsVpcId",
-				defaultValue: "default-vpc",
-			},
-		},
-		disabledFields: ["awsRegionId", "awsAvailabilityZone", "awsVpcId"],
+		disabledFields: ["region", "availability_zone", "vpc_id"],
 	},
 
 	// === Compute Resources ===
 	"aws-ec2": {
 		autoFields: {
-			awsRegionId: {
+			region: {
 				sourceParentType: "aws-region",
 				sourceField: "region",
 				defaultValue: "us-east-1",
 			},
-			awsAvailabilityZone: {
+			availability_zone: {
 				sourceParentType: "aws-availability-zone",
-				sourceField: "availabilityZone",
+				sourceField: "availability_zone",
 				defaultValue: "us-east-1a",
 			},
-			subnetId: {
-				sourceParentType: "aws-private-subnet,aws-public-subnet",
-				sourceField: "awsPrivateSubnetId,awsPublicSubnetId",
+			subnet_id: {
+				sourceParentType: "aws-subnet",
+				sourceField: "subnet_id",
 				defaultValue: "default-subnet",
 			},
-			securityGroups: {
+			security_groups: {
 				sourceParentType: "aws-security-group",
-				sourceField: "awsSecurityGroupId",
+				sourceField: "security_group_id",
 				defaultValue: [],
 			},
 		},
-		disabledFields: ["awsRegionId", "awsAvailabilityZone", "subnetId"],
-		// Note: securityGroups is not disabled as it's an array that can have multiple values
+		disabledFields: ["region", "availability_zone", "subnet_id"],
+		// Note: security_groups is not disabled as it's an array that can have multiple values
 	},
 
 	// === Networking Resources ===
 	"aws-route-table": {
 		autoFields: {
-			awsVpcId: {
+			vpc_id: {
 				sourceParentType: "aws-vpc",
-				sourceField: "awsVpcId",
+				sourceField: "vpc_id",
 			},
-			awsInternetGatewayId: {
+			internet_gateway_id: {
 				sourceParentType: "aws-internet-gateway",
-				sourceField: "awsInternetGatewayId",
+				sourceField: "internet_gateway_id",
 			},
-			awsSubnetId: {
-				sourceParentType: "aws-private-subnet,aws-public-subnet",
-				sourceField: "awsPrivateSubnetId,awsPublicSubnetId",
+			subnet_id: {
+				sourceParentType: "aws-subnet",
+				sourceField: "subnet_id",
 			},
 		},
-		disabledFields: ["awsVpcId", "awsInternetGatewayId", "awsSubnetId"],
+		disabledFields: ["vpc_id", "internet_gateway_id", "subnet_id"],
 	},
 };
 
@@ -278,7 +257,11 @@ export function findConnectedNodesOfTypes(
 	nodes: Node[],
 	edges: Edge[]
 ): Node[] {
-	console.log(`[findConnectedNodesOfTypes] Searching for ${targetNodeTypes.join(', ')} connected to ${nodeId}`);
+	console.log(
+		`[findConnectedNodesOfTypes] Searching for ${targetNodeTypes.join(
+			", "
+		)} connected to ${nodeId}`
+	);
 
 	const connectedNodes: Node[] = [];
 
@@ -287,31 +270,46 @@ export function findConnectedNodesOfTypes(
 		(edge) => edge.source === nodeId || edge.target === nodeId
 	);
 
-	console.log(`[findConnectedNodesOfTypes] Found ${connectedEdges.length} edges connected to ${nodeId}:`,
-		connectedEdges.map(e => ({ id: e.id, source: e.source, target: e.target })));
+	console.log(
+		`[findConnectedNodesOfTypes] Found ${connectedEdges.length} edges connected to ${nodeId}:`,
+		connectedEdges.map((e) => ({
+			id: e.id,
+			source: e.source,
+			target: e.target,
+		}))
+	);
 
 	// Get the connected node IDs (excluding the current node)
 	const connectedNodeIds = connectedEdges.map((edge) =>
 		edge.source === nodeId ? edge.target : edge.source
 	);
 
-	console.log(`[findConnectedNodesOfTypes] Connected node IDs:`, connectedNodeIds);
+	console.log(
+		`[findConnectedNodesOfTypes] Connected node IDs:`,
+		connectedNodeIds
+	);
 
 	// Find the actual nodes and filter by target types
 	for (const connectedNodeId of connectedNodeIds) {
 		const connectedNode = nodes.find((node) => node.id === connectedNodeId);
 		if (connectedNode) {
 			const serviceId = connectedNode.data?.serviceId as string;
-			console.log(`[findConnectedNodesOfTypes] Checking node ${connectedNodeId} with serviceId: ${serviceId}`);
+			console.log(
+				`[findConnectedNodesOfTypes] Checking node ${connectedNodeId} with serviceId: ${serviceId}`
+			);
 
 			if (serviceId && targetNodeTypes.includes(serviceId)) {
 				connectedNodes.push(connectedNode);
-				console.log(`[findConnectedNodesOfTypes] Added matching node: ${connectedNodeId} (${serviceId})`);
+				console.log(
+					`[findConnectedNodesOfTypes] Added matching node: ${connectedNodeId} (${serviceId})`
+				);
 			}
 		}
 	}
 
-	console.log(`[findConnectedNodesOfTypes] Final result: ${connectedNodes.length} matching nodes`);
+	console.log(
+		`[findConnectedNodesOfTypes] Final result: ${connectedNodes.length} matching nodes`
+	);
 	return connectedNodes;
 }
 
@@ -358,11 +356,11 @@ export function getParentConfigurationValue(
 			);
 			return regionValue;
 
-		case "availabilityZone":
+		case "availability_zone":
 			const azValue = (parentConfig as AvailabilityZoneConfiguration)
-				.availabilityZone;
+				.availability_zone;
 			console.log(
-				`[getParentConfigurationValue] AvailabilityZone field value:`,
+				`[getParentConfigurationValue] Availability Zone field value:`,
 				azValue
 			);
 			return azValue;
@@ -375,17 +373,25 @@ export function getParentConfigurationValue(
 				{
 					configValue,
 					configValueType: typeof configValue,
-					hasValue: configValue !== undefined && configValue !== null && configValue !== "",
+					hasValue:
+						configValue !== undefined &&
+						configValue !== null &&
+						configValue !== "",
 				}
 			);
 
 			// If config has a valid value that's not a display name, use it
-			if (configValue !== undefined && configValue !== null && configValue !== "") {
+			if (
+				configValue !== undefined &&
+				configValue !== null &&
+				configValue !== ""
+			) {
 				// Check if this looks like a display name (starts with "AWS " and contains the service type)
-				const isDisplayName = typeof configValue === "string" && 
-					configValue.startsWith("AWS ") && 
-					fieldName.toLowerCase().includes('id');
-				
+				const isDisplayName =
+					typeof configValue === "string" &&
+					configValue.startsWith("AWS ") &&
+					fieldName.toLowerCase().includes("id");
+
 				if (!isDisplayName) {
 					console.log(
 						`[getParentConfigurationValue] Found valid config field ${fieldName}:`,
@@ -401,9 +407,9 @@ export function getParentConfigurationValue(
 				}
 			}
 
-			// Fallback: If this is an ID-like field and config is empty, 
+			// Fallback: If this is an ID-like field and config is empty,
 			// we might want to use node ID (but only if the field name suggests it's an ID field)
-			if (fieldName.toLowerCase().includes('id')) {
+			if (fieldName.toLowerCase().includes("id")) {
 				console.log(
 					`[getParentConfigurationValue] Field ${fieldName} is empty in config, using node ID as fallback:`,
 					parentNode.id
@@ -438,7 +444,12 @@ function findSourceNode(
 
 	// Check edges if no parent found or if edges should always be checked
 	if ((!sourceNode || shouldCheckEdgesAlways) && edges.length > 0) {
-		const connectedNodes = findConnectedNodesOfTypes(nodeId, parentTypes, nodes, edges);
+		const connectedNodes = findConnectedNodesOfTypes(
+			nodeId,
+			parentTypes,
+			nodes,
+			edges
+		);
 		if (connectedNodes.length > 0) {
 			// For fields that should always check edges, prioritize edge connections
 			if (shouldCheckEdgesAlways) {
@@ -461,7 +472,11 @@ function getValueFromSourceNode(
 	nodeConfigurations: Record<string, AWSResourceConfiguration>
 ): unknown {
 	for (const sourceField of sourceFields) {
-		const value = getParentConfigurationValue(sourceNode, sourceField, nodeConfigurations);
+		const value = getParentConfigurationValue(
+			sourceNode,
+			sourceField,
+			nodeConfigurations
+		);
 		if (value !== undefined && value !== "") {
 			return value;
 		}
@@ -474,7 +489,11 @@ function getValueFromSourceNode(
  */
 function handleSecurityGroupsField(
 	nodeId: string,
-	rule: { sourceParentType: string; sourceField: string; defaultValue?: unknown },
+	rule: {
+		sourceParentType: string;
+		sourceField: string;
+		defaultValue?: unknown;
+	},
 	nodes: Node[],
 	nodeConfigurations: Record<string, AWSResourceConfiguration>
 ): string[] | null {
@@ -483,7 +502,13 @@ function handleSecurityGroupsField(
 
 	if (securityGroupParents.length > 0) {
 		const securityGroupIds = securityGroupParents
-			.map((parent) => getParentConfigurationValue(parent, rule.sourceField, nodeConfigurations))
+			.map((parent) =>
+				getParentConfigurationValue(
+					parent,
+					rule.sourceField,
+					nodeConfigurations
+				)
+			)
 			.filter((id) => id !== undefined && id !== "") as string[];
 
 		return securityGroupIds.length > 0 ? securityGroupIds : null;
@@ -513,13 +538,17 @@ export function autoConfigureNode(
 	}
 
 	if (!nodeResourceType) {
-		console.log(`[autoConfigureNode] No resource type found for node ${nodeId}`);
+		console.log(
+			`[autoConfigureNode] No resource type found for node ${nodeId}`
+		);
 		return { updatedConfig: currentConfig, autoPopulatedFields: [] };
 	}
 
 	const rules = AWS_RESOURCE_FIELD_RULES[nodeResourceType];
 	if (!rules) {
-		console.log(`[autoConfigureNode] No rules found for resource type ${nodeResourceType}`);
+		console.log(
+			`[autoConfigureNode] No rules found for resource type ${nodeResourceType}`
+		);
 		return { updatedConfig: currentConfig, autoPopulatedFields: [] };
 	}
 
@@ -538,11 +567,20 @@ export function autoConfigureNode(
 
 		// Special case: Handle array fields (like security groups for EC2)
 		if (fieldName === "securityGroups" && Array.isArray(rule.defaultValue)) {
-			const securityGroupIds = handleSecurityGroupsField(nodeId, rule, nodes, nodeConfigurations);
+			const securityGroupIds = handleSecurityGroupsField(
+				nodeId,
+				rule,
+				nodes,
+				nodeConfigurations
+			);
 			if (securityGroupIds) {
-				(updatedConfig as Record<string, unknown>)[fieldName] = securityGroupIds;
+				(updatedConfig as Record<string, unknown>)[fieldName] =
+					securityGroupIds;
 				autoPopulatedFields.push(fieldName);
-				console.log(`[autoConfigureNode] Auto-populated ${fieldName}:`, securityGroupIds);
+				console.log(
+					`[autoConfigureNode] Auto-populated ${fieldName}:`,
+					securityGroupIds
+				);
 			}
 			continue;
 		}
@@ -550,7 +588,7 @@ export function autoConfigureNode(
 		// Determine if this field should always check edges (Route Table specific logic)
 		const shouldCheckEdgesAlways =
 			nodeResourceType === "aws-route-table" &&
-			(fieldName === "awsInternetGatewayId" || fieldName === "awsSubnetId");
+			(fieldName === "internet_gateway_id" || fieldName === "subnet_id");
 
 		// Find the source node (parent or connected via edge)
 		const { node: sourceNode, source } = findSourceNode(
@@ -564,11 +602,18 @@ export function autoConfigureNode(
 		// Try to get value from source node
 		let fieldValue: unknown = null;
 		if (sourceNode) {
-			fieldValue = getValueFromSourceNode(sourceNode, sourceFields, nodeConfigurations);
+			fieldValue = getValueFromSourceNode(
+				sourceNode,
+				sourceFields,
+				nodeConfigurations
+			);
 			if (fieldValue !== null) {
 				(updatedConfig as Record<string, unknown>)[fieldName] = fieldValue;
 				autoPopulatedFields.push(fieldName);
-				console.log(`[autoConfigureNode] Auto-populated ${fieldName} from ${source}:`, fieldValue);
+				console.log(
+					`[autoConfigureNode] Auto-populated ${fieldName} from ${source}:`,
+					fieldValue
+				);
 				continue;
 			}
 		}
@@ -577,42 +622,50 @@ export function autoConfigureNode(
 		if (rule.defaultValue !== undefined) {
 			(updatedConfig as Record<string, unknown>)[fieldName] = rule.defaultValue;
 			autoPopulatedFields.push(fieldName);
-			console.log(`[autoConfigureNode] Used default value for ${fieldName}:`, rule.defaultValue);
+			console.log(
+				`[autoConfigureNode] Used default value for ${fieldName}:`,
+				rule.defaultValue
+			);
 		} else {
 			// Clear the field if no source found and no default (important for cleanup)
-			const currentValue = (currentConfig as Record<string, unknown>)[fieldName];
+			const currentValue = (currentConfig as Record<string, unknown>)[
+				fieldName
+			];
 			if (currentValue !== undefined && currentValue !== "") {
 				(updatedConfig as Record<string, unknown>)[fieldName] = "";
 				autoPopulatedFields.push(fieldName);
-				console.log(`[autoConfigureNode] Cleared ${fieldName} - no source found`);
+				console.log(
+					`[autoConfigureNode] Cleared ${fieldName} - no source found`
+				);
 			}
 		}
 	}
 
-	// Special handling for Availability Zone nodes: auto-configure availabilityZone field
-	// when awsRegionId is set or changes
+	// Special handling for Availability Zone nodes: auto-configure availability_zone field
+	// when region is set or changes
 	if (nodeResourceType === "aws-availability-zone") {
 		const azConfig = updatedConfig as AvailabilityZoneConfiguration;
-		const regionId = azConfig.awsRegionId;
+		const regionId = azConfig.region;
 
-		// If we have a region ID, auto-configure the availabilityZone to the first AZ of that region
+		// If we have a region ID, auto-configure the availability_zone to the first AZ of that region
 		if (regionId) {
-			const availableAZs = AWS_REGIONS_WITH_AZS[regionId as keyof typeof AWS_REGIONS_WITH_AZS];
+			const availableAZs =
+				AWS_REGIONS_WITH_AZS[regionId as keyof typeof AWS_REGIONS_WITH_AZS];
 
 			if (availableAZs && availableAZs.length > 0) {
 				const firstAZ = availableAZs[0];
 
 				// Only update if the current AZ is not valid for the region or is empty
-				const currentAZ = azConfig.availabilityZone;
+				const currentAZ = azConfig.availability_zone;
 				const isCurrentAZValid = currentAZ && availableAZs.includes(currentAZ);
 
 				if (!isCurrentAZValid) {
-					azConfig.availabilityZone = firstAZ;
-					if (!autoPopulatedFields.includes("availabilityZone")) {
-						autoPopulatedFields.push("availabilityZone");
+					azConfig.availability_zone = firstAZ;
+					if (!autoPopulatedFields.includes("availability_zone")) {
+						autoPopulatedFields.push("availability_zone");
 					}
 					console.log(
-						`[autoConfigureNode] Auto-configured availabilityZone to first AZ of region ${regionId}:`,
+						`[autoConfigureNode] Auto-configured availability_zone to first AZ of region ${regionId}:`,
 						firstAZ
 					);
 				}
@@ -705,9 +758,9 @@ export function autoConfigureAffectedNodes(
 		nodes,
 		edges
 	);
-	const allAffectedNodeIds = [
-		...new Set([...descendants, ...connectedNodes.map((n) => n.id)]),
-	];
+	const allAffectedNodeIds = Array.from(
+		new Set([...descendants, ...connectedNodes.map((n) => n.id)])
+	);
 
 	// Auto-configure each affected node
 	for (const affectedNodeId of allAffectedNodeIds) {

@@ -55,7 +55,7 @@ const InternetGatewayConfigurationForm: React.FC<InternetGatewayConfigurationFor
 		<TooltipProvider>
 			<div className="space-y-4 py-4">
 				{/* Auto-configured fields section */}
-				{isFieldDisabled("awsVpcId") && (
+				{isFieldDisabled("vpc_id") && (
 					<CollapsibleSection
 						title="Auto Configured Fields"
 						defaultOpen={true}
@@ -72,13 +72,13 @@ const InternetGatewayConfigurationForm: React.FC<InternetGatewayConfigurationFor
 									<Input
 										id="vpc-id"
 										placeholder="vpc-12345678"
-										value={config.awsVpcId || ""}
+										value={config.vpc_id || ""}
 										onChange={(e) =>
-											handleFieldChange("awsVpcId", e.target.value)
+											handleFieldChange("vpc_id", e.target.value)
 										}
-										disabled={isFieldDisabled("awsVpcId")}
+										disabled={isFieldDisabled("vpc_id")}
 									/>
-									{isFieldDisabled("awsVpcId") && (
+										{isFieldDisabled("vpc_id") && (
 										<div className="absolute top-1/2 right-2 transform -translate-y-1/2">
 											<AutoConfigurationTooltip parentContainer="VPC" />
 										</div>
@@ -88,27 +88,6 @@ const InternetGatewayConfigurationForm: React.FC<InternetGatewayConfigurationFor
 						</div>
 					</CollapsibleSection>
 				)}
-
-				{/* Internet Gateway Configuration */}
-				<CollapsibleSection
-					title="Internet Gateway Configuration"
-					defaultOpen={true}
-					icon={<FiGlobe className="w-6 h-6 text-gray-600" />}
-				>
-					<div className="space-y-4">
-						<div className="space-y-2">
-							<Label htmlFor="igw-name">
-								Internet Gateway Name <span className="text-red-600">*</span>
-							</Label>
-							<Input
-								id="igw-name"
-								placeholder="Enter Internet Gateway name"
-								value={config.awsInternetGatewayId || ""}
-								onChange={(e) => handleFieldChange("awsInternetGatewayId", e.target.value)}
-							/>
-						</div>
-					</div>
-				</CollapsibleSection>
 
 				{/* Tags */}
 				<CollapsibleSection

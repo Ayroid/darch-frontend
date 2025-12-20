@@ -1,5 +1,9 @@
 /**
  * Types for Architecture JSON Data Management
+ * Aligned with Terraform conventions using snake_case naming
+ * 
+ * @version 2.0.0
+ * @date December 2025
  */
 
 import { AWSResourceConfiguration } from "./aws-resources";
@@ -18,33 +22,34 @@ export interface ResourceConnection {
   id: string;
   source: string;
   target: string;
-  sourceHandle?: string;
-  targetHandle?: string;
+  source_handle?: string;
+  target_handle?: string;
   type?: string;
 }
 
-export interface ArchitectureResource {
+export interface ArchitectureNode {
   id: string;
-  nodeType: 'awsService' | 'awsContainer';
-  resourceType: string; // e.g., 'aws-ec2', 'aws-vpc', 'aws-s3'
+  node_type: 'aws_service' | 'aws_container';
+  resource_type: string; // e.g., 'ec2', 'vpc', 's3' (without aws- prefix)
   name: string;
   icon: string;
   position: Position;
   dimensions?: Dimensions;
   configuration: AWSResourceConfiguration;
-  parentId?: string; // For nodes inside containers
+  parent_id?: string; // For nodes inside containers
 }
 
 export interface ArchitectureData {
+  format_version: "2.0.0"; // Format version for detection
   metadata: {
     name: string;
     description?: string;
     version: string;
-    createdAt: string;
-    lastModified: string;
+    created_at: string;
+    last_modified: string;
     provider: string; // e.g., 'aws', 'azure', 'gcp'
   };
-  resources: ArchitectureResource[];
+  resources: ArchitectureNode[]; // Keeping 'resources' for consistency
   connections: ResourceConnection[];
   variables?: {
     [key: string]: {
@@ -65,7 +70,10 @@ export interface ArchitectureMetadata {
   name: string;
   description?: string;
   version: string;
-  createdAt: string;
-  lastModified: string;
+  created_at: string;
+  last_modified: string;
   provider: string;
 }
+
+// Legacy type aliases for backward compatibility during transition
+export type ArchitectureResource = ArchitectureNode;

@@ -3,7 +3,7 @@
 import React from "react";
 import { Input } from "@/app/_components/ui/input";
 import { Label } from "@/app/_components/ui/label";
-import { PublicSubnetConfiguration } from "@/lib/types/aws-resources";
+import { SubnetConfiguration } from "@/lib/types/aws-resources";
 import { useConfigurationContext } from "@/lib/stores";
 import { useAutoConfiguration } from "@/lib/hooks/use-auto-configuration";
 import AutoConfigurationTooltip from "@/app/_components/utilities/AutoConfigurationTooltip";
@@ -18,8 +18,8 @@ import { TbSettingsSpark, TbSettings } from "react-icons/tb";
 import { FiGlobe } from "react-icons/fi";
 
 interface PublicSubnetConfigurationFormProps {
-	config: PublicSubnetConfiguration;
-	onChange: (config: PublicSubnetConfiguration) => void;
+	config: SubnetConfiguration;
+	onChange: (config: SubnetConfiguration) => void;
 }
 
 const PublicSubnetConfigurationForm: React.FC<
@@ -42,9 +42,9 @@ const PublicSubnetConfigurationForm: React.FC<
 	return (
 		<div className="space-y-4 py-4">
 			{/* Auto Configured Fields */}
-			{(isFieldDisabled("awsVpcId") ||
-				isFieldDisabled("awsRegionId") ||
-				isFieldDisabled("awsAvailabilityZone")) && (
+			{(isFieldDisabled("vpc_id") ||
+				isFieldDisabled("region") ||
+				isFieldDisabled("availability_zone")) && (
 				<CollapsibleSection
 					title="Auto Configured Fields"
 					icon={<TbSettingsSpark className="w-6 h-6 text-gray-600" />}
@@ -52,7 +52,7 @@ const PublicSubnetConfigurationForm: React.FC<
 				>
 					<div className="space-y-4">
 						{/* VPC ID - auto-configured */}
-						{isFieldDisabled("awsVpcId") && (
+						{isFieldDisabled("vpc_id") && (
 							<div className="space-y-2">
 								<Label htmlFor="vpc-id">
 									VPC ID <span className="text-red-600">*</span>
@@ -61,13 +61,13 @@ const PublicSubnetConfigurationForm: React.FC<
 									<Input
 										id="vpc-id"
 										placeholder="e.g., vpc-0abc123def456"
-										value={config.awsVpcId || ""}
+										value={config.vpc_id || ""}
 										onChange={(e) =>
-											handleFieldChange("awsVpcId", e.target.value)
+											handleFieldChange("vpc_id", e.target.value)
 										}
-										disabled={isFieldDisabled("awsVpcId")}
+										disabled={isFieldDisabled("vpc_id")}
 									/>
-									{isFieldDisabled("awsVpcId") && (
+									{isFieldDisabled("vpc_id") && (
 										<div className="absolute top-1/2 right-2 transform -translate-y-1/2">
 											<AutoConfigurationTooltip parentContainer="VPC" />
 										</div>
@@ -77,7 +77,7 @@ const PublicSubnetConfigurationForm: React.FC<
 						)}
 
 						{/* Region - auto-configured */}
-						{isFieldDisabled("awsRegionId") && (
+						{isFieldDisabled("region") && (
 							<div className="space-y-2">
 								<div className="flex items-center gap-2">
 									<Label htmlFor="region">
@@ -88,13 +88,13 @@ const PublicSubnetConfigurationForm: React.FC<
 									<Input
 										id="region"
 										placeholder="Enter AWS region"
-										value={config.awsRegionId || ""}
+										value={config.region || ""}
 										onChange={(e) =>
-											handleFieldChange("awsRegionId", e.target.value)
+											handleFieldChange("region", e.target.value)
 										}
-										disabled={isFieldDisabled("awsRegionId")}
+										disabled={isFieldDisabled("region")}
 									/>
-									{isFieldDisabled("awsRegionId") && (
+										{isFieldDisabled("region") && (
 										<div className="absolute top-1/2 right-2 transform -translate-y-1/2">
 											<AutoConfigurationTooltip parentContainer="Region" />
 										</div>
@@ -104,7 +104,7 @@ const PublicSubnetConfigurationForm: React.FC<
 						)}
 
 						{/* Availability Zone - auto-configured */}
-						{isFieldDisabled("awsAvailabilityZone") && (
+						{isFieldDisabled("availability_zone") && (
 							<div className="space-y-2">
 								<div className="flex items-center gap-2">
 									<Label htmlFor="availability-zone">
@@ -116,13 +116,13 @@ const PublicSubnetConfigurationForm: React.FC<
 									<Input
 										id="availability-zone"
 										placeholder="Enter AWS availability zone"
-										value={config.awsAvailabilityZone || ""}
+										value={config.availability_zone || ""}
 										onChange={(e) =>
-											handleFieldChange("awsAvailabilityZone", e.target.value)
+											handleFieldChange("availability_zone", e.target.value)
 										}
-										disabled={isFieldDisabled("awsAvailabilityZone")}
+										disabled={isFieldDisabled("availability_zone")}
 									/>
-									{isFieldDisabled("awsAvailabilityZone") && (
+										{isFieldDisabled("availability_zone") && (
 										<div className="absolute top-1/2 right-2 transform -translate-y-1/2">
 											<AutoConfigurationTooltip parentContainer="Availability Zone" />
 										</div>
@@ -141,37 +141,22 @@ const PublicSubnetConfigurationForm: React.FC<
 				defaultOpen={true}
 			>
 				<div className="space-y-4">
-					{/* Subnet Name */}
-					<div className="space-y-2">
-						<Label htmlFor="subnet-name">
-							Subnet Name <span className="text-red-600">*</span>
-						</Label>
-						<Input
-							id="subnet-name"
-							placeholder="Enter public subnet name"
-							value={config.awsPublicSubnetId || ""}
-							onChange={(e) =>
-								handleFieldChange("awsPublicSubnetId", e.target.value)
-							}
-						/>
-					</div>
-
-					{/* CIDR Block */}
-					<div className="space-y-2">
-						<Label htmlFor="cidr-block">
-							CIDR Block <span className="text-red-600">*</span>
-						</Label>
-						<Input
-							id="cidr-block"
-							placeholder="10.0.0.0/24"
-							value={config.cidrBlock || ""}
-							onChange={(e) => handleFieldChange("cidrBlock", e.target.value)}
-						/>
-					</div>
+				{/* CIDR Block */}
+				<div className="space-y-2">
+					<Label htmlFor="cidr-block">
+						CIDR Block <span className="text-red-600">*</span>
+					</Label>
+					<Input
+						id="cidr-block"
+						placeholder="10.0.0.0/24"
+						value={config.cidr_block || ""}
+						onChange={(e) => handleFieldChange("cidr_block", e.target.value)}
+					/>
 				</div>
-			</CollapsibleSection>
+			</div>
+		</CollapsibleSection>
 
-			{/* Tags section */}
+		{/* Tags section */}
 			<CollapsibleSection
 				title="Tags"
 				defaultOpen={false}
@@ -186,7 +171,7 @@ const PublicSubnetConfigurationForm: React.FC<
 							size="sm"
 							onClick={() =>
 								addTag(config, (updatedConfig) =>
-									onChange(updatedConfig as PublicSubnetConfiguration)
+									onChange(updatedConfig as SubnetConfiguration)
 								)
 							}
 						>
@@ -228,7 +213,7 @@ const PublicSubnetConfigurationForm: React.FC<
 											key,
 											e.target.value,
 											(updatedConfig) =>
-												onChange(updatedConfig as PublicSubnetConfiguration)
+											onChange(updatedConfig as SubnetConfiguration)
 										)
 									}
 									placeholder="Tag value"
@@ -242,7 +227,7 @@ const PublicSubnetConfigurationForm: React.FC<
 										removeTag(
 											config,
 											(updatedConfig) =>
-												onChange(updatedConfig as PublicSubnetConfiguration),
+												onChange(updatedConfig as SubnetConfiguration),
 											key
 										)
 									}

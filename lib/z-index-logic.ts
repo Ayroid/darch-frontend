@@ -50,21 +50,35 @@ const depthCache = new Map<string, number>();
 /**
  * Get the base z-index for a resource type
  * Similar resources share the same base to appear at the same level
+ * Supports both v1 (aws- prefix) and v2 (no prefix) formats
  */
 function getResourceGroupZIndex(serviceId: string): number {
   // Base z-indices for different resource groups
   const GROUP_Z_INDEX_MAP = {
+    // V2 format (preferred)
+    "account": 10,
+    "region": 20,
+    "availability-zone": 30,
+    "local-zone": 30, // Same as availability-zone
+    "vpc": 40,
+    "subnet": 50, // Unified subnet (public/private)
+    "auto-scaling": 60,
+    "security-group": 70,
+    "corporate-datacenter": 80,
+    "edge-location": 80, // Same as corporate-datacenter
+    
+    // V1 format (backward compatibility)
     "aws-account": 10,
     "aws-region": 20,
     "aws-availability-zone": 30,
-    "aws-local-zone": 30, // Same as availability-zone
+    "aws-local-zone": 30,
     "aws-vpc": 40,
     "aws-private-subnet": 50,
-    "aws-public-subnet": 50, // Same as private-subnet
+    "aws-public-subnet": 50,
     "aws-auto-scaling": 60,
     "aws-security-group": 70,
     "aws-corporate-datacenter": 80,
-    "aws-edge-location": 80, // Same as corporate-datacenter
+    "aws-edge-location": 80,
   };
 
   return GROUP_Z_INDEX_MAP[serviceId as keyof typeof GROUP_Z_INDEX_MAP] || 100;

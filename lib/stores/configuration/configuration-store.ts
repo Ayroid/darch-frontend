@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
-import { AWSResourceConfiguration } from "@/lib/types/aws-resources";
+import { AWSResourceConfiguration } from "../../types/aws-resources";
 import { getDefaultConfiguration } from "./default-configurations";
 
 // Configuration state

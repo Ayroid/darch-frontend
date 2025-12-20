@@ -72,7 +72,7 @@ const SecurityGroupConfigurationForm: React.FC<
 	};
 
 	const updateRule = (
-		type: "ingressRules" | "egressRules",
+		type: "ingress_rules" | "egress_rules",
 		index: number,
 		field: keyof SecurityGroupRule,
 		value: unknown
@@ -95,15 +95,15 @@ const SecurityGroupConfigurationForm: React.FC<
 		handleFieldChange(type, rules);
 	};
 
-	const addRule = (type: "ingressRules" | "egressRules") => {
+	const addRule = (type: "ingress_rules" | "egress_rules") => {
 		const rules = [...(config[type] || [])];
 		rules.push(
-			type === "ingressRules" ? { ...emptyIngressRule } : { ...emptyEgressRule }
+			type === "ingress_rules" ? { ...emptyIngressRule } : { ...emptyEgressRule }
 		);
 		handleFieldChange(type, rules);
 	};
 
-	const removeRule = (type: "ingressRules" | "egressRules", index: number) => {
+	const removeRule = (type: "ingress_rules" | "egress_rules", index: number) => {
 		const rules = [...(config[type] || [])];
 		rules.splice(index, 1);
 		handleFieldChange(type, rules);
@@ -115,36 +115,36 @@ const SecurityGroupConfigurationForm: React.FC<
 		<TooltipProvider>
 			<div className="space-y-4 py-4">
 				{/* Auto-configured fields section */}
-				{isFieldDisabled("awsVpcId") && (
-					<CollapsibleSection
-						title="Auto Configured Fields"
-						defaultOpen={true}
-						icon={<TbSettingsSpark className="w-6 h-6 text-gray-600" />}
-					>
-						<div className="space-y-4">
-							{/* VPC ID - auto-configured */}
-							<div className="space-y-2">
-								<Label htmlFor="vpc-id">
-									VPC ID<span className="text-red-600">*</span>
-								</Label>
-								<div className="relative">
-									<Input
-										id="vpc-id"
-										value={config.awsVpcId || ""}
-										onChange={(e) =>
-											handleFieldChange("awsVpcId", e.target.value)
-										}
-										placeholder="e.g., vpc-0abc123def456"
-										disabled={isFieldDisabled("awsVpcId")}
-									/>
-									{isFieldDisabled("awsVpcId") && (
-										<div className="absolute top-1/2 right-2 transform -translate-y-1/2">
-											<AutoConfigurationTooltip parentContainer="VPC" />
-										</div>
-									)}
-								</div>
+			{isFieldDisabled("vpc_id") && (
+				<CollapsibleSection
+					title="Auto Configured Fields"
+					defaultOpen={true}
+					icon={<TbSettingsSpark className="w-6 h-6 text-gray-600" />}
+				>
+					<div className="space-y-4">
+						{/* VPC ID - auto-configured */}
+						<div className="space-y-2">
+							<Label htmlFor="vpc-id">
+								VPC ID<span className="text-red-600">*</span>
+							</Label>
+							<div className="relative">
+								<Input
+									id="vpc-id"
+									value={config.vpc_id || ""}
+									onChange={(e) =>
+										handleFieldChange("vpc_id", e.target.value)
+									}
+									placeholder="e.g., vpc-0abc123def456"
+									disabled={isFieldDisabled("vpc_id")}
+								/>
+								{isFieldDisabled("vpc_id") && (
+									<div className="absolute top-1/2 right-2 transform -translate-y-1/2">
+										<AutoConfigurationTooltip parentContainer="VPC" />
+									</div>
+								)}
 							</div>
 						</div>
+					</div>
 					</CollapsibleSection>
 				)}
 
@@ -161,11 +161,11 @@ const SecurityGroupConfigurationForm: React.FC<
 							</Label>
 							<Input
 								id="sg-name"
-								value={config.awsSecurityGroupId || ""}
+								value={config.name || ""}
 								onChange={(e) =>
-									handleFieldChange("awsSecurityGroupId", e.target.value)
+									handleFieldChange("name", e.target.value)
 								}
-								placeholder="e.g., WebSecurityGroup"
+								placeholder="Enter security group name"
 							/>
 						</div>
 
@@ -196,13 +196,13 @@ const SecurityGroupConfigurationForm: React.FC<
 								type="button"
 								variant="outline"
 								size="sm"
-								onClick={() => addRule("ingressRules")}
-							>
-								+ Add Ingress Rule
-							</Button>
-						</div>
+							onClick={() => addRule("ingress_rules")}
+						>
+							+ Add Ingress Rule
+						</Button>
+					</div>
 
-						{(config.ingressRules || []).map((rule, idx) => (
+					{(config.ingress_rules || []).map((rule: SecurityGroupRule, idx: number) => (
 							<div
 								key={`ingress-${idx}`}
 								className="grid grid-cols-2 gap-3 p-3 border rounded-md"
@@ -213,7 +213,7 @@ const SecurityGroupConfigurationForm: React.FC<
 										value={rule.protocol}
 										onValueChange={(value) =>
 											updateRule(
-												"ingressRules",
+												"ingress_rules",
 												idx,
 												"protocol",
 												value as SecurityGroupRule["protocol"]
@@ -236,17 +236,17 @@ const SecurityGroupConfigurationForm: React.FC<
 									<Input
 										value={String(rule.port)}
 										onChange={(e) =>
-											updateRule("ingressRules", idx, "port", e.target.value)
-										}
-										placeholder="e.g., 80 or all"
-									/>
-								</div>
-								<div className="space-y-2">
-									<Label>Source</Label>
-									<Input
-										value={rule.source || ""}
-										onChange={(e) =>
-											updateRule("ingressRules", idx, "source", e.target.value)
+										updateRule("ingress_rules", idx, "port", e.target.value)
+									}
+									placeholder="e.g., 80 or all"
+								/>
+							</div>
+							<div className="space-y-2">
+								<Label>Source</Label>
+								<Input
+									value={rule.source || ""}
+									onChange={(e) =>
+										updateRule("ingress_rules", idx, "source", e.target.value)
 										}
 										placeholder="CIDR or SG ID (e.g., 0.0.0.0/0 or sg-1234)"
 									/>
@@ -257,7 +257,7 @@ const SecurityGroupConfigurationForm: React.FC<
 										value={rule.description || ""}
 										onChange={(e) =>
 											updateRule(
-												"ingressRules",
+												"ingress_rules",
 												idx,
 												"description",
 												e.target.value
@@ -270,7 +270,7 @@ const SecurityGroupConfigurationForm: React.FC<
 									<Button
 										type="button"
 										variant="ghost"
-										onClick={() => removeRule("ingressRules", idx)}
+										onClick={() => removeRule("ingress_rules", idx)}
 									>
 										Remove
 									</Button>
@@ -292,13 +292,13 @@ const SecurityGroupConfigurationForm: React.FC<
 								type="button"
 								variant="outline"
 								size="sm"
-								onClick={() => addRule("egressRules")}
-							>
-								+ Add Egress Rule
-							</Button>
-						</div>
+							onClick={() => addRule("egress_rules")}
+						>
+							+ Add Egress Rule
+						</Button>
+					</div>
 
-						{(config.egressRules || []).map((rule, idx) => (
+					{(config.egress_rules || []).map((rule: SecurityGroupRule, idx: number) => (
 							<div
 								key={`egress-${idx}`}
 								className="grid grid-cols-2 gap-3 p-3 border rounded-md"
@@ -309,7 +309,7 @@ const SecurityGroupConfigurationForm: React.FC<
 										value={rule.protocol}
 										onValueChange={(value) =>
 											updateRule(
-												"egressRules",
+												"egress_rules",
 												idx,
 												"protocol",
 												value as SecurityGroupRule["protocol"]
@@ -332,7 +332,7 @@ const SecurityGroupConfigurationForm: React.FC<
 									<Input
 										value={String(rule.port)}
 										onChange={(e) =>
-											updateRule("egressRules", idx, "port", e.target.value)
+											updateRule("egress_rules", idx, "port", e.target.value)
 										}
 										placeholder="e.g., 443 or all"
 									/>
@@ -343,7 +343,7 @@ const SecurityGroupConfigurationForm: React.FC<
 										value={rule.destination || ""}
 										onChange={(e) =>
 											updateRule(
-												"egressRules",
+												"egress_rules",
 												idx,
 												"destination",
 												e.target.value
@@ -358,7 +358,7 @@ const SecurityGroupConfigurationForm: React.FC<
 										value={rule.description || ""}
 										onChange={(e) =>
 											updateRule(
-												"egressRules",
+												"egress_rules",
 												idx,
 												"description",
 												e.target.value
@@ -371,7 +371,7 @@ const SecurityGroupConfigurationForm: React.FC<
 									<Button
 										type="button"
 										variant="ghost"
-										onClick={() => removeRule("egressRules", idx)}
+										onClick={() => removeRule("egress_rules", idx)}
 									>
 										Remove
 									</Button>

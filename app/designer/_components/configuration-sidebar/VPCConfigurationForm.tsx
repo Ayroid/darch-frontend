@@ -68,13 +68,13 @@ const VPCConfigurationForm: React.FC<VPCConfigurationFormProps> = ({
 									<Input
 										id="region"
 										placeholder="Enter AWS region"
-										value={config.awsRegionId || ""}
-										onChange={(e) =>
-											handleFieldChange("awsRegionId", e.target.value)
-										}
-										disabled={isFieldDisabled("awsRegionId")}
+									value={config.region || ""}
+									onChange={(e) =>
+										handleFieldChange("region", e.target.value)
+									}
+									disabled={isFieldDisabled("region")}
 									/>
-									{isFieldDisabled("awsRegionId") && (
+										{isFieldDisabled("region") && (
 										<div className="absolute top-1/2 right-2 transform -translate-y-1/2">
 											<AutoConfigurationTooltip parentContainer="Region" />
 										</div>
@@ -93,40 +93,28 @@ const VPCConfigurationForm: React.FC<VPCConfigurationFormProps> = ({
 				>
 					<div className="space-y-4">
 						<div className="space-y-2">
-							<Label htmlFor="vpc-name">
-								VPC Name <span className="text-red-600">*</span>
-							</Label>
-							<Input
-								id="vpc-name"
-								placeholder="Enter VPC name"
-								value={config.awsVpcId || ""}
-								onChange={(e) => handleFieldChange("awsVpcId", e.target.value)}
-							/>
-						</div>
+						<Label htmlFor="cidr-block">
+							CIDR Block <span className="text-red-600">*</span>
+						</Label>
+						<Input
+							id="cidr-block"
+							placeholder="10.0.0.0/16"
+							value={config.cidr_block || ""}
+							onChange={(e) => handleFieldChange("cidr_block", e.target.value)}
+					/>
+				</div>
+			</div>
+		</CollapsibleSection>
 
-						<div className="space-y-2">
-							<Label htmlFor="cidr-block">
-								CIDR Block <span className="text-red-600">*</span>
-							</Label>
-							<Input
-								id="cidr-block"
-								placeholder="10.0.0.0/16"
-								value={config.cidrBlock || ""}
-								onChange={(e) => handleFieldChange("cidrBlock", e.target.value)}
-							/>
-						</div>
-					</div>
-				</CollapsibleSection>
-
-				{/* Tags */}
-				<CollapsibleSection
-					title="Tags"
-					defaultOpen={false}
-					icon={<TbSettings className="w-6 h-6 text-gray-600" />}
-					borderbottom={false}
-				>
-					<div className="space-y-4">
-						<div className="flex justify-end">
+		{/* Tags */}
+		<CollapsibleSection
+			title="Tags"
+			defaultOpen={false}
+			icon={<TbSettings className="w-6 h-6 text-gray-600" />}
+			borderbottom={false}
+		>
+			<div className="space-y-4">
+				<div className="flex justify-end">
 							<Button
 								type="button"
 								variant="outline"

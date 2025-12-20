@@ -42,17 +42,6 @@ export default function DefaultConfigurationForm({
 			>
 				<div className="space-y-4">
 					<div className="space-y-2">
-						<Label htmlFor="service-name">Service Name</Label>
-						<Input
-							id="service-name"
-							placeholder="Enter service name"
-							value={(config.awsResourceId as string) || ""}
-							onChange={(e) =>
-								handleFieldChange("awsResourceId", e.target.value)
-							}
-						/>
-					</div>
-					<div className="space-y-2">
 						<Label htmlFor="description">Description</Label>
 						<Textarea
 							id="description"

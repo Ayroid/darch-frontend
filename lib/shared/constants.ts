@@ -63,9 +63,41 @@ export const CANVAS_CONFIG = {
   GRID_SIZE: 20,
 } as const;
 
+// Node types - v2 format (snake_case)
 export const NODE_TYPES = {
+  SERVICE: 'aws_service',
+  CONTAINER: 'aws_container',
+} as const;
+
+// Legacy v1 node types (for backward compatibility)
+export const NODE_TYPES_V1 = {
   SERVICE: 'aws-service',
   CONTAINER: 'aws-container',
+} as const;
+
+// Resource type constants - v2 format (without aws- prefix)
+export const RESOURCE_TYPES = {
+  VPC: 'vpc',
+  EC2: 'ec2',
+  SUBNET: 'subnet', // Unified (no separate public/private)
+  REGION: 'region',
+  AVAILABILITY_ZONE: 'availability-zone',
+  SECURITY_GROUP: 'security-group',
+  INTERNET_GATEWAY: 'internet-gateway',
+  NAT_GATEWAY: 'nat-gateway',
+  ROUTE_TABLE: 'route-table',
+} as const;
+
+export const RESOURCE_TYPE_V2_TO_SERVICE_ID: Record<string, string> = {
+  'vpc': 'aws-vpc',
+  'ec2': 'aws-ec2',
+  'subnet': 'aws-subnet', // Will be resolved to public/private based on config
+  'region': 'aws-region',
+  'availability-zone': 'aws-availability-zone',
+  'security-group': 'aws-security-group',
+  'internet-gateway': 'aws-internet-gateway',
+  'nat-gateway': 'aws-nat-gateway',
+  'route-table': 'aws-route-table',
 } as const;
 
 export const HANDLE_TYPES = {

@@ -53,7 +53,7 @@ export default function NATGatewayConfigurationForm({
 		<TooltipProvider>
 			<div className="space-y-4 py-4">
 				{/* Auto-configured fields section */}
-				{isFieldDisabled("awsSubnetId") && (
+			{isFieldDisabled("subnet_id") && (
 					<CollapsibleSection
 						title="Auto Configured Fields"
 						defaultOpen={true}
@@ -70,13 +70,13 @@ export default function NATGatewayConfigurationForm({
 									<Input
 										id="subnet-id"
 										placeholder="subnet-12345678"
-										value={config.awsSubnetId || ""}
-										onChange={(e) =>
-											handleFieldChange("awsSubnetId", e.target.value)
-										}
-										disabled={isFieldDisabled("awsSubnetId")}
+									value={config.subnet_id || ""}
+									onChange={(e) =>
+										handleFieldChange("subnet_id", e.target.value)
+									}
+									disabled={isFieldDisabled("subnet_id")}
 									/>
-									{isFieldDisabled("awsSubnetId") && (
+									{isFieldDisabled("subnet_id") && (
 										<div className="absolute top-1/2 right-2 transform -translate-y-1/2">
 											<AutoConfigurationTooltip parentContainer="Subnet" />
 										</div>
@@ -95,22 +95,10 @@ export default function NATGatewayConfigurationForm({
 				>
 					<div className="space-y-4">
 						<div className="space-y-2">
-							<Label htmlFor="nat-name">
-								NAT Gateway Name <span className="text-red-600">*</span>
-							</Label>
-							<Input
-								id="nat-name"
-								placeholder="Enter NAT Gateway name"
-								value={config.awsNatGatewayId || ""}
-								onChange={(e) => handleFieldChange("awsNatGatewayId", e.target.value)}
-							/>
-						</div>
-
-					<div className="space-y-2">
 						<Label htmlFor="connectivity-type">Connectivity Type</Label>
 						<Select
-							value={config.connectivityType || "public"}
-							onValueChange={(value) => handleFieldChange("connectivityType", value)}
+							value={config.connectivity_type || "public"}
+						onValueChange={(value) => handleFieldChange("connectivity_type", value)}
 						>
 							<SelectTrigger className="w-full">
 								<SelectValue placeholder="Select connectivity type" />
@@ -122,25 +110,25 @@ export default function NATGatewayConfigurationForm({
 						</Select>
 					</div>
 
-					{config.connectivityType === "public" && (
+					{config.connectivity_type === "public" && (
 							<div className="space-y-2">
 								<Label htmlFor="allocation-id">Elastic IP Allocation ID</Label>
 								<Input
 									id="allocation-id"
-									value={config.allocationId || ""}
-									onChange={(e) => handleFieldChange("allocationId", e.target.value)}
+									value={config.allocation_id || ""}
+									onChange={(e) => handleFieldChange("allocation_id", e.target.value)}
 									placeholder="eipalloc-12345678"
 								/>
 							</div>
 						)}
 
-					{config.connectivityType === "private" && (
+					{config.connectivity_type === "private" && (
 							<div className="space-y-2">
 								<Label htmlFor="private-ip">Private IP Address</Label>
 								<Input
 									id="private-ip"
-									value={config.privateIp || ""}
-									onChange={(e) => handleFieldChange("privateIp", e.target.value)}
+									value={config.private_ip || ""}
+									onChange={(e) => handleFieldChange("private_ip", e.target.value)}
 									placeholder="10.0.1.5"
 								/>
 							</div>

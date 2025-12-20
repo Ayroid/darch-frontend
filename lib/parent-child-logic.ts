@@ -146,13 +146,13 @@ export function clearParentChildCaches(): void {
  */
 export function invalidateNodeCache(nodeId: string): void {
   // Remove all cache entries for this node
-  for (const key of boundsCache.keys()) {
+  for (const key of Array.from(boundsCache.keys())) {
     if (key.startsWith(`${nodeId}-`)) {
       boundsCache.delete(key);
     }
   }
 
-  for (const key of absolutePositionCache.keys()) {
+  for (const key of Array.from(absolutePositionCache.keys())) {
     if (key.startsWith(`${nodeId}-`)) {
       absolutePositionCache.delete(key);
     }

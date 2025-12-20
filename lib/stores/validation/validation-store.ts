@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
-import { AWSResourceConfiguration } from "@/lib/types/aws-resources";
+import { AWSResourceConfiguration, SecurityGroupRule } from "@/lib/types/aws-resources";
 
 // Comprehensive validation functions
 const validateCIDRBlock = (cidr: string, context: "vpc" | "subnet" = "subnet"): string | null => {
@@ -242,16 +242,15 @@ export const useValidationStore = create<ValidationState & ValidationActions>()(
 				// Enhanced validation for all AWS resources
 				switch (serviceId) {
 					case "aws-vpc": {
-						const awsVpcId = getConfigProperty("awsVpcId") || "";
-						const cidrBlock = getConfigProperty("cidrBlock") || "";
-						const region = getConfigProperty("region") || "";
-						const tags = getConfigProperty("tags") || "";
+				const vpc_id = getConfigProperty("vpc_id") || "";
+				const cidr_block = getConfigProperty("cidr_block") || "";
+				const region = getConfigProperty("region") || "";
+				const tags = getConfigProperty("tags") || "";
 
-						const nameError = validateResourceName(awsVpcId, "VPC");
-						if (nameError) errors.push(nameError);
+				const nameError = validateResourceName(vpc_id, "VPC");
+				if (nameError) errors.push(nameError);
 
-						const cidrError = validateCIDRBlock(cidrBlock, "vpc");
-						if (cidrError) errors.push(cidrError);
+				const cidrError = validateCIDRBlock(cidr_block, "vpc");
 
 						const regionError = validateRegion(region);
 						if (regionError) errors.push(regionError);
@@ -262,24 +261,21 @@ export const useValidationStore = create<ValidationState & ValidationActions>()(
 					}
 
 					case "aws-security-group": {
-						const awsSecurityGroupId = getConfigProperty("awsSecurityGroupId") || "";
-						const vpcId = getConfigProperty("vpcId") || "";
-						const nameError = validateResourceName(awsSecurityGroupId, "Security Group");
-						if (nameError) errors.push(nameError);
-						if (!vpcId || !/^vpc-[a-z0-9]{8,}$/.test(vpcId)) {
-							errors.push("Valid VPC ID is required (e.g., vpc-0abc1234)");
+				const security_group_id = getConfigProperty("security_group_id") || "";
+				const vpc_id = getConfigProperty("vpc_id") || "";
+				const nameError = validateResourceName(security_group_id, "Security Group");
+				if (nameError) errors.push(nameError);
+				if (!vpc_id || !/^vpc-[a-z0-9]{8,}$/.test(vpc_id)) {
 						}
 
 						// Validate rules
 						const cfgObj = config as unknown as Record<string, unknown>;
-						const ingressRules = cfgObj["ingressRules"] as unknown[] | undefined;
-						const egressRules = cfgObj["egressRules"] as unknown[] | undefined;
-
-						type RuleShape = { protocol?: unknown; port?: unknown; source?: unknown; destination?: unknown };
+				const ingress_rules = cfgObj["ingress_rules"] as unknown[] | undefined;
+				const egress_rules = cfgObj["egress_rules"] as unknown[] | undefined;
 						const validateRuleArray = (rules: unknown[] | undefined, type: "ingress" | "egress") => {
 							if (!rules) return;
 							rules.forEach((r, idx) => {
-								const rule = r as RuleShape;
+							const rule = r as SecurityGroupRule;
 								const protocol = (rule.protocol ?? "").toString();
 								if (!["tcp", "udp", "icmp", "all"].includes(protocol)) {
 									errors.push(`${type} rule #${idx + 1}: invalid protocol`);
@@ -308,50 +304,37 @@ export const useValidationStore = create<ValidationState & ValidationActions>()(
 							});
 						};
 
-						validateRuleArray(ingressRules, "ingress");
-						validateRuleArray(egressRules, "egress");
+validateRuleArray(ingress_rules, "ingress");
+				validateRuleArray(egress_rules, "egress");
 						break;
 					}
 
 					case "aws-ec2": {
-						const awsEc2Id = getConfigProperty("awsEc2Id") || "";
-						const instanceType = getConfigProperty("instanceType") || "";
-						const amiId = getConfigProperty("amiId") || "";
-						const availabilityZone = getConfigProperty("availabilityZone") || "";
+				const instance_type = getConfigProperty("instance_type") || "";
+				const ami_id = getConfigProperty("ami_id") || "";
+				const availability_zone = getConfigProperty("availability_zone") || "";
 
-						const nameError = validateResourceName(awsEc2Id, "EC2 Instance");
-						if (nameError) errors.push(nameError);
+				const instanceTypeError = validateInstanceType(instance_type);
+				if (instanceTypeError) errors.push(instanceTypeError);
 
-						const instanceTypeError = validateInstanceType(instanceType);
-						if (instanceTypeError) errors.push(instanceTypeError);
+				const amiError = validateAMIId(ami_id);
+				if (amiError) errors.push(amiError);
 
-						const amiError = validateAMIId(amiId);
-						if (amiError) errors.push(amiError);
-
-						if (availabilityZone) {
-							const azError = validateAvailabilityZone(availabilityZone);
-							if (azError) errors.push(azError);
+				if (availability_zone) {
+					const azError = validateAvailabilityZone(availability_zone);
 						}
 						break;
 					}
 
-					case "aws-private-subnet":
-					case "aws-public-subnet": {
-						const isPrivate = serviceId === "aws-private-subnet";
-						const resourceId = getConfigProperty(isPrivate ? "awsPrivateSubnetId" : "awsPublicSubnetId") || "";
-						const cidrBlock = getConfigProperty("cidrBlock") || "";
-						const availabilityZone = getConfigProperty("availabilityZone") || "";
-						const tags = getConfigProperty("tags") || "";
+case "aws-subnet": {
+				const cidr_block = getConfigProperty("cidr_block") || "";
+				const availability_zone = getConfigProperty("availability_zone") || "";
+				const tags = getConfigProperty("tags") || "";
 
-						const resourceType = serviceId === "aws-private-subnet" ? "Private Subnet" : "Public Subnet";
+				const cidrError = validateCIDRBlock(cidr_block, "subnet");
+				if (cidrError) errors.push(cidrError);
 
-						const nameError = validateResourceName(resourceId, resourceType);
-						if (nameError) errors.push(nameError);
-
-						const cidrError = validateCIDRBlock(cidrBlock, "subnet");
-						if (cidrError) errors.push(cidrError);
-
-						const azError = validateAvailabilityZone(availabilityZone);
+				const azError = validateAvailabilityZone(availability_zone);
 						if (azError) errors.push(azError);
 
 						const tagsError = validateTags(tags);
@@ -360,33 +343,23 @@ export const useValidationStore = create<ValidationState & ValidationActions>()(
 					}
 
 					case "aws-region": {
-						const awsRegionId = getConfigProperty("awsRegionId") || "";
-						const region = getConfigProperty("region") || "";
-						const regionName = getConfigProperty("regionName") || "";
+				const region = getConfigProperty("region") || "";
+				const region_name = getConfigProperty("region_name") || "";
 
-						const nameError = validateResourceName(awsRegionId, "Region");
-						if (nameError) errors.push(nameError);
+				const regionError = validateRegion(region);
+				if (regionError) errors.push(regionError);
 
-						const regionError = validateRegion(region);
-						if (regionError) errors.push(regionError);
-
-						if (!regionName.trim()) errors.push("Region name is required");
-						break;
+				if (!region_name.trim()) errors.push("Region name is required");
 					}
 
 					case "aws-availability-zone": {
-						const awsAvailabilityZoneId = getConfigProperty("awsAvailabilityZoneId") || "";
-						const region = getConfigProperty("region") || "";
-						const availabilityZone = getConfigProperty("availabilityZone") || "";
+				const region = getConfigProperty("region") || "";
+				const availability_zone = getConfigProperty("availability_zone") || "";
 
-						const nameError = validateResourceName(awsAvailabilityZoneId, "Availability Zone");
-						if (nameError) errors.push(nameError);
+				const regionError = validateRegion(region);
+				if (regionError) errors.push(regionError);
 
-						const regionError = validateRegion(region);
-						if (regionError) errors.push(regionError);
-
-						const azError = validateAvailabilityZone(availabilityZone);
-						if (azError) errors.push(azError);
+				const azError = validateAvailabilityZone(availability_zone);
 						break;
 					}
 
@@ -468,25 +441,18 @@ export const useValidationStore = create<ValidationState & ValidationActions>()(
 				const stringValue = value as string || "";
 
 				switch (field) {
-					case "awsVpcId":
-					case "awsEc2Id":
-					case "awsPublicSubnetId":
-					case "awsPrivateSubnetId":
-					case "awsRegionId":
-					case "awsAvailabilityZoneId":
-					case "awsSecurityGroupId":
-					case "awsResourceId":
-						return validateResourceName(stringValue, getResourceTypeName(serviceId));
-					case "cidrBlock":
+					// Removed v1 cases
+						// Removed
+					case "cidr_block":
 						const context = serviceId === "aws-vpc" ? "vpc" : "subnet";
 						return validateCIDRBlock(stringValue, context);
 					case "region":
 						return validateRegion(stringValue);
-					case "availabilityZone":
+					case "availability_zone":
 						return validateAvailabilityZone(stringValue);
-					case "instanceType":
+					case "instance_type":
 						return validateInstanceType(stringValue);
-					case "amiId":
+					case "ami_id":
 						return validateAMIId(stringValue);
 					case "tags":
 						return validateTags(stringValue);
