@@ -5,22 +5,24 @@
     "version": "2.0.0",
     "createdAt": "2025-09-09T17:46:05.882Z",
     "lastModified": "2025-12-20T12:24:18.739Z",
-    "provider": "aws"
+    "provider": "aws",
+    "format_version": "2.0.0",
+    "last_modified": "2025-12-20T14:23:44.228Z"
   },
   "resources": [
     {
-      "id": "aws-region-wns8p3",
+      "id": "aws-region-ujmzdb",
       "node_type": "aws_container",
       "resource_type": "aws-region",
       "name": "Region",
       "icon": "/aws_icons/uncategorized/32/aws_cloud_32.svg",
       "position": {
-        "x": 460.87649084268276,
-        "y": -24.534488803010277
+        "x": 405.0042673862978,
+        "y": -70.01121023243418
       },
       "dimensions": {
-        "width": 898,
-        "height": 594
+        "width": 840,
+        "height": 652
       },
       "configuration": {
         "region": "us-east-1",
@@ -34,21 +36,20 @@
       }
     },
     {
-      "id": "aws-vpc-9ygafh",
+      "id": "aws-vpc-5tl1zm",
       "node_type": "aws_container",
       "resource_type": "aws-vpc",
       "name": "VPC",
       "icon": "/aws_icons/networking_content_delivery/32/arch_amazon_virtual_private_cloud_32.svg",
       "position": {
-        "x": 26.617111042872352,
-        "y": 53.65248521568358
+        "x": 32.21485618725842,
+        "y": 31.795864934287394
       },
       "dimensions": {
-        "width": 841,
-        "height": 509
+        "width": 776,
+        "height": 591
       },
       "configuration": {
-        "vpc_id": "AWS VPC",
         "cidr_block": "10.0.0.0/16",
         "region": "us-east-1",
         "description": "",
@@ -60,24 +61,23 @@
           "Name": "MyVPC"
         }
       },
-      "parent_id": "aws-region-wns8p3"
+      "parent_id": "aws-region-ujmzdb"
     },
     {
-      "id": "aws-availability-zone-gzqtz1",
+      "id": "aws-availability-zone-nn87qe",
       "node_type": "aws_container",
       "resource_type": "aws-availability-zone",
       "name": "AvailabilityZone",
       "icon": "/aws_icons/uncategorized/32/region_32.svg",
       "position": {
-        "x": 21.06175457865845,
-        "y": 109.02555311305599
+        "x": 29.73679032669986,
+        "y": 131.75648186256242
       },
       "dimensions": {
-        "width": 792,
-        "height": 375
+        "width": 705,
+        "height": 423
       },
       "configuration": {
-        "availability_zone_id": "AWS Availability Zone",
         "region": "us-east-1",
         "availability_zone": "us-east-1a",
         "description": "",
@@ -88,31 +88,31 @@
           "Type": "AvailabilityZone"
         }
       },
-      "parent_id": "aws-vpc-9ygafh"
+      "parent_id": "aws-vpc-5tl1zm"
     },
     {
-      "id": "aws-public-subnet-dd58s3",
+      "id": "aws-subnet-r4pn50",
       "node_type": "aws_container",
-      "resource_type": "aws-public-subnet",
-      "name": "PublicSubnet",
-      "icon": "/aws_icons/uncategorized/32/public_subnet_32.svg",
+      "resource_type": "aws-subnet",
+      "name": "Subnet",
+      "icon": "/aws_icons/uncategorized/32/private_subnet_32.svg",
       "position": {
-        "x": 39.64565567747513,
-        "y": 61.94633699605467
+        "x": 34.69292204781652,
+        "y": 35.931954978095746
       },
       "dimensions": {
-        "width": 710,
-        "height": 269
+        "width": 631,
+        "height": 350
       },
       "configuration": {
-        "subnet_id": "AWS Public Subnet",
+        "subnet_type": "public",
         "cidr_block": "10.0.0.0/24",
-        "vpc_id": "aws-vpc-9ygafh",
+        "vpc_id": "aws-vpc-5tl1zm",
         "region": "us-east-1",
         "availability_zone": "us-east-1a",
         "availability_zone_id": "",
         "description": "",
-        "map_public_ip_on_launch": true,
+        "map_public_ip_on_launch": false,
         "assign_ipv6_address_on_creation": false,
         "enable_dns64": false,
         "enable_resource_name_dns_a_record_on_launch": false,
@@ -120,30 +120,47 @@
         "ipv6_native": false,
         "private_dns_hostname_type_on_launch": "ip-name",
         "tags": {
-          "Name": "MyPublicSubnet",
-          "Type": "Public"
+          "Name": "MySubnet"
         }
       },
-      "parent_id": "aws-availability-zone-gzqtz1"
+      "parent_id": "aws-availability-zone-nn87qe"
     },
     {
-      "id": "aws-security-group-p6jd10",
+      "id": "aws-internet-gateway-r9id8e",
+      "node_type": "aws_service",
+      "resource_type": "aws-internet-gateway",
+      "name": "InternetGateway",
+      "icon": "/aws_icons/networking_content_delivery/48/res_amazon_vpc_internet_gateway_48.svg",
+      "position": {
+        "x": 231.6991579622038,
+        "y": 22.721583997995864
+      },
+      "configuration": {
+        "vpc_id": "aws-vpc-5tl1zm",
+        "description": "",
+        "tags": {
+          "Name": "MyInternetGateway"
+        }
+      },
+      "parent_id": "aws-vpc-5tl1zm"
+    },
+    {
+      "id": "aws-security-group-28e3q0",
       "node_type": "aws_container",
       "resource_type": "aws-security-group",
       "name": "SecurityGroup",
       "icon": "/aws_icons/uncategorized/32/ec2_instance_contents_32.svg",
       "position": {
-        "x": 50.7959963367648,
-        "y": 35.92887545771163
+        "x": 172.22557730880408,
+        "y": 60.712613583679115
       },
       "dimensions": {
-        "width": 588,
+        "width": 250,
         "height": 200
       },
       "configuration": {
-        "security_group_id": "AWS Security Group",
         "name": "",
-        "vpc_id": "aws-vpc-9ygafh",
+        "vpc_id": "aws-vpc-5tl1zm",
         "description": "Managed by Terraform",
         "ingress_rules": [],
         "egress_rules": [
@@ -167,29 +184,26 @@
           "Name": "MySecurityGroup"
         }
       },
-      "parent_id": "aws-public-subnet-dd58s3"
+      "parent_id": "aws-subnet-r4pn50"
     },
     {
-      "id": "aws-ec2-lfa9wf",
+      "id": "aws-ec2-qc6kvl",
       "node_type": "aws_service",
       "resource_type": "aws-ec2",
       "name": "EC2",
       "icon": "/aws_icons/compute/32/arch_amazon_ec2_32.svg",
       "position": {
-        "x": 255.21890842374478,
-        "y": 59.46848351621236
+        "x": 87.9713380498207,
+        "y": 58.234547723120784
       },
       "configuration": {
-        "ec2_id": "AWS EC2",
         "instance_type": "t3.micro",
         "ami_id": "latest",
         "key_pair_name": "",
         "region": "us-east-1",
         "availability_zone": "us-east-1a",
-        "subnet_id": "aws-public-subnet-dd58s3",
-        "security_groups": [
-          "aws-security-group-p6jd10"
-        ],
+        "subnet_id": "aws-subnet-r4pn50",
+        "security_groups": "aws-security-group-28e3q0",
         "iam_instance_profile": "",
         "root_volume_size": 8,
         "root_volume_type": "gp3",
@@ -223,69 +237,48 @@
         },
         "volume_tags": {}
       },
-      "parent_id": "aws-security-group-p6jd10"
+      "parent_id": "aws-security-group-28e3q0"
     },
     {
-      "id": "aws-route-table-l1qqd2",
+      "id": "aws-route-table-azqd1r",
       "node_type": "aws_service",
       "resource_type": "aws-route-table",
       "name": "RouteTable",
       "icon": "/aws_icons/networking_content_delivery/48/res_amazon_route_53_route_table_48.svg",
       "position": {
-        "x": 460.8807472506462,
-        "y": 14.86712087905309
+        "x": 463.3983159244076,
+        "y": 23.96061692827503
       },
       "configuration": {
-        "route_table_id": "AWS Route Table",
-        "vpc_id": "aws-vpc-9ygafh",
-        "internet_gateway_id": "aws-internet-gateway-ge5f8u",
-        "subnet_id": "aws-public-subnet-dd58s3",
-        "routes": [],
-        "associations": [],
+        "vpc_id": "aws-vpc-5tl1zm",
+        "internet_gateway_id": "aws-internet-gateway-r9id8e",
+        "subnet_id": "aws-subnet-r4pn50",
+        "routes": {},
+        "associations": {},
         "propagating_vgws": [],
         "description": "",
         "tags": {
           "Name": "MyRouteTable"
         }
       },
-      "parent_id": "aws-vpc-9ygafh"
-    },
-    {
-      "id": "aws-internet-gateway-ge5f8u",
-      "node_type": "aws_service",
-      "resource_type": "aws-internet-gateway",
-      "name": "InternetGateway",
-      "icon": "/aws_icons/networking_content_delivery/48/res_amazon_vpc_internet_gateway_48.svg",
-      "position": {
-        "x": 307.2538315004308,
-        "y": 12.389267399210908
-      },
-      "configuration": {
-        "internet_gateway_id": "AWS Internet Gateway",
-        "vpc_id": "aws-vpc-9ygafh",
-        "description": "",
-        "tags": {
-          "Name": "MyInternetGateway"
-        }
-      },
-      "parent_id": "aws-vpc-9ygafh"
+      "parent_id": "aws-vpc-5tl1zm"
     }
   ],
   "connections": [
     {
-      "id": "edge-wcwfjw",
-      "source": "aws-route-table-l1qqd2",
-      "target": "aws-public-subnet-dd58s3",
-      "sourceHandle": "bottom-source",
-      "targetHandle": "top-target",
+      "id": "edge-trz1yq",
+      "source": "aws-route-table-azqd1r",
+      "target": "aws-internet-gateway-r9id8e",
+      "source_handle": "left-source",
+      "target_handle": "right-target",
       "type": "smoothstep"
     },
     {
-      "id": "edge-t29un1",
-      "source": "aws-route-table-l1qqd2",
-      "target": "aws-internet-gateway-ge5f8u",
-      "sourceHandle": "left-source",
-      "targetHandle": "right-target",
+      "id": "edge-tj8x8p",
+      "source": "aws-route-table-azqd1r",
+      "target": "aws-subnet-r4pn50",
+      "source_handle": "bottom-source",
+      "target_handle": "top-target",
       "type": "smoothstep"
     }
   ],
