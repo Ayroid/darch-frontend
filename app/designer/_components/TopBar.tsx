@@ -4,7 +4,6 @@ import React, { useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { FiUser, FiSettings, FiCode, FiChevronDown } from "react-icons/fi";
-import ArchitectureImportExport from "./ArchitectureImportExport";
 import { Node, Edge } from "@xyflow/react";
 import { useUIStore } from "@/lib/stores";
 import { formatBytes } from "@/lib/utils";
@@ -123,8 +122,7 @@ export default function TopBar({
 
 				{/* Right Section */}
 				<div className="flex items-center space-x-2">
-					<ArchitectureImportExport onDataLoaded={onDataLoaded} />
-
+				
 					<button
 						onClick={openDialog}
 						className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-md transition-colors"
@@ -157,8 +155,7 @@ export default function TopBar({
 					isPlanning={isPlanning}
 					output={output}
 					latestProject={latestProject}
-					formatBytes={formatBytes}
-				/>
+					formatBytes={formatBytes}				onDataLoaded={onDataLoaded}				/>
 			</div>
 		</div>
 	);

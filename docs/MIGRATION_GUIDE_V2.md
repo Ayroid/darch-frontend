@@ -6,9 +6,9 @@ This document outlines the migration from camelCase/AWS-prefixed fields to snake
 
 ## Migration Status
 
-**Current Version**: v1.0.0  
-**Target Version**: v2.0.0  
-**Migration Date**: December 2025  
+**Current Version**: v1.0.0
+**Target Version**: v2.0.0
+**Migration Date**: December 2025
 **Backward Compatibility**: 2 releases (v2.0.0, v2.1.0)
 
 ---
@@ -241,7 +241,7 @@ function detectFormat(data: unknown): "v1" | "v2" {
   if (data && typeof data === 'object') {
     // Check for format_version field
     if ('format_version' in data) return "v2";
-    
+
     // Check for old vs new property names
     if ('resources' in data) return "v1";
     if ('nodes' in data) return "v2";
@@ -327,24 +327,24 @@ export function exportArchitecture(
 Display to users when loading old format architectures:
 
 > **Architecture Update Required**
-> 
+>
 > This architecture uses an older format. We've automatically migrated it to the new format which is optimized for Terraform generation.
-> 
+>
 > - Improved backend compatibility
 > - Reduced transformation overhead by 70%
 > - Better alignment with Terraform conventions
-> 
+>
 > Please save your architecture to update to the new format.
-> 
+>
 > [Save Now] [Learn More]
 
 ### Deprecation Notice (v2.1.0)
 > **Deprecated Format Support**
-> 
+>
 > Support for the old architecture format will be removed in version 2.2.0 (February 2026).
-> 
+>
 > Please save all your architectures to migrate them to the new format.
-> 
+>
 > [Migration Guide]
 
 ---
@@ -601,6 +601,6 @@ Display to users when loading old format architectures:
 
 ---
 
-**Last Updated**: December 20, 2025  
-**Version**: 1.0.0  
+**Last Updated**: December 20, 2025
+**Version**: 1.0.0
 **Status**: In Progress

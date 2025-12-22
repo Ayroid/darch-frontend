@@ -454,7 +454,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
 																: "hover:bg-muted text-muted-foreground hover:text-foreground"
 														}`}
 													>
-														<Icon className="w-4 h-4 flex-shrink-0" />
+														<Icon className="w-4 h-4 shrink-0" />
 														<span className="truncate">{tab.label}</span>
 													</button>
 												);

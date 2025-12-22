@@ -1,7 +1,7 @@
 /**
  * Types for Architecture JSON Data Management
  * Aligned with Terraform conventions using snake_case naming
- * 
+ *
  * @version 2.0.0
  * @date December 2025
  */
@@ -40,7 +40,6 @@ export interface ArchitectureNode {
 }
 
 export interface ArchitectureData {
-  format_version: "2.0.0"; // Format version for detection
   metadata: {
     name: string;
     description?: string;
