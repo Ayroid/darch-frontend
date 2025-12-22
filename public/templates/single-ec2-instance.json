@@ -5,8 +5,7 @@
     "version": "2.0.0",
     "createdAt": "2025-09-09T17:46:05.882Z",
     "lastModified": "2025-12-20T12:24:18.739Z",
-    "provider": "aws",
-    "format_version": "2.0.0"
+    "provider": "aws"
   },
   "resources": [
     {
