@@ -19,7 +19,7 @@ export default function Homepage() {
 						<TopBar />
 
 						{/* Main Content Area */}
-						<div className="flex-1 p-6 overflow-auto">
+						<div className="flex-1 p-6 overflow-auto bg-muted/20">
 							<div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-full">
 								{/* Recent Architectures */}
 								<RecentArchitectures />

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useConfigurationStore } from '../configuration/configuration-store';
+import { useArchitectureStore } from '../architecture/architecture-store';
 import { useValidationStore } from '../validation/validation-store';
 import { useUIStore } from '../ui/ui-store';
 import { useCanvasStore } from '../canvas/canvas-store';
@@ -13,12 +13,11 @@ export const StoreDebugger: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [activeTab, setActiveTab] = useState<'config' | 'validation' | 'ui' | 'canvas'>('config');
 
-  // Configuration store
+  // Configuration from unified Architecture store
   const {
-    selectedNodeId,
-    nodeConfigurations,
-    draftConfiguration,
-  } = useConfigurationStore();
+    selectedResourceId,
+    resourceConfigurations,
+  } = useArchitectureStore();
 
   // Validation store
   const { validationErrors, fieldErrors } = useValidationStore();
@@ -65,7 +64,7 @@ export const StoreDebugger: React.FC = () => {
   }
 
   const tabs = [
-    { id: 'config', label: 'Config', count: Object.keys(nodeConfigurations).length },
+    { id: 'config', label: 'Config', count: Object.keys(resourceConfigurations).length },
     { id: 'validation', label: 'Validation', count: Object.keys(validationErrors).length },
     { id: 'ui', label: 'UI', count: 0 },
     { id: 'canvas', label: 'Canvas', count: selectedNodes.length },
@@ -76,15 +75,14 @@ export const StoreDebugger: React.FC = () => {
       case 'config':
         return (
           <div className="space-y-2">
-            <div>Selected Node: {selectedNodeId || 'None'}</div>
-            <div>Configurations: {Object.keys(nodeConfigurations).length}</div>
-            <div>Has Draft: {draftConfiguration ? 'Yes' : 'No'}</div>
+            <div>Selected Resource: {selectedResourceId || 'None'}</div>
+            <div>Configurations: {Object.keys(resourceConfigurations).length}</div>
 
-            {selectedNodeId && nodeConfigurations[selectedNodeId] && (
+            {selectedResourceId && resourceConfigurations[selectedResourceId] && (
               <div className="mt-2 pt-2 border-t border-gray-500">
                 <div className="font-semibold">Current Config:</div>
                 <pre className="text-xs overflow-auto max-h-32">
-                  {JSON.stringify(nodeConfigurations[selectedNodeId], null, 2)}
+                  {JSON.stringify(resourceConfigurations[selectedResourceId], null, 2)}
                 </pre>
               </div>
             )}

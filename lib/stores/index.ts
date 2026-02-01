@@ -1,5 +1,4 @@
-// New modular store exports
-export { useConfigurationStore } from './configuration/configuration-store';
+// Modular store exports
 export { getDefaultConfiguration, defaultConfigurations } from './configuration/default-configurations';
 export { useUIStore } from './ui/ui-store';
 export { useCanvasStore } from './canvas/canvas-store';

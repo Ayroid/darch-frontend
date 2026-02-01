@@ -1,8 +1,10 @@
 "use client";
 
-import { Badge } from "@/app/_components/ui/badge";
-import { FiServer } from "react-icons/fi";
 import { useRouter } from "next/navigation";
+import { Server, Layers, ArrowRight } from "lucide-react";
+import { Card, CardHeader, CardTitle, CardContent, CardAction } from "@/app/_components/ui/card";
+import { Button } from "@/app/_components/ui/button";
+import { Badge } from "@/app/_components/ui/badge";
 import { useArchitectureData } from "@/lib/hooks/use-architecture-data";
 
 interface Template {
@@ -20,23 +22,23 @@ const templates: Template[] = [
 		id: "single-ec2-instance",
 		name: "Single EC2 Instance",
 		description: "Minimal setup with just an EC2 instance for learning",
-		icon: <FiServer className="w-6 h-6" />,
+		icon: <Server className="h-6 w-6" />,
 		difficulty: "Beginner",
 		services: ["VPC", "EC2"],
 		filename: "single-ec2-instance.json",
 	},
 ];
 
-const getDifficultyColor = (difficulty: string) => {
+const getDifficultyStyles = (difficulty: string) => {
 	switch (difficulty) {
 		case "Beginner":
-			return "bg-green-100 text-green-800 hover:bg-green-200";
+			return "bg-green-500/10 text-green-600 border-green-500/20";
 		case "Intermediate":
-			return "bg-yellow-100 text-yellow-800 hover:bg-yellow-200";
+			return "bg-amber-500/10 text-amber-600 border-amber-500/20";
 		case "Advanced":
-			return "bg-red-100 text-red-800 hover:bg-red-200";
+			return "bg-red-500/10 text-red-600 border-red-500/20";
 		default:
-			return "bg-gray-100 text-gray-800 hover:bg-gray-200";
+			return "bg-muted text-muted-foreground";
 	}
 };
 
@@ -46,18 +48,13 @@ export default function ArchitectureTemplates() {
 
 	const handleTemplateClick = async (template: Template) => {
 		try {
-			// Load the template JSON file
 			const response = await fetch(`/templates/${template.filename}`);
 			if (!response.ok) {
 				throw new Error(`Failed to load template: ${response.statusText}`);
 			}
 
 			const templateData = await response.json();
-
-			// Load the data into the store
 			loadFromJSON(templateData);
-
-			// Navigate to the designer with the loaded template
 			router.push("/designer");
 		} catch (error) {
 			console.error("Error loading template:", error);
@@ -66,87 +63,88 @@ export default function ArchitectureTemplates() {
 	};
 
 	return (
-		<div className="rounded-lg shadow-sm border border-gray-200">
-			<div className="p-6 border-b border-gray-200">
-				<div className="flex items-center justify-between">
-					<div className="flex items-center space-x-2">
-						<h2 className="text-lg font-medium text-gray-900">
-							Architecture Templates
-						</h2>
-					</div>
-					<div className="flex items-center space-x-2">
-						<button
-							onClick={() => router.push("/designer")}
-							className="bg-black text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-800 transition-colors flex items-center space-x-2"
-						>
-							<span>➕</span>
-							<span>Start from scratch</span>
-						</button>
-					</div>
-				</div>
-			</div>
+		<Card className="h-full flex flex-col">
+			<CardHeader className="border-b border-border pb-4">
+				<CardTitle className="text-lg">Architecture Templates</CardTitle>
+				<CardAction>
+					<Button variant="outline" onClick={() => router.push("/designer")} className="gap-2">
+						<Layers className="h-4 w-4" />
+						Start from scratch
+					</Button>
+				</CardAction>
+			</CardHeader>
 
-			<div className="p-6">
-				<div className="grid grid-cols-2 gap-6">
+			<CardContent className="flex-1 pt-6">
+				<div className="grid grid-cols-2 gap-4">
 					{templates.map((template) => (
-						<div
+						<button
 							key={template.id}
 							onClick={() => handleTemplateClick(template)}
-							className="group cursor-pointer"
+							className="group text-left"
 						>
-							<div className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
+							<div className="border border-border rounded-lg p-5 hover:border-primary/50 hover:shadow-md transition-all duration-200 bg-card h-full">
 								{/* Template Preview */}
-								<div className="bg-gray-50 rounded-md h-40 mb-4 flex items-center justify-center">
-									<div className="text-center">
-										<div className="flex items-center justify-center mb-3">
-											<div className="text-blue-600">{template.icon}</div>
+								<div className="bg-gradient-to-br from-primary/5 to-primary/10 rounded-lg h-36 mb-4 flex items-center justify-center border border-primary/10 relative overflow-hidden">
+									<div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(120,119,198,0.1),transparent)]" />
+									<div className="text-center relative z-10">
+										<div className="h-14 w-14 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-2 text-primary group-hover:scale-110 transition-transform duration-200">
+											{template.icon}
 										</div>
-										<div className="text-sm text-gray-600 font-medium">
+										<span className="text-sm font-medium text-foreground">
 											{template.name}
-										</div>
+										</span>
 									</div>
 								</div>
 
 								{/* Card Info */}
-								<div className="flex items-start space-x-3 mb-3">
-									<span className="text-black text-lg">📐</span>
-									<div className="flex-1 min-w-0">
-										<h3 className="text-base font-medium text-gray-900 group-hover:text-black transition-colors">
+								<div className="space-y-3">
+									<div className="flex items-center justify-between">
+										<h3 className="font-medium text-foreground group-hover:text-primary transition-colors">
 											{template.name}
 										</h3>
-										<div className="flex items-center space-x-2 mt-2">
+										<ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
+									</div>
+
+									<p className="text-sm text-muted-foreground line-clamp-2">
+										{template.description}
+									</p>
+
+									<div className="flex items-center gap-2">
+										<Badge className={getDifficultyStyles(template.difficulty)}>
+											{template.difficulty}
+										</Badge>
+									</div>
+
+									<div className="flex flex-wrap gap-1.5 pt-1">
+										{template.services.map((service) => (
 											<Badge
-												className={getDifficultyColor(template.difficulty)}
+												key={service}
+												variant="outline"
+												className="text-xs font-normal"
 											>
-												{template.difficulty}
+												{service}
 											</Badge>
-										</div>
-										<p className="text-sm text-gray-500 mt-2">
-											{template.description}
-										</p>
-										<div className="flex flex-wrap gap-1 mt-3">
-											{template.services.slice(0, 3).map((service) => (
-												<Badge
-													key={service}
-													variant="outline"
-													className="text-sm"
-												>
-													{service}
-												</Badge>
-											))}
-											{template.services.length > 3 && (
-												<Badge variant="outline" className="text-sm">
-													+{template.services.length - 3}
-												</Badge>
-											)}
-										</div>
+										))}
 									</div>
 								</div>
 							</div>
-						</div>
+						</button>
 					))}
+
+					{/* More Templates Coming Soon */}
+					<div className="border border-dashed border-border rounded-lg p-5 flex flex-col items-center justify-center min-h-[280px] bg-muted/20">
+						<div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center mb-3">
+							<Layers className="h-6 w-6 text-muted-foreground" />
+						</div>
+						<p className="text-sm font-medium text-muted-foreground text-center">
+							More templates coming soon
+						</p>
+						<p className="text-xs text-muted-foreground mt-1 text-center">
+							We&apos;re adding new architecture patterns
+						</p>
+					</div>
 				</div>
-			</div>
-		</div>
+			</CardContent>
+		</Card>
 	);
 }

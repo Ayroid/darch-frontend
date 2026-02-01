@@ -1,22 +1,25 @@
 "use client";
 
-import React from "react";
+import { useEffect, createElement, ComponentType } from "react";
 import { Node } from "@xyflow/react";
 import Image from "next/image";
+import { Layers, ChevronLeft, MousePointer, GripVertical } from "lucide-react";
 
-import { ConfigurationSidebarMap } from "./configuration-sidebar";
+import { ConfigurationSidebarMap, DynamicConfigurationForm } from "./configuration-sidebar";
 import { useArchitectureStore } from "@/lib/stores/architecture/architecture-store";
 import { ConfigurationProvider } from "@/lib/stores";
-import { TbCube } from "react-icons/tb";
+import { getResourceSchema } from "@/lib/schemas/resource-schemas";
 
 import {
 	AWSResourceConfiguration,
 	DefaultConfiguration,
 } from "@/lib/types/aws-resources";
 import { Badge } from "@/app/_components/ui/badge";
+import { Button } from "@/app/_components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/app/_components/ui/tooltip";
+import { cn } from "@/lib/utils";
 
-type ConfigurationFormComponent = React.ComponentType<{
+type ConfigurationFormComponent = ComponentType<{
 	config: AWSResourceConfiguration;
 	onChange: (config: AWSResourceConfiguration) => void;
 }>;
@@ -67,7 +70,7 @@ export default function ConfigurationSidebar({
 	} = useArchitectureStore();
 
 	// Initialize configuration when node is selected
-	React.useEffect(() => {
+	useEffect(() => {
 		if (selectedNode) {
 			const data = selectedNode.data as Record<string, unknown>;
 			const serviceId = (data?.serviceId as string) || "";
@@ -106,11 +109,11 @@ export default function ConfigurationSidebar({
 
 		if (selectedNode.type === "awsService") {
 			const name = (selectedNode.data.name as string) || "AWS Service";
-			return "AWS " + name;
+			return name;
 		}
 		if (selectedNode.type === "awsContainer") {
 			const name = (selectedNode.data.name as string) || "AWS Container";
-			return "AWS " + name;
+			return name;
 		}
 		return "Configuration";
 	};
@@ -124,43 +127,42 @@ export default function ConfigurationSidebar({
 	const renderConfigurationForm = () => {
 		if (!selectedNode) {
 			return (
-				<div className="flex flex-col items-center justify-center h-full text-center px-6">
-					<div className="w-20 h-20 rounded-xl bg-blue-100 flex items-center justify-center mb-6">
-						<TbCube className="w-12 h-12 text-blue-600" />
+				<div className="flex flex-col items-center justify-center h-full text-center px-6 py-12">
+					<div className="h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-6">
+						<Layers className="h-8 w-8 text-primary" />
 					</div>
 					<div className="space-y-6 max-w-sm">
 						<div>
-							<h3 className="text-lg font-semibold text-gray-900 mb-2">
+							<h3 className="text-lg font-semibold text-foreground mb-2">
 								No Node Selected
 							</h3>
-							<p className="text-sm text-gray-600">
-								Select a node from the canvas to configure its properties and
-								settings.
+							<p className="text-sm text-muted-foreground">
+								Select a node from the canvas to configure its properties and settings.
 							</p>
 						</div>
-						<div className="space-y-4 text-left">
-							<div className="flex items-start space-x-3">
-								<div className="w-2 h-2 bg-blue-500 rounded-full mt-2 shrink-0"></div>
-								<div className="text-sm text-gray-600">
-									<span className="font-medium">Click</span> any node on the
-									canvas to configure it
+						<div className="space-y-3 text-left bg-muted/30 rounded-lg p-4">
+							<div className="flex items-start gap-3">
+								<div className="h-6 w-6 rounded-md bg-primary/10 flex items-center justify-center shrink-0">
+									<MousePointer className="h-3.5 w-3.5 text-primary" />
+								</div>
+								<div className="text-sm text-muted-foreground">
+									<span className="font-medium text-foreground">Click</span> any node on the canvas to configure it
 								</div>
 							</div>
-							<div className="flex items-start space-x-3">
-								<div className="w-2 h-2 bg-blue-500 rounded-full mt-2 shrink-0"></div>
-								<div className="text-sm text-gray-600">
-									<span className="font-medium">Drag</span> services from the
-									left sidebar to add them
+							<div className="flex items-start gap-3">
+								<div className="h-6 w-6 rounded-md bg-primary/10 flex items-center justify-center shrink-0">
+									<GripVertical className="h-3.5 w-3.5 text-primary" />
+								</div>
+								<div className="text-sm text-muted-foreground">
+									<span className="font-medium text-foreground">Drag</span> services from the left sidebar to add them
 								</div>
 							</div>
-							<div className="flex items-start space-x-3">
-								<div className="w-2 h-2 bg-blue-500 rounded-full mt-2 shrink-0"></div>
-								<div className="text-sm text-gray-600">
-									Press{" "}
-									<kbd className="px-2 py-1 bg-gray-100 border rounded text-xs font-mono">
-										Y
-									</kbd>{" "}
-									to toggle this panel
+							<div className="flex items-start gap-3">
+								<div className="h-6 w-6 rounded-md bg-muted flex items-center justify-center shrink-0">
+									<kbd className="text-[10px] font-mono font-semibold text-muted-foreground">Y</kbd>
+								</div>
+								<div className="text-sm text-muted-foreground">
+									Press <kbd className="px-1.5 py-0.5 bg-muted border border-border rounded text-xs font-mono">Y</kbd> to toggle this panel
 								</div>
 							</div>
 						</div>
@@ -172,17 +174,32 @@ export default function ConfigurationSidebar({
 		const data = selectedNode.data as Record<string, unknown>;
 		const serviceId = (data?.serviceId as string) || "";
 
-		const formElement = awsServiceConfigurationMap[serviceId]
-			? React.createElement(awsServiceConfigurationMap[serviceId], {
+		// Priority: 1) Specific form, 2) Schema-based dynamic form, 3) Default form
+		let formElement;
+		if (awsServiceConfigurationMap[serviceId]) {
+			// Use specific form component if available
+			formElement = createElement(awsServiceConfigurationMap[serviceId], {
+				config,
+				onChange: handleConfigChange,
+			});
+		} else {
+			// Check if we have a schema for this resource type
+			const schema = getResourceSchema(serviceId);
+			if (schema.resourceType !== 'default') {
+				// Use dynamic form based on schema
+				formElement = createElement(DynamicConfigurationForm, {
+					resourceType: serviceId,
 					config,
 					onChange: handleConfigChange,
-			  })
-			: React.createElement(ConfigurationSidebarMap.DefaultConfigurationForm, {
+				});
+			} else {
+				// Fallback to default form
+				formElement = createElement(ConfigurationSidebarMap.DefaultConfigurationForm, {
 					config: config as DefaultConfiguration,
-					onChange: handleConfigChange as (
-						config: DefaultConfiguration
-					) => void,
-			  });
+					onChange: handleConfigChange as (config: DefaultConfiguration) => void,
+				});
+			}
+		}
 
 		return (
 			<ConfigurationProvider nodeId={selectedNode.id} serviceId={serviceId}>
@@ -195,38 +212,39 @@ export default function ConfigurationSidebar({
 		<div className="relative">
 			{/* Sidebar */}
 			<div
-				className={`fixed top-16 right-0 bg-white border-l border-gray-200 shadow-lg transform transition-transform duration-300 ease-in-out z-40 overflow-hidden flex flex-col ${
+				className={cn(
+					"fixed top-14 right-0 bg-background border-l border-border shadow-xl transform transition-transform duration-300 ease-in-out z-40 overflow-hidden flex flex-col",
 					isOpen ? "translate-x-0" : "translate-x-full"
-				}`}
-				style={{ width: "384px", height: "calc(100vh - 4rem)" }}
+				)}
+				style={{ width: "380px", height: "calc(100vh - 3.5rem)" }}
 			>
 				{/* Header */}
-				<div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gray-50">
+				<div className="flex items-center justify-between px-4 py-4 border-b border-border bg-muted/30">
 					<div className="flex items-center gap-3">
-						<div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
+						<div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center overflow-hidden">
 							{selectedNode && getServiceIcon() ? (
-								<div className="relative w-8 h-8">
+								<div className="relative h-8 w-8">
 									<Image
 										src={getServiceIcon()!}
 										alt={getServiceName()}
 										fill
 										className="object-contain"
-										sizes="20px"
+										sizes="32px"
 									/>
 								</div>
 							) : (
-								<TbCube className="w-10 h-10 text-blue-600" />
+								<Layers className="h-5 w-5 text-primary" />
 							)}
 						</div>
-						<div className="border-l border-gray-300 pl-3">
-							<h2 className="text-lg font-semibold text-gray-900">
-								AWS {getServiceName()}
+						<div>
+							<h2 className="text-base font-semibold text-foreground">
+								{selectedNode ? getServiceName() : "Configuration"}
 							</h2>
 							{selectedNode && (
 								<Tooltip>
-									<TooltipTrigger>
-										<Badge className="rounded-full" variant="outline">
-											{getServiceId() && `${getServiceId()}`}
+									<TooltipTrigger asChild>
+										<Badge variant="outline" className="rounded-full text-[10px] h-5 px-2 font-mono">
+											{getServiceId()}
 										</Badge>
 									</TooltipTrigger>
 									<TooltipContent side="bottom">
@@ -239,44 +257,33 @@ export default function ConfigurationSidebar({
 				</div>
 
 				{/* Content */}
-				<div className="flex-1 overflow-y-auto bg-white hide-scrollbar">
+				<div className="flex-1 overflow-y-auto hide-scrollbar">
 					{renderConfigurationForm()}
 				</div>
 			</div>
 
 			{/* Toggle Button - Attached to sidebar edge */}
-			<button
+			<Button
+				variant="outline"
+				size="icon"
 				onClick={onToggle}
-				className={`fixed z-50 bg-white border border-gray-200 shadow-lg hover:bg-gray-50 transition-all duration-300 ease-in-out ${
-					isOpen
-						? "right-96 rounded-l-lg border-r-0"
-						: "right-0 rounded-l-lg"
-				}`}
+				className={cn(
+					"fixed z-50 h-12 w-6 rounded-l-lg rounded-r-none border-r-0 shadow-md transition-all duration-300 ease-in-out",
+					isOpen ? "right-[380px]" : "right-0"
+				)}
 				style={{
-					top: "calc(50vh + 2rem)",
+					top: "calc(50vh + 1.75rem)",
 					transform: "translateY(-50%)",
-					padding: "12px 4px",
-					borderTopRightRadius: isOpen ? "0" : "0.5rem",
-					borderBottomRightRadius: isOpen ? "0" : "0.5rem",
 				}}
 				aria-label="Toggle Configuration Sidebar"
 			>
-				<svg
-					className={`w-5 h-5 transition-transform duration-300 text-gray-600 ${
-						isOpen ? "rotate-180" : ""
-					}`}
-					fill="none"
-					stroke="currentColor"
-					viewBox="0 0 24 24"
-				>
-					<path
-						strokeLinecap="round"
-						strokeLinejoin="round"
-						strokeWidth={2}
-						d="M15 19l-7-7 7-7"
-					/>
-				</svg>
-			</button>
+				<ChevronLeft
+					className={cn(
+						"h-4 w-4 transition-transform duration-300",
+						isOpen && "rotate-180"
+					)}
+				/>
+			</Button>
 		</div>
 	);
 }

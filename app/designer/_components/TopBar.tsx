@@ -1,14 +1,17 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { FiUser, FiSettings, FiCode, FiChevronDown } from "react-icons/fi";
+import { User, Settings, Code, ChevronDown, Check, Plus } from "lucide-react";
 import { Node, Edge } from "@xyflow/react";
 import { useUIStore } from "@/lib/stores";
 import { formatBytes } from "@/lib/utils";
 import { useTerraformStore } from "@/lib/stores/terraform/terraform-store";
 import TerraformDialog from "./TerraformModal";
+import { Button } from "@/app/_components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/app/_components/ui/tooltip";
+import { Separator } from "@/app/_components/ui/separator";
 
 // Types
 export interface Project {
@@ -30,6 +33,7 @@ interface TopBarProps {
 	onProfile: () => void;
 	onDataLoaded?: (nodes: Node[], edges: Edge[]) => void;
 }
+
 export default function TopBar({
 	currentProject,
 	onSettings,
@@ -55,8 +59,6 @@ export default function TopBar({
 	const openDialog = useTerraformStore((state) => state.openDialog);
 	const closeDialog = useTerraformStore((state) => state.closeDialog);
 
-	// Using shared formatBytes utility
-
 	// Click outside to close dropdown
 	useEffect(() => {
 		const handleClickOutside = (event: MouseEvent) => {
@@ -75,45 +77,70 @@ export default function TopBar({
 	}, [setProjectDropdownVisible]);
 
 	return (
-		<div className="absolute top-0 left-0 right-0 h-16 bg-white border-b border-gray-200 z-50">
-			<div className="flex items-center justify-between px-6 h-full">
+		<div className="absolute top-0 left-0 right-0 h-14 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border z-50">
+			<div className="flex items-center justify-between px-4 h-full">
 				{/* Left Section */}
-				<div className="flex items-center space-x-6">
-					<Link className="flex items-center space-x-3" href="/">
-						<Image
-							src="/darch_logo.jpeg"
-							alt="Darch Logo"
-							width={32}
-							height={32}
-							className="rounded-lg"
-						/>
-						<span className="text-xl font-semibold text-gray-900">Darch</span>
+				<div className="flex items-center gap-4">
+					<Link className="flex items-center gap-2.5 hover:opacity-80 transition-opacity" href="/">
+						<div className="h-8 w-8 rounded-lg overflow-hidden ring-1 ring-border">
+							<Image
+								src="/darch_logo.jpeg"
+								alt="Darch Logo"
+								width={32}
+								height={32}
+								className="object-cover"
+							/>
+						</div>
+						<span className="text-lg font-semibold text-foreground">Darch</span>
 					</Link>
+
+					<Separator orientation="vertical" className="h-6" />
 
 					{/* Project Selector */}
 					<div className="relative" ref={dropdownRef}>
-						<button
+						<Button
+							variant="ghost"
 							onClick={() => toggleProjectDropdown()}
-							className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md border border-gray-200"
+							className="h-8 px-3 gap-2 font-normal"
 						>
-							<span className="font-medium">{currentProject.name}</span>
-							<span className="text-gray-500">•</span>
-							<span className="text-gray-500">
-								{currentProject.environment}
-							</span>
-							<FiChevronDown className="w-4 h-4 text-gray-400" />
-						</button>
+							<div className="flex items-center gap-2">
+								<span className="font-medium text-foreground">{currentProject.name}</span>
+								<span className="text-muted-foreground">•</span>
+								<span className="text-muted-foreground text-sm">
+									{currentProject.environment}
+								</span>
+							</div>
+							<ChevronDown className="h-4 w-4 text-muted-foreground" />
+						</Button>
+
 						{showProjectDropdown && (
-							<div className="absolute top-full mt-1 left-0 bg-white border border-gray-200 rounded-lg shadow-lg z-10 min-w-[220px] py-1">
-								<div className="px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer">
-									{currentProject.name} • {currentProject.environment}
+							<div className="absolute top-full mt-1.5 left-0 bg-popover border border-border rounded-lg shadow-lg z-10 min-w-[240px] py-1 animate-in fade-in-0 zoom-in-95">
+								<div className="px-2 py-1.5">
+									<p className="text-xs font-medium text-muted-foreground px-2 mb-1">Projects</p>
+									<button className="w-full flex items-center justify-between px-2 py-2 text-sm rounded-md hover:bg-accent transition-colors">
+										<div className="flex items-center gap-2">
+											<div className="h-6 w-6 rounded bg-primary/10 flex items-center justify-center">
+												<span className="text-[10px] font-semibold text-primary">P1</span>
+											</div>
+											<span>{currentProject.name}</span>
+											<span className="text-muted-foreground">• {currentProject.environment}</span>
+										</div>
+										<Check className="h-4 w-4 text-primary" />
+									</button>
+									<button className="w-full flex items-center gap-2 px-2 py-2 text-sm rounded-md hover:bg-accent transition-colors">
+										<div className="h-6 w-6 rounded bg-muted flex items-center justify-center">
+											<span className="text-[10px] font-semibold text-muted-foreground">P2</span>
+										</div>
+										<span>Project 2</span>
+										<span className="text-muted-foreground">• Prod</span>
+									</button>
 								</div>
-								<div className="px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer">
-									Project 2 • Prod
-								</div>
-								<div className="border-t border-gray-100 my-1"></div>
-								<div className="px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer">
-									+ New Project
+								<Separator className="my-1" />
+								<div className="px-2 py-1">
+									<button className="w-full flex items-center gap-2 px-2 py-2 text-sm rounded-md hover:bg-accent transition-colors text-muted-foreground hover:text-foreground">
+										<Plus className="h-4 w-4" />
+										<span>New Project</span>
+									</button>
 								</div>
 							</div>
 						)}
@@ -121,29 +148,48 @@ export default function TopBar({
 				</div>
 
 				{/* Right Section */}
-				<div className="flex items-center space-x-2">
-				
-					<button
-						onClick={openDialog}
-						className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-md transition-colors"
-						title="Generate Terraform"
-					>
-						<FiCode className="w-5 h-5" />
-					</button>
+				<div className="flex items-center gap-1">
+					<Tooltip>
+						<TooltipTrigger asChild>
+							<Button
+								variant="ghost"
+								size="icon"
+								onClick={openDialog}
+								className="h-8 w-8 text-muted-foreground hover:text-foreground"
+							>
+								<Code className="h-4 w-4" />
+							</Button>
+						</TooltipTrigger>
+						<TooltipContent>Generate Terraform</TooltipContent>
+					</Tooltip>
 
-					<button
-						onClick={onSettings}
-						className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-md transition-colors"
-					>
-						<FiSettings className="w-5 h-5" />
-					</button>
+					<Tooltip>
+						<TooltipTrigger asChild>
+							<Button
+								variant="ghost"
+								size="icon"
+								onClick={onSettings}
+								className="h-8 w-8 text-muted-foreground hover:text-foreground"
+							>
+								<Settings className="h-4 w-4" />
+							</Button>
+						</TooltipTrigger>
+						<TooltipContent>Settings</TooltipContent>
+					</Tooltip>
 
-					<button
-						onClick={onProfile}
-						className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-md transition-colors"
-					>
-						<FiUser className="w-5 h-5" />
-					</button>
+					<Tooltip>
+						<TooltipTrigger asChild>
+							<Button
+								variant="ghost"
+								size="icon"
+								onClick={onProfile}
+								className="h-8 w-8 text-muted-foreground hover:text-foreground"
+							>
+								<User className="h-4 w-4" />
+							</Button>
+						</TooltipTrigger>
+						<TooltipContent>Profile</TooltipContent>
+					</Tooltip>
 				</div>
 
 				<TerraformDialog
@@ -155,7 +201,9 @@ export default function TopBar({
 					isPlanning={isPlanning}
 					output={output}
 					latestProject={latestProject}
-					formatBytes={formatBytes}				onDataLoaded={onDataLoaded}				/>
+					formatBytes={formatBytes}
+					onDataLoaded={onDataLoaded}
+				/>
 			</div>
 		</div>
 	);

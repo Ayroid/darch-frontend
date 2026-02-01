@@ -1,12 +1,12 @@
 import { useEffect, useCallback } from "react";
-import { useConfigurationStore } from "../configuration/configuration-store";
+import { useArchitectureStore } from "../architecture/architecture-store";
 import { useValidationStore } from "../validation/validation-store";
 import { AWSResourceConfiguration } from "@/lib/types/aws-resources";
 import { filterValidFields } from "../configuration/configuration-utils";
 
 /**
  * Enhanced hook to integrate existing configuration forms with multiple stores
- * This allows gradual migration without major form rewrites
+ * Uses the unified ArchitectureStore for configuration management
  */
 export const useStoreIntegration = (
 	nodeId: string | null,
@@ -15,9 +15,9 @@ export const useStoreIntegration = (
 	onChange: (config: AWSResourceConfiguration) => void
 ) => {
 	const {
-		getNodeConfiguration,
-		updateNodeConfiguration,
-	} = useConfigurationStore();
+		getResourceConfiguration,
+		updateResourceConfiguration,
+	} = useArchitectureStore();
 
 	const {
 		validateConfiguration,
@@ -37,7 +37,7 @@ export const useStoreIntegration = (
 			const filteredConfig = filterValidFields(resourceType, newConfig);
 
 			// Update the store with filtered configuration
-			updateNodeConfiguration(nodeId, filteredConfig);
+			updateResourceConfiguration(nodeId, filteredConfig);
 
 			// Validate and set errors
 			const errors = validateConfiguration(serviceId, filteredConfig as AWSResourceConfiguration);
@@ -53,7 +53,7 @@ export const useStoreIntegration = (
 		[
 			nodeId,
 			serviceId,
-			updateNodeConfiguration,
+			updateResourceConfiguration,
 			setValidationErrors,
 			clearValidationErrors,
 			onChange,
@@ -64,7 +64,7 @@ export const useStoreIntegration = (
 	// Load from store when node changes
 	useEffect(() => {
 		if (nodeId) {
-			const storedConfig = getNodeConfiguration(nodeId);
+			const storedConfig = getResourceConfiguration(nodeId);
 			if (storedConfig && Object.keys(storedConfig).length > 0) {
 				// Only update if the stored config is different from current
 				// Also ensure we're not in an infinite loop by checking if the stored config
@@ -82,7 +82,7 @@ export const useStoreIntegration = (
 				}
 			}
 		}
-	}, [nodeId, getNodeConfiguration, config, onChange]);
+	}, [nodeId, getResourceConfiguration, config, onChange]);
 
 	return {
 		handleConfigChange,
@@ -122,18 +122,18 @@ export const useStoreAwareConfig = (
  */
 export const useNodeConfig = (nodeId: string | null) => {
 	const {
-		getNodeConfiguration,
-		updateNodeConfiguration,
-	} = useConfigurationStore();
+		getResourceConfiguration,
+		updateResourceConfiguration,
+	} = useArchitectureStore();
 
-	const config = nodeId ? getNodeConfiguration(nodeId) : null;
+	const config = nodeId ? getResourceConfiguration(nodeId) : null;
 
 	const updateConfig = useCallback(
-		(serviceId: string, updates: Record<string, unknown>) => {
+		(_serviceId: string, updates: Record<string, unknown>) => {
 			if (!nodeId) return;
-			updateNodeConfiguration(nodeId, updates);
+			updateResourceConfiguration(nodeId, updates);
 		},
-		[nodeId, updateNodeConfiguration]
+		[nodeId, updateResourceConfiguration]
 	);
 
 	return {

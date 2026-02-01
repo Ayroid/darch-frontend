@@ -1,21 +1,24 @@
 "use client";
 
-import React from "react";
 import Image from "next/image";
 import {
-	FiChevronDown,
-	FiCpu,
-	FiGlobe,
-	FiDatabase,
-	FiServer,
-	FiShield,
-	FiBox,
-	FiSettings,
-	FiBarChart,
-} from "react-icons/fi";
-import { BsBuilding } from "react-icons/bs";
+	ChevronDown,
+	Cpu,
+	Globe,
+	Database,
+	Server,
+	Shield,
+	Box,
+	Settings,
+	BarChart,
+	Building,
+	ChevronRight,
+} from "lucide-react";
 import { useUIStore } from "@/lib/stores";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/app/_components/ui/tooltip";
+import { Badge } from "@/app/_components/ui/badge";
+import { Button } from "@/app/_components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface AWSService {
 	id: string;
@@ -579,29 +582,29 @@ export default function ServicesSidebar({
 	};
 
 	const getCategoryIcon = (category: string) => {
-		const iconProps = { className: "w-6 h-6 text-gray-600" };
+		const iconClass = "h-5 w-5";
 
 		switch (category) {
 			case "Infrastructure":
-				return <BsBuilding {...iconProps} />;
+				return <Building className={iconClass} />;
 			case "Compute":
-				return <FiCpu {...iconProps} />;
+				return <Cpu className={iconClass} />;
 			case "Network":
-				return <FiGlobe {...iconProps} />;
+				return <Globe className={iconClass} />;
 			case "Storage":
-				return <FiDatabase {...iconProps} />;
+				return <Database className={iconClass} />;
 			case "Database":
-				return <FiServer {...iconProps} />;
+				return <Server className={iconClass} />;
 			case "Security & Identity":
-				return <FiShield {...iconProps} />;
+				return <Shield className={iconClass} />;
 			case "Containers":
-				return <FiBox {...iconProps} />;
+				return <Box className={iconClass} />;
 			case "Management":
-				return <FiSettings {...iconProps} />;
+				return <Settings className={iconClass} />;
 			case "Analytics":
-				return <FiBarChart {...iconProps} />;
+				return <BarChart className={iconClass} />;
 			default:
-				return <FiCpu {...iconProps} />;
+				return <Cpu className={iconClass} />;
 		}
 	};
 
@@ -620,85 +623,99 @@ export default function ServicesSidebar({
 		);
 		event.dataTransfer.effectAllowed = "move";
 	};
+
 	return (
 		<div className="relative">
 			{/* Sidebar */}
 			<div
-				className={`fixed top-16 left-0 bg-white border-r border-gray-200 shadow-lg transform transition-transform duration-300 ease-in-out z-40 ${
+				className={cn(
+					"fixed top-14 left-0 bg-background border-r border-border shadow-xl transform transition-transform duration-300 ease-in-out z-40",
 					isOpen ? "translate-x-0" : "-translate-x-full"
-				}`}
-				style={{ width: "340px", height: "calc(100vh - 4rem)" }}
+				)}
+				style={{ width: "320px", height: "calc(100vh - 3.5rem)" }}
 			>
 				<div className="flex flex-col h-full">
 					{/* Header */}
-					<div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
+					<div className="px-4 py-4 border-b border-border bg-muted/30">
 						<div className="flex items-center gap-3">
-							<Image
-								src="/aws_icons/uncategorized/32/aws_cloud_logo_32_dark.svg"
-								alt="AWS Logo"
-								width={50}
-								height={50}
-							/>
-							<div className="border-l border-gray-300 pl-3">
-								<h2 className="text-lg font-semibold text-gray-900">
+							<div className="h-10 w-10 rounded-lg bg-[#232F3E] flex items-center justify-center">
+								<Image
+									src="/aws_icons/uncategorized/32/aws_cloud_logo_32_dark.svg"
+									alt="AWS Logo"
+									width={28}
+									height={28}
+								/>
+							</div>
+							<div>
+								<h2 className="text-base font-semibold text-foreground">
 									AWS Services
 								</h2>
-								<p className="text-xs text-gray-600">Drag to add to canvas</p>
+								<p className="text-xs text-muted-foreground">Drag to canvas</p>
 							</div>
 						</div>
 					</div>
 
 					{/* Services List */}
-					<div className="flex-1 overflow-y-auto bg-white hide-scrollbar">
+					<div className="flex-1 overflow-y-auto hide-scrollbar">
 						{categories.map((category) => {
 							const services = getServicesForCategory(category);
 							const isExpanded = expandedCategories.has(category);
+							const readyCount = services.filter(s => s.status === "ready").length;
 
 							return (
 								<div
 									key={category}
-									className="border-b border-gray-100 last:border-b-0"
+									className="border-b border-border last:border-b-0"
 								>
 									{/* Category Header */}
 									<button
 										onClick={() => toggleCategory(category)}
-										className="w-full flex items-center justify-between px-6 py-4 text-left hover:bg-gray-50 transition-colors"
+										className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-muted/50 transition-colors"
 									>
-										<div className="flex items-center space-x-3">
-											<div className="w-6 h-6 flex items-center justify-center">
+										<div className="flex items-center gap-3">
+											<div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center text-muted-foreground">
 												{getCategoryIcon(category)}
 											</div>
-											<span className="font-medium text-gray-900">
-												{category}
-											</span>
+											<div>
+												<span className="font-medium text-foreground text-sm">
+													{category}
+												</span>
+												{readyCount > 0 && (
+													<Badge variant="secondary" className="ml-2 h-5 px-1.5 text-[10px]">
+														{readyCount} ready
+													</Badge>
+												)}
+											</div>
 										</div>
-										<FiChevronDown
-											className={`h-4 w-4 text-gray-500 transition-transform ${
-												isExpanded ? "transform rotate-180" : ""
-											}`}
+										<ChevronDown
+											className={cn(
+												"h-4 w-4 text-muted-foreground transition-transform duration-200",
+												isExpanded && "rotate-180"
+											)}
 										/>
 									</button>
 
 									{/* Category Services */}
 									{isExpanded && (
-										<div className="px-6 pb-4">
+										<div className="px-4 pb-4">
 											{category === "Infrastructure" ? (
 												// Full-width layout for Infrastructure components
 												<div className="space-y-2">
 													{services.map((service) => (
 														<div
 															key={service.id}
-															draggable
+															draggable={service.status === "ready"}
 															onDragStart={(event) =>
 																onDragStart(event, service)
 															}
-															className={`flex items-center p-3 border rounded-lg cursor-move transition-colors group bg-white border-gray-200 hover:border-purple-300 hover:bg-purple-50 hover:shadow-sm ${
-																service.status === "in-development"
-																	? "opacity-50"
-																	: ""
-															}`}
+															className={cn(
+																"flex items-center p-3 border rounded-lg transition-all duration-200 group",
+																service.status === "ready"
+																	? "cursor-grab active:cursor-grabbing bg-card border-border hover:border-primary/50 hover:bg-primary/5 hover:shadow-sm"
+																	: "cursor-not-allowed bg-muted/30 border-border/50 opacity-50"
+															)}
 														>
-															<div className="relative w-10 h-10 mr-3 shrink-0">
+															<div className="relative h-9 w-9 mr-3 shrink-0 rounded-md bg-muted/50 p-1.5">
 																<Image
 																	src={service.icon}
 																	alt={service.name}
@@ -707,9 +724,19 @@ export default function ServicesSidebar({
 																	sizes="32px"
 																/>
 															</div>
-															<span className="text-sm text-gray-700 group-hover:text-purple-700 font-medium">
+															<span className={cn(
+																"text-sm font-medium transition-colors",
+																service.status === "ready"
+																	? "text-foreground group-hover:text-primary"
+																	: "text-muted-foreground"
+															)}>
 																{service.name}
 															</span>
+															{service.status === "in-development" && (
+																<Badge variant="outline" className="ml-auto text-[10px] h-5">
+																	Soon
+																</Badge>
+															)}
 														</div>
 													))}
 												</div>
@@ -719,17 +746,18 @@ export default function ServicesSidebar({
 													{services.map((service) => (
 														<div
 															key={service.id}
-															draggable
+															draggable={service.status === "ready"}
 															onDragStart={(event) =>
 																onDragStart(event, service)
 															}
-															className={`flex flex-col items-center p-3 border rounded-lg cursor-move transition-colors group bg-white border-gray-200 hover:border-blue-300 hover:bg-blue-50 hover:shadow-sm ${
-																service.status === "in-development"
-																	? "opacity-50"
-																	: ""
-															}`}
+															className={cn(
+																"flex flex-col items-center p-3 border rounded-lg transition-all duration-200 group",
+																service.status === "ready"
+																	? "cursor-grab active:cursor-grabbing bg-card border-border hover:border-primary/50 hover:bg-primary/5 hover:shadow-sm"
+																	: "cursor-not-allowed bg-muted/30 border-border/50 opacity-50"
+															)}
 														>
-															<div className="relative w-10 h-10 mb-2">
+															<div className="relative h-9 w-9 mb-2 rounded-md bg-muted/50 p-1">
 																<Image
 																	src={service.icon}
 																	alt={service.name}
@@ -739,15 +767,21 @@ export default function ServicesSidebar({
 																/>
 															</div>
 															<Tooltip>
-																<TooltipTrigger>
-																	<span className="text-xs text-center text-gray-800 group-hover:text-blue-700 leading-tight">
-																		{service.name.length > 7
-																			? `${service.name.slice(0, 7)}...`
+																<TooltipTrigger asChild>
+																	<span className={cn(
+																		"text-xs text-center leading-tight line-clamp-1 transition-colors",
+																		service.status === "ready"
+																			? "text-foreground group-hover:text-primary"
+																			: "text-muted-foreground"
+																	)}>
+																		{service.name.length > 8
+																			? `${service.name.slice(0, 8)}...`
 																			: service.name}
 																	</span>
 																</TooltipTrigger>
-																<TooltipContent side="bottom">
+																<TooltipContent side="bottom" className="text-xs">
 																	{service.name}
+																	{service.status === "in-development" && " (Coming soon)"}
 																</TooltipContent>
 															</Tooltip>
 														</div>
@@ -764,38 +798,27 @@ export default function ServicesSidebar({
 			</div>
 
 			{/* Toggle Button - Attached to sidebar edge */}
-			<button
+			<Button
+				variant="outline"
+				size="icon"
 				onClick={onToggle}
-				className={`fixed z-50 bg-white border border-gray-200 shadow-lg hover:bg-gray-50 transition-all duration-300 ease-in-out ${
-					isOpen
-						? "left-[340px] rounded-r-lg border-l-0"
-						: "left-0 rounded-r-lg"
-				}`}
+				className={cn(
+					"fixed z-50 h-12 w-6 rounded-r-lg rounded-l-none border-l-0 shadow-md transition-all duration-300 ease-in-out",
+					isOpen ? "left-[320px]" : "left-0"
+				)}
 				style={{
-					top: "calc(50vh + 2rem)",
+					top: "calc(50vh + 1.75rem)",
 					transform: "translateY(-50%)",
-					padding: "12px 4px",
-					borderTopLeftRadius: isOpen ? "0" : "0.5rem",
-					borderBottomLeftRadius: isOpen ? "0" : "0.5rem",
 				}}
 				aria-label="Toggle Services Sidebar"
 			>
-				<svg
-					className={`w-5 h-5 transition-transform duration-300 text-gray-600 ${
-						isOpen ? "rotate-180" : ""
-					}`}
-					fill="none"
-					stroke="currentColor"
-					viewBox="0 0 24 24"
-				>
-					<path
-						strokeLinecap="round"
-						strokeLinejoin="round"
-						strokeWidth={2}
-						d="M9 5l7 7-7 7"
-					/>
-				</svg>
-			</button>
+				<ChevronRight
+					className={cn(
+						"h-4 w-4 transition-transform duration-300",
+						isOpen && "rotate-180"
+					)}
+				/>
+			</Button>
 		</div>
 	);
 }

@@ -8,7 +8,9 @@ import SecurityGroupConfigurationForm from "./SecurityGroupConfigurationForm";
 import InternetGatewayConfigurationForm from "./InternetGatewayConfigurationForm";
 import NATGatewayConfigurationForm from "./NATGatewayConfigurationForm";
 import RouteTableConfigurationForm from "./RouteTableConfigurationForm";
+import DynamicConfigurationForm from "./DynamicConfigurationForm";
 
+// Legacy form map - use DynamicConfigurationForm for new resources
 const ConfigurationSidebarMap = {
 	VPCConfigurationForm,
 	EC2ConfigurationForm,
@@ -22,4 +24,4 @@ const ConfigurationSidebarMap = {
 	RouteTableConfigurationForm,
 };
 
-export { ConfigurationSidebarMap };
+export { ConfigurationSidebarMap, DynamicConfigurationForm };

@@ -95,6 +95,36 @@ interface ArchitectureActions {
 // Helper functions
 // Note: ID generation is handled by getNodeId() in nodeUtils.tsx
 
+/**
+ * Normalize resource type to canonical aws-prefixed format
+ * Ensures consistent naming across frontend and backend
+ */
+const normalizeResourceType = (resourceType: string): string => {
+	if (!resourceType) return "unknown";
+
+	let normalized = resourceType.toLowerCase().trim();
+
+	// Ensure aws- prefix for consistency
+	if (!normalized.startsWith("aws-")) {
+		normalized = `aws-${normalized}`;
+	}
+
+	return normalized;
+};
+
+/**
+ * Extract resource type from node data
+ */
+const getResourceType = (data: Record<string, unknown>): string => {
+	if (typeof data?.serviceId === "string") {
+		return normalizeResourceType(data.serviceId);
+	}
+	if (typeof data?.name === "string") {
+		return normalizeResourceType(data.name);
+	}
+	return "unknown";
+};
+
 // Convert ReactFlow nodes to ArchitectureResource format
 const convertReactFlowNodeToArchResource = (
 	node: Node,
@@ -106,12 +136,7 @@ const convertReactFlowNodeToArchResource = (
 		node_type: (node.type === "awsService"
 			? "aws_service"
 			: "aws_container") as "aws_service" | "aws_container",
-		resource_type:
-			typeof data?.serviceId === "string"
-				? data.serviceId
-				: typeof data?.name === "string"
-				? data.name.toLowerCase()
-				: "unknown",
+		resource_type: getResourceType(data),
 		name: typeof data?.name === "string" ? data.name : "Unnamed Service",
 		icon: typeof data?.icon === "string" ? data.icon : "",
 		position: node.position,

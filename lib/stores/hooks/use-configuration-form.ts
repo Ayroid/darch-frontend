@@ -1,17 +1,19 @@
-import { useCallback, useMemo } from 'react';
-import { useConfigurationStore } from '../configuration/configuration-store';
+import { useCallback, useMemo, useState } from 'react';
+import { useArchitectureStore } from '../architecture/architecture-store';
 import { useValidationStore } from '../validation/validation-store';
 
 /**
  * Custom hook for configuration forms to interact with the stores
+ * Uses the unified ArchitectureStore for configuration management
  */
 export const useConfigurationForm = (nodeId: string) => {
   const {
-    getNodeConfiguration,
-    updateNodeConfiguration,
-    setDraftConfiguration,
-    clearDraftConfiguration,
-  } = useConfigurationStore();
+    getResourceConfiguration,
+    updateResourceConfiguration,
+  } = useArchitectureStore();
+
+  // Draft configuration is now managed locally instead of in a separate store
+  const [draftConfiguration, setDraftConfigurationState] = useState<Record<string, unknown> | null>(null);
 
   const {
     validationErrors,
@@ -25,7 +27,7 @@ export const useConfigurationForm = (nodeId: string) => {
   } = useValidationStore();
 
   // Get current configuration for the node
-  const config = useMemo(() => getNodeConfiguration(nodeId) || {}, [getNodeConfiguration, nodeId]);
+  const config = useMemo(() => getResourceConfiguration(nodeId) || {}, [getResourceConfiguration, nodeId]);
 
   // Get validation errors for the node
   const errors = validationErrors[nodeId] || [];
@@ -33,13 +35,13 @@ export const useConfigurationForm = (nodeId: string) => {
 
   // Update a specific field in the configuration
   const updateField = useCallback((field: string, value: unknown) => {
-    updateNodeConfiguration(nodeId, { [field]: value });
-  }, [nodeId, updateNodeConfiguration]);
+    updateResourceConfiguration(nodeId, { [field]: value });
+  }, [nodeId, updateResourceConfiguration]);
 
   // Update multiple fields at once
   const updateFields = useCallback((updates: Record<string, unknown>) => {
-    updateNodeConfiguration(nodeId, updates);
-  }, [nodeId, updateNodeConfiguration]);
+    updateResourceConfiguration(nodeId, updates);
+  }, [nodeId, updateResourceConfiguration]);
 
   // Set validation errors for specific fields
   const setFieldValidationError = useCallback((field: string, error: string) => {
@@ -73,19 +75,20 @@ export const useConfigurationForm = (nodeId: string) => {
     return error;
   }, [nodeId, validateField, setFieldError, clearFieldError]);
 
-  // Draft operations
+  // Draft operations (now managed locally)
   const setDraft = useCallback((draftConfig: Record<string, unknown>) => {
-    setDraftConfiguration(draftConfig);
-  }, [setDraftConfiguration]);
+    setDraftConfigurationState(draftConfig);
+  }, []);
 
   const clearDraft = useCallback(() => {
-    clearDraftConfiguration();
-  }, [clearDraftConfiguration]);
+    setDraftConfigurationState(null);
+  }, []);
 
   return {
     config,
     errors,
     fieldErrors: nodeFieldErrors,
+    draftConfiguration,
     updateField,
     updateFields,
     setFieldValidationError,

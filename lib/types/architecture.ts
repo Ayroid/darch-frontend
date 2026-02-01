@@ -74,5 +74,5 @@ export interface ArchitectureMetadata {
   provider: string;
 }
 
-// Legacy type aliases for backward compatibility during transition
+// Type alias for consistency
 export type ArchitectureResource = ArchitectureNode;
